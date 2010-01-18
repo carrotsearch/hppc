@@ -245,6 +245,58 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
+     * of the following code:
+     * <pre>
+     * if (map.hasKey(key)) map.lset(value);
+     * </pre>
+     * 
+     * @param key The key of the value to check.
+     * @param value The value to put if <code>key</code> does not exist.
+     * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
+     * was placed in the map.
+     */
+    public final boolean putIfAbsent(KType key, VType value)
+    {
+        if (!hasKey(key))
+        {
+            put(key, value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
+     * of the following code:
+     * <pre>
+     * if (map.hasKey(key)) 
+     *    map.lset(map.lget() + additionValue);
+     * else
+     *    map.put(key, putValue);
+     * </pre>
+     * 
+     * @param key The key of the value to adjust.
+     * @param putValue The value to put if <code>key</code> does not exist.
+     * @param additionValue The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
+     */
+    /* replaceIf:primitiveVType
+    public final VType putOrAdd(KType key, VType putValue, VType additionValue)
+    {
+        if (hasKey(key))
+        {
+            return values[lastSlot] += additionValue;
+        }
+        else
+        {
+            put(key, putValue);
+            return putValue;
+        }
+    }
+    *//* end:replaceIf */
+
+    /**
      * Expand the internal storage buffers (capacity) or rehash current
      * keys and values if there are a lot of deleted slots.
      */

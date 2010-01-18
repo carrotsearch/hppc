@@ -18,6 +18,15 @@ public class ObjectObjectOpenHashMapTest
      */
     public ObjectObjectOpenHashMap<Object, Object> map;
 
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key1 = 1;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key2 = 2;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key3 = 3;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key4 = 4;
+
+    /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value1 = 1;
+    /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value2 = 2;
+    /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value3 = 3;
+
     /**
      * Require assertions for all tests.
      */
@@ -59,44 +68,33 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testPut()
     {
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key = 1;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value = 2;
+        map.put(key1, value1);
 
-        map.put(key, value);
-
-        assertTrue(map.containsKey(key));
-        assertEquals2(value, map.lget());
-        assertEquals2(value, map.get(key));
+        assertTrue(map.containsKey(key1));
+        assertEquals2(value1, map.lget());
+        assertEquals2(value1, map.get(key1));
     }
 
     /* */
     @Test
     public void testLPut()
     {
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key = 1;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value2 = 2;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value3 = 3;
-
-        map.put(key, value2);
-        if (map.containsKey(key))
+        map.put(key1, value2);
+        if (map.containsKey(key1))
             map.lset(value3);
 
-        assertTrue(map.containsKey(key));
+        assertTrue(map.containsKey(key1));
         assertEquals2(value3, map.lget());
-        assertEquals2(value3, map.get(key));
+        assertEquals2(value3, map.get(key1));
     }
 
     /* */
     @Test
     public void testPutOverExistingKey()
     {
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */   key = 1;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value = 2;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value3 = 3;
-
-        map.put(key, value);
-        assertEquals2(value, map.put(key, value3));
-        assertEquals2(value3, map.get(key));
+        map.put(key1, value1);
+        assertEquals2(value1, map.put(key1, value3));
+        assertEquals2(value3, map.get(key1));
     }
 
     /* */
@@ -125,13 +123,6 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testPutAll()
     {
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */ key1 = 1;
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */ key2 = 2;
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */ key3 = 3;
-
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value1 = 1;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value2 = 2;
-
         map.put(key1, value1);
         map.put(key2, value1);
 
@@ -154,14 +145,29 @@ public class ObjectObjectOpenHashMapTest
     
     /* */
     @Test
+    public void testPutIfAbsent()
+    {
+        assertTrue(map.putIfAbsent(key1, value1));
+        assertFalse(map.putIfAbsent(key1, value2));
+        assertEquals2(value1, map.get(key1));
+    }
+
+    /* replaceIf:primitiveVType
+    @Test
+    public void testPutOrAdd()
+    {
+        assertEquals2(value1, map.putOrAdd(key1, value1, value2));
+        assertEquals2(value1 + value2, map.putOrAdd(key1, value1, value2));
+    }
+    *//* end:replaceIf */
+
+    /* */
+    @Test
     public void testRemove()
     {
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key = 1;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value = 2;
-
-        map.put(key, value);
-        assertEquals2(value, map.remove(key));
-        assertEquals2(Intrinsics.defaultVTypeValue(), map.remove(key));
+        map.put(key1, value1);
+        assertEquals2(value1, map.remove(key1));
+        assertEquals2(Intrinsics.defaultVTypeValue(), map.remove(key1));
         assertEquals(0, map.size());
 
         // These are internals, but perhaps worth asserting too.
@@ -173,12 +179,6 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testRemoveAllIn()
     {
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key1 = 1;
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key2 = 2;
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key3 = 3;
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key4 = 4;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value1 = 1;
-
         map.put(key1, value1);
         map.put(key2, value1);
         map.put(key3, value1);
@@ -199,12 +199,8 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testClear()
     {
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key = 1;
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key2 = 2;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value = 2;
-
-        map.put(key, value);
-        map.put(key2, value);
+        map.put(key1, value1);
+        map.put(key2, value1);
         map.clear();
         assertEquals(0, map.size());
 
@@ -231,13 +227,6 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testIterable()
     {
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */   key1 = 1;
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */   key2 = 2;
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */   key3 = 3;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value1 = 11;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value2 = 12;
-        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value3 = 13;
-
         map.put(key1, value1);
         map.put(key2, value2);
         map.put(key3, value3);
@@ -271,12 +260,11 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testNullValue()
     {
-        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key = 10;
-        map.put(key, null);
-        assertEquals(null, map.get(key));
-        assertTrue(map.containsKey(key));
-        map.remove(key);
-        assertFalse(map.containsKey(key));
+        map.put(key1, null);
+        assertEquals(null, map.get(key1));
+        assertTrue(map.containsKey(key1));
+        map.remove(key1);
+        assertFalse(map.containsKey(key1));
         assertEquals(0, map.size());
     }
     /* end:removeIf */
