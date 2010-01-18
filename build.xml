@@ -1,0 +1,659 @@
+
+<project name="hppc" default="dist">
+
+    <property name="src.java" location="src/java" />
+    <property name="src.test" location="src/test" />
+    <property name="src.generated" location="src/generated" />
+
+	<property name="build.dir" location="tmp/build" />
+	<property name="tests.report.dir" location="tmp/test-report" />
+	<property name="benchmarks.report.dir" location="tmp/benchmark-report" />
+
+	<property file="hppc.version" />
+	<property name="dist.dir" location="dist" />
+	<property name="dist.name" value="hppc-${hppc.version}" />
+	
+	<property name="maxmem" value="-Xmx1024m" />
+
+	<!-- Compilation presets. -->
+	<presetdef name="javac">
+		<javac deprecation="true" debug="true" 
+			target="1.5" source="1.5" encoding="UTF-8" 
+			includeantruntime="false" optimize="true" />
+	</presetdef>
+
+
+	<!-- file and patternsets -->
+	<path id="lib.classpath">
+		<fileset dir="lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+    <patternset id="patterns.exclude.tests">
+        <exclude name="**/*Benchmark*" />
+        <exclude name="**/*Test*" />
+        <exclude name="**/RequireAssertionsRule*" />
+    	<exclude name="com/carrotsearch/tests/**" />
+    </patternset>
+
+	<filterchain id="filter.empty">
+	</filterchain>
+
+	<!-- Macros for the preprocessor. -->
+
+	<macrodef name="apply.filter">
+		<attribute name="filter1" />
+		<attribute name="filter2" default="filter.empty" />
+        <attribute name="filter3" default="filter.empty" />
+		<attribute name="filter4" default="filter.empty" />
+		<attribute name="fileset" />
+
+		<sequential>
+            <copy todir="${src.generated}" encoding="UTF-8" filtering="true" overwrite="true">
+                <path refid="@{fileset}" />
+                <mapper>
+                	<chainedmapper>
+                    	<filtermapper refid="@{filter1}" />
+                        <filtermapper refid="@{filter2}" />
+                        <filtermapper refid="@{filter3}" />
+                		<filtermapper refid="@{filter4}" />
+                	</chainedmapper>
+                </mapper>
+                <filterchain refid="@{filter1}" />
+            	<filterchain refid="@{filter2}" />
+            	<filterchain refid="@{filter3}" />
+            	<filterchain refid="@{filter4}" />
+            </copy>
+		</sequential>
+	</macrodef>
+
+    <macrodef name="declare.filter.common">
+        <attribute name="filterName" />
+
+        <sequential>
+        	<filterchain id="@{filterName}">
+                <!-- intrinsic:final → final -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="/\*\s*intrinsic:final\s*\*/" 
+                    replace=" final " />
+
+                <!-- /* replaceIf:primitive [...] */ ... /* end:replaceIf */ → 
+                     [...] (comment block content only) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(?:/\*\s*)(?:replaceIf:primitive\s)(.+?)(\*/)(.+?)(end:replaceIf)(\s*\*/)" 
+                    replace="/* replaceIf:applied. */ \1 /* end */" />
+
+                <!-- /* removeIf:primitive ... end:removeIf */ → (removed) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(/\*\s*)(removeIf:primitive\s)(.+?)(end:removeIf)(\s*\*/)" 
+                    replace="/* removeIf:applied. */" />
+        	</filterchain>
+        </sequential>
+    </macrodef>
+	
+	<macrodef name="declare.filter.ktype">
+		<attribute name="filterName" />
+		<attribute name="KType" />
+			
+		<sequential>
+			<filterchain id="@{filterName}">
+                <!-- intrinsic:ktypecast → (KType) -->
+                <replaceregex byline="false" flags="gm"
+                    pattern="/\*\s*intrinsic:ktypecast\s*\*/" 
+                    replace=" (@{KType}) " />
+    
+                <!-- /* replaceIf:primitiveKType [...] */ ... /* end:replaceIf */ → 
+                     [...] (comment block content only) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(?:/\*\s*)(?:replaceIf:primitiveKType)(.+?)(\*/)(.+?)(end:replaceIf)(\s*\*/)" 
+                    replace="/* replaceIf:applied. */ \1 /* end */" />
+    
+                <!-- /* removeIf:primitiveKType ... end:removeIf */ → (removed) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(/\*\s*)(removeIf:primitiveKType\s)(.+?)(end:removeIf)(\s*\*/)" 
+                    replace="/* removeIf:applied. */" />
+    
+                <!-- Intrinsics.newKTypeArray(size) → new KType [size] -->
+                <replaceregex byline="false" flags="gmi"
+                    pattern="(?:Intrinsics\s*\.)(?:&lt;[^&gt;]+&gt;)?(?:\s*newKTypeArray)(?:\()((\s|.)+?)(?:\))" 
+                    replace="new @{KType} [\1]" />
+    
+                <!-- Intrinsics.defaultKTypeValue() → ((KType) 0) -->
+                <replaceregex byline="false"  flags="gmi"
+                    pattern="(Intrinsics\s*\.)(&lt;[^&gt;]+&gt;)?(\s*)defaultKTypeValue\(\)" 
+                    replace="((@{KType}) 0)" />
+    
+                <replacestring from="KType"         to="@{KType}" />
+			</filterchain>
+		</sequential>
+	</macrodef>
+
+    <macrodef name="declare.filter.vtype">
+        <attribute name="filterName" />
+    	<attribute name="VType" />
+
+        <sequential>
+        	<filterchain id="@{filterName}">
+                <!-- intrinsic:vtypecast → (VType) -->
+                <replaceregex byline="false" flags="gm"
+                    pattern="/\*\s*intrinsic:vtypecast\s*\*/" 
+                    replace=" (@{VType}) " />
+    
+                <!-- /* replaceIf:primitiveVType [...] */ ... /* end:replaceIf */ → 
+                     [...] (comment block content only) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(?:/\*\s*)(?:replaceIf:primitiveVType)(.+?)(\*/)(.+?)(end:replaceIf)(\s*\*/)" 
+                    replace="/* replaceIf:applied. */ \1 /* end */" />
+    
+                <!-- /* removeIf:primitiveVType ... end:removeIf */ → (removed) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(/\*\s*)(removeIf:primitiveVType\s)(.+?)(end:removeIf)(\s*\*/)" 
+                    replace="/* removeIf:applied. */" />
+    
+                <!-- Intrinsics.newVTypeArray(size) → new VType [size] -->
+                <replaceregex byline="false" flags="gmi"
+                    pattern="(?:Intrinsics\s*\.\s*)?(?:newVTypeArray)(?:\()((\s|.)+?)(?:\))" 
+                    replace="new @{VType} [\1]" />
+    
+                <!-- Intrinsics.defaultVTypeValue() → ((VType) 0) -->
+                <replaceregex byline="false"  flags="gmi"
+                    pattern="(Intrinsics\s*\.)(&lt;[^&gt;]+&gt;)?(\s*)defaultVTypeValue\(\)" 
+                    replace="((@{VType}) 0)" />
+    
+                <replacestring from="VType"         to="@{VType}" />
+        	</filterchain>
+        </sequential>
+    </macrodef>
+	
+	<macrodef name="preprocess.KType">
+		<attribute name="KType" />
+		<attribute name="classPrefix" />
+		<attribute name="fileset" />
+
+		<sequential>
+			<declare.filter.common filterName="filter.common.@{KType}" />
+			<declare.filter.ktype  filterName="filter.ktype.@{KType}" KType="@{KType}" />
+
+			<filterchain id="filter.specific.@{KType}">
+                <!-- Replace template class declarations in tests and benchmarks. -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
+                    replace="@{classPrefix}\1" />
+
+                <!-- Intrinsics.equals(a, b) → (a == b) -->
+				<replaceregex byline="false"  flags="gmi" 
+					pattern="(?:Intrinsics\s*\.\s*equals\()(.+?)(?:,)(.+?)(?:\))" 
+					replace="\(\1 == \2\)" />
+
+                <!-- Replace generic argument (KType) references with the actual type. -->
+                <replacestring from="&lt;KType&gt;" to="" />
+			</filterchain>
+
+			<apply.filter 
+				fileset="@{fileset}"
+                filter1="filter.specific.@{KType}" 
+				filter2="filter.ktype.@{KType}"
+				filter3="filter.common.@{KType}"
+			/>
+		</sequential>
+	</macrodef>
+
+    <macrodef name="preprocess.KTypeVType">
+        <attribute name="KType" />
+    	<attribute name="KTypeHash" />
+    	<attribute name="VType" />
+        <attribute name="classPrefix" />
+        <attribute name="fileset" />
+
+        <sequential>
+            <declare.filter.common filterName="filter.common.@{KType}@{VType}" />
+        	<declare.filter.ktype  filterName="filter.ktype.@{KType}@{VType}" KType="@{KType}" />
+            <declare.filter.vtype  filterName="filter.vtype.@{KType}@{VType}" VType="@{VType}" />
+
+            <filterchain id="filter.specific.@{KType}@{VType}">
+            	<!-- Replace template class declarations in tests and benchmarks. -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)?" 
+                    replace="@{classPrefix}\1" />
+
+            	<!-- Replace generic argument (KType, VType) references with the actual type. -->
+                <replacestring from="&lt;KType, VType&gt;" to="" />
+
+            	<!-- Replace hash function references. -->
+            	<replacestring from="HashFunctionObject" to="@{KTypeHash}" />
+            </filterchain>
+
+            <apply.filter 
+                 fileset="@{fileset}"
+                 filter1="filter.specific.@{KType}@{VType}" 
+                 filter2="filter.ktype.@{KType}@{VType}"
+            	 filter3="filter.vtype.@{KType}@{VType}"
+        	     filter4="filter.common.@{KType}@{VType}"
+             />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="preprocess.GenericKType">
+        <attribute name="VType" />
+        <attribute name="classPrefix" />
+        <attribute name="fileset" />
+
+        <sequential>
+            <declare.filter.common filterName="filter.common.generic.@{VType}" />
+            <declare.filter.vtype  filterName="filter.vtype.generic.@{VType}" VType="@{VType}" />
+
+            <filterchain id="filter.specific.generic.@{VType}">
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    replace="\1 @{classPrefix}\2&lt;KType&gt;" />
+
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    replace="@{classPrefix}\1&lt;Object&gt;" />
+
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
+                    replace="@{classPrefix}\1" />
+            </filterchain>
+
+            <apply.filter 
+                 fileset="@{fileset}"
+                 filter1="filter.specific.generic.@{VType}"
+            	 filter2="filter.vtype.generic.@{VType}"
+                 filter3="filter.common.generic.@{VType}"
+             />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="preprocess.GenericVType">
+        <attribute name="KType" />
+        <attribute name="classPrefix" />
+        <attribute name="fileset" />
+
+        <sequential>
+            <declare.filter.common filterName="filter.common.@{KType}.generic" />
+            <declare.filter.ktype  filterName="filter.ktype.@{KType}.generic" KType="@{KType}" />
+
+        	<filterchain id="filter.specific.@{KType}.generic">
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    replace="\1 @{classPrefix}\2&lt;VType&gt;" />
+
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    replace="@{classPrefix}\1&lt;Object&gt;" />
+
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
+                    replace="@{classPrefix}\1" />
+            </filterchain>
+
+            <apply.filter 
+                 fileset="@{fileset}"
+                 filter1="filter.specific.@{KType}.generic"
+                 filter2="filter.ktype.@{KType}.generic"
+                 filter3="filter.common.@{KType}.generic"
+             />
+        </sequential>
+    </macrodef>
+
+	<!-- Generate sources from generic templates. -->
+	<target name="preprocess" description="Preprocess sources and generate versions for primitive types.">
+		<delete dir="${src.generated}" />
+		<mkdir dir="${src.generated}" />
+
+		<!--
+		Generate code for single-argument templates. 
+		-->
+		<path id="KType">
+            <fileset dir="${src.java}">
+                <include name="**/ObjectArrayList*.java" />
+                <include name="**/ObjectStack*.java" />
+            	<include name="**/ObjectCursor*.java" />
+                <include name="**/ObjectProcedure*.java" />
+                <include name="**/ObjectOpenHashSet*.java" />
+            	<include name="**/ObjectArrayDeque*.java" />
+            </fileset>
+            <fileset dir="${src.test}">
+                <include name="**/ObjectArrayList*.java" />
+                <include name="**/ObjectStack*.java" />
+                <include name="**/ObjectOpenHashSet*.java" />
+                <include name="**/ObjectArrayDeque*.java" />
+            </fileset>
+		</path>
+
+		<preprocess.KType KType="byte"   classPrefix="Byte"   fileset="KType" />
+		<preprocess.KType KType="short"  classPrefix="Short"  fileset="KType" />
+		<preprocess.KType KType="char"   classPrefix="Char"   fileset="KType" />
+		<preprocess.KType KType="int"    classPrefix="Int"    fileset="KType" />
+        <preprocess.KType KType="long"   classPrefix="Long"   fileset="KType" />
+        <preprocess.KType KType="float"  classPrefix="Float"  fileset="KType" />
+        <preprocess.KType KType="double" classPrefix="Double" fileset="KType" />
+
+
+        <!--
+        Generate code for double-argument templates. 
+        -->
+		<path id="KTypeVType">
+            <fileset dir="${src.java}">
+                <include name="**/ObjectObjectOpenHashMap*.java" />
+            	<include name="**/ObjectObjectCursor.java" />
+            	<include name="**/ObjectObjectProcedure.java" />
+            </fileset>
+            <fileset dir="${src.test}">
+                <include name="**/ObjectObjectOpenHashMapTest.java" />
+            </fileset>
+        </path>
+
+		<!-- I assume byte-key hash maps are of very limited use (you could use a table for this...), but anyway. -->
+        <preprocess.KTypeVType KType="byte"   VType="byte"   KTypeHash="HashFunctionByte" classPrefix="ByteByte"   fileset="KTypeVType" />
+		<preprocess.KTypeVType KType="byte"   VType="short"  KTypeHash="HashFunctionByte" classPrefix="ByteShort"  fileset="KTypeVType" />
+		<preprocess.KTypeVType KType="byte"   VType="char"   KTypeHash="HashFunctionByte" classPrefix="ByteChar"   fileset="KTypeVType" />
+		<preprocess.KTypeVType KType="byte"   VType="int"    KTypeHash="HashFunctionByte" classPrefix="ByteInt"    fileset="KTypeVType" />
+		<preprocess.KTypeVType KType="byte"   VType="long"   KTypeHash="HashFunctionByte" classPrefix="ByteLong"   fileset="KTypeVType" />
+		<preprocess.KTypeVType KType="byte"   VType="float"  KTypeHash="HashFunctionByte" classPrefix="ByteFloat"  fileset="KTypeVType" />
+		<preprocess.KTypeVType KType="byte"   VType="double" KTypeHash="HashFunctionByte" classPrefix="ByteDouble" fileset="KTypeVType" />
+
+        <!-- short-X. -->
+        <preprocess.KTypeVType KType="short"  VType="byte"   KTypeHash="HashFunctionShort" classPrefix="ShortByte"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="short"  KTypeHash="HashFunctionShort" classPrefix="ShortShort"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="char"   KTypeHash="HashFunctionShort" classPrefix="ShortChar"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="int"    KTypeHash="HashFunctionShort" classPrefix="ShortInt"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="long"   KTypeHash="HashFunctionShort" classPrefix="ShortLong"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="float"  KTypeHash="HashFunctionShort" classPrefix="ShortFloat"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="double" KTypeHash="HashFunctionShort" classPrefix="ShortDouble" fileset="KTypeVType" />
+
+        <!-- char-X. -->
+        <preprocess.KTypeVType KType="char"   VType="byte"   KTypeHash="HashFunctionChar" classPrefix="CharByte"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="short"  KTypeHash="HashFunctionChar" classPrefix="CharShort"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="char"   KTypeHash="HashFunctionChar" classPrefix="CharChar"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="int"    KTypeHash="HashFunctionChar" classPrefix="CharInt"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="long"   KTypeHash="HashFunctionChar" classPrefix="CharLong"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="float"  KTypeHash="HashFunctionChar" classPrefix="CharFloat"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="double" KTypeHash="HashFunctionChar" classPrefix="CharDouble" fileset="KTypeVType" />
+
+        <!-- int-X. -->
+        <preprocess.KTypeVType KType="int"    VType="byte"   KTypeHash="HashFunctionInt"  classPrefix="IntByte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="short"  KTypeHash="HashFunctionInt"  classPrefix="IntShort"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="char"   KTypeHash="HashFunctionInt"  classPrefix="IntChar"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="int"    KTypeHash="HashFunctionInt"  classPrefix="IntInt"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="long"   KTypeHash="HashFunctionInt"  classPrefix="IntLong"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="float"  KTypeHash="HashFunctionInt"  classPrefix="IntFloat"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="double" KTypeHash="HashFunctionInt"  classPrefix="IntDouble"  fileset="KTypeVType" />
+
+        <!-- long-X. -->
+        <preprocess.KTypeVType KType="long"   VType="byte"   KTypeHash="HashFunctionLong" classPrefix="LongByte"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="short"  KTypeHash="HashFunctionLong" classPrefix="LongShort"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="char"   KTypeHash="HashFunctionLong" classPrefix="LongChar"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="int"    KTypeHash="HashFunctionLong" classPrefix="LongInt"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="long"   KTypeHash="HashFunctionLong" classPrefix="LongLong"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="float"  KTypeHash="HashFunctionLong" classPrefix="LongFloat"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="double" KTypeHash="HashFunctionLong" classPrefix="LongDouble" fileset="KTypeVType" />
+
+        <!-- float-X. -->
+        <preprocess.KTypeVType KType="float"  VType="byte"   KTypeHash="HashFunctionFloat" classPrefix="FloatByte"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="short"  KTypeHash="HashFunctionFloat" classPrefix="FloatShort"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="char"   KTypeHash="HashFunctionFloat" classPrefix="FloatChar"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="int"    KTypeHash="HashFunctionFloat" classPrefix="FloatInt"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="long"   KTypeHash="HashFunctionFloat" classPrefix="FloatLong"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="float"  KTypeHash="HashFunctionFloat" classPrefix="FloatFloat"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="double" KTypeHash="HashFunctionFloat" classPrefix="FloatDouble" fileset="KTypeVType" />
+
+        <!-- double-X. -->
+        <preprocess.KTypeVType KType="double"  VType="byte"   KTypeHash="HashFunctionDouble" classPrefix="DoubleByte"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double"  VType="short"  KTypeHash="HashFunctionDouble" classPrefix="DoubleShort"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double"  VType="char"   KTypeHash="HashFunctionDouble" classPrefix="DoubleChar"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double"  VType="int"    KTypeHash="HashFunctionDouble" classPrefix="DoubleInt"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double"  VType="long"   KTypeHash="HashFunctionDouble" classPrefix="DoubleLong"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double"  VType="float"  KTypeHash="HashFunctionDouble" classPrefix="DoubleFloat"  fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double"  VType="double" KTypeHash="HashFunctionDouble" classPrefix="DoubleDouble" fileset="KTypeVType" />
+
+        <!-- KType-X (generic key). -->
+        <preprocess.GenericKType VType="byte"   classPrefix="ObjectByte"   fileset="KTypeVType" />
+        <preprocess.GenericKType VType="short"  classPrefix="ObjectShort"  fileset="KTypeVType" />
+        <preprocess.GenericKType VType="char"   classPrefix="ObjectChar"   fileset="KTypeVType" />
+        <preprocess.GenericKType VType="int"    classPrefix="ObjectInt"    fileset="KTypeVType" />
+        <preprocess.GenericKType VType="long"   classPrefix="ObjectLong"   fileset="KTypeVType" />
+        <preprocess.GenericKType VType="float"  classPrefix="ObjectFloat"  fileset="KTypeVType" />
+        <preprocess.GenericKType VType="double" classPrefix="ObjectDouble" fileset="KTypeVType" />
+
+        <!-- X-KType (generic value). -->
+        <preprocess.GenericVType KType="byte"   classPrefix="ByteObject"   fileset="KTypeVType" />
+        <preprocess.GenericVType KType="short"  classPrefix="ShortObject"  fileset="KTypeVType" />
+        <preprocess.GenericVType KType="char"   classPrefix="CharObject"   fileset="KTypeVType" />
+        <preprocess.GenericVType KType="int"    classPrefix="IntObject"    fileset="KTypeVType" />
+        <preprocess.GenericVType KType="long"   classPrefix="LongObject"   fileset="KTypeVType" />
+        <preprocess.GenericVType KType="float"  classPrefix="FloatObject"  fileset="KTypeVType" />
+        <preprocess.GenericVType KType="double" classPrefix="DoubleObject" fileset="KTypeVType" />
+	</target>
+
+
+	<!-- -->
+	<target name="compile" depends="preprocess">
+		<mkdir dir="${build.dir}" />
+
+		<!-- Library code and generated code. -->
+		<javac destdir="${build.dir}">
+			<src location="${src.java}" />
+            <src location="${src.generated}" />
+		    <src location="${src.test}" />
+
+            <classpath refid="lib.classpath" />
+		</javac>
+	</target>
+
+
+    <!-- -->
+    <target name="jar" depends="clean, compile" description="Compile library JAR.">
+    	<mkdir dir="${dist.dir}" />
+    	<jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
+    		<fileset dir="${build.dir}">
+    			<patternset refid="patterns.exclude.tests" />
+    		</fileset>
+    	</jar>
+    </target>
+
+
+	<!-- -->
+	<target name="javadoc" description="Generate API documentation.">
+        <javadoc destdir="${dist.dir}/api"
+                 access="protected"
+                 version="true"
+                 use="false"
+                 encoding="UTF-8"
+                 docencoding="UTF-8"
+                 windowtitle="HPPC v${hppc.version} API Documentation (JavaDoc)"
+                 doctitle="HPPC v${hppc.version} API Documentation"
+                 header="High Performance Primitive Collections (HPPC) v${hppc.version} &lt;br&gt;API Documentation&lt;/div&gt;"
+                 overview="${src.java}/com/carrotsearch/hppc/package.html"
+                 failonerror="true"
+                 stylesheetfile="etc/stylesheet.css"
+                 useexternalfile="true">
+
+          <sourcefiles>
+            <fileset dir="${src.java}">
+            	<include name="**/*.java" />
+                <patternset refid="patterns.exclude.tests" />
+            </fileset>
+            <fileset dir="${src.generated}">
+                <include name="**/*.java" />
+                <patternset refid="patterns.exclude.tests" />
+            </fileset>
+          </sourcefiles>
+
+          <link href="http://java.sun.com/javase/6/docs/api/" />
+
+          <group title="HPPC Core" packages="com.carrotsearch.hppc*" />
+
+          <arg value="-quiet" />
+        </javadoc>
+
+        <copy todir="${dist.dir}/api" flatten="true">
+            <fileset dir="${src.java}" includes="**/*.css" />
+        </copy>
+	</target>
+
+	
+    <!-- -->
+    <target name="dist" depends="jar, javadoc" description="Assemble full distribution.">
+	    <copy todir="${dist.dir}" flatten="true">
+            <fileset dir="." includes="*.LICENSE" />
+    	</copy>
+    </target>
+
+
+	<!-- -->
+	<target name="test" depends="compile" description="Run tests.">
+		<mkdir dir="${tests.report.dir}" />
+
+	    <junit fork="true"
+	           forkmode="once"
+	           printsummary="on"
+	           errorproperty="junit.error"
+	           failureproperty="junit.failure"
+	    >
+	      <jvmarg value="-ea" />
+	      <jvmarg value="${maxmem}" />
+
+	      <!-- Run benchmarks as tests, but don't repeat. -->
+          <jvmarg value="-Drounds.warmup=0" />
+          <jvmarg value="-Drounds.benchmark=1" />
+          <jvmarg value="-Dignore.callgc=true" />
+	  <jvmarg value="-Dignore.annotation.options=true" />
+
+	  <formatter type="xml" />
+
+          <classpath refid="lib.classpath" />
+          <classpath location="${build.dir}" />
+
+	      <batchtest todir="${tests.report.dir}">
+	        <fileset dir="${build.dir}">
+	          <include name="**/*Test.class" />
+	          <include name="**/*Benchmark.class" />
+	          <exclude name="**/Abstract*" />
+	        </fileset>
+	      </batchtest>
+	    </junit>
+
+	    <junitreport todir="${tests.report.dir}">
+	      <fileset dir="${tests.report.dir}">
+	        <include name="TEST-*.xml" />
+	      </fileset>
+	      <report format="frames" todir="${tests.report.dir}" />
+	    </junitreport>
+
+	    <condition property="tests.failed" value="true">
+	      <or>
+	        <isset property="junit.error" />
+	        <isset property="junit.failure" />
+	      </or>
+	    </condition>
+	    <fail message="Tests failed. See ${tests.report.dir} for report." if="tests.failed" /> 
+	</target>
+
+	
+    <!-- -->
+    <target name="benchmark" depends="compile" description="Run benchmarks.">
+        <mkdir dir="${benchmarks.report.dir}" />
+
+        <junit fork="true"
+               forkmode="once"
+               printsummary="on"
+               errorproperty="benchmarks.error"
+               failureproperty="benchmarks.error"
+        >
+          <jvmarg value="${maxmem}" />
+          <jvmarg value="-server" />
+          <jvmarg value="-da" />
+
+          <!--
+          <jvmarg value="-Drounds.warmup=0" />
+          <jvmarg value="-Drounds.benchmark=1" />
+          <jvmarg value="-Dignore.callgc=true" />
+          <jvmarg value="-Dignore.annotation.options=true" />
+          -->
+
+          <formatter type="xml" />
+
+          <classpath refid="lib.classpath" />
+          <classpath location="${build.dir}" />
+
+          <batchtest todir="${benchmarks.report.dir}">
+            <fileset dir="${build.dir}">
+              <include name="**/*Benchmark.class" />
+              <exclude name="**/Abstract*" />
+            </fileset>
+          </batchtest>
+        </junit>
+
+        <junitreport todir="${benchmarks.report.dir}">
+          <fileset dir="${benchmarks.report.dir}">
+            <include name="TEST-*.xml" />
+          </fileset>
+          <report format="frames" todir="${benchmarks.report.dir}" />
+        </junitreport>
+
+        <fail message="Benchmarks failed. See ${benchmarks.report.dir} for report." 
+        	if="benchmarks.error" />
+
+        <xslt style="etc/benchmarks.xsl" 
+            destdir="${benchmarks.report.dir}/benchmarks"
+            basedir="${benchmarks.report.dir}"
+            includes="TEST-*.xml">
+            <mapper type="glob" from="TEST-com.carrotsearch.hppc.*.xml" to="*.txt"/>
+        </xslt>
+
+        <concat destfile="${benchmarks.report.dir}/results.txt">
+          <header filtering="no" trimleading="yes">
+          Benchmark results (selected)
+          ============================
+
+          </header>
+
+          <resources><string value="Object stacks&#x0a;&#x0a;"/></resources>
+          <path>
+            <pathelement location="${benchmarks.report.dir}/benchmarks/ObjectStackBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/ArrayDequeBenchmark.txt" />
+          </path>
+
+          <resources><string value="&#x0a;&#x0a;Primitive stacks&#x0a;&#x0a;"/></resources>
+          <path>
+            <pathelement location="${benchmarks.report.dir}/benchmarks/ByteStackBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/ShortStackBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/CharStackBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/IntStackBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/FloatStackBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/LongStackBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/DoubleStackBenchmark.txt" />
+          </path>
+        	
+          <resources><string value="&#x0a;&#x0a;Iteration strategies&#x0a;&#x0a;"/></resources>
+          <path>
+            <pathelement location="${benchmarks.report.dir}/benchmarks/ByteArrayListBenchmark.txt" />
+          </path>
+          <resources><string value="&#x0a;"/></resources>
+          <path>
+          	<pathelement location="${benchmarks.report.dir}/benchmarks/LongArrayListBenchmark.txt" />
+          </path>
+          <resources><string value="&#x0a;"/></resources>
+          <path>
+            <pathelement location="${benchmarks.report.dir}/benchmarks/ObjectArrayListBenchmark.txt" />
+          </path>
+
+          <resources><string value="&#x0a;&#x0a;Bit sets&#x0a;&#x0a;"/></resources>
+          <path>
+            <pathelement location="${benchmarks.report.dir}/benchmarks/BitSetBenchmark.txt" />
+          </path>
+        </concat>
+
+        <concat><path><pathelement location="${benchmarks.report.dir}/results.txt" /></path></concat>
+    </target>
+
+
+	<!-- -->
+	<target name="clean">
+		<delete dir="tmp" excludes="eclipse/**" />
+		<delete dir="${src.generated}" includes="**/*" />
+	</target>
+</project>
