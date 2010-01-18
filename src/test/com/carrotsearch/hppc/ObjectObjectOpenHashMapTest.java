@@ -183,12 +183,16 @@ public class ObjectObjectOpenHashMapTest
         map.put(key2, value1);
         map.put(key3, value1);
 
+        /* replaceIf:primitiveKType 
+           // TODO: temporarily not available in the primitive version.
+         */
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
         list2.addv(newArray(list2.buffer, key2, key3, key4));
 
         map.removeAllKeysIn(list2);
         assertEquals(1, map.size());
         assertTrue(map.containsKey(key1));
+        /* end:replaceIf */
     }
 
     /* */

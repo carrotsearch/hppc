@@ -167,8 +167,8 @@
     </macrodef>
 	
 	<macrodef name="preprocess.KType">
-		<attribute name="KType" />
-		<attribute name="classPrefix" />
+		<attribute name="KType" />  <!-- Primitive type. -->
+		<attribute name="UKType" /> <!-- Uppercase (boxed) type. -->
 		<attribute name="fileset" />
 
 		<sequential>
@@ -179,7 +179,7 @@
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
-                    replace="@{classPrefix}\1" />
+                    replace="@{UKType}\1" />
 
                 <!-- Intrinsics.equals(a, b) → (a == b) -->
 				<replaceregex byline="false"  flags="gmi" 
@@ -201,9 +201,9 @@
 
     <macrodef name="preprocess.KTypeVType">
         <attribute name="KType" />
-    	<attribute name="KTypeHash" />
-    	<attribute name="VType" />
-        <attribute name="classPrefix" />
+        <attribute name="UKType" />
+        <attribute name="VType" />
+    	<attribute name="UVType" />
         <attribute name="fileset" />
 
         <sequential>
@@ -215,13 +215,18 @@
             	<!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)?" 
-                    replace="@{classPrefix}\1" />
+                    replace="@{UKType}@{UVType}\1" />
+
+                <!-- Replace cursors -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:Object)(Cursor)(&lt;[^&gt;]+&gt;)" 
+                    replace="@{UKType}\1" />
 
             	<!-- Replace generic argument (KType, VType) references with the actual type. -->
                 <replacestring from="&lt;KType, VType&gt;" to="" />
 
             	<!-- Replace hash function references. -->
-            	<replacestring from="HashFunctionObject" to="@{KTypeHash}" />
+            	<replacestring from="HashFunctionObject" to="HashFunction@{UKType}" />
             </filterchain>
 
             <apply.filter 
@@ -236,7 +241,7 @@
 
     <macrodef name="preprocess.GenericKType">
         <attribute name="VType" />
-        <attribute name="classPrefix" />
+        <attribute name="UVType" />
         <attribute name="fileset" />
 
         <sequential>
@@ -246,19 +251,19 @@
             <filterchain id="filter.specific.generic.@{VType}">
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
-                    replace="\1 @{classPrefix}\2&lt;KType&gt;" />
+                    replace="\1 Object@{UVType}\2&lt;KType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
-                    replace="@{classPrefix}\1&lt;KType&gt;" />
+                    replace="Object@{UVType}\1&lt;KType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
-                    replace="@{classPrefix}\1&lt;Object&gt;" />
+                    replace="Object@{UVType}\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
-                    replace="@{classPrefix}\1" />
+                    replace="Object@{UVType}\1" />
             </filterchain>
 
             <apply.filter 
@@ -272,7 +277,7 @@
 
     <macrodef name="preprocess.GenericVType">
         <attribute name="KType" />
-        <attribute name="classPrefix" />
+        <attribute name="UKType" />
         <attribute name="fileset" />
 
         <sequential>
@@ -280,21 +285,26 @@
             <declare.filter.ktype  filterName="filter.ktype.@{KType}.generic" KType="@{KType}" />
 
         	<filterchain id="filter.specific.@{KType}.generic">
+                <!-- Replace cursors -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?&lt;!Object)(?:Object)(Cursor)(&lt;[^&gt;]+&gt;)" 
+                    replace="@{UKType}\1" />
+
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
-                    replace="\1 @{classPrefix}\2&lt;VType&gt;" />
+                    replace="\1 @{UKType}Object\2&lt;VType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
-                    replace="@{classPrefix}\1&lt;VType&gt;" />
+                    replace="@{UKType}Object\1&lt;VType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
-                    replace="@{classPrefix}\1&lt;Object&gt;" />
+                    replace="@{UKType}Object\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
-                    replace="@{classPrefix}\1" />
+                    replace="@{UKType}Object\1" />
             </filterchain>
 
             <apply.filter 
@@ -331,13 +341,13 @@
             </fileset>
 		</path>
 
-		<preprocess.KType KType="byte"   classPrefix="Byte"   fileset="KType" />
-		<preprocess.KType KType="short"  classPrefix="Short"  fileset="KType" />
-		<preprocess.KType KType="char"   classPrefix="Char"   fileset="KType" />
-		<preprocess.KType KType="int"    classPrefix="Int"    fileset="KType" />
-        <preprocess.KType KType="long"   classPrefix="Long"   fileset="KType" />
-        <preprocess.KType KType="float"  classPrefix="Float"  fileset="KType" />
-        <preprocess.KType KType="double" classPrefix="Double" fileset="KType" />
+		<preprocess.KType KType="byte"   UKType="Byte"   fileset="KType" />
+		<preprocess.KType KType="short"  UKType="Short"  fileset="KType" />
+		<preprocess.KType KType="char"   UKType="Char"   fileset="KType" />
+		<preprocess.KType KType="int"    UKType="Int"    fileset="KType" />
+        <preprocess.KType KType="long"   UKType="Long"   fileset="KType" />
+        <preprocess.KType KType="float"  UKType="Float"  fileset="KType" />
+        <preprocess.KType KType="double" UKType="Double" fileset="KType" />
 
 
         <!--
@@ -354,86 +364,86 @@
             </fileset>
         </path>
 
-		<!-- I assume byte-key hash maps are of very limited use (you could use a table for this...), but anyway. -->
-        <preprocess.KTypeVType KType="byte"   VType="byte"   KTypeHash="HashFunctionByte" classPrefix="ByteByte"   fileset="KTypeVType" />
-		<preprocess.KTypeVType KType="byte"   VType="short"  KTypeHash="HashFunctionByte" classPrefix="ByteShort"  fileset="KTypeVType" />
-		<preprocess.KTypeVType KType="byte"   VType="char"   KTypeHash="HashFunctionByte" classPrefix="ByteChar"   fileset="KTypeVType" />
-		<preprocess.KTypeVType KType="byte"   VType="int"    KTypeHash="HashFunctionByte" classPrefix="ByteInt"    fileset="KTypeVType" />
-		<preprocess.KTypeVType KType="byte"   VType="long"   KTypeHash="HashFunctionByte" classPrefix="ByteLong"   fileset="KTypeVType" />
-		<preprocess.KTypeVType KType="byte"   VType="float"  KTypeHash="HashFunctionByte" classPrefix="ByteFloat"  fileset="KTypeVType" />
-		<preprocess.KTypeVType KType="byte"   VType="double" KTypeHash="HashFunctionByte" classPrefix="ByteDouble" fileset="KTypeVType" />
-
-        <!-- short-X. -->
-        <preprocess.KTypeVType KType="short"  VType="byte"   KTypeHash="HashFunctionShort" classPrefix="ShortByte"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="short"  KTypeHash="HashFunctionShort" classPrefix="ShortShort"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="char"   KTypeHash="HashFunctionShort" classPrefix="ShortChar"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="int"    KTypeHash="HashFunctionShort" classPrefix="ShortInt"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="long"   KTypeHash="HashFunctionShort" classPrefix="ShortLong"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="float"  KTypeHash="HashFunctionShort" classPrefix="ShortFloat"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="double" KTypeHash="HashFunctionShort" classPrefix="ShortDouble" fileset="KTypeVType" />
-
-        <!-- char-X. -->
-        <preprocess.KTypeVType KType="char"   VType="byte"   KTypeHash="HashFunctionChar" classPrefix="CharByte"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="short"  KTypeHash="HashFunctionChar" classPrefix="CharShort"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="char"   KTypeHash="HashFunctionChar" classPrefix="CharChar"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="int"    KTypeHash="HashFunctionChar" classPrefix="CharInt"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="long"   KTypeHash="HashFunctionChar" classPrefix="CharLong"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="float"  KTypeHash="HashFunctionChar" classPrefix="CharFloat"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="double" KTypeHash="HashFunctionChar" classPrefix="CharDouble" fileset="KTypeVType" />
-
-        <!-- int-X. -->
-        <preprocess.KTypeVType KType="int"    VType="byte"   KTypeHash="HashFunctionInt"  classPrefix="IntByte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="short"  KTypeHash="HashFunctionInt"  classPrefix="IntShort"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="char"   KTypeHash="HashFunctionInt"  classPrefix="IntChar"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="int"    KTypeHash="HashFunctionInt"  classPrefix="IntInt"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="long"   KTypeHash="HashFunctionInt"  classPrefix="IntLong"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="float"  KTypeHash="HashFunctionInt"  classPrefix="IntFloat"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="double" KTypeHash="HashFunctionInt"  classPrefix="IntDouble"  fileset="KTypeVType" />
-
-        <!-- long-X. -->
-        <preprocess.KTypeVType KType="long"   VType="byte"   KTypeHash="HashFunctionLong" classPrefix="LongByte"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="short"  KTypeHash="HashFunctionLong" classPrefix="LongShort"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="char"   KTypeHash="HashFunctionLong" classPrefix="LongChar"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="int"    KTypeHash="HashFunctionLong" classPrefix="LongInt"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="long"   KTypeHash="HashFunctionLong" classPrefix="LongLong"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="float"  KTypeHash="HashFunctionLong" classPrefix="LongFloat"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="double" KTypeHash="HashFunctionLong" classPrefix="LongDouble" fileset="KTypeVType" />
-
-        <!-- float-X. -->
-        <preprocess.KTypeVType KType="float"  VType="byte"   KTypeHash="HashFunctionFloat" classPrefix="FloatByte"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="short"  KTypeHash="HashFunctionFloat" classPrefix="FloatShort"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="char"   KTypeHash="HashFunctionFloat" classPrefix="FloatChar"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="int"    KTypeHash="HashFunctionFloat" classPrefix="FloatInt"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="long"   KTypeHash="HashFunctionFloat" classPrefix="FloatLong"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="float"  KTypeHash="HashFunctionFloat" classPrefix="FloatFloat"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="double" KTypeHash="HashFunctionFloat" classPrefix="FloatDouble" fileset="KTypeVType" />
-
-        <!-- double-X. -->
-        <preprocess.KTypeVType KType="double"  VType="byte"   KTypeHash="HashFunctionDouble" classPrefix="DoubleByte"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double"  VType="short"  KTypeHash="HashFunctionDouble" classPrefix="DoubleShort"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double"  VType="char"   KTypeHash="HashFunctionDouble" classPrefix="DoubleChar"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double"  VType="int"    KTypeHash="HashFunctionDouble" classPrefix="DoubleInt"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double"  VType="long"   KTypeHash="HashFunctionDouble" classPrefix="DoubleLong"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double"  VType="float"  KTypeHash="HashFunctionDouble" classPrefix="DoubleFloat"  fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double"  VType="double" KTypeHash="HashFunctionDouble" classPrefix="DoubleDouble" fileset="KTypeVType" />
+        <!-- I assume byte-key hash maps are of very limited use (you could use a table for this...), but anyway. -->
+        <preprocess.KTypeVType KType="byte"   VType="byte"    UKType="Byte"   UVType="Byte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="byte"   VType="short"   UKType="Byte"   UVType="Short"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="byte"   VType="char"    UKType="Byte"   UVType="Char"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="byte"   VType="int"     UKType="Byte"   UVType="Int"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="byte"   VType="long"    UKType="Byte"   UVType="Long"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="byte"   VType="float"   UKType="Byte"   UVType="Float"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="byte"   VType="double"  UKType="Byte"   UVType="Double"  fileset="KTypeVType" />
+                                                                             
+        <!-- short-X. -->                                                    
+        <preprocess.KTypeVType KType="short"  VType="byte"    UKType="Short"  UVType="Byte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="short"   UKType="Short"  UVType="Short"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="char"    UKType="Short"  UVType="Char"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="int"     UKType="Short"  UVType="Int"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="long"    UKType="Short"  UVType="Long"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="float"   UKType="Short"  UVType="Float"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="short"  VType="double"  UKType="Short"  UVType="Double"  fileset="KTypeVType" />
+                                                                             
+        <!-- char-X. -->                                                     
+        <preprocess.KTypeVType KType="char"   VType="byte"    UKType="Char"   UVType="Byte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="short"   UKType="Char"   UVType="Short"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="char"    UKType="Char"   UVType="Char"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="int"     UKType="Char"   UVType="Int"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="long"    UKType="Char"   UVType="Long"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="float"   UKType="Char"   UVType="Float"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="char"   VType="double"  UKType="Char"   UVType="Double"  fileset="KTypeVType" />
+                                                                              
+        <!-- int-X. -->                                                       
+        <preprocess.KTypeVType KType="int"    VType="byte"    UKType="Int"    UVType="Byte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="short"   UKType="Int"    UVType="Short"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="char"    UKType="Int"    UVType="Char"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="int"     UKType="Int"    UVType="Int"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="long"    UKType="Int"    UVType="Long"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="float"   UKType="Int"    UVType="Float"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="int"    VType="double"  UKType="Int"    UVType="Double"  fileset="KTypeVType" />
+                                                                             
+        <!-- long-X. -->                                                     
+        <preprocess.KTypeVType KType="long"   VType="byte"    UKType="Long"   UVType="Byte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="short"   UKType="Long"   UVType="Short"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="char"    UKType="Long"   UVType="Char"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="int"     UKType="Long"   UVType="Int"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="long"    UKType="Long"   UVType="Long"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="float"   UKType="Long"   UVType="Float"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="long"   VType="double"  UKType="Long"   UVType="Double"  fileset="KTypeVType" />
+                                                                             
+        <!-- float-X. -->                                                    
+        <preprocess.KTypeVType KType="float"  VType="byte"    UKType="Float"  UVType="Byte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="short"   UKType="Float"  UVType="Short"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="char"    UKType="Float"  UVType="Char"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="int"     UKType="Float"  UVType="Int"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="long"    UKType="Float"  UVType="Long"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="float"   UKType="Float"  UVType="Float"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="float"  VType="double"  UKType="Float"  UVType="Double"  fileset="KTypeVType" />
+                                                                             
+        <!-- double-X. -->                                                   
+        <preprocess.KTypeVType KType="double" VType="byte"    UKType="Double" UVType="Byte"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double" VType="short"   UKType="Double" UVType="Short"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double" VType="char"    UKType="Double" UVType="Char"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double" VType="int"     UKType="Double" UVType="Int"     fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double" VType="long"    UKType="Double" UVType="Long"    fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double" VType="float"   UKType="Double" UVType="Float"   fileset="KTypeVType" />
+        <preprocess.KTypeVType KType="double" VType="double"  UKType="Double" UVType="Double"  fileset="KTypeVType" />  
 
         <!-- KType-X (generic key). -->
-        <preprocess.GenericKType VType="byte"   classPrefix="ObjectByte"   fileset="KTypeVType" />
-        <preprocess.GenericKType VType="short"  classPrefix="ObjectShort"  fileset="KTypeVType" />
-        <preprocess.GenericKType VType="char"   classPrefix="ObjectChar"   fileset="KTypeVType" />
-        <preprocess.GenericKType VType="int"    classPrefix="ObjectInt"    fileset="KTypeVType" />
-        <preprocess.GenericKType VType="long"   classPrefix="ObjectLong"   fileset="KTypeVType" />
-        <preprocess.GenericKType VType="float"  classPrefix="ObjectFloat"  fileset="KTypeVType" />
-        <preprocess.GenericKType VType="double" classPrefix="ObjectDouble" fileset="KTypeVType" />
+        <preprocess.GenericKType VType="byte"   UVType="Byte"   fileset="KTypeVType" />
+        <preprocess.GenericKType VType="short"  UVType="Short"  fileset="KTypeVType" />
+        <preprocess.GenericKType VType="char"   UVType="Char"   fileset="KTypeVType" />
+        <preprocess.GenericKType VType="int"    UVType="Int"    fileset="KTypeVType" />
+        <preprocess.GenericKType VType="long"   UVType="Long"   fileset="KTypeVType" />
+        <preprocess.GenericKType VType="float"  UVType="Float"  fileset="KTypeVType" />
+        <preprocess.GenericKType VType="double" UVType="Double" fileset="KTypeVType" />
 
         <!-- X-KType (generic value). -->
-        <preprocess.GenericVType KType="byte"   classPrefix="ByteObject"   fileset="KTypeVType" />
-        <preprocess.GenericVType KType="short"  classPrefix="ShortObject"  fileset="KTypeVType" />
-        <preprocess.GenericVType KType="char"   classPrefix="CharObject"   fileset="KTypeVType" />
-        <preprocess.GenericVType KType="int"    classPrefix="IntObject"    fileset="KTypeVType" />
-        <preprocess.GenericVType KType="long"   classPrefix="LongObject"   fileset="KTypeVType" />
-        <preprocess.GenericVType KType="float"  classPrefix="FloatObject"  fileset="KTypeVType" />
-        <preprocess.GenericVType KType="double" classPrefix="DoubleObject" fileset="KTypeVType" />
+        <preprocess.GenericVType KType="byte"   UKType="Byte"   fileset="KTypeVType" />
+        <preprocess.GenericVType KType="short"  UKType="Short"  fileset="KTypeVType" />
+        <preprocess.GenericVType KType="char"   UKType="Char"   fileset="KTypeVType" />
+        <preprocess.GenericVType KType="int"    UKType="Int"    fileset="KTypeVType" />
+        <preprocess.GenericVType KType="long"   UKType="Long"   fileset="KTypeVType" />
+        <preprocess.GenericVType KType="float"  UKType="Float"  fileset="KTypeVType" />
+        <preprocess.GenericVType KType="double" UKType="Double" fileset="KTypeVType" />
 	</target>
 
 
