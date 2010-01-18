@@ -120,6 +120,20 @@ public class ObjectOpenHashSetTest<KType>
 
     /* */
     @Test
+    public void testRemoveAllIn()
+    {
+        set.addv(newArray(set.keys, 0, 1, 2));
+        
+        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
+        list2.addv(newArray(list2.buffer, 1, 3));
+
+        set.removeAllIn(list2);
+        assertEquals(2, set.size());
+        assertSortedListEquals(set.toArray(), 0, 2);
+    }
+
+    /* */
+    @Test
     public void testClear()
     {
         set.addv(newArray(set.keys, 1, 2, 3));

@@ -320,6 +320,34 @@ public class ObjectArrayList<KType>
     }
 
     /**
+     * Removes all elements present in a given iterator.
+     * 
+     * @param iterator An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually removed as a result of this
+     * call.
+     */
+    public final int removeAllIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    {
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            count += removeAll((KType) iterator.next().value);
+        }
+
+        return count;
+    }
+
+    /**
+     * Removes all elements present in an iterable.
+     * 
+     * @see #removeAllIn(Iterator)
+     */
+    public final int removeAllIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return removeAllIn(iterable.iterator());
+    }
+    
+    /**
      * Returns <code>true</code> if this list contains the specified element
      * (linear scan).
      */

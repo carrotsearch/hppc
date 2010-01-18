@@ -225,10 +225,25 @@ public class ObjectArrayListTest<KType>
         /* removeIf:primitive */
         list.clear();
         list.addv(newArray(list.buffer, 0, null, 2, null, 0));
-        assertEquals(2, list.removeAll(null));
-        assertEquals(0, list.removeAll(null));
+        assertEquals(2, list.removeAll((Object) null));
+        assertEquals(0, list.removeAll((Object) null));
         assertListEquals(list.toArray(), 0, 2, 0);
         /* end:removeIf */
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllIn()
+    {
+        list.addv(newArray(list.buffer, 0, 1, 2, 1, 0));
+        
+        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
+        list2.addv(newArray(list2.buffer, 0, 2));
+
+        assertEquals(3, list.removeAllIn(list2));
+        assertEquals(0, list.removeAllIn(list2.iterator()));
+
+        assertListEquals(list.toArray(), 1, 1);
     }
 
     /* */

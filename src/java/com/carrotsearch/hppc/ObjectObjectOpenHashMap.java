@@ -329,6 +329,34 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
+     * Removes all keys present in a given iterator.
+     * 
+     * @param iterator An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually removed as a result of this
+     * call.
+     */
+    public final int removeAllKeysIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    {
+        int before = this.deleted;
+        while (iterator.hasNext())
+        {
+            remove(iterator.next().value);
+        }
+
+        return this.deleted - before;
+    }
+
+    /**
+     * Removes all keys present in an iterable.
+     * 
+     * @see #removeAllKeysIn(Iterator)
+     */
+    public final int removeAllKeysIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return removeAllKeysIn(iterable.iterator());
+    }
+
+    /**
      * Return the value at the given slot or the default value
      * for a given value type, if the key does not exist. Use 
      * the following snippet of code to check for key existence

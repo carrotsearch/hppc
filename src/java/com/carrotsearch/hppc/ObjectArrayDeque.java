@@ -303,6 +303,41 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
+     * Removes all occurrences of the specified element in this deque.
+     * If the deque does not contain the element, it is unchanged.
+     * 
+     * @param e1 element to be removed from this deque, if present
+     * @return The number of removed occurrences of <code>e1</code>.
+     */
+    public int removeAllOccurrences(KType e1)
+    {
+        int removed = 0;
+        final int last = tail;
+        final int bufLen = buffer.length;
+        int from, to;
+        for (from = to = head; from != last; from = oneRight(from, bufLen))
+        {
+            if (Intrinsics.equals(e1, buffer[from]))
+            {
+                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                removed++;
+                continue;
+            }
+
+            if (to != from)
+            {
+                buffer[to] = buffer[from];
+                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+            }
+
+            to = oneRight(to, bufLen);
+        }
+
+        tail = to;
+        return removed;
+    }
+
+    /**
      * Return the index of the first (counting from head) element equal to
      * <code>e1</code>. The index points to the {@link #buffer} array.
      *   
@@ -361,6 +396,34 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
         return -1;
     }
     
+    /**
+     * Removes all elements present in a given iterator.
+     * 
+     * @param iterator An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually removed as a result of this
+     * call.
+     */
+    public final int removeAllIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    {
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            count += removeAllOccurrences((KType) iterator.next().value);
+        }
+
+        return count;
+    }
+
+    /**
+     * Removes all elements present in an iterable.
+     * 
+     * @see #removeAllIn(Iterator)
+     */
+    public final int removeAllIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return removeAllIn(iterable.iterator());
+    }
+
     /**
      * Removes the element at <code>index</code> in the internal
      * {#link {@link #buffer}} array, returning its value.

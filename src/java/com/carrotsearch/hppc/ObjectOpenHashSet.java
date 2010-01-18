@@ -362,6 +362,34 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
+     * Removes all elements present in a given iterator.
+     * 
+     * @param iterator An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually removed as a result of this
+     * call.
+     */
+    public final int removeAllIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    {
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            if (remove((KType) iterator.next().value)) count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * Removes all elements present in an iterable.
+     * 
+     * @see #removeAllIn(Iterator)
+     */
+    public final int removeAllIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return removeAllIn(iterable.iterator());
+    }
+
+    /**
      * Returns the last value saved in a call to {@link #contains}.
      * 
      * @see #contains
