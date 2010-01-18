@@ -3,14 +3,10 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.MethodRule;
 
 /**
@@ -92,6 +88,42 @@ public class ObjectArrayListTest<KType>
             /* intrinsic:ktypecast */ 5);
         assertListEquals(list.toArray(), 0, 1, 2, 3, 4, 5);
     }
+
+    /* */
+    @Test
+    public void testAddAll()
+    {
+        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
+        list2.addv(newArray(list2.buffer, 0, 1, 2));
+
+        list.addAll(list2.iterator());
+        list.addAll(list2);
+
+        assertListEquals(list.toArray(), 0, 1, 2, 0, 1, 2);
+    }
+
+    /* removeIf:primitive */
+    @Test
+    public void testAddAll_subclass()
+    {
+        class A {
+        }
+
+        class B extends A {
+        }
+
+        ObjectArrayList<B> list2 = new ObjectArrayList<B>();
+        list2.add(new B());
+
+        ObjectArrayList<A> list3 = new ObjectArrayList<A>();
+        list3.add(new B());
+        list3.add(new A());
+
+        list3.addAll(list2.iterator());
+
+        assertEquals(3, list3.size());
+    }
+    /* end:removeIf */
 
     /* */
     @Test
@@ -347,7 +379,7 @@ public class ObjectArrayListTest<KType>
         }
         assertEquals(count, list.size());
 
-        list.clear();
+        list.resize(0);
         assertFalse(list.iterator().hasNext());
     }
 

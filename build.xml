@@ -249,7 +249,11 @@
                     replace="\1 @{classPrefix}\2&lt;KType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
+                    replace="@{classPrefix}\1&lt;KType&gt;" />
+
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
                     replace="@{classPrefix}\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
@@ -281,7 +285,11 @@
                     replace="\1 @{classPrefix}\2&lt;VType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
+                    replace="@{classPrefix}\1&lt;VType&gt;" />
+
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
                     replace="@{classPrefix}\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 

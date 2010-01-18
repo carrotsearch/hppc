@@ -106,6 +106,37 @@ public class ObjectObjectOpenHashMapTest
 
     /* */
     @Test
+    public void testPutAll()
+    {
+        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */ key1 = 1;
+        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */ key2 = 2;
+        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */ key3 = 3;
+
+        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value1 = 1;
+        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value2 = 2;
+
+        map.put(key1, value1);
+        map.put(key2, value1);
+
+        ObjectObjectOpenHashMap<Object, Object> map2 = 
+            new ObjectObjectOpenHashMap<Object, Object>();
+
+        map2.put(key2, value2);
+        map2.put(key3, value1);
+
+        // One new key (key3).
+        assertEquals(1, map.putAll(map2));
+        
+        // Assert the value under key2 has been replaced.
+        assertEquals2(value2, map.get(key2));
+
+        // And key3 has been added.
+        assertEquals2(value1, map.get(key3));
+        assertEquals(3, map.size());
+    }
+    
+    /* */
+    @Test
     public void testRemove()
     {
         /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */   key = 1;

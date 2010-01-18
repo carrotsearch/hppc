@@ -211,6 +211,40 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
+     * Puts all keys from an iterable cursor to this map, replacing the values
+     * of existing keys, if such keys are present.   
+     * 
+     * @param iterator An iterator returning a cursor over KType keys and VType values. 
+     * @return Returns the number of keys added to the map as a result of this
+     * call (not previously present in the map). Values of existing keys are overwritten.
+     */
+    public final int putAll(
+        Iterator<? extends ObjectObjectCursor<? extends KType, ? extends VType>> iterator)
+    {
+        int count = this.assigned;
+        while (iterator.hasNext())
+        {
+            final ObjectObjectCursor<? extends KType, ? extends VType> c 
+                = iterator.next();
+            put(c.key, c.value);
+        }
+
+        return this.assigned - count;
+    }
+
+    /**
+     * Puts all keys from an iterable cursor to this map, replacing the values
+     * of existing keys, if such keys are present.
+     *    
+     * @see #putAll(Iterator)
+     */
+    public final int putAll(
+        Iterable<? extends ObjectObjectCursor<? extends KType, ? extends VType>> iterable)
+    {
+        return putAll(iterable.iterator());
+    }
+
+    /**
      * Expand the internal storage buffers (capacity) or rehash current
      * keys and values if there are a lot of deleted slots.
      */
@@ -355,7 +389,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         if (requestedCapacity > (0x80000000 >>> 1))
             return (0x80000000 >>> 1);
 
-        return BitUtil.nextHighestPowerOfTwo(requestedCapacity);
+        return Math.max(MIN_CAPACITY, BitUtil.nextHighestPowerOfTwo(requestedCapacity));
     }
 
     /**

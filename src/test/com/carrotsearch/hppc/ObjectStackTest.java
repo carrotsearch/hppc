@@ -78,6 +78,22 @@ public class ObjectStackTest
 
     /* */
     @Test
+    public void testAddAllPushAll()
+    {
+        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
+        list2.addv(newArray(list2.buffer, 0, 1, 2));
+
+        stack.addAll(list2.iterator());
+        stack.pushAll(list2.iterator());
+        stack.addAll(list2);
+        stack.pushAll(list2);
+
+        assertListEquals(stack.toArray(), 
+            0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2);
+    }
+
+    /* */
+    @Test
     public void testNullify()
     {
         stack.pushv(newArray(stack.buffer, 1, 2, 3, 4));

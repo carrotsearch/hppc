@@ -77,8 +77,8 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testAdd()
     {
-        assertFalse(set.add(key));
         assertTrue(set.add(key));
+        assertFalse(set.add(key));
         assertEquals(1, set.size());
     }
 
@@ -87,6 +87,21 @@ public class ObjectOpenHashSetTest<KType>
     public void testAddv()
     {
         set.addv(newArray(set.keys, 0, 1, 2, 1, 0));
+        assertEquals(3, set.size());
+        assertSortedListEquals(set.toArray(), 0, 1, 2);
+    }
+
+    /* */
+    @Test
+    public void testAddAll()
+    {
+        ObjectOpenHashSet<Object> set2 = new ObjectOpenHashSet<Object>();
+        set2.addv(newArray(set2.keys, 1, 2));
+        set.addv(newArray(set2.keys, 0, 1));
+
+        assertEquals(1, set.addAll(set2));
+        assertEquals(0, set.addAll(set2.iterator()));
+
         assertEquals(3, set.size());
         assertSortedListEquals(set.toArray(), 0, 1, 2);
     }

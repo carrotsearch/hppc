@@ -140,6 +140,35 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
+     * Inserts all elements from the given cursor to the front of this deque.
+     * 
+     * @param iterator An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually added as a result of this
+     * call.
+     */
+    public final int addAllFirst(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    {
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            addFirst(iterator.next().value);
+            count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * Inserts all elements from the given iterable to the front of this deque.
+     * 
+     * @see #addAllFirst(Iterator)
+     */
+    public final int addAllFirst(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return addAllFirst(iterable.iterator());
+    }
+
+    /**
      * Inserts the specified element at the end of this deque.
      *
      * @param e1 the element to add
@@ -167,6 +196,35 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++)
             addLast(elements[i]);
+    }
+
+    /**
+     * Inserts all elements from the given cursor to the end of this deque.
+     * 
+     * @param cursor An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually added as a result of this
+     * call.
+     */
+    public final int addAllLast(Iterator<? extends ObjectCursor<? extends KType>> cursor)
+    {
+        int count = 0;
+        while (cursor.hasNext())
+        {
+            addLast(cursor.next().value);
+            count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * Inserts all elements from the given iterable to the end of this deque.
+     * 
+     * @see #addAllLast(Iterator)
+     */
+    public final int addAllLast(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return addAllLast(iterable.iterator());
     }
 
     /**

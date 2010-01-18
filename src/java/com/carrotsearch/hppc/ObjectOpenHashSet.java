@@ -213,11 +213,11 @@ public class ObjectOpenHashSet<KType>
         keys[slot] = e;
         states[slot] = ASSIGNED;
 
-        return state == ASSIGNED;
+        return state != ASSIGNED;
     }
 
     /**
-     * Vararg-signature method for adding elements to the set.
+     * Vararg-signature method for adding elements to this set.
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      * 
@@ -230,6 +230,34 @@ public class ObjectOpenHashSet<KType>
         for (KType e : elements)
             if (add(e)) count++;
         return count;
+    }
+
+    /**
+     * Adds all elements from an iterable cursor to this set.
+     * 
+     * @param iterator An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually added as a result of this
+     * call (not previously present in the set).
+     */
+    public final int addAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    {
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            if (add(iterator.next().value)) count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * Adds all elements from an iterable cursor to this set.
+     *
+     * @see #addAll(Iterator)
+     */
+    public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return addAll(iterable.iterator());
     }
 
     /**

@@ -113,7 +113,7 @@ public class ObjectArrayList<KType>
      * Appends the given element at the end of the list. To insert at an arbitrary
      * position, use the <code>insert</code> method. 
      */
-    public final void add(KType e1)
+    public  void add(KType e1)
     {
         ensureBufferSpace(1);
         buffer[elementsCount++] = e1;
@@ -152,7 +152,36 @@ public class ObjectArrayList<KType>
     {
         add(elements, 0, elements.length);
     }
-    
+
+    /**
+     * Adds all elements from a cursor.
+     * 
+     * @param iterator An iterator returning a cursor over a collection of KType elements. 
+     * @return Returns the number of elements actually added as a result of this
+     * call.
+     */
+    public final int addAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    {
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            add(iterator.next().value);
+            count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * Adds all element from an iterable.
+     * 
+     * @see #addAll(Iterator)
+     */
+    public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return addAll(iterable.iterator());
+    }
+
     /**
      * Inserts the specified element at the specified position in this list.
      * 

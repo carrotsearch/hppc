@@ -104,6 +104,44 @@ public class ObjectArrayDequeTest<KType>
 
     /* */
     @Test
+    public void testAddAllFirst()
+    {
+        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
+        list2.addv(newArray(list2.buffer, 0, 1, 2));
+
+        deque.addAllFirst(list2.iterator());
+        assertListEquals(deque.toArray(), 2, 1, 0);
+        deque.addAllFirst(list2);
+        assertListEquals(deque.toArray(), 2, 1, 0, 2, 1, 0);
+
+        deque.clear();
+        ObjectArrayDeque<Object> deque2 = new ObjectArrayDeque<Object>();
+        deque2.addLastv(newArray(deque2.buffer, 0, 1, 2));
+        deque.addAllFirst(deque2);
+        assertListEquals(deque.toArray(), 2, 1, 0);
+    }
+
+    /* */
+    @Test
+    public void testAddAllLast()
+    {
+        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
+        list2.addv(newArray(list2.buffer, 0, 1, 2));
+
+        deque.addAllLast(list2.iterator());
+        assertListEquals(deque.toArray(), 0, 1, 2);
+        deque.addAllLast(list2);
+        assertListEquals(deque.toArray(), 0, 1, 2, 0, 1, 2);
+
+        deque.clear();
+        ObjectArrayDeque<Object> deque2 = new ObjectArrayDeque<Object>();
+        deque2.addLastv(newArray(deque2.buffer, 0, 1, 2));
+        deque.addAllLast(deque2);
+        assertListEquals(deque.toArray(), 0, 1, 2);
+    }
+
+    /* */
+    @Test
     public void testRemoveFirst()
     {
         deque.addLast(/* intrinsic:ktypecast */ 1);
