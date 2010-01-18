@@ -386,12 +386,37 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
+     * Sets the value corresponding to the key saved in the last
+     * call to {@link #containsKey}, if and only if the key exists
+     * in the map already.
+     * 
+     * @see #containsKey
+     * @return Returns the previous value stored under the given key.
+     */
+    public VType lset(VType key)
+    {
+        assert lastSlot >= 0 : "Call containsKey() first.";
+        assert states[lastSlot] == ASSIGNED 
+            : "Last call to exists did not have any associated value.";
+
+        final VType previous = values[lastSlot];
+        values[lastSlot] = key;
+        return previous;
+    }
+
+    /**
      * Return <code>true</code> if the key exists in the map and
-     * save the associated value for fast access using {@link #lget()}.
-     *
+     * save the associated value for fast access using {@link #lget}
+     * or {@link #lset}.
      * <pre>
      * if (map.containsKey(key))
-     *   value = map.lget(); 
+     *   value = map.lget();
+     * </pre>
+     * or, for example to modify the value at the given key without looking up
+     * its slot twice:
+     * <pre>
+     * if (map.containsKey(key))
+     *   map.lset(map.lget() + 1);
      * </pre>
      */
     public boolean containsKey(KType key)

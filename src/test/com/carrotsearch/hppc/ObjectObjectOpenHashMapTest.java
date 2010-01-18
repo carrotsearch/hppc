@@ -54,12 +54,12 @@ public class ObjectObjectOpenHashMapTest
             assertEquals(occupied, map.deleted + map.assigned);
         }
     }
-    
+
     /* */
     @Test
     public void testPut()
     {
-        /* replaceIf:primitiveKType   KType */ Object /* end:replaceIf */   key = 1;
+        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key = 1;
         /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value = 2;
 
         map.put(key, value);
@@ -67,6 +67,23 @@ public class ObjectObjectOpenHashMapTest
         assertTrue(map.containsKey(key));
         assertEquals2(value, map.lget());
         assertEquals2(value, map.get(key));
+    }
+
+    /* */
+    @Test
+    public void testLPut()
+    {
+        /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key = 1;
+        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value2 = 2;
+        /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value3 = 3;
+
+        map.put(key, value2);
+        if (map.containsKey(key))
+            map.lset(value3);
+
+        assertTrue(map.containsKey(key));
+        assertEquals2(value3, map.lget());
+        assertEquals2(value3, map.get(key));
     }
 
     /* */
