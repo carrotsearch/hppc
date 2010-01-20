@@ -65,11 +65,17 @@ final class BenchmarkStatement extends Statement
         BenchmarkOptions options = method.getAnnotation(BenchmarkOptions.class);
         if (options != null)
             return options;
-        
-        // Class-level override.
-        options = object.getClass().getAnnotation(BenchmarkOptions.class);
-        if (options != null)
-            return options;
+
+        // Class-level override. Look for annotations in this and superclasses.
+        Class<?> clz = object.getClass();
+        while (clz != null)
+        {
+            options = clz.getAnnotation(BenchmarkOptions.class);
+            if (options != null)
+                return options;
+            
+            clz = clz.getSuperclass();
+        }
 
         // Defaults.
         try
