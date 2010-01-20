@@ -248,7 +248,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
      * of the following code:
      * <pre>
-     * if (map.hasKey(key)) map.lset(value);
+     * if (!map.hasKey(key)) map.put(value);
      * </pre>
      * 
      * @param key The key of the value to check.
