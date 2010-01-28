@@ -194,7 +194,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         if (assigned + deleted >= resizeThreshold)
             expandAndRehash();
 
-        final int slot = slotFor(key);
+        final int slot = slotForPut(key);
         final byte state = states[slot];
 
         // If EMPTY or DELETED, we increase the assigned count.
@@ -323,7 +323,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         {
             if (oldStates[i] == ASSIGNED)
             {
-                final int slot = slotFor(oldKeys[i]);
+                final int slot = slotForPut(oldKeys[i]);
                 keys[slot] = oldKeys[i];
                 values[slot] = oldValues[i];
                 states[slot] = ASSIGNED;
@@ -364,7 +364,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public VType remove(KType key)
     {
-        final int slot = slotFor(key);
+        final int slot;
+        if ((slot = slotFor(key)) < 0)
+            return Intrinsics.<VType>defaultVTypeValue();
 
         final VType value = values[slot];
         if (states[slot] == ASSIGNED)
@@ -409,14 +411,15 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Return the value at the given slot or the default value
-     * for a given value type, if the key does not exist. Use 
+     * Return the value at the given slot if the key exists. Use 
      * the following snippet of code to check for key existence
      * first and then retrieve the value if it exists.
      * <pre>
      * if (map.containsKey(key))
      *   value = map.lget(); 
      * </pre>
+     * 
+     * @throws ArrayIndexOutOfBoundsException If the key does not exist.
      */
     public VType get(KType key)
     {
@@ -473,8 +476,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public boolean containsKey(KType key)
     {
-        final int slot = (lastSlot = slotFor(key));
-        return states[slot] == ASSIGNED;
+        return (lastSlot = slotFor(key)) >= 0;
     }
 
     /**
@@ -511,6 +513,33 @@ public class ObjectObjectOpenHashMap<KType, VType>
         if (current < MIN_CAPACITY / 2) current = MIN_CAPACITY / 2;
         return current << 1;
     }
+    
+    /**
+     * Faster version of {@link #slotForPut} (does not remember or return
+     * removed slots along the addressing chain).
+     * 
+     * @return Returns the slot number of <code>key</code> if there is a key in the
+     * hash map already. Returns negative number for non-existing keys.
+     */
+    public final int slotFor(KType key)
+    {
+        final int slots = states.length;
+        final int bucketMask = (slots - 1);
+
+        // This is already verified when reallocating.
+        // assert slots > 0 && Integer.bitCount(slots) == 1 : "Bucket count must be a power of 2.";
+
+        int slot = hashFunction.hash(key) & bucketMask;
+        int i = 0;
+        int state = states[slot];
+        while (state != EMPTY && (state == DELETED || !Intrinsics.equals(keys[slot], key)))
+        {
+            slot = (slot + (++i)) & bucketMask;
+            state = states[slot];
+        }
+
+        return state == ASSIGNED ? slot : -1;
+    }
 
     /**
      * Lookup the slot index for <code>key</code> inside
@@ -530,8 +559,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * </pre>
      * 
      * @see "http://en.wikipedia.org/wiki/Quadratic_probing"
+     * @return Returns the slot number of <code>key</code> in
+     *  {@link #keys}, {@link #values} and {@link #states}. The slot may be in a removed
+     *  state, assigned state (the same key) or empty.
      */
-    public int slotFor(KType key)
+    public final int slotForPut(KType key)
     {
         final int slots = states.length;
         final int bucketMask = (slots - 1);
