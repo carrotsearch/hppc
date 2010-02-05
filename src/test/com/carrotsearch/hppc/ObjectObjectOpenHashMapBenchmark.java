@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.junit.*;
 
-import com.carrotsearch.tests.benchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 /**
  * A micro-benchmark test case for comparing {@link HashMap} against

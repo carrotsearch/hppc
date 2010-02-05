@@ -1,9 +1,10 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
+import static org.junit.Assert.*;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Random;
 
 import org.junit.*;
 import org.junit.rules.MethodRule;

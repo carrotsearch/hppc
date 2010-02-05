@@ -5,8 +5,8 @@ import java.util.Random;
 
 import org.junit.*;
 
-import com.carrotsearch.tests.benchmarks.AbstractBenchmark;
-import com.carrotsearch.tests.benchmarks.BenchmarkOptions;
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 
 /**
  * Microbenchmarks for ntz and pop methods (BitUtils) from Lucene.

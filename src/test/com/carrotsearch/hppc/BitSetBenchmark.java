@@ -5,8 +5,7 @@ import java.util.Random;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.carrotsearch.hppc.BitSet;
-import com.carrotsearch.tests.benchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 /**
  * Simple benchmarks against <code>java.util.BitSet</code>.

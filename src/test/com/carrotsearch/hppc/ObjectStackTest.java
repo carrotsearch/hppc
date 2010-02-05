@@ -1,12 +1,10 @@
 package com.carrotsearch.hppc;
 
+import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static com.carrotsearch.hppc.TestUtils.*;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.MethodRule;
 
 /**

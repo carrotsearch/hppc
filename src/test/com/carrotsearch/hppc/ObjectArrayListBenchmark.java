@@ -3,8 +3,8 @@ package com.carrotsearch.hppc;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.carrotsearch.tests.benchmarks.AbstractBenchmark;
-import com.carrotsearch.tests.benchmarks.BenchmarkOptions;
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 
 /**
  * Benchmark tests for {@link ObjectArrayList}.

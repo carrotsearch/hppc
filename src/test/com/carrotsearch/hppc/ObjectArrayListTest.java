@@ -3,7 +3,8 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.*;

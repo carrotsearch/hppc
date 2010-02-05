@@ -6,7 +6,7 @@ import java.util.Stack;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.carrotsearch.tests.benchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 /**
  * A micro-benchmark test case for comparing {@link ArrayDeque} (used as a {@link Stack}
