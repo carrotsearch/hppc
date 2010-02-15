@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="src/generated"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.7.jar"/>
-	<classpathentry kind="lib" path="lib/junit-benchmarks-0.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/junit-benchmarks-0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ANT_HOME"/>
 	<classpathentry kind="output" path="tmp/eclipse"/>
