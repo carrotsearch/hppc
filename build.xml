@@ -5,74 +5,74 @@
     <property name="src.test" location="src/test" />
     <property name="src.generated" location="src/generated" />
 
-	<property name="build.dir" location="tmp/build" />
-	<property name="tests.report.dir" location="tmp/test-report" />
-	<property name="benchmarks.report.dir" location="tmp/benchmark-report" />
+    <property name="build.dir" location="tmp/build" />
+    <property name="tests.report.dir" location="tmp/test-report" />
+    <property name="benchmarks.report.dir" location="tmp/benchmark-report" />
 
-	<property file="hppc.version" />
-	<property name="dist.dir" location="dist" />
-	<property name="dist.name" value="hppc-${hppc.version}" />
-	
-	<property name="maxmem" value="-Xmx1024m" />
+    <property file="hppc.version" />
+    <property name="dist.dir" location="dist" />
+    <property name="dist.name" value="hppc-${hppc.version}" />
+    
+    <property name="maxmem" value="-Xmx1024m" />
 
-	<!-- Compilation presets. -->
-	<presetdef name="javac">
-		<javac deprecation="true" debug="true" 
-			target="1.5" source="1.5" encoding="UTF-8" 
-			includeantruntime="false" optimize="true" />
-	</presetdef>
+    <!-- Compilation presets. -->
+    <presetdef name="javac">
+        <javac deprecation="true" debug="true" 
+            target="1.5" source="1.5" encoding="UTF-8" 
+            includeantruntime="false" optimize="true" />
+    </presetdef>
 
 
-	<!-- file and patternsets -->
-	<path id="lib.classpath">
-		<fileset dir="lib">
-			<include name="*.jar" />
-		</fileset>
-	</path>
+    <!-- file and patternsets -->
+    <path id="lib.classpath">
+        <fileset dir="lib">
+            <include name="*.jar" />
+        </fileset>
+    </path>
 
     <patternset id="patterns.exclude.tests">
         <exclude name="**/*Benchmark*" />
         <exclude name="**/*Test*" />
         <exclude name="**/RequireAssertionsRule*" />
-    	<exclude name="com/carrotsearch/tests/**" />
+        <exclude name="com/carrotsearch/tests/**" />
     </patternset>
 
-	<filterchain id="filter.empty">
-	</filterchain>
+    <filterchain id="filter.empty">
+    </filterchain>
 
-	<!-- Macros for the preprocessor. -->
+    <!-- Macros for the preprocessor. -->
 
-	<macrodef name="apply.filter">
-		<attribute name="filter1" />
-		<attribute name="filter2" default="filter.empty" />
+    <macrodef name="apply.filter">
+        <attribute name="filter1" />
+        <attribute name="filter2" default="filter.empty" />
         <attribute name="filter3" default="filter.empty" />
-		<attribute name="filter4" default="filter.empty" />
-		<attribute name="fileset" />
+        <attribute name="filter4" default="filter.empty" />
+        <attribute name="fileset" />
 
-		<sequential>
+        <sequential>
             <copy todir="${src.generated}" encoding="UTF-8" filtering="true" overwrite="true">
                 <path refid="@{fileset}" />
                 <mapper>
-                	<chainedmapper>
-                    	<filtermapper refid="@{filter1}" />
+                    <chainedmapper>
+                        <filtermapper refid="@{filter1}" />
                         <filtermapper refid="@{filter2}" />
                         <filtermapper refid="@{filter3}" />
-                		<filtermapper refid="@{filter4}" />
-                	</chainedmapper>
+                        <filtermapper refid="@{filter4}" />
+                    </chainedmapper>
                 </mapper>
                 <filterchain refid="@{filter1}" />
-            	<filterchain refid="@{filter2}" />
-            	<filterchain refid="@{filter3}" />
-            	<filterchain refid="@{filter4}" />
+                <filterchain refid="@{filter2}" />
+                <filterchain refid="@{filter3}" />
+                <filterchain refid="@{filter4}" />
             </copy>
-		</sequential>
-	</macrodef>
+        </sequential>
+    </macrodef>
 
     <macrodef name="declare.filter.common">
         <attribute name="filterName" />
 
         <sequential>
-        	<filterchain id="@{filterName}">
+            <filterchain id="@{filterName}">
                 <!-- intrinsic:final → final -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="/\*\s*intrinsic:final\s*\*/" 
@@ -88,16 +88,16 @@
                 <replaceregex byline="false" flags="gms"
                     pattern="(/\*\s*)(removeIf:primitive\s)(.+?)(end:removeIf)(\s*\*/)" 
                     replace="/* removeIf:applied. */" />
-        	</filterchain>
+            </filterchain>
         </sequential>
     </macrodef>
-	
-	<macrodef name="declare.filter.ktype">
-		<attribute name="filterName" />
-		<attribute name="KType" />
-			
-		<sequential>
-			<filterchain id="@{filterName}">
+    
+    <macrodef name="declare.filter.ktype">
+        <attribute name="filterName" />
+        <attribute name="KType" />
+            
+        <sequential>
+            <filterchain id="@{filterName}">
                 <!-- intrinsic:ktypecast → (KType) -->
                 <replaceregex byline="false" flags="gm"
                     pattern="/\*\s*intrinsic:ktypecast\s*\*/" 
@@ -125,16 +125,16 @@
                     replace="((@{KType}) 0)" />
     
                 <replacestring from="KType"         to="@{KType}" />
-			</filterchain>
-		</sequential>
-	</macrodef>
+            </filterchain>
+        </sequential>
+    </macrodef>
 
     <macrodef name="declare.filter.vtype">
         <attribute name="filterName" />
-    	<attribute name="VType" />
+        <attribute name="VType" />
 
         <sequential>
-        	<filterchain id="@{filterName}">
+            <filterchain id="@{filterName}">
                 <!-- intrinsic:vtypecast → (VType) -->
                 <replaceregex byline="false" flags="gm"
                     pattern="/\*\s*intrinsic:vtypecast\s*\*/" 
@@ -162,79 +162,84 @@
                     replace="((@{VType}) 0)" />
     
                 <replacestring from="VType"         to="@{VType}" />
-        	</filterchain>
+            </filterchain>
         </sequential>
     </macrodef>
-	
-	<macrodef name="preprocess.KType">
-		<attribute name="KType" />  <!-- Primitive type. -->
-		<attribute name="UKType" /> <!-- Uppercase (boxed) type. -->
-		<attribute name="fileset" />
+    
+    <macrodef name="preprocess.KType">
+        <attribute name="KType" />  <!-- Primitive type. -->
+        <attribute name="UKType" /> <!-- Uppercase (boxed) type. -->
+        <attribute name="fileset" />
 
-		<sequential>
-			<declare.filter.common filterName="filter.common.@{KType}" />
-			<declare.filter.ktype  filterName="filter.ktype.@{KType}" KType="@{KType}" />
+        <sequential>
+            <declare.filter.common filterName="filter.common.@{KType}" />
+            <declare.filter.ktype  filterName="filter.ktype.@{KType}" KType="@{KType}" />
 
-			<filterchain id="filter.specific.@{KType}">
+            <filterchain id="filter.specific.@{KType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
                     replace="@{UKType}\1" />
 
                 <!-- Intrinsics.equals(a, b) → (a == b) -->
-				<replaceregex byline="false"  flags="gmi" 
-					pattern="(?:Intrinsics\s*\.\s*equals\()(.+?)(?:,)(.+?)(?:\))" 
-					replace="\(\1 == \2\)" />
+                <replaceregex byline="false"  flags="gmi" 
+                    pattern="(?:Intrinsics\s*\.\s*equals\()(.+?)(?:,)(.+?)(?:\))" 
+                    replace="\(\1 == \2\)" />
 
                 <!-- Replace generic argument (KType) references with the actual type. -->
                 <replacestring from="&lt;KType&gt;" to="" />
-			</filterchain>
+            </filterchain>
 
-			<apply.filter 
-				fileset="@{fileset}"
+            <apply.filter 
+                fileset="@{fileset}"
                 filter1="filter.specific.@{KType}" 
-				filter2="filter.ktype.@{KType}"
-				filter3="filter.common.@{KType}"
-			/>
-		</sequential>
-	</macrodef>
+                filter2="filter.ktype.@{KType}"
+                filter3="filter.common.@{KType}"
+            />
+        </sequential>
+    </macrodef>
 
     <macrodef name="preprocess.KTypeVType">
         <attribute name="KType" />
         <attribute name="UKType" />
         <attribute name="VType" />
-    	<attribute name="UVType" />
+        <attribute name="UVType" />
         <attribute name="fileset" />
 
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}@{VType}" />
-        	<declare.filter.ktype  filterName="filter.ktype.@{KType}@{VType}" KType="@{KType}" />
+            <declare.filter.ktype  filterName="filter.ktype.@{KType}@{VType}" KType="@{KType}" />
             <declare.filter.vtype  filterName="filter.vtype.@{KType}@{VType}" VType="@{VType}" />
 
             <filterchain id="filter.specific.@{KType}@{VType}">
-            	<!-- Replace template class declarations in tests and benchmarks. -->
+                <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)?" 
                     replace="@{UKType}@{UVType}\1" />
+
+                <!-- Intrinsics.equals(a, b) → (a == b) -->
+                <replaceregex byline="false"  flags="gmi" 
+                    pattern="(?:Intrinsics\s*\.\s*equals\()(.+?)(?:,)(.+?)(?:\))" 
+                    replace="\(\1 == \2\)" />
 
                 <!-- Replace cursors -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:Object)(Cursor)(&lt;[^&gt;]+&gt;)" 
                     replace="@{UKType}\1" />
 
-            	<!-- Replace generic argument (KType, VType) references with the actual type. -->
+                <!-- Replace generic argument (KType, VType) references with the actual type. -->
                 <replacestring from="&lt;KType, VType&gt;" to="" />
 
-            	<!-- Replace hash function references. -->
-            	<replacestring from="HashFunctionObject" to="HashFunction@{UKType}" />
+                <!-- Replace hash function references. -->
+                <replacestring from="HashFunctionObject" to="HashFunction@{UKType}" />
             </filterchain>
 
             <apply.filter 
                  fileset="@{fileset}"
                  filter1="filter.specific.@{KType}@{VType}" 
                  filter2="filter.ktype.@{KType}@{VType}"
-            	 filter3="filter.vtype.@{KType}@{VType}"
-        	     filter4="filter.common.@{KType}@{VType}"
+                 filter3="filter.vtype.@{KType}@{VType}"
+                 filter4="filter.common.@{KType}@{VType}"
              />
         </sequential>
     </macrodef>
@@ -269,7 +274,7 @@
             <apply.filter 
                  fileset="@{fileset}"
                  filter1="filter.specific.generic.@{VType}"
-            	 filter2="filter.vtype.generic.@{VType}"
+                 filter2="filter.vtype.generic.@{VType}"
                  filter3="filter.common.generic.@{VType}"
              />
         </sequential>
@@ -284,11 +289,16 @@
             <declare.filter.common filterName="filter.common.@{KType}.generic" />
             <declare.filter.ktype  filterName="filter.ktype.@{KType}.generic" KType="@{KType}" />
 
-        	<filterchain id="filter.specific.@{KType}.generic">
+            <filterchain id="filter.specific.@{KType}.generic">
                 <!-- Replace cursors -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?&lt;!Object)(?:Object)(Cursor)(&lt;[^&gt;]+&gt;)" 
                     replace="@{UKType}\1" />
+
+                <!-- Intrinsics.equals(a, b) → (a == b) -->
+                <replaceregex byline="false"  flags="gmi" 
+                    pattern="(?:Intrinsics\s*\.\s*equals\()(.+?)(?:,)(.+?)(?:\))" 
+                    replace="\(\1 == \2\)" />
 
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
@@ -316,22 +326,22 @@
         </sequential>
     </macrodef>
 
-	<!-- Generate sources from generic templates. -->
-	<target name="preprocess" description="Preprocess sources and generate versions for primitive types.">
-		<delete dir="${src.generated}" />
-		<mkdir dir="${src.generated}" />
+    <!-- Generate sources from generic templates. -->
+    <target name="preprocess" description="Preprocess sources and generate versions for primitive types.">
+        <delete dir="${src.generated}" />
+        <mkdir dir="${src.generated}" />
 
-		<!--
-		Generate code for single-argument templates. 
-		-->
-		<path id="KType">
+        <!--
+        Generate code for single-argument templates. 
+        -->
+        <path id="KType">
             <fileset dir="${src.java}">
                 <include name="**/ObjectArrayList*.java" />
                 <include name="**/ObjectStack*.java" />
-            	<include name="**/ObjectCursor*.java" />
+                <include name="**/ObjectCursor*.java" />
                 <include name="**/ObjectProcedure*.java" />
                 <include name="**/ObjectOpenHashSet*.java" />
-            	<include name="**/ObjectArrayDeque*.java" />
+                <include name="**/ObjectArrayDeque*.java" />
             </fileset>
             <fileset dir="${src.test}">
                 <include name="**/ObjectArrayList*.java" />
@@ -339,12 +349,12 @@
                 <include name="**/ObjectOpenHashSet*.java" />
                 <include name="**/ObjectArrayDeque*.java" />
             </fileset>
-		</path>
+        </path>
 
-		<preprocess.KType KType="byte"   UKType="Byte"   fileset="KType" />
-		<preprocess.KType KType="short"  UKType="Short"  fileset="KType" />
-		<preprocess.KType KType="char"   UKType="Char"   fileset="KType" />
-		<preprocess.KType KType="int"    UKType="Int"    fileset="KType" />
+        <preprocess.KType KType="byte"   UKType="Byte"   fileset="KType" />
+        <preprocess.KType KType="short"  UKType="Short"  fileset="KType" />
+        <preprocess.KType KType="char"   UKType="Char"   fileset="KType" />
+        <preprocess.KType KType="int"    UKType="Int"    fileset="KType" />
         <preprocess.KType KType="long"   UKType="Long"   fileset="KType" />
         <preprocess.KType KType="float"  UKType="Float"  fileset="KType" />
         <preprocess.KType KType="double" UKType="Double" fileset="KType" />
@@ -353,11 +363,11 @@
         <!--
         Generate code for double-argument templates. 
         -->
-		<path id="KTypeVType">
+        <path id="KTypeVType">
             <fileset dir="${src.java}">
                 <include name="**/ObjectObjectOpenHashMap*.java" />
-            	<include name="**/ObjectObjectCursor.java" />
-            	<include name="**/ObjectObjectProcedure.java" />
+                <include name="**/ObjectObjectCursor.java" />
+                <include name="**/ObjectObjectProcedure.java" />
             </fileset>
             <fileset dir="${src.test}">
                 <include name="**/ObjectObjectOpenHashMapTest.java" />
@@ -444,37 +454,37 @@
         <preprocess.GenericVType KType="long"   UKType="Long"   fileset="KTypeVType" />
         <preprocess.GenericVType KType="float"  UKType="Float"  fileset="KTypeVType" />
         <preprocess.GenericVType KType="double" UKType="Double" fileset="KTypeVType" />
-	</target>
+    </target>
 
 
-	<!-- -->
-	<target name="compile" depends="preprocess">
-		<mkdir dir="${build.dir}" />
+    <!-- -->
+    <target name="compile" depends="preprocess">
+        <mkdir dir="${build.dir}" />
 
-		<!-- Library code and generated code. -->
-		<javac destdir="${build.dir}">
-			<src location="${src.java}" />
+        <!-- Library code and generated code. -->
+        <javac destdir="${build.dir}">
+            <src location="${src.java}" />
             <src location="${src.generated}" />
-		    <src location="${src.test}" />
+            <src location="${src.test}" />
 
             <classpath refid="lib.classpath" />
-		</javac>
-	</target>
+        </javac>
+    </target>
 
 
     <!-- -->
     <target name="jar" depends="clean, compile" description="Compile library JAR.">
-    	<mkdir dir="${dist.dir}" />
-    	<jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
-    		<fileset dir="${build.dir}">
-    			<patternset refid="patterns.exclude.tests" />
-    		</fileset>
-    	</jar>
+        <mkdir dir="${dist.dir}" />
+        <jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
+            <fileset dir="${build.dir}">
+                <patternset refid="patterns.exclude.tests" />
+            </fileset>
+        </jar>
     </target>
 
 
-	<!-- -->
-	<target name="javadoc" description="Generate API documentation.">
+    <!-- -->
+    <target name="javadoc" description="Generate API documentation.">
         <javadoc destdir="${dist.dir}/api"
                  access="protected"
                  version="true"
@@ -491,7 +501,7 @@
 
           <sourcefiles>
             <fileset dir="${src.java}">
-            	<include name="**/*.java" />
+                <include name="**/*.java" />
                 <patternset refid="patterns.exclude.tests" />
             </fileset>
             <fileset dir="${src.generated}">
@@ -510,67 +520,82 @@
         <copy todir="${dist.dir}/api" flatten="true">
             <fileset dir="${src.java}" includes="**/*.css" />
         </copy>
-	</target>
+    </target>
 
-	
+    
     <!-- -->
     <target name="dist" depends="jar, javadoc" description="Assemble full distribution.">
-	    <copy todir="${dist.dir}" flatten="true">
+        <copy todir="${dist.dir}" flatten="true">
             <fileset dir="." includes="*.LICENSE" />
-    	</copy>
+        </copy>
     </target>
 
 
-	<!-- -->
-	<target name="test" depends="compile" description="Run tests.">
-		<mkdir dir="${tests.report.dir}" />
+    <!-- -->
+    <target name="test" depends="compile" description="Run tests.">
+        <mkdir dir="${tests.report.dir}" />
 
-	    <junit fork="true"
-	           forkmode="once"
-	           printsummary="on"
-	           errorproperty="junit.error"
-	           failureproperty="junit.failure"
-	    >
-	      <jvmarg value="-ea" />
-	      <jvmarg value="${maxmem}" />
+        <!-- Make sure the generated sources don't use Intrinsics.equals. -->
+        <condition property="uses.intrinsics">
+            <resourcecount when="greater" count="0">
+                <fileset dir="${src.generated}" id="fs.used.intrinsics">
+                    <exclude name="**/Object*OpenHashMap*" />
+                    <contains casesensitive="true" text="Intrinsics.equals" />
+                </fileset>
+            </resourcecount>
+        </condition>
 
-	      <!-- Run benchmarks as tests, but don't repeat. -->
+        <pathconvert property="intrinsic.offenders" pathsep=" ">
+            <fileset refid="fs.used.intrinsics" />
+        </pathconvert>
+        <fail if="uses.intrinsics">"Intrinsics" referred to from generated sources: ${intrinsic.offenders}</fail>
+        
+        <junit fork="true"
+               forkmode="once"
+               printsummary="on"
+               errorproperty="junit.error"
+               failureproperty="junit.failure"
+        >
+          <jvmarg value="-ea" />
+          <jvmarg value="${maxmem}" />
+
+          <!-- Run benchmarks as tests, but don't repeat. -->
           <jvmarg value="-Drounds.warmup=0" />
           <jvmarg value="-Drounds.benchmark=1" />
           <jvmarg value="-Dignore.callgc=true" />
-	  <jvmarg value="-Dignore.annotation.options=true" />
+          <jvmarg value="-Dignore.annotation.options=true" />
 
-	  <formatter type="xml" />
+          <formatter type="xml" />
 
           <classpath refid="lib.classpath" />
           <classpath location="${build.dir}" />
 
-	      <batchtest todir="${tests.report.dir}">
-	        <fileset dir="${build.dir}">
-	          <include name="**/*Test.class" />
-	          <include name="**/*Benchmark.class" />
-	          <exclude name="**/Abstract*" />
-	        </fileset>
-	      </batchtest>
-	    </junit>
+          <batchtest todir="${tests.report.dir}">
+            <fileset dir="${build.dir}">
+              <include name="**/*Test.class" />
+              <include name="**/*Benchmark.class" />
+              <exclude name="**/Abstract*" />
+            </fileset>
+          </batchtest>
+        </junit>
 
-	    <junitreport todir="${tests.report.dir}">
-	      <fileset dir="${tests.report.dir}">
-	        <include name="TEST-*.xml" />
-	      </fileset>
-	      <report format="frames" todir="${tests.report.dir}" />
-	    </junitreport>
+        <junitreport todir="${tests.report.dir}">
+          <fileset dir="${tests.report.dir}">
+            <include name="TEST-*.xml" />
+          </fileset>
+          <report format="frames" todir="${tests.report.dir}" />
+        </junitreport>
 
-	    <condition property="tests.failed" value="true">
-	      <or>
-	        <isset property="junit.error" />
-	        <isset property="junit.failure" />
-	      </or>
-	    </condition>
-	    <fail message="Tests failed. See ${tests.report.dir} for report." if="tests.failed" /> 
-	</target>
+        <condition property="tests.failed" value="true">
+          <or>
+            <isset property="junit.error" />
+            <isset property="junit.failure" />
+          </or>
+        </condition>
+        <fail message="Tests failed. See ${tests.report.dir} for report." if="tests.failed" /> 
+    </target>
 
-	
+    
     <!-- -->
     <target name="benchmark" depends="compile" description="Run benchmarks.">
         <mkdir dir="${benchmarks.report.dir}" />
@@ -613,7 +638,7 @@
         </junitreport>
 
         <fail message="Benchmarks failed. See ${benchmarks.report.dir} for report." 
-        	if="benchmarks.error" />
+            if="benchmarks.error" />
 
         <xslt style="etc/benchmarks.xsl" 
             destdir="${benchmarks.report.dir}/benchmarks"
@@ -645,14 +670,14 @@
             <pathelement location="${benchmarks.report.dir}/benchmarks/LongStackBenchmark.txt" />
             <pathelement location="${benchmarks.report.dir}/benchmarks/DoubleStackBenchmark.txt" />
           </path>
-        	
+            
           <resources><string value="&#x0a;&#x0a;Iteration strategies&#x0a;&#x0a;"/></resources>
           <path>
             <pathelement location="${benchmarks.report.dir}/benchmarks/ByteArrayListBenchmark.txt" />
           </path>
           <resources><string value="&#x0a;"/></resources>
           <path>
-          	<pathelement location="${benchmarks.report.dir}/benchmarks/LongArrayListBenchmark.txt" />
+            <pathelement location="${benchmarks.report.dir}/benchmarks/LongArrayListBenchmark.txt" />
           </path>
           <resources><string value="&#x0a;"/></resources>
           <path>
@@ -669,9 +694,9 @@
     </target>
 
 
-	<!-- -->
-	<target name="clean">
-		<delete dir="tmp" excludes="eclipse/**" />
-		<delete dir="${src.generated}" includes="**/*" />
-	</target>
+    <!-- -->
+    <target name="clean">
+        <delete dir="tmp" excludes="eclipse/**" />
+        <delete dir="${src.generated}" includes="**/*" />
+    </target>
 </project>
