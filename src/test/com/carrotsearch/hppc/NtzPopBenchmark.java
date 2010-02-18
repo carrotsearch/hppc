@@ -12,7 +12,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
  * Microbenchmarks for ntz and pop methods (BitUtils) from Lucene.
  */
 @BenchmarkOptions(warmupRounds = 5, benchmarkRounds = 15, callgc = false)
-@Ignore
+@Ignore // coverage:exclude
 public class NtzPopBenchmark extends AbstractBenchmark
 {
     /** how many bits for ntz/pop testing? */

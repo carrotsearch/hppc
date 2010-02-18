@@ -10,7 +10,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
  */
 public class ObjectStackBenchmark extends AbstractBenchmark
 {
-    public static int COUNT = 5 * 1000000;
+    public static final int COUNT = 5 * 1000000;
 
     private ObjectStack<Integer> hppc;
 

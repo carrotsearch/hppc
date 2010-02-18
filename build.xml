@@ -6,13 +6,20 @@
     <property name="src.generated" location="src/generated" />
 
     <property name="build.dir" location="tmp/build" />
+    <property name="build.tests.dir" location="tmp/build-test" />
     <property name="tests.report.dir" location="tmp/test-report" />
     <property name="benchmarks.report.dir" location="tmp/benchmark-report" />
+    <property name="coverage.report.dir" location="tmp/coverage-report" />
+    <property name="duplication.report.dir" location="tmp/duplication-report" />
+    <property name="findbugs.report.dir" location="tmp/findbugs-report" />
 
     <property file="hppc.version" />
+    <property file="local.properties" />
     <property name="dist.dir" location="dist" />
     <property name="dist.name" value="hppc-${hppc.version}" />
     
+    <property name="etc.dir" location="etc" />
+
     <property name="maxmem" value="-Xmx1024m" />
 
     <!-- Compilation presets. -->
@@ -22,12 +29,17 @@
             includeantruntime="false" optimize="true" />
     </presetdef>
 
+    <!-- Extra tools the build can use if available -->
+    <property name="clover.jar" location="${clover.home}/lib/clover.jar" />
+    <property name="pmd.jar" location="${pmd.home}/lib/" />
+
 
     <!-- file and patternsets -->
     <path id="lib.classpath">
         <fileset dir="lib">
             <include name="*.jar" />
         </fileset>
+        <file file="${clover.jar}" />
     </path>
 
     <patternset id="patterns.exclude.tests">
@@ -36,6 +48,28 @@
         <exclude name="**/RequireAssertionsRule*" />
         <exclude name="com/carrotsearch/tests/**" />
     </patternset>
+
+    <!-- Javac wants a path -->
+    <path id="src.java">
+        <pathelement location="${src.java}" />
+        <pathelement location="${src.generated}" />
+        <pathelement location="${src.test}" />
+    </path>
+
+    <!-- ... while Clover wants a fileset, cool. -->
+    <fileset id="src.coverage" dir="${basedir}">
+        <include name="src/java/**/*.java" />
+        <include name="src/test/**/*.java" />
+        <include name="src/generated/**/*.java" />
+        <not><contains text="coverage:exclude" /></not>
+    </fileset>
+    
+    <!-- Code duplication checks -->
+    <fileset id="src.duplication" dir="${basedir}">
+        <include name="src/java/**/*.java" />
+        <include name="src/test/**/*.java" />
+        <exclude name="src/java/**/BitUtil.java" /> <!-- performance-motivated duplication -->
+    </fileset>
 
     <filterchain id="filter.empty">
     </filterchain>
@@ -458,18 +492,30 @@
 
 
     <!-- -->
-    <target name="compile" depends="preprocess">
-        <mkdir dir="${build.dir}" />
+    <target name="compile" depends="without.clover, preprocess">
+        <compile build.dir="${build.dir}" />
+    </target>
+
+    <target name="compile.tests" depends="preprocess, with.clover">
+        <compile build.dir="${build.tests.dir}" />
+    </target>
+
+    <macrodef name="compile">
+      <attribute name="build.dir" />
+
+      <sequential>
+        <mkdir dir="@{build.dir}" />
 
         <!-- Library code and generated code. -->
-        <javac destdir="${build.dir}">
-            <src location="${src.java}" />
-            <src location="${src.generated}" />
-            <src location="${src.test}" />
+        <javac destdir="@{build.dir}">
+            <src>
+              <path refid="src.java" />
+            </src>
 
             <classpath refid="lib.classpath" />
         </javac>
-    </target>
+      </sequential>
+    </macrodef>
 
 
     <!-- -->
@@ -532,7 +578,7 @@
 
 
     <!-- -->
-    <target name="test" depends="compile" description="Run tests.">
+    <target name="test" depends="compile.tests" description="Run tests.">
         <mkdir dir="${tests.report.dir}" />
 
         <!-- Make sure the generated sources don't use Intrinsics.equals. -->
@@ -564,14 +610,15 @@
           <jvmarg value="-Drounds.benchmark=1" />
           <jvmarg value="-Dignore.callgc=true" />
           <jvmarg value="-Dignore.annotation.options=true" />
+          <jvmarg value="-Dclover.pertest.coverage=diff" />
 
           <formatter type="xml" />
 
           <classpath refid="lib.classpath" />
-          <classpath location="${build.dir}" />
+          <classpath location="${build.tests.dir}" />
 
           <batchtest todir="${tests.report.dir}">
-            <fileset dir="${build.dir}">
+            <fileset dir="${build.tests.dir}">
               <include name="**/*Test.class" />
               <include name="**/*Benchmark.class" />
               <exclude name="**/Abstract*" />
@@ -693,9 +740,123 @@
         <concat><path><pathelement location="${benchmarks.report.dir}/results.txt" /></path></concat>
     </target>
 
+    <!-- 
+         Code coverage calculation.
+      -->
+    <target name="clover.tasks" if="clover.home">
+        <echo>${clover.jar}</echo>
+        <taskdef resource="cloverlib.xml" classpath="${clover.jar}" />
+    </target>
+
+    <target name="with.clover"
+            depends="clover.tasks"
+            if="clover.home">
+        <clover-setup>
+            <fileset refid="src.coverage" />
+        </clover-setup>
+    </target>
+
+    <target name="without.clover"
+            depends="clover.tasks"
+            if="clover.home">
+        <clover-setup enabled="false" />
+    </target>
+
+    <target name="coverage"
+            depends="coverage.html, coverage.xml"
+            description="Generates code coverage reports" />
+
+    <target name="coverage.html"
+            depends="clover.tasks"
+            if="clover.home">
+        <clover-report>
+            <current outfile="${coverage.report.dir}" title="HPPC ${hppc.version}">
+                <format type="html" />
+            </current>
+        </clover-report>
+    </target>
+
+    <target name="coverage.xml"
+            depends="clover.tasks"
+            if="clover.home">
+        <clover-report>
+            <current outfile="${coverage.report.dir}/coverage.xml" title="HPPC ${hppc.version} Unit Test Coverage Report">
+                <format type="xml" />
+            </current>
+        </clover-report>
+    </target>
+
+    <target name="coverage.clean"
+            depends="clover.tasks"
+            if="clover.home">
+        <clover-clean />
+    </target>
+
+    <!-- 
+         Code duplication detection.
+      -->
+    <path id="pmd.classpath">
+        <fileset dir="${pmd.home}/lib" includes="*.jar" />
+    </path>
+
+    <target name="pmd.tasks" if="pmd.home">
+        <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="pmd.classpath" />
+    </target>
+
+    <target name="duplication"
+              depends="pmd.tasks"
+              if="pmd.home"
+              description="Generates code duplication report">
+        <mkdir dir="${duplication.report.dir}" />
+        <cpd minimumTokenCount="100"
+             outputFile="${duplication.report.dir}/duplication.xml"
+             format="xml"
+             encoding="UTF-8">
+            <fileset refid="src.duplication" />
+        </cpd>
+        <xslt in="${duplication.report.dir}/duplication.xml"
+              style="${etc.dir}/cpd/cpd2html.xsl"
+              out="${duplication.report.dir}/index.html" />
+    </target>
+
+    <!-- 
+         FindBugs static analysis.
+      -->
+    <target name="findbugs"
+            if="findbugs.home"
+            description="Generates FindBugs report"
+            depends="compile">
+        <taskdef name="findbugs"
+                 classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
+                 classpath="${findbugs.home}/lib/findbugs-ant.jar" />
+        <mkdir dir="${findbugs.report.dir}" />
+
+        <!-- Delete some classes we don't want to have analyzed -->
+        <delete>
+          <fileset dir="${build.dir}">
+            <include name="**/*Benchmark*.class" />
+          </fileset>
+        </delete>
+
+        <findbugs home="${findbugs.home}"
+                  jvmargs="-Xmx512m"
+                  excludeFilter="${etc.dir}/findbugs/excludes.xml"
+                  effort="max"
+                  output="xml:withMessages"
+                  outputFile="${findbugs.report.dir}/findbugs.xml">
+            <class location="${build.dir}" />
+        </findbugs>
+
+        <xslt in="${findbugs.report.dir}/findbugs.xml"
+              style="${etc.dir}/findbugs/findbugs2html.xsl"
+              out="${findbugs.report.dir}/index.html" />
+    </target>
+
+    <target name="reports" description="Generates code quality reports"
+            depends="test, coverage, duplication, findbugs" />
 
     <!-- -->
-    <target name="clean">
+    <target name="clean" depends="coverage.clean">
         <delete dir="tmp" excludes="eclipse/**" />
         <delete dir="${src.generated}" includes="**/*" />
     </target>

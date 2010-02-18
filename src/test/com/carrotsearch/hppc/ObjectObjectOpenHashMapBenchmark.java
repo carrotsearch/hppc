@@ -16,8 +16,8 @@ public class ObjectObjectOpenHashMapBenchmark extends AbstractBenchmark
     private static ObjectObjectOpenHashMap<Integer, Integer> hppc = 
         new ObjectObjectOpenHashMap<Integer, Integer>();
 
-    public static int COUNT = 1000000;
-    public static Integer [] numbers = new Integer [COUNT];
+    public static final int COUNT = 1000000;
+    static Integer [] numbers = new Integer [COUNT];
 
     /* */
     @BeforeClass
