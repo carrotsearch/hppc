@@ -519,7 +519,7 @@
 
 
     <!-- -->
-    <target name="jar" depends="clean, compile" description="Compile library JAR.">
+    <target name="jar" depends="compile" description="Compile library JAR.">
         <mkdir dir="${dist.dir}" />
         <jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
             <fileset dir="${build.dir}">
