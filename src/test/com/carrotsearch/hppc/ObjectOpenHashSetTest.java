@@ -64,17 +64,6 @@ public class ObjectOpenHashSetTest<KType>
 
     /* */
     @Test
-    public void testAddAndGet()
-    {
-        assertEquals2(defaultValue, set.addAndGet(key));
-        assertTrue(key == set.addAndGet(key));
-
-        assertSortedListEquals(set.toArray(), 1);
-        assertEquals(1, set.size());
-    }
-
-    /* */
-    @Test
     public void testAdd()
     {
         assertTrue(set.add(key));
@@ -144,20 +133,6 @@ public class ObjectOpenHashSetTest<KType>
 
     /* */
     @Test
-    public void testRemoveAndGet()
-    {
-        set.addv(newArray(set.keys, 0, 1, 2, 3, 4));
-
-        assertEquals2(
-            /* intrinsic:ktypecast */ 2, set.removeAndGet(/* intrinsic:ktypecast */ 2));
-        assertEquals2(
-            Intrinsics.defaultKTypeValue(), set.removeAndGet(/* intrinsic:ktypecast */ 2));
-        assertEquals(4, set.size());
-        assertSortedListEquals(set.toArray(), 0, 1, 3, 4);
-    }
-
-    /* */
-    @Test
     public void testIterable()
     {
         set.addv(newArray(set.keys, 1, 2, 2, 3, 4));
@@ -169,7 +144,7 @@ public class ObjectOpenHashSetTest<KType>
         {
             count++;
             assertTrue(set.contains(cursor.value));
-            assertEquals2(cursor.value, set.addAndGet(cursor.value));
+            assertEquals2(cursor.value, set.lget());
         }
         assertEquals(count, set.size());
 

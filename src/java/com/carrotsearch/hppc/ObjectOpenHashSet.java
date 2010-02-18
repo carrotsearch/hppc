@@ -26,8 +26,8 @@ import com.carrotsearch.hppc.hash.HashFunctionObject;
  *     </tr>
  * </thead>
  * <tbody>
- * <tr            ><td>boolean add(E) </td><td>boolean add(E), E addAndGet(E)</td></tr>
- * <tr class="odd"><td>boolean remove(E)    </td><td>boolean remove(E), E removeAndGet(E)</td></tr>
+ * <tr            ><td>boolean add(E) </td><td>boolean add(E)</td></tr>
+ * <tr class="odd"><td>boolean remove(E)    </td><td>boolean remove(E)</td></tr>
  * <tr            ><td>size, clear, 
  *                     isEmpty</td><td>size, clear, isEmpty</td></tr>                     
  * <tr class="odd"><td>contains(E)    </td><td>contains(E), has(E), lget()</td></tr>
@@ -170,31 +170,6 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Place a given entry in the set. The value previously stored under the given entry
-     * (or the default value) is returned (the returned object must be equal to
-     * <code>e</code>, but can be a different object).
-     */
-    public KType addAndGet(KType e)
-    {
-        if (assigned + deleted >= resizeThreshold)
-            expandAndRehash();
-
-        final int slot = slotFor(e);
-        final byte state = states[slot];
-
-        // If EMPTY or DELETED, we increase the assigned count.
-        if (state != ASSIGNED) assigned++;
-        // If DELETED, we decrease the deleted count.
-        if (state == DELETED) deleted--;
-
-        final KType oldKey = keys[slot]; 
-        keys[slot] = e;
-        states[slot] = ASSIGNED;
-
-        return oldKey;
-    }
-
-    /**
      * Semantically identical to: {@link Set#add(Object)}. 
      */
     public boolean add(KType e)
@@ -315,28 +290,6 @@ public class ObjectOpenHashSet<KType>
         this.states = new byte [capacity];
 
         this.resizeThreshold = (int) (capacity * DEFAULT_LOAD_FACTOR);
-    }
-
-    /**
-     * Remove the value at the given key, if it exists. Return the value
-     * previously stored in the set or the default value if the set did
-     * not contain that value.
-     */
-    public KType removeAndGet(KType key)
-    {
-        final int slot = slotFor(key);
-
-        final KType value = keys[slot];
-        if (states[slot] == ASSIGNED)
-        {
-            deleted++;
-            assigned--;
-
-            keys[slot] = Intrinsics.<KType>defaultKTypeValue();
-            states[slot] = DELETED;
-        }
-
-        return value;
     }
 
     /**
