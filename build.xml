@@ -756,7 +756,7 @@
 
     <target name="with.clover"
             depends="clover.tasks"
-            if="clover.available">
+            if="clover.home">
         <clover-setup>
             <fileset refid="src.coverage" />
         </clover-setup>
