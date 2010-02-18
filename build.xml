@@ -33,6 +33,12 @@
     <property name="clover.jar" location="${clover.home}/lib/clover.jar" />
     <property name="pmd.jar" location="${pmd.home}/lib/" />
 
+    <condition property="clover.available">
+        <or>
+            <isset property="clover.home" />
+            <isset property="clover.external" />
+        </or>
+    </condition>
 
     <!-- file and patternsets -->
     <path id="lib.classpath">
@@ -519,7 +525,7 @@
 
 
     <!-- -->
-    <target name="jar" depends="compile" description="Compile library JAR.">
+    <target name="jar" depends="clean, compile" description="Compile library JAR.">
         <mkdir dir="${dist.dir}" />
         <jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
             <fileset dir="${build.dir}">
@@ -750,7 +756,7 @@
 
     <target name="with.clover"
             depends="clover.tasks"
-            if="clover.home">
+            if="clover.available">
         <clover-setup>
             <fileset refid="src.coverage" />
         </clover-setup>
@@ -758,7 +764,7 @@
 
     <target name="without.clover"
             depends="clover.tasks"
-            if="clover.home">
+            if="clover.available">
         <clover-setup enabled="false" />
     </target>
 
@@ -860,4 +866,6 @@
         <delete dir="tmp" excludes="eclipse/**" />
         <delete dir="${src.generated}" includes="**/*" />
     </target>
+
+    <target name="all" depends="clean, test, jar" />
 </project>
