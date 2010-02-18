@@ -20,7 +20,7 @@
     
     <property name="etc.dir" location="etc" />
 
-    <property name="maxmem" value="-Xmx1024m" />
+    <property name="maxmem" value="1024m" />
 
     <!-- Compilation presets. -->
     <presetdef name="javac">
@@ -603,7 +603,7 @@
                failureproperty="junit.failure"
         >
           <jvmarg value="-ea" />
-          <jvmarg value="${maxmem}" />
+          <jvmarg value="-Xmx${maxmem}" />
 
           <!-- Run benchmarks as tests, but don't repeat. -->
           <jvmarg value="-Drounds.warmup=0" />
@@ -653,7 +653,7 @@
                errorproperty="benchmarks.error"
                failureproperty="benchmarks.error"
         >
-          <jvmarg value="${maxmem}" />
+          <jvmarg value="-Xmx${maxmem}" />
           <jvmarg value="-server" />
           <jvmarg value="-da" />
 

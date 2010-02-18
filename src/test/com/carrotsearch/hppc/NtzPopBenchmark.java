@@ -19,10 +19,10 @@ public class NtzPopBenchmark extends AbstractBenchmark
     private static long BIT_COUNT = (/* MB */ 200 * 1024 * 1024) / 8 * 64;
 
     /* */
-    private static BitSet random = new BitSet(BIT_COUNT);
+    private static BitSet random; 
 
     /* */
-    private static BitSet single = new BitSet(BIT_COUNT);
+    private static BitSet single;
 
     /* */
     public static volatile int guard;
@@ -31,6 +31,9 @@ public class NtzPopBenchmark extends AbstractBenchmark
     @BeforeClass
     public static void before()
     {
+        random = new BitSet(BIT_COUNT);
+        single = new BitSet(BIT_COUNT);
+        
         // Initialize with random data.
         final Random rnd = new Random(0x11223344);
         for (int i = random.bits.length; --i >= 0;)
