@@ -77,8 +77,8 @@
         <exclude name="src/java/**/BitUtil.java" /> <!-- performance-motivated duplication -->
     </fileset>
 
-    <filterchain id="filter.empty">
-    </filterchain>
+    <filtermapper id="filter.empty">
+    </filtermapper>
 
     <!-- Macros for the preprocessor. -->
 
@@ -112,7 +112,7 @@
         <attribute name="filterName" />
 
         <sequential>
-            <filterchain id="@{filterName}">
+            <filtermapper id="@{filterName}">
                 <!-- intrinsic:final → final -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="/\*\s*intrinsic:final\s*\*/" 
@@ -128,7 +128,7 @@
                 <replaceregex byline="false" flags="gms"
                     pattern="(/\*\s*)(removeIf:primitive\s)(.+?)(end:removeIf)(\s*\*/)" 
                     replace="/* removeIf:applied. */" />
-            </filterchain>
+            </filtermapper>
         </sequential>
     </macrodef>
     
@@ -137,7 +137,7 @@
         <attribute name="KType" />
             
         <sequential>
-            <filterchain id="@{filterName}">
+            <filtermapper id="@{filterName}">
                 <!-- intrinsic:ktypecast → (KType) -->
                 <replaceregex byline="false" flags="gm"
                     pattern="/\*\s*intrinsic:ktypecast\s*\*/" 
@@ -165,7 +165,7 @@
                     replace="((@{KType}) 0)" />
     
                 <replacestring from="KType"         to="@{KType}" />
-            </filterchain>
+            </filtermapper>
         </sequential>
     </macrodef>
 
@@ -174,7 +174,7 @@
         <attribute name="VType" />
 
         <sequential>
-            <filterchain id="@{filterName}">
+            <filtermapper id="@{filterName}">
                 <!-- intrinsic:vtypecast → (VType) -->
                 <replaceregex byline="false" flags="gm"
                     pattern="/\*\s*intrinsic:vtypecast\s*\*/" 
@@ -202,7 +202,7 @@
                     replace="((@{VType}) 0)" />
     
                 <replacestring from="VType"         to="@{VType}" />
-            </filterchain>
+            </filtermapper>
         </sequential>
     </macrodef>
     
@@ -215,7 +215,7 @@
             <declare.filter.common filterName="filter.common.@{KType}" />
             <declare.filter.ktype  filterName="filter.ktype.@{KType}" KType="@{KType}" />
 
-            <filterchain id="filter.specific.@{KType}">
+            <filtermapper id="filter.specific.@{KType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
@@ -228,7 +228,7 @@
 
                 <!-- Replace generic argument (KType) references with the actual type. -->
                 <replacestring from="&lt;KType&gt;" to="" />
-            </filterchain>
+            </filtermapper>
 
             <apply.filter 
                 fileset="@{fileset}"
@@ -251,7 +251,7 @@
             <declare.filter.ktype  filterName="filter.ktype.@{KType}@{VType}" KType="@{KType}" />
             <declare.filter.vtype  filterName="filter.vtype.@{KType}@{VType}" VType="@{VType}" />
 
-            <filterchain id="filter.specific.@{KType}@{VType}">
+            <filtermapper id="filter.specific.@{KType}@{VType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)?" 
@@ -272,7 +272,7 @@
 
                 <!-- Replace hash function references. -->
                 <replacestring from="HashFunctionObject" to="HashFunction@{UKType}" />
-            </filterchain>
+            </filtermapper>
 
             <apply.filter 
                  fileset="@{fileset}"
@@ -293,7 +293,7 @@
             <declare.filter.common filterName="filter.common.generic.@{VType}" />
             <declare.filter.vtype  filterName="filter.vtype.generic.@{VType}" VType="@{VType}" />
 
-            <filterchain id="filter.specific.generic.@{VType}">
+            <filtermapper id="filter.specific.generic.@{VType}">
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
                     replace="\1 Object@{UVType}\2&lt;KType&gt;" />
@@ -309,7 +309,7 @@
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
                     replace="Object@{UVType}\1" />
-            </filterchain>
+            </filtermapper>
 
             <apply.filter 
                  fileset="@{fileset}"
@@ -329,7 +329,7 @@
             <declare.filter.common filterName="filter.common.@{KType}.generic" />
             <declare.filter.ktype  filterName="filter.ktype.@{KType}.generic" KType="@{KType}" />
 
-            <filterchain id="filter.specific.@{KType}.generic">
+            <filtermapper id="filter.specific.@{KType}.generic">
                 <!-- Replace cursors -->
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?&lt;!Object)(?:Object)(Cursor)(&lt;[^&gt;]+&gt;)" 
@@ -355,7 +355,7 @@
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
                     replace="@{UKType}Object\1" />
-            </filterchain>
+            </filtermapper>
 
             <apply.filter 
                  fileset="@{fileset}"
