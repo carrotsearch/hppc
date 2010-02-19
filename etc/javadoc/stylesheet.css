@@ -17,15 +17,14 @@ table {
   border-collapse: collapse;
 }
 
-div.logo {
-  background-image: url('logo.gif');
-  background-position: top right;
-  background-repeat: no-repeat;
-  padding-right: 55px;
-  height: 50px;
+a.logo {
+  float: right;
+  padding-left: 10px;
+  position: relative;
+  top: -8px;
 }
 
-.FrameTitleFont div.logo {
+.FrameTitleFont #header {
   display: none;
 }
 

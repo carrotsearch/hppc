@@ -566,10 +566,10 @@
                  docencoding="UTF-8"
                  windowtitle="HPPC v${hppc.version} API Documentation (JavaDoc)"
                  doctitle="HPPC v${hppc.version} API Documentation"
-                 header="High Performance Primitive Collections (HPPC) v${hppc.version} &lt;br&gt;API Documentation&lt;/div&gt;"
+                 header="&lt;div id='header'&gt;&lt;a class='logo' target='_top' href='http://labs.carrotsearch.com'&gt;&lt;img src='logo.png'&gt;&lt;/a&gt;High Performance Primitive Collections (HPPC) v${hppc.version} &lt;br&gt;API Documentation&lt;/div&gt;"
                  overview="${src.java}/com/carrotsearch/hppc/package.html"
                  failonerror="true"
-                 stylesheetfile="etc/stylesheet.css"
+                 stylesheetfile="${etc.dir}/javadoc/stylesheet.css"
                  useexternalfile="true">
 
           <sourcefiles>
@@ -592,6 +592,7 @@
 
         <copy todir="${dist.dir}/api" flatten="true">
             <fileset dir="${src.java}" includes="**/*.css" />
+            <fileset dir="${etc.dir}/javadoc" includes="**/*.png" />
         </copy>
     </target>
 
