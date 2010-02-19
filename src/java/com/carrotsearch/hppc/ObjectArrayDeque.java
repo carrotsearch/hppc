@@ -149,7 +149,7 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addAllFirst(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int addFirst(Iterator<? extends ObjectCursor<? extends KType>> iterator)
     {
         int count = 0;
         while (iterator.hasNext())
@@ -164,11 +164,11 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     /**
      * Inserts all elements from the given iterable to the front of this deque.
      * 
-     * @see #addAllFirst(Iterator)
+     * @see #addFirst(Iterator)
      */
-    public final int addAllFirst(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    public final int addFirst(Iterable<? extends ObjectCursor<? extends KType>> iterable)
     {
-        return addAllFirst(iterable.iterator());
+        return addFirst(iterable.iterator());
     }
 
     /**
@@ -208,7 +208,7 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addAllLast(Iterator<? extends ObjectCursor<? extends KType>> cursor)
+    public final int addLast(Iterator<? extends ObjectCursor<? extends KType>> cursor)
     {
         int count = 0;
         while (cursor.hasNext())
@@ -223,11 +223,11 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     /**
      * Inserts all elements from the given iterable to the end of this deque.
      * 
-     * @see #addAllLast(Iterator)
+     * @see #addLast(Iterator)
      */
-    public final int addAllLast(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    public final int addLast(Iterable<? extends ObjectCursor<? extends KType>> iterable)
     {
-        return addAllLast(iterable.iterator());
+        return addLast(iterable.iterator());
     }
 
     /**
@@ -306,41 +306,6 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Removes all occurrences of the specified element in this deque.
-     * If the deque does not contain the element, it is unchanged.
-     * 
-     * @param e1 element to be removed from this deque, if present
-     * @return The number of removed occurrences of <code>e1</code>.
-     */
-    public int removeAllOccurrences(KType e1)
-    {
-        int removed = 0;
-        final int last = tail;
-        final int bufLen = buffer.length;
-        int from, to;
-        for (from = to = head; from != last; from = oneRight(from, bufLen))
-        {
-            if (Intrinsics.equals(e1, buffer[from]))
-            {
-                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
-                removed++;
-                continue;
-            }
-
-            if (to != from)
-            {
-                buffer[to] = buffer[from];
-                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
-            }
-
-            to = oneRight(to, bufLen);
-        }
-
-        tail = to;
-        return removed;
-    }
-
-    /**
      * Return the index of the first (counting from head) element equal to
      * <code>e1</code>. The index points to the {@link #buffer} array.
      *   
@@ -400,18 +365,53 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
     
     /**
+     * Removes all occurrences of the specified element in this deque.
+     * If the deque does not contain the element, it is unchanged.
+     * 
+     * @param e1 element to be removed from this deque, if present
+     * @return The number of removed occurrences of <code>e1</code>.
+     */
+    public int removeAll(KType e1)
+    {
+        int removed = 0;
+        final int last = tail;
+        final int bufLen = buffer.length;
+        int from, to;
+        for (from = to = head; from != last; from = oneRight(from, bufLen))
+        {
+            if (Intrinsics.equals(e1, buffer[from]))
+            {
+                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                removed++;
+                continue;
+            }
+    
+            if (to != from)
+            {
+                buffer[to] = buffer[from];
+                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+            }
+    
+            to = oneRight(to, bufLen);
+        }
+    
+        tail = to;
+        return removed;
+    }
+
+    /**
      * Removes all elements present in a given iterator.
      * 
      * @param iterator An iterator returning a cursor over a collection of KType elements. 
      * @return Returns the number of elements actually removed as a result of this
      * call.
      */
-    public final int removeAllIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int removeAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
     {
         int count = 0;
         while (iterator.hasNext())
         {
-            count += removeAllOccurrences((KType) iterator.next().value);
+            count += removeAll((KType) iterator.next().value);
         }
 
         return count;
@@ -420,11 +420,11 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     /**
      * Removes all elements present in an iterable.
      * 
-     * @see #removeAllIn(Iterator)
+     * @see #removeAll(Iterator)
      */
-    public final int removeAllIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    public final int removeAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
     {
-        return removeAllIn(iterable.iterator());
+        return removeAll(iterable.iterator());
     }
 
     /**

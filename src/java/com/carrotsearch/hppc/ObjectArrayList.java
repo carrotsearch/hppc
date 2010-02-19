@@ -25,7 +25,7 @@ import com.carrotsearch.hppc.procedures.*;
  * <tr            ><td>get            </td><td>get            </td></tr>
  * <tr class="odd"><td>removeRange, 
  *                     removeElementAt</td><td>removeRange, remove</td></tr>                     
- * <tr            ><td>remove(Object) </td><td>removeFirst, removeLast, removeAll</td></tr>
+ * <tr            ><td>remove(Object) </td><td>removeFirstOccurrence, removeLastOccurrence, removeAll</td></tr>
  * <tr class="odd"><td>clear          </td><td>clear, release </td></tr>
  * <tr            ><td>size           </td><td>size           </td></tr>
  * <tr class="odd"><td>ensureCapacity </td><td>ensureCapacity, resize</td></tr>
@@ -232,7 +232,7 @@ public class ObjectArrayList<KType>
      * 
      * <p><b>Careful.</b> Do not confuse this method with the overridden signature in
      * Java Collections ({@link List#remove(Object)}). Use {@link #removeAll},
-     * {@link #removeFirst} or {@link #removeLast} for this purpose.</p> 
+     * {@link #removeFirstOccurrence} or {@link #removeLastOccurrence} for this purpose.</p> 
      */
     public final KType remove(int index)
     {
@@ -274,7 +274,7 @@ public class ObjectArrayList<KType>
      * Removes the first element that equals <code>e1</code>, returning its 
      * deleted position or <code>-1</code> if the element was not found.   
      */
-    public final int removeFirst(KType e1)
+    public final int removeFirstOccurrence(KType e1)
     {
         final int index = indexOf(e1);
         if (index >= 0) remove(index);
@@ -285,7 +285,7 @@ public class ObjectArrayList<KType>
      * Removes the last element that equals <code>e1</code>, returning its 
      * deleted position or <code>-1</code> if the element was not found.   
      */
-    public final int removeLast(KType e1)
+    public final int removeLastOccurrence(KType e1)
     {
         final int index = lastIndexOf(e1);
         if (index >= 0) remove(index);
@@ -329,7 +329,7 @@ public class ObjectArrayList<KType>
      * @return Returns the number of elements actually removed as a result of this
      * call.
      */
-    public final int removeAllIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int removeAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
     {
         int count = 0;
         while (iterator.hasNext())
@@ -343,11 +343,11 @@ public class ObjectArrayList<KType>
     /**
      * Removes all elements present in an iterable.
      * 
-     * @see #removeAllIn(Iterator)
+     * @see #removeAll(Iterator)
      */
-    public final int removeAllIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    public final int removeAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
     {
-        return removeAllIn(iterable.iterator());
+        return removeAll(iterable.iterator());
     }
     
     /**

@@ -194,23 +194,23 @@ public class ObjectArrayListTest<KType>
     {
         list.add(newArray(list.buffer, 0, 1, 2, 1, 0));
 
-        assertEquals(-1, list.removeFirst(/* intrinsic:ktypecast */ 5));
-        assertEquals(-1, list.removeLast(/* intrinsic:ktypecast */ 5));
+        assertEquals(-1, list.removeFirstOccurrence(/* intrinsic:ktypecast */ 5));
+        assertEquals(-1, list.removeLastOccurrence(/* intrinsic:ktypecast */ 5));
         assertListEquals(list.toArray(), 0, 1, 2, 1, 0);
 
-        assertEquals(1, list.removeFirst(/* intrinsic:ktypecast */ 1));
+        assertEquals(1, list.removeFirstOccurrence(/* intrinsic:ktypecast */ 1));
         assertListEquals(list.toArray(), 0, 2, 1, 0);
-        assertEquals(3, list.removeLast(/* intrinsic:ktypecast */ 0));
+        assertEquals(3, list.removeLastOccurrence(/* intrinsic:ktypecast */ 0));
         assertListEquals(list.toArray(), 0, 2, 1);
-        assertEquals(0, list.removeLast(/* intrinsic:ktypecast */ 0));
+        assertEquals(0, list.removeLastOccurrence(/* intrinsic:ktypecast */ 0));
         assertListEquals(list.toArray(), 2, 1);
-        assertEquals(-1, list.removeLast(/* intrinsic:ktypecast */ 0));
+        assertEquals(-1, list.removeLastOccurrence(/* intrinsic:ktypecast */ 0));
         
         /* removeIf:primitive */
         list.clear();
         list.add(newArray(list.buffer, 0, null, 2, null, 0));
-        assertEquals(1, list.removeFirst(null));
-        assertEquals(2, list.removeLast(null));
+        assertEquals(1, list.removeFirstOccurrence(null));
+        assertEquals(2, list.removeLastOccurrence(null));
         assertListEquals(list.toArray(), 0, 2, 0);
         /* end:removeIf */
     }
@@ -246,8 +246,8 @@ public class ObjectArrayListTest<KType>
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
         list2.add(newArray(list2.buffer, 0, 2));
 
-        assertEquals(3, list.removeAllIn(list2));
-        assertEquals(0, list.removeAllIn(list2.iterator()));
+        assertEquals(3, list.removeAll(list2));
+        assertEquals(0, list.removeAll(list2.iterator()));
 
         assertListEquals(list.toArray(), 1, 1);
     }
