@@ -16,7 +16,8 @@ public class ObjectOpenHashSetTest<KType>
      */
     public ObjectOpenHashSet<Object> set;
 
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key = 1;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key1 = 1;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key2 = 2;
 
     /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   defaultValue 
         = Intrinsics.<KType>defaultKTypeValue();
@@ -66,9 +67,21 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testAdd()
     {
-        assertTrue(set.add(key));
-        assertFalse(set.add(key));
+        assertTrue(set.add(key1));
+        assertFalse(set.add(key1));
         assertEquals(1, set.size());
+    }
+
+    /* */
+    @Test
+    public void testAdd2()
+    {
+        set.add(key1, key1);
+        assertEquals(1, set.size());
+        set.clear();
+
+        set.add(key1, key2);
+        assertEquals(2, set.size());
     }
 
     /* */

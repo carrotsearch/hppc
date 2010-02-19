@@ -170,7 +170,10 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Semantically identical to: {@link Set#add(Object)}. 
+     * Adds the specified element to this set if it is not already present. 
+     * 
+     * @return <tt>true</tt> if the element was added to the set (this set did not 
+     *      already contain it).
      */
     public boolean add(KType e)
     {
@@ -189,6 +192,15 @@ public class ObjectOpenHashSet<KType>
         states[slot] = ASSIGNED;
 
         return state != ASSIGNED;
+    }
+
+    /**
+     * Adds two elements to the set.
+     */
+    public void add(KType e1, KType e2)
+    {
+        add(e1);
+        add(e2);
     }
 
     /**
