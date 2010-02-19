@@ -5,20 +5,39 @@
     <property name="src.test" location="src/test" />
     <property name="src.generated" location="src/generated" />
 
-    <property name="build.dir" location="tmp/build" />
-    <property name="build.tests.dir" location="tmp/build-test" />
-    <property name="tests.report.dir" location="tmp/test-report" />
-    <property name="benchmarks.report.dir" location="tmp/benchmark-report" />
-    <property name="coverage.report.dir" location="tmp/coverage-report" />
-    <property name="duplication.report.dir" location="tmp/duplication-report" />
-    <property name="findbugs.report.dir" location="tmp/findbugs-report" />
+    <property name="etc.dir" location="etc" />
+
+    <!-- Common scratch dir-->
+    <property name="tmp.dir" location="tmp" />
+
+    <!-- Intermediate files -->
+    <property name="build.dir" location="${tmp.dir}/build" />
+
+    <!-- Build results -->
+    <property name="dist.dir" location="${tmp.dir}/dist" />
+  
+    <!-- Publishable artifacts -->
+    <property name="artifacts.dir" location="${tmp.dir}/artifacts" />
+  
+
+    <!-- Classes to be included in the final (production) artifact -->
+    <property name="classes.dir" location="${build.dir}/classes" />
+
+    <!-- Classes used for tests, may be instrumented for coverage analysis -->
+    <property name="test.classes.dir" location="${build.dir}/test-classes" />
+
+    <!-- Reports -->
+    <property name="reports.dir" location="${dist.dir}/reports" />
+    <property name="tests.report.dir" location="${reports.dir}/tests" />
+    <property name="benchmarks.report.dir" location="${reports.dir}/benchmarks" />
+    <property name="coverage.report.dir" location="${reports.dir}/coverage" />
+    <property name="duplication.report.dir" location="${reports.dir}/duplication" />
+    <property name="findbugs.report.dir" location="${reports.dir}/findbugs" />
 
     <property file="hppc.version" />
     <property file="local.properties" />
-    <property name="dist.dir" location="dist" />
+
     <property name="dist.name" value="hppc-${hppc.version}" />
-    
-    <property name="etc.dir" location="etc" />
 
     <property name="maxmem" value="1024m" />
 
@@ -30,12 +49,14 @@
     </presetdef>
 
     <!-- Extra tools the build can use if available -->
-    <property name="clover.jar" location="${clover.home}/lib/clover.jar" />
     <property name="pmd.jar" location="${pmd.home}/lib/" />
-
+    <property name="clover.jar" location="${clover.home}/lib/clover.jar" />
     <condition property="clover.available">
         <or>
+            <!-- Clover path provided -->
             <isset property="clover.home" />
+
+            <!-- Clover installed automatically by the build server -->
             <isset property="clover.external" />
         </or>
     </condition>
@@ -498,22 +519,22 @@
 
 
     <!-- -->
-    <target name="compile" depends="without.clover, preprocess">
-        <compile build.dir="${build.dir}" />
+    <target name="compile" depends="preprocess, without.clover">
+        <compile classes.dir="${classes.dir}" />
     </target>
 
     <target name="compile.tests" depends="preprocess, with.clover">
-        <compile build.dir="${build.tests.dir}" />
+        <compile classes.dir="${test.classes.dir}" />
     </target>
 
     <macrodef name="compile">
-      <attribute name="build.dir" />
+      <attribute name="classes.dir" />
 
       <sequential>
-        <mkdir dir="@{build.dir}" />
+        <mkdir dir="@{classes.dir}" />
 
         <!-- Library code and generated code. -->
-        <javac destdir="@{build.dir}">
+        <javac destdir="@{classes.dir}">
             <src>
               <path refid="src.java" />
             </src>
@@ -525,10 +546,10 @@
 
 
     <!-- -->
-    <target name="jar" depends="clean, compile" description="Compile library JAR.">
+    <target name="jar" depends="clean.build, compile" description="Compile library JAR.">
         <mkdir dir="${dist.dir}" />
         <jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
-            <fileset dir="${build.dir}">
+            <fileset dir="${classes.dir}">
                 <patternset refid="patterns.exclude.tests" />
             </fileset>
         </jar>
@@ -536,7 +557,7 @@
 
 
     <!-- -->
-    <target name="javadoc" description="Generate API documentation.">
+    <target name="javadoc" depends="preprocess" description="Generate API documentation.">
         <javadoc destdir="${dist.dir}/api"
                  access="protected"
                  version="true"
@@ -582,6 +603,19 @@
         </copy>
     </target>
 
+    <!-- -->
+    <target name="artifacts" description="Build distributable artifacts.">
+        <mkdir dir="${artifacts.dir}" />
+        <zip destfile="${artifacts.dir}/${dist.name}.zip">
+            <fileset dir="${dist.dir}">
+                <exclude name="reports/coverage" />
+                <exclude name="reports/coverage/**/*" />
+
+                <exclude name="reports/tests/**/*.xml" />
+                <exclude name="reports/benchmarks/**/*.xml" />
+            </fileset>
+        </zip>
+    </target>
 
     <!-- -->
     <target name="test" depends="compile.tests" description="Run tests.">
@@ -621,10 +655,10 @@
           <formatter type="xml" />
 
           <classpath refid="lib.classpath" />
-          <classpath location="${build.tests.dir}" />
+          <classpath location="${test.classes.dir}" />
 
           <batchtest todir="${tests.report.dir}">
-            <fileset dir="${build.tests.dir}">
+            <fileset dir="${test.classes.dir}">
               <include name="**/*Test.class" />
               <include name="**/*Benchmark.class" />
               <exclude name="**/Abstract*" />
@@ -673,22 +707,15 @@
           <formatter type="xml" />
 
           <classpath refid="lib.classpath" />
-          <classpath location="${build.dir}" />
+          <classpath location="${classes.dir}" />
 
           <batchtest todir="${benchmarks.report.dir}">
-            <fileset dir="${build.dir}">
+            <fileset dir="${classes.dir}">
               <include name="**/*Benchmark.class" />
               <exclude name="**/Abstract*" />
             </fileset>
           </batchtest>
         </junit>
-
-        <junitreport todir="${benchmarks.report.dir}">
-          <fileset dir="${benchmarks.report.dir}">
-            <include name="TEST-*.xml" />
-          </fileset>
-          <report format="frames" todir="${benchmarks.report.dir}" />
-        </junitreport>
 
         <fail message="Benchmarks failed. See ${benchmarks.report.dir} for report." 
             if="benchmarks.error" />
@@ -746,6 +773,12 @@
         <concat><path><pathelement location="${benchmarks.report.dir}/results.txt" /></path></concat>
     </target>
 
+    <!--
+         All reports
+      -->
+    <target name="reports" description="Generate code quality reports and benchmarks."
+            depends="test, coverage, duplication, findbugs, benchmark" />
+
     <!-- 
          Code coverage calculation.
       -->
@@ -754,6 +787,7 @@
         <taskdef resource="cloverlib.xml" classpath="${clover.jar}" />
     </target>
 
+    <!-- Enables colver, only when local Clover path is provided -->
     <target name="with.clover"
             depends="clover.tasks"
             if="clover.home">
@@ -762,6 +796,9 @@
         </clover-setup>
     </target>
 
+    <!--
+         Disables clover, either if Clover is local or provided by the build server.
+      -->
     <target name="without.clover"
             depends="clover.tasks"
             if="clover.available">
@@ -769,8 +806,9 @@
     </target>
 
     <target name="coverage"
-            depends="coverage.html, coverage.xml"
-            description="Generates code coverage reports" />
+            depends="test, coverage.html, coverage.xml"
+            unless="clover.external"
+            description="Generate code coverage reports." />
 
     <target name="coverage.html"
             depends="clover.tasks"
@@ -812,7 +850,7 @@
     <target name="duplication"
               depends="pmd.tasks"
               if="pmd.home"
-              description="Generates code duplication report">
+              description="Generate code duplication report.">
         <mkdir dir="${duplication.report.dir}" />
         <cpd minimumTokenCount="100"
              outputFile="${duplication.report.dir}/duplication.xml"
@@ -830,19 +868,22 @@
       -->
     <target name="findbugs"
             if="findbugs.home"
-            description="Generates FindBugs report"
+            description="Generate FindBugs report."
             depends="compile">
         <taskdef name="findbugs"
                  classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
                  classpath="${findbugs.home}/lib/findbugs-ant.jar" />
         <mkdir dir="${findbugs.report.dir}" />
 
-        <!-- Delete some classes we don't want to have analyzed -->
-        <delete>
-          <fileset dir="${build.dir}">
-            <include name="**/*Benchmark*.class" />
+        <property name="findbugs.classes.dir" location="${build.dir}/findbugs-classes" />
+        <mkdir dir="${findbugs.classes.dir}" />
+
+        <!-- We dont' want to analyze all clsses" -->
+        <copy todir="${findbugs.classes.dir}">
+          <fileset dir="${classes.dir}">
+            <exclude name="**/*Benchmark*.class" />
           </fileset>
-        </delete>
+        </copy>
 
         <findbugs home="${findbugs.home}"
                   jvmargs="-Xmx512m"
@@ -850,7 +891,7 @@
                   effort="max"
                   output="xml:withMessages"
                   outputFile="${findbugs.report.dir}/findbugs.xml">
-            <class location="${build.dir}" />
+            <class location="${findbugs.classes.dir}" />
         </findbugs>
 
         <xslt in="${findbugs.report.dir}/findbugs.xml"
@@ -858,14 +899,19 @@
               out="${findbugs.report.dir}/index.html" />
     </target>
 
-    <target name="reports" description="Generates code quality reports"
-            depends="test, coverage, duplication, findbugs" />
-
     <!-- -->
-    <target name="clean" depends="coverage.clean">
-        <delete dir="tmp" excludes="eclipse/**" />
-        <delete dir="${src.generated}" includes="**/*" />
+    <target name="clean" depends="coverage.clean, clean.build, clean.dist">
+        <delete dir="${tmp.dir}" excludes="eclipse/**" includeemptydirs="true" />
+        <delete dir="${src.generated}" includes="**/*" includeemptydirs="true" />
     </target>
 
-    <target name="all" depends="clean, test, jar" />
+    <target name="clean.build">
+        <delete dir="${build.dir}" />
+    </target>
+
+    <target name="clean.dist">
+        <delete dir="${dist.dir}" />
+    </target>
+
+    <target name="all" depends="clean, dist, reports, artifacts" description="Build all HPPC artifacts." />
 </project>
