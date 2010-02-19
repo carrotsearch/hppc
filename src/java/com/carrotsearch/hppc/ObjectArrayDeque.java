@@ -662,6 +662,48 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
+     * An iterator implementation for {@link ObjectArrayDeque#descendingIterator()}.
+     */
+    private final class DescendingIterator implements Iterator<ObjectCursor<KType>>
+    {
+        private final ObjectCursor<KType> cursor;
+        private int remaining;
+
+        public DescendingIterator()
+        {
+            cursor = new ObjectCursor<KType>();
+            cursor.index = tail;
+            this.remaining = size();
+        }
+
+        public boolean hasNext()
+        {
+            return remaining > 0;
+        }
+
+        public ObjectCursor<KType> next()
+        {
+            if (remaining == 0)
+                throw new NoSuchElementException();
+
+            remaining--;
+            cursor.index = oneLeft(cursor.index, buffer.length);
+            cursor.value = buffer[cursor.index];
+            return cursor;
+        }
+
+        public void remove()
+        {
+            /* 
+             * It will be much more efficient to have a removal using a closure-like 
+             * structure (then we can simply move elements to proper slots as we iterate
+             * over the array as in #removeAll). 
+             */
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
      * Returns a cursor over the values of this deque (in head to tail order). The
      * iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
      * on every call to {@link Iterator#next()} (to avoid boxing of primitive types). To
@@ -684,6 +726,29 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
+     * Returns a cursor over the values of this deque (in tail to head order). The
+     * iterator is implemented as a cursor and it returns <b>the same cursor instance</b>
+     * on every call to {@link Iterator#next()} (to avoid boxing of primitive types). To
+     * read the current value (or index in the deque's buffer) use the cursor's public
+     * fields. An example is shown below.
+     * 
+     * <pre>
+     * for (Iterator<IntCursor> i = intDeque.descendingIterator(); i.hasNext(); )
+     * {
+     *     final IntCursor c = i.next();
+     *     System.out.println(&quot;buffer index=&quot; 
+     *         + c.index + &quot; value=&quot; + c.value);
+     * }
+     * </pre>
+     * 
+     * @see #values()
+     */
+    public Iterator<ObjectCursor<KType>> descendingIterator()
+    {
+        return new DescendingIterator();
+    }
+
+    /**
      * Returns an iterable view of the values in this {@link ObjectArrayDeque}, effectively
      * an alias for <code>this</code> because {@link ObjectArrayDeque} is already
      * iterable over the stored values.
@@ -696,9 +761,7 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Applies <code>procedure</code> to all elements of this list. This method
-     * is about twice as fast as running an iterator and nearly as fast
-     * as running a code loop over the buffer content (!).
+     * Applies <code>procedure</code> to all elements of this deque, head to tail.
      *
      * @see "HPPC benchmarks." 
      */
@@ -719,5 +782,32 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
         {
             procedure.apply(buffer[i]);
         }
+    }
+
+    /**
+     * Applies <code>procedure</code> to all elements of this deque, tail to head. 
+     */
+    public void descendingforEach(ObjectProcedure<? super KType> procedure)
+    {
+        descendingForEach(procedure, head, tail);
+    }
+    
+    /**
+     * Applies <code>procedure</code> to a slice of the deque,
+     * <code>toIndex</code>, exclusive, down to <code>fromIndex</code>, inclusive.
+     */
+    private void descendingForEach(ObjectProcedure<? super KType> procedure, 
+        int fromIndex, final int toIndex)
+    {
+        if (fromIndex == toIndex)
+            return;
+
+        final KType [] buffer = this.buffer;
+        int i = toIndex;
+        do
+        {
+            i = oneLeft(i, buffer.length);
+            procedure.apply(buffer[i]);
+        } while (i != fromIndex);
     }
 }

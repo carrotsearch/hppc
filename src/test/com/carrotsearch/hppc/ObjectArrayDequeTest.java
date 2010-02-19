@@ -4,13 +4,13 @@ import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.*;
 import org.junit.rules.MethodRule;
 
-import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.carrotsearch.hppc.mutables.IntHolder;
+import com.carrotsearch.hppc.procedures.ObjectProcedure;
 
 /**
  * Unit tests for {@link ObjectArrayDeque}.
@@ -363,7 +363,7 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testIterable()
     {
-        deque.addLast(sequence.buffer);
+        deque.addAllLast(sequence);
 
         int count = 0;
         for (ObjectCursor<Object> cursor : deque)
@@ -373,6 +373,7 @@ public class ObjectArrayDequeTest<KType>
             count++;
         }
         assertEquals(count, deque.size());
+        assertEquals(count, sequence.size());
 
         count = 0;
         deque.clear();
@@ -407,23 +408,64 @@ public class ObjectArrayDequeTest<KType>
 
     /* */
     @Test
+    public void testDescendingIterator()
+    {
+        deque.addAllLast(sequence);
+
+        int index = sequence.size() - 1;
+        for (Iterator<ObjectCursor<Object>> i = deque.descendingIterator(); i.hasNext(); )
+        {
+            ObjectCursor<Object> cursor = i.next();
+            assertEquals2(sequence.buffer[index], cursor.value);
+            assertEquals2(deque.buffer[cursor.index], cursor.value);
+            index--;
+        }
+        assertEquals(-1, index);
+
+        deque.clear();
+        assertFalse(deque.descendingIterator().hasNext());
+    }
+
+    /* */
+    @Test
     /* removeIf:primitive */
     @SuppressWarnings({"unchecked"})
     /* end:removeIf */
     public void testForEachWithProcedure()
     {
-        deque.addLast(sequence.buffer);
+        deque.addAllLast(sequence);
 
-        final AtomicInteger holder = new AtomicInteger();
+        final IntHolder count = new IntHolder();
         ((ObjectArrayDeque<KType>) deque).forEach(new ObjectProcedure<KType>() {
             int index = 0;
             public void apply(KType v)
             {
-                assertEquals2(sequence.buffer[index], v);
-                holder.set(++index);
+                assertEquals2(sequence.buffer[index++], v);
+                count.value++;
             }
         });
-        assertEquals(holder.get(), deque.size());
+        assertEquals(count.value, deque.size());
+    }
+
+    /* */
+    @Test
+    /* removeIf:primitive */
+    @SuppressWarnings({"unchecked"})
+    /* end:removeIf */
+    public void testDescendingForEachWithProcedure()
+    {
+        deque.addAllLast(sequence);
+
+        final IntHolder count = new IntHolder();
+        ((ObjectArrayDeque<KType>) deque).descendingforEach(new ObjectProcedure<KType>() {
+            int index = sequence.size();
+            public void apply(KType v)
+            {
+                assertEquals2(sequence.buffer[--index], v);
+                count.value++;
+            }
+        });
+        assertEquals(count.value, deque.size());
     }
 
     /* removeIf:primitive */
