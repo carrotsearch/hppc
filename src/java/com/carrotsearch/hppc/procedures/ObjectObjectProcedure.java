@@ -1,4 +1,6 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.procedures;
+
+import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 
 /**
  * A procedure that applies to <code>KType</code>, <code>VType</code> pairs.

@@ -9,6 +9,8 @@ import java.util.Random;
 import org.junit.*;
 import org.junit.rules.MethodRule;
 
+import com.carrotsearch.hppc.cursors.*;
+
 /**
  * Tests for {@link ObjectObjectOpenHashMap}.
  */

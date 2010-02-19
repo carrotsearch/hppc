@@ -6,6 +6,8 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.rules.MethodRule;
 
+import com.carrotsearch.hppc.cursors.*;
+
 /**
  * Unit tests for {@link ObjectOpenHashSet}.
  */

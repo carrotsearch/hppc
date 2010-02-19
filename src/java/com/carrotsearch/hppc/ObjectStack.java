@@ -2,6 +2,8 @@ package com.carrotsearch.hppc;
 
 import java.util.Iterator;
 
+import com.carrotsearch.hppc.cursors.*;
+
 /**
  * An extension to {@link ObjectArrayList} adding stack-related utility methods.
  * 

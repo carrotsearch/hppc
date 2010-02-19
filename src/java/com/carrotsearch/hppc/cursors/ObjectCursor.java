@@ -1,4 +1,6 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.cursors;
+
+import com.carrotsearch.hppc.ObjectArrayList;
 
 /**
  * A cursor over an array of <code>KTypes</code> or an {@link ObjectArrayList}.

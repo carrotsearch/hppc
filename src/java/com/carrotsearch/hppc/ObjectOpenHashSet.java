@@ -2,7 +2,9 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
-import com.carrotsearch.hppc.hash.HashFunctionObject;
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.hash.*;
+import com.carrotsearch.hppc.procedures.*;
 
 /**
  * A hash set of <code>KType</code>s, implemented using open addressing with 

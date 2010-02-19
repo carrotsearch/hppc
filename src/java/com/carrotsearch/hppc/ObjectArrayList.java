@@ -2,6 +2,9 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.procedures.*;
+
 /**
  * An array-backed list of KTypes. A single array is used to store and manipulate
  * all elements. Reallocations are governed by a {@link ArraySizingStrategy}

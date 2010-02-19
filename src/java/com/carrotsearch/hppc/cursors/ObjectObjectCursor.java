@@ -1,4 +1,6 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.cursors;
+
+import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 
 /**
  * A cursor over map entries (keys and values).

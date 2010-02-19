@@ -3,6 +3,8 @@ package com.carrotsearch.hppc;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.procedures.*;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 

@@ -1,4 +1,4 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.procedures;
 
 /**
  * A procedure that applies to <code>KType</code> objects.

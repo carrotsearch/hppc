@@ -2,7 +2,9 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
-import com.carrotsearch.hppc.hash.HashFunctionObject;
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.hash.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open

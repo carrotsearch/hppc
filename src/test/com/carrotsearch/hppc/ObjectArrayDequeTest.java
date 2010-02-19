@@ -9,6 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.*;
 import org.junit.rules.MethodRule;
 
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.procedures.*;
+
 /**
  * Unit tests for {@link ObjectArrayDeque}.
  */
