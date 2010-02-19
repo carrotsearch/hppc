@@ -370,7 +370,8 @@ public class ObjectArrayListTest<KType>
         for (ObjectCursor<Object> cursor : list)
         {
             count++;
-            assertEquals2(cursor.value, list.get(cursor.index));
+            assertEquals2(list.get(cursor.index), cursor.value);
+            assertEquals2(list.buffer[cursor.index], cursor.value);
         }
         assertEquals(count, list.size());
 

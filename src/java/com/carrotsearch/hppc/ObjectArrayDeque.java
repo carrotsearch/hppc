@@ -625,28 +625,28 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     private final class ValueIterator implements Iterator<ObjectCursor<KType>>
     {
         private final ObjectCursor<KType> cursor;
-        private final int last;
+        private int remaining;
 
         public ValueIterator()
         {
             cursor = new ObjectCursor<KType>();
-            cursor.index = head;
-            this.last = tail;
+            cursor.index = oneLeft(head, buffer.length);
+            this.remaining = size();
         }
 
         public boolean hasNext()
         {
-            return cursor.index != last;
+            return remaining > 0;
         }
 
         public ObjectCursor<KType> next()
         {
-            if (cursor.index == tail)
+            if (remaining == 0)
                 throw new NoSuchElementException();
 
-            final int i = cursor.index;
-            cursor.value = buffer[i];
-            cursor.index = oneRight(i, buffer.length);
+            remaining--;
+            cursor.index = oneRight(cursor.index, buffer.length);
+            cursor.value = buffer[cursor.index];
             return cursor;
         }
 

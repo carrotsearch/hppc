@@ -228,6 +228,7 @@ public class ObjectObjectOpenHashMapTest
 
     /* */
     @Test
+    @SuppressWarnings("static-access")
     public void testIterable()
     {
         map.put(key1, value1);
@@ -241,6 +242,10 @@ public class ObjectObjectOpenHashMapTest
             count++;
             assertTrue(map.containsKey(cursor.key));
             assertEquals2(cursor.value, map.get(cursor.key));
+
+            assertEquals2(cursor.value, map.values[cursor.index]);
+            assertEquals2(cursor.key, map.keys[cursor.index]);
+            assertEquals2(map.ASSIGNED, map.states[cursor.index]);
         }
         assertEquals(count, map.size());
 

@@ -369,6 +369,7 @@ public class ObjectArrayDequeTest<KType>
         for (ObjectCursor<Object> cursor : deque)
         {
             assertEquals2(sequence.buffer[count], cursor.value);
+            assertEquals2(deque.buffer[cursor.index], cursor.value);
             count++;
         }
         assertEquals(count, deque.size());
