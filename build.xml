@@ -913,5 +913,5 @@
         <delete dir="${dist.dir}" />
     </target>
 
-    <target name="all" depends="clean, dist, reports, artifacts" description="Build all HPPC artifacts." />
+    <target name="all" depends="clean, reports, dist, artifacts" description="Build all HPPC artifacts." />
 </project>
