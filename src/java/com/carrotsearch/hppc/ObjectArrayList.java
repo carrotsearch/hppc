@@ -17,7 +17,7 @@ import java.util.*;
  *     </tr>
  * </thead>
  * <tbody>
- * <tr            ><td>add            </td><td>add, addv      </td></tr>
+ * <tr            ><td>add            </td><td>add            </td></tr>
  * <tr class="odd"><td>add(index,v)   </td><td>insert(index,v)</td></tr>
  * <tr            ><td>get            </td><td>get            </td></tr>
  * <tr class="odd"><td>removeRange, 
@@ -121,7 +121,7 @@ public class ObjectArrayList<KType>
 
     /**
      * Appends two elements at the end of the list. To add more than two elements,
-     * use <code>addv</code> (vararg-version) or access the buffer directly (tight
+     * use <code>add</code> (vararg-version) or access the buffer directly (tight
      * loop).
      */
     public final void add(KType e1, KType e2)
@@ -148,7 +148,7 @@ public class ObjectArrayList<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public final void addv(KType... elements)
+    public final void add(KType... elements)
     {
         add(elements, 0, elements.length);
     }
@@ -651,7 +651,7 @@ public class ObjectArrayList<KType>
     ObjectArrayList<KType> from(KType... elements)
     {
         final ObjectArrayList<KType> list = new ObjectArrayList<KType>(elements.length);
-        list.addv(elements);
+        list.add(elements);
         return list;
     }
 }

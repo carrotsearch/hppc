@@ -132,7 +132,7 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void addFirstv(KType... elements)
+    public void addFirst(KType... elements)
     {
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++)
@@ -191,7 +191,7 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void addLastv(KType... elements)
+    public void addLast(KType... elements)
     {
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++)

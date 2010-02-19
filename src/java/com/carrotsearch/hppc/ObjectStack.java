@@ -15,7 +15,7 @@ import java.util.Iterator;
  *     </tr>
  * </thead>
  * <tbody>
- * <tr            ><td>push           </td><td>push (multiple arg-count overrides), pushv</td></tr>
+ * <tr            ><td>push           </td><td>push           </td></tr>
  * <tr class="odd"><td>pop            </td><td>pop, discard   </td></tr>
  * <tr            ><td>peek           </td><td>peek           </td></tr>
  * <tr class="odd"><td>removeRange, 
@@ -115,7 +115,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public final void pushv(KType... elements)
+    public final void push(KType... elements)
     {
         push(elements, 0, elements.length);
     }
@@ -195,7 +195,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
         ObjectStack<KType> from(KType... elements)
     {
         final ObjectStack<KType> stack = new ObjectStack<KType>(elements.length);
-        stack.pushv(elements);
+        stack.push(elements);
         return stack;
     }
 }

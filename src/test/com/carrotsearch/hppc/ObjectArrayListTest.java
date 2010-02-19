@@ -52,7 +52,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testAdd()
     {
-        list.addv(
+        list.add(
             /* intrinsic:ktypecast */ 1, 
             /* intrinsic:ktypecast */ 2);
         assertListEquals(list.toArray(), 1, 2);
@@ -83,11 +83,13 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testAddVarArg()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 3));
-        list.addv(
+        list.add(newArray(list.buffer, 0, 1, 2, 3));
+        list.add(
             /* intrinsic:ktypecast */ 4, 
-            /* intrinsic:ktypecast */ 5);
-        assertListEquals(list.toArray(), 0, 1, 2, 3, 4, 5);
+            /* intrinsic:ktypecast */ 5, 
+            /* intrinsic:ktypecast */ 6,
+            /* intrinsic:ktypecast */ 7);
+        assertListEquals(list.toArray(), 0, 1, 2, 3, 4, 5, 6, 7);
     }
 
     /* */
@@ -95,7 +97,7 @@ public class ObjectArrayListTest<KType>
     public void testAddAll()
     {
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.addv(newArray(list2.buffer, 0, 1, 2));
+        list2.add(newArray(list2.buffer, 0, 1, 2));
 
         list.addAll(list2.iterator());
         list.addAll(list2);
@@ -142,7 +144,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testSet()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2));
+        list.add(newArray(list.buffer, 0, 1, 2));
 
         assertEquals2(0, list.set(0, /* intrinsic:ktypecast */ 3));
         assertEquals2(1, list.set(1, /* intrinsic:ktypecast */ 4));
@@ -155,7 +157,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testRemove()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 3, 4));
+        list.add(newArray(list.buffer, 0, 1, 2, 3, 4));
 
         list.remove(0);
         list.remove(2);
@@ -168,7 +170,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testRemoveRange()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 3, 4));
+        list.add(newArray(list.buffer, 0, 1, 2, 3, 4));
 
         list.removeRange(0, 2);
         assertListEquals(list.toArray(), 2, 3, 4);
@@ -187,7 +189,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testRemoveFirstLast()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 1, 0));
+        list.add(newArray(list.buffer, 0, 1, 2, 1, 0));
 
         assertEquals(-1, list.removeFirst(/* intrinsic:ktypecast */ 5));
         assertEquals(-1, list.removeLast(/* intrinsic:ktypecast */ 5));
@@ -203,7 +205,7 @@ public class ObjectArrayListTest<KType>
         
         /* removeIf:primitive */
         list.clear();
-        list.addv(newArray(list.buffer, 0, null, 2, null, 0));
+        list.add(newArray(list.buffer, 0, null, 2, null, 0));
         assertEquals(1, list.removeFirst(null));
         assertEquals(2, list.removeLast(null));
         assertListEquals(list.toArray(), 0, 2, 0);
@@ -214,7 +216,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testRemoveAll()
     {
-        list.addv(newArray(list.buffer, 0, 1, 0, 1, 0));
+        list.add(newArray(list.buffer, 0, 1, 0, 1, 0));
 
         assertEquals(0, list.removeAll(/* intrinsic:ktypecast */ 2));
         assertEquals(3, list.removeAll(/* intrinsic:ktypecast */ 0));
@@ -225,7 +227,7 @@ public class ObjectArrayListTest<KType>
 
         /* removeIf:primitive */
         list.clear();
-        list.addv(newArray(list.buffer, 0, null, 2, null, 0));
+        list.add(newArray(list.buffer, 0, null, 2, null, 0));
         assertEquals(2, list.removeAll((Object) null));
         assertEquals(0, list.removeAll((Object) null));
         assertListEquals(list.toArray(), 0, 2, 0);
@@ -236,10 +238,10 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testRemoveAllIn()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 1, 0));
+        list.add(newArray(list.buffer, 0, 1, 2, 1, 0));
         
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.addv(newArray(list2.buffer, 0, 2));
+        list2.add(newArray(list2.buffer, 0, 2));
 
         assertEquals(3, list.removeAllIn(list2));
         assertEquals(0, list.removeAllIn(list2.iterator()));
@@ -251,9 +253,9 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testIndexOf()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 1, 0));
+        list.add(newArray(list.buffer, 0, 1, 2, 1, 0));
         /* removeIf:primitive */ 
-        list.add(null);
+        list.add((Object) null);
         /* end:removeIf */        
 
         /* removeIf:primitive */
@@ -268,9 +270,9 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testLastIndexOf()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 1, 0));
+        list.add(newArray(list.buffer, 0, 1, 2, 1, 0));
         /* removeIf:primitive */ 
-        list.add(null);
+        list.add((Object) null);
         /* end:removeIf */        
 
         /* removeIf:primitive */
@@ -318,7 +320,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testTrimToSize()
     {
-        list.addv(newArray(list.buffer, 1, 2));
+        list.add(newArray(list.buffer, 1, 2));
         list.trimToSize();
         assertEquals(2, list.buffer.length);
     }
@@ -327,10 +329,10 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testRelease()
     {
-        list.addv(newArray(list.buffer, 1, 2));
+        list.add(newArray(list.buffer, 1, 2));
         list.release();
         assertEquals(0, list.size());
-        list.addv(newArray(list.buffer, 1, 2));
+        list.add(newArray(list.buffer, 1, 2));
         assertEquals(2, list.size());
     }
 
@@ -360,7 +362,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testIterable()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 3));
+        list.add(newArray(list.buffer, 0, 1, 2, 3));
         int count = 0;
         for (ObjectCursor<Object> cursor : list)
         {
@@ -382,7 +384,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testIterator()
     {
-        list.addv(newArray(list.buffer, 0, 1, 2, 3));
+        list.add(newArray(list.buffer, 0, 1, 2, 3));
         Iterator<ObjectCursor<Object>> iterator = list.iterator();
         int count = 0;
         while (iterator.hasNext())
@@ -406,7 +408,7 @@ public class ObjectArrayListTest<KType>
     /* end:removeIf */
     public void testForEachWithProcedure()
     {
-        list.addv(newArray(list.buffer, 1, 2, 3));
+        list.add(newArray(list.buffer, 1, 2, 3));
         final AtomicInteger holder = new AtomicInteger();
         ((ObjectArrayList<KType>) list).forEach(new ObjectProcedure<KType>() {
             int index = 0;
@@ -423,7 +425,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testClear()
     {
-        list.addv(newArray(list.buffer, 1, 2, 3));
+        list.add(newArray(list.buffer, 1, 2, 3));
         list.clear();
 
         /* removeIf:primitive */

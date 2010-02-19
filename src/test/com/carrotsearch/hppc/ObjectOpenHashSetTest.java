@@ -78,17 +78,15 @@ public class ObjectOpenHashSetTest<KType>
     {
         set.add(key1, key1);
         assertEquals(1, set.size());
-        set.clear();
-
-        set.add(key1, key2);
+        assertEquals(1, set.add(key1, key2));
         assertEquals(2, set.size());
     }
 
     /* */
     @Test
-    public void testAddv()
+    public void testAddVarArgs()
     {
-        set.addv(newArray(set.keys, 0, 1, 2, 1, 0));
+        set.add(newArray(set.keys, 0, 1, 2, 1, 0));
         assertEquals(3, set.size());
         assertSortedListEquals(set.toArray(), 0, 1, 2);
     }
@@ -98,8 +96,8 @@ public class ObjectOpenHashSetTest<KType>
     public void testAddAll()
     {
         ObjectOpenHashSet<Object> set2 = new ObjectOpenHashSet<Object>();
-        set2.addv(newArray(set2.keys, 1, 2));
-        set.addv(newArray(set2.keys, 0, 1));
+        set2.add(newArray(set2.keys, 1, 2));
+        set.add(newArray(set2.keys, 0, 1));
 
         assertEquals(1, set.addAll(set2));
         assertEquals(0, set.addAll(set2.iterator()));
@@ -112,7 +110,7 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testRemove()
     {
-        set.addv(newArray(set.keys, 0, 1, 2, 3, 4));
+        set.add(newArray(set.keys, 0, 1, 2, 3, 4));
 
         assertTrue(set.remove(/* intrinsic:ktypecast */ 2));
         assertFalse(set.remove(/* intrinsic:ktypecast */ 2));
@@ -124,10 +122,10 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testRemoveAllIn()
     {
-        set.addv(newArray(set.keys, 0, 1, 2));
+        set.add(newArray(set.keys, 0, 1, 2));
         
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.addv(newArray(list2.buffer, 1, 3));
+        list2.add(newArray(list2.buffer, 1, 3));
 
         set.removeAllIn(list2);
         assertEquals(2, set.size());
@@ -138,7 +136,7 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testClear()
     {
-        set.addv(newArray(set.keys, 1, 2, 3));
+        set.add(newArray(set.keys, 1, 2, 3));
         set.clear();
         checkTrailingSpaceUninitialized();
         assertEquals(0, set.size());
@@ -148,7 +146,7 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testIterable()
     {
-        set.addv(newArray(set.keys, 1, 2, 2, 3, 4));
+        set.add(newArray(set.keys, 1, 2, 2, 3, 4));
         set.remove(/* intrinsic:ktypecast */ 2);
         assertEquals(3, set.size());
 
@@ -169,7 +167,7 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testNullKey()
     {
-        set.add(null);
+        set.add((Object) null);
         assertEquals(1, set.size());
         assertTrue(set.contains(null));
         assertTrue(set.remove(null));

@@ -107,7 +107,7 @@ public class ObjectArrayDequeTest<KType>
     public void testAddAllFirst()
     {
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.addv(newArray(list2.buffer, 0, 1, 2));
+        list2.add(newArray(list2.buffer, 0, 1, 2));
 
         deque.addAllFirst(list2.iterator());
         assertListEquals(deque.toArray(), 2, 1, 0);
@@ -116,7 +116,7 @@ public class ObjectArrayDequeTest<KType>
 
         deque.clear();
         ObjectArrayDeque<Object> deque2 = new ObjectArrayDeque<Object>();
-        deque2.addLastv(newArray(deque2.buffer, 0, 1, 2));
+        deque2.addLast(newArray(deque2.buffer, 0, 1, 2));
         deque.addAllFirst(deque2);
         assertListEquals(deque.toArray(), 2, 1, 0);
     }
@@ -126,7 +126,7 @@ public class ObjectArrayDequeTest<KType>
     public void testAddAllLast()
     {
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.addv(newArray(list2.buffer, 0, 1, 2));
+        list2.add(newArray(list2.buffer, 0, 1, 2));
 
         deque.addAllLast(list2.iterator());
         assertListEquals(deque.toArray(), 0, 1, 2);
@@ -135,7 +135,7 @@ public class ObjectArrayDequeTest<KType>
 
         deque.clear();
         ObjectArrayDeque<Object> deque2 = new ObjectArrayDeque<Object>();
-        deque2.addLastv(newArray(deque2.buffer, 0, 1, 2));
+        deque2.addLast(newArray(deque2.buffer, 0, 1, 2));
         deque.addAllLast(deque2);
         assertListEquals(deque.toArray(), 0, 1, 2);
     }
@@ -296,7 +296,7 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testRemoveAllOccurrences()
     {
-        deque.addLastv(newArray(deque.buffer, 0, 1, 2, 1, 0, 3, 0));
+        deque.addLast(newArray(deque.buffer, 0, 1, 2, 1, 0, 3, 0));
         
         assertEquals(0, deque.removeAllOccurrences(/* intrinsic:ktypecast */ 4));
         assertEquals(3, deque.removeAllOccurrences(/* intrinsic:ktypecast */ 0));
@@ -313,10 +313,10 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testRemoveAllIn()
     {
-        deque.addLastv(newArray(deque.buffer, 0, 1, 2, 1, 0));
+        deque.addLast(newArray(deque.buffer, 0, 1, 2, 1, 0));
         
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.addv(newArray(list2.buffer, 0, 2));
+        list2.add(newArray(list2.buffer, 0, 2));
 
         assertEquals(3, deque.removeAllIn(list2));
         assertEquals(0, deque.removeAllIn(list2.iterator()));
@@ -360,7 +360,7 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testIterable()
     {
-        deque.addLastv(sequence.buffer);
+        deque.addLast(sequence.buffer);
 
         int count = 0;
         for (ObjectCursor<Object> cursor : deque)
@@ -383,7 +383,7 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testIterator()
     {
-        deque.addLastv(newArray(deque.buffer, 0, 1, 2, 3));
+        deque.addLast(newArray(deque.buffer, 0, 1, 2, 3));
         
         Iterator<ObjectCursor<Object>> iterator = deque.iterator();
         int count = 0;
@@ -408,7 +408,7 @@ public class ObjectArrayDequeTest<KType>
     /* end:removeIf */
     public void testForEachWithProcedure()
     {
-        deque.addLastv(sequence.buffer);
+        deque.addLast(sequence.buffer);
 
         final AtomicInteger holder = new AtomicInteger();
         ((ObjectArrayDeque<KType>) deque).forEach(new ObjectProcedure<KType>() {

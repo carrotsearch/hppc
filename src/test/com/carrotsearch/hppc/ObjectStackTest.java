@@ -79,7 +79,7 @@ public class ObjectStackTest
     public void testAddAllPushAll()
     {
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.addv(newArray(list2.buffer, 0, 1, 2));
+        list2.add(newArray(list2.buffer, 0, 1, 2));
 
         stack.addAll(list2.iterator());
         stack.pushAll(list2.iterator());
@@ -94,7 +94,7 @@ public class ObjectStackTest
     @Test
     public void testNullify()
     {
-        stack.pushv(newArray(stack.buffer, 1, 2, 3, 4));
+        stack.push(newArray(stack.buffer, 1, 2, 3, 4));
         stack.pop();
         stack.discard();
         stack.discard(2);

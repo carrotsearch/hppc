@@ -197,10 +197,12 @@ public class ObjectOpenHashSet<KType>
     /**
      * Adds two elements to the set.
      */
-    public void add(KType e1, KType e2)
+    public int add(KType e1, KType e2)
     {
-        add(e1);
-        add(e2);
+        int count = 0;
+        if (add(e1)) count++;
+        if (add(e2)) count++;
+        return count;
     }
 
     /**
@@ -211,7 +213,7 @@ public class ObjectOpenHashSet<KType>
      * @return Returns the number of elements that were added to the set
      * (were not present in the set).
      */
-    public int addv(KType... elements)
+    public int add(KType... elements)
     {
         int count = 0;
         for (KType e : elements)
