@@ -37,6 +37,7 @@
     <property name="duplication.report.dir" location="${reports.dir}/duplication" />
     <property name="findbugs.report.dir" location="${reports.dir}/findbugs" />
 
+    <property file="${local.properties}" />
     <property file="hppc.version" />
     <property file="local.properties" />
 
