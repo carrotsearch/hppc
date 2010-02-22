@@ -934,7 +934,7 @@
       </copy>
     </target>
   
-    <target name="upload.rsync">
+    <target name="upload.rsync" depends="upload.prepare">
         <fail unless="upload.rsync.command" />
         <fail unless="upload.host" />
         <fail unless="upload.user" />
