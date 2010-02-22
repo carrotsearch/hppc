@@ -18,6 +18,9 @@
   
     <!-- Publishable artifacts -->
     <property name="artifacts.dir" location="${tmp.dir}/artifacts" />
+
+    <!-- Artifacts in a layout required for the server upload -->
+    <property name="upload.dir" location="${tmp.dir}/upload" />
   
 
     <!-- Classes to be included in the final (production) artifact -->
@@ -37,7 +40,8 @@
     <property file="hppc.version" />
     <property file="local.properties" />
 
-    <property name="dist.name" value="hppc-${hppc.version}" />
+    <property name="hppc.base" value="hppc" />
+    <property name="dist.name" value="${hppc.base}-${hppc.version}" />
 
     <property name="maxmem" value="1024m" />
 
@@ -915,4 +919,37 @@
     </target>
 
     <target name="all" depends="clean, reports, dist, artifacts" description="Build all HPPC artifacts." />
+
+    <target name="upload.prepare" depends="javadoc, artifacts">
+      <!-- Prepare the content in the destination layout -->
+      <property name="version.upload.dir" location="${upload.dir}/${hppc.base}/${hppc.version}" />
+      <mkdir dir="${version.upload.dir}" />
+      
+      <copy todir="${version.upload.dir}">
+        <fileset dir="${dist.dir}">
+          <include name="api/**" />
+        </fileset>
+
+        <fileset dir="${artifacts.dir}" />
+      </copy>
+    </target>
+  
+    <target name="upload.rsync">
+        <fail unless="upload.rsync.command" />
+        <fail unless="upload.host" />
+        <fail unless="upload.user" />
+        <fail unless="upload.path" />
+        <fail unless="upload.ssh.identity.path" />
+        <fail unless="upload.ssh.port" />
+        
+        <exec executable="${upload.rsync.command}" dir="${upload.dir}">
+           <arg value="-az" />
+           <arg value="-v" />
+           <arg value="-e" />
+           <arg value="ssh -p ${upload.ssh.port} -o StrictHostKeyChecking=no -i ${upload.ssh.identity.path} -o UserKnownHostsFile=/dev/null" />
+           <arg value="--chmod=u=rwX,g=rX,o=rX" />
+           <arg value="." />
+           <arg value="${upload.user}@${upload.host}:${upload.path}" />
+        </exec>
+    </target>
 </project>
