@@ -946,7 +946,6 @@
         <exec executable="${upload.rsync.command}" dir="${upload.dir}">
            <arg value="-az" />
            <arg value="-v" />
-           <arg value="--delete" />
            <arg value="-e" />
            <arg value="ssh -p ${upload.ssh.port} -o StrictHostKeyChecking=no -i ${upload.ssh.identity.path} -o UserKnownHostsFile=/dev/null" />
            <arg value="--chmod=u=rwX,g=rX,o=rX" />
