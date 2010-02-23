@@ -921,7 +921,7 @@
 
     <target name="all" depends="clean, reports, dist, artifacts" description="Build all HPPC artifacts." />
 
-    <target name="upload.prepare" depends="javadoc, artifacts">
+    <target name="upload.prepare">
       <!-- Prepare the content in the destination layout -->
       <property name="version.upload.dir" location="${upload.dir}/${hppc.base}/${hppc.version}" />
       <mkdir dir="${version.upload.dir}" />
