@@ -703,6 +703,8 @@
           <jvmarg value="-server" />
           <jvmarg value="-da" />
 
+          <jvmarg line="-Dbenchmarks.db.file=.benchmark.db" />
+
           <!--
           <jvmarg value="-Drounds.warmup=0" />
           <jvmarg value="-Drounds.benchmark=1" />
@@ -726,55 +728,16 @@
         <fail message="Benchmarks failed. See ${benchmarks.report.dir} for report." 
             if="benchmarks.error" />
 
-        <xslt style="etc/benchmarks.xsl" 
-            destdir="${benchmarks.report.dir}/benchmarks"
-            basedir="${benchmarks.report.dir}"
-            includes="TEST-*.xml">
-            <mapper type="glob" from="TEST-com.carrotsearch.hppc.*.xml" to="*.txt"/>
-        </xslt>
+        <path id="h2.classpath">
+            <fileset dir="lib" includes="h2*.jar" />
+        </path>
 
-        <concat destfile="${benchmarks.report.dir}/results.txt">
-          <header filtering="no" trimleading="yes">
-          Benchmark results (selected)
-          ============================
-
-          </header>
-
-          <resources><string value="Object stacks&#x0a;&#x0a;"/></resources>
-          <path>
-            <pathelement location="${benchmarks.report.dir}/benchmarks/ObjectStackBenchmark.txt" />
-            <pathelement location="${benchmarks.report.dir}/benchmarks/ArrayDequeBenchmark.txt" />
-          </path>
-
-          <resources><string value="&#x0a;&#x0a;Primitive stacks&#x0a;&#x0a;"/></resources>
-          <path>
-            <pathelement location="${benchmarks.report.dir}/benchmarks/ByteStackBenchmark.txt" />
-            <pathelement location="${benchmarks.report.dir}/benchmarks/ShortStackBenchmark.txt" />
-            <pathelement location="${benchmarks.report.dir}/benchmarks/CharStackBenchmark.txt" />
-            <pathelement location="${benchmarks.report.dir}/benchmarks/IntStackBenchmark.txt" />
-            <pathelement location="${benchmarks.report.dir}/benchmarks/FloatStackBenchmark.txt" />
-            <pathelement location="${benchmarks.report.dir}/benchmarks/LongStackBenchmark.txt" />
-            <pathelement location="${benchmarks.report.dir}/benchmarks/DoubleStackBenchmark.txt" />
-          </path>
-            
-          <resources><string value="&#x0a;&#x0a;Iteration strategies&#x0a;&#x0a;"/></resources>
-          <path>
-            <pathelement location="${benchmarks.report.dir}/benchmarks/ByteArrayListBenchmark.txt" />
-          </path>
-          <resources><string value="&#x0a;"/></resources>
-          <path>
-            <pathelement location="${benchmarks.report.dir}/benchmarks/LongArrayListBenchmark.txt" />
-          </path>
-          <resources><string value="&#x0a;"/></resources>
-          <path>
-            <pathelement location="${benchmarks.report.dir}/benchmarks/ObjectArrayListBenchmark.txt" />
-          </path>
-
-          <resources><string value="&#x0a;&#x0a;Bit sets&#x0a;&#x0a;"/></resources>
-          <path>
-            <pathelement location="${benchmarks.report.dir}/benchmarks/BitSetBenchmark.txt" />
-          </path>
-        </concat>
+        <sql userid="sa" driver="org.h2.Driver" password="" 
+            url="jdbc:h2:.benchmark.db;IFEXISTS=TRUE"
+            classpathref="h2.classpath"
+            print="true" showheaders="false" showtrailers="false"
+            output="${benchmarks.report.dir}/results.txt"
+            src="etc/benchmark-report.sql" />
 
         <concat><path><pathelement location="${benchmarks.report.dir}/results.txt" /></path></concat>
     </target>
