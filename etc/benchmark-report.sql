@@ -10,26 +10,26 @@ SELECT
 SELECT STRINGDECODE('## Object stacks:');
 
 SELECT 
-  RPAD(CLASSNAME || '.' || NAME, 40) ||
-  LPAD(ROUND_AVG, 7)                 ||
-  LPAD(ROUND_STDDEV, 7)              ||
+  RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 40) ||
+  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(GC_TIME, 7)
+  LPAD(ROUND(GC_TIME, 3), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
-  AND (CLASSNAME LIKE 'ObjectStack%'  OR CLASSNAME LIKE 'ArrayDeque%')
-ORDER BY CLASSNAME ASC, NAME ASC;
+  AND (CLASSNAME LIKE '%ObjectStack%'  OR CLASSNAME LIKE '%ArrayDeque%')
+ORDER BY CLASSNAME ASC, NAME ASC; 
 
 
 SELECT STRINGDECODE('## Primitive stacks:');
 
 SELECT 
-  RPAD(CLASSNAME || '.' || NAME, 40) ||
-  LPAD(ROUND_AVG, 7)                 ||
-  LPAD(ROUND_STDDEV, 7)              ||
+  RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 40) ||
+  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(GC_TIME, 7)
+  LPAD(ROUND(GC_TIME, 3), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
@@ -40,29 +40,30 @@ ORDER BY CLASSNAME ASC, NAME ASC;
 SELECT STRINGDECODE('## Iteration strategies:');
 
 SELECT 
-  RPAD(CLASSNAME || '.' || NAME, 50) ||
-  LPAD(ROUND_AVG, 7)                 ||
-  LPAD(ROUND_STDDEV, 7)              ||
+  RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 50) ||
+  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(GC_TIME, 7)
+  LPAD(ROUND(GC_TIME, 3), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
-  AND (CLASSNAME IN ('ByteArrayListBenchmark', 'LongArrayListBenchmark', 'ObjectArrayListBenchmark'))
+  AND (REPLACE(CLASSNAME,'com.carrotsearch.hppc.') 
+      IN ('ByteArrayListBenchmark', 'LongArrayListBenchmark', 'ObjectArrayListBenchmark'))
 ORDER BY CLASSNAME ASC, NAME ASC;
 
 
 SELECT STRINGDECODE('## Bit set:');
 
 SELECT 
-  RPAD(CLASSNAME || '.' || NAME, 50) ||
-  LPAD(ROUND_AVG, 7)                 ||
-  LPAD(ROUND_STDDEV, 7)              ||
+  RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 50) ||
+  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(GC_TIME, 7)
+  LPAD(ROUND(GC_TIME, 3), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
-  AND (CLASSNAME IN ('BitSetBenchmark'))
+  AND (CLASSNAME LIKE ('%BitSetBenchmark'))
 ORDER BY CLASSNAME ASC, NAME ASC;
 

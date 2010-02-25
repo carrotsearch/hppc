@@ -651,11 +651,12 @@
           <jvmarg value="-ea" />
           <jvmarg value="-Xmx${maxmem}" />
 
-          <!-- Run benchmarks as tests, but don't repeat. -->
-          <jvmarg value="-Drounds.warmup=0" />
-          <jvmarg value="-Drounds.benchmark=1" />
-          <jvmarg value="-Dignore.callgc=true" />
-          <jvmarg value="-Dignore.annotation.options=true" />
+          <!-- Run benchmarks as tests, no repeats, no DB logging. -->
+          <jvmarg value="-Djub.rounds.warmup=0" />
+          <jvmarg value="-Djub.rounds.benchmark=1" />
+          <jvmarg value="-Djub.ignore.callgc=true" />
+          <jvmarg value="-Djub.ignore.annotations=true" />
+
           <jvmarg value="-Dclover.pertest.coverage=diff" />
 
           <formatter type="xml" />
@@ -703,13 +704,15 @@
           <jvmarg value="-server" />
           <jvmarg value="-da" />
 
-          <jvmarg line="-Dbenchmarks.db.file=.benchmark.db" />
+          <jvmarg value="-Djub.consumers=h2,console" />
+          <jvmarg value="-Djub.db.file=.benchmark.db" />
+          <jvmarg value="-Djub.charts.dir=${benchmarks.report.dir}" />
 
           <!--
-          <jvmarg value="-Drounds.warmup=0" />
-          <jvmarg value="-Drounds.benchmark=1" />
-          <jvmarg value="-Dignore.callgc=true" />
-          <jvmarg value="-Dignore.annotation.options=true" />
+          <jvmarg value="-Djub.rounds.warmup=0" />
+          <jvmarg value="-Djub.rounds.benchmark=1" />
+          <jvmarg value="-Djub.ignore.callgc=true" />
+          <jvmarg value="-Djub.ignore.annotations=true" />
           -->
 
           <formatter type="xml" />

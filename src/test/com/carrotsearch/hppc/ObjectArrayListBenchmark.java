@@ -7,10 +7,12 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.procedures.*;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
+import com.carrotsearch.junitbenchmarks.h2.BenchmarkMethodChart;
 
 /**
  * Benchmark tests for {@link ObjectArrayList}.
  */
+@BenchmarkMethodChart()
 @BenchmarkOptions(callgc = false, warmupRounds = 10, benchmarkRounds = 10)
 /* removeIf:primitive */ 
 @SuppressWarnings("unchecked")
