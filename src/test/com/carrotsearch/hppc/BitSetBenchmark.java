@@ -7,11 +7,13 @@ import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.h2.BenchmarkHistoryChart;
+import com.carrotsearch.junitbenchmarks.h2.BenchmarkMethodChart;
 
 /**
  * Simple benchmarks against <code>java.util.BitSet</code>.
  */
-@BenchmarkHistoryChart
+@BenchmarkHistoryChart(filePrefix="CLASSNAME.history", maxRuns=50)
+@BenchmarkMethodChart(filePrefix="CLASSNAME.methods")
 public class BitSetBenchmark extends AbstractBenchmark
 {
     private static BitSet hppc;
