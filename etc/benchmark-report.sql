@@ -11,10 +11,10 @@ SELECT STRINGDECODE('## Object stacks:');
 
 SELECT 
   RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 40) ||
-  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
-  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
+  LPAD(ROUND(ROUND_AVG, 2), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 2), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(ROUND(GC_TIME, 3), 7)
+  LPAD(ROUND(GC_TIME, 2), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
@@ -26,10 +26,10 @@ SELECT STRINGDECODE('## Primitive stacks:');
 
 SELECT 
   RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 40) ||
-  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
-  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
+  LPAD(ROUND(ROUND_AVG, 2), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 2), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(ROUND(GC_TIME, 3), 7)
+  LPAD(ROUND(GC_TIME, 2), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
@@ -41,10 +41,10 @@ SELECT STRINGDECODE('## Iteration strategies:');
 
 SELECT 
   RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 50) ||
-  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
-  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
+  LPAD(ROUND(ROUND_AVG, 2), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 2), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(ROUND(GC_TIME, 3), 7)
+  LPAD(ROUND(GC_TIME, 2), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
@@ -57,10 +57,10 @@ SELECT STRINGDECODE('## Bit set:');
 
 SELECT 
   RPAD(REPLACE(CLASSNAME,'com.carrotsearch.hppc.') || '.' || NAME, 50) ||
-  LPAD(ROUND(ROUND_AVG, 3), 7)                 ||
-  LPAD(ROUND(ROUND_STDDEV, 3), 7)              ||
+  LPAD(ROUND(ROUND_AVG, 2), 7)                 ||
+  LPAD(ROUND(ROUND_STDDEV, 2), 7)              ||
   LPAD(GC_INVOCATIONS, 7)            ||
-  LPAD(ROUND(GC_TIME, 3), 7)
+  LPAD(ROUND(GC_TIME, 2), 7)
 FROM TESTS, RUNS R
 WHERE RUN_ID = (SELECT MAX(ID) FROM RUNS) 
   AND RUN_ID = R.ID 
