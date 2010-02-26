@@ -1,5 +1,7 @@
 
 <project name="hppc" default="dist">
+    <!-- Build number (to override by the build server) -->
+    <property name="build.number" value="" />
 
     <property name="src.java" location="src/java" />
     <property name="src.test" location="src/test" />
@@ -707,6 +709,7 @@
           <jvmarg value="-Djub.consumers=h2,console" />
           <jvmarg value="-Djub.db.file=.benchmark.db" />
           <jvmarg value="-Djub.charts.dir=${benchmarks.report.dir}" />
+          <jvmarg value="-Dcustom.key=${build.number}" />
 
           <!--
           <jvmarg value="-Djub.rounds.warmup=0" />
