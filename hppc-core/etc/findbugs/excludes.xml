@@ -1,0 +1,17 @@
+<FindBugsFilter>
+   <Match>
+      <Bug code="UuF" />
+   </Match>
+   <Match>
+      <Bug code="UrF" />
+   </Match>
+   <Match>
+      <Bug code="SS" />
+   </Match>
+   <Match>
+      <Bug code="BC" />
+   </Match>
+   <Match>
+      <Bug code="Eq" /> <!-- HPPC doesn't support equals() and hashCode() -->
+   </Match>
+</FindBugsFilter>
