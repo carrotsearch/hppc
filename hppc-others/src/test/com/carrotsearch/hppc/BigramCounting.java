@@ -1,7 +1,8 @@
 package com.carrotsearch.hppc;
 
 import gnu.trove.map.hash.TIntIntHashMap;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,12 +16,13 @@ import org.junit.rules.MethodRule;
 import bak.pcj.map.IntKeyIntChainedHashMap;
 import bak.pcj.map.IntKeyIntOpenHashMap;
 
+import com.carrotsearch.hppc.hash.MurmurHashInt;
 import com.carrotsearch.junitbenchmarks.*;
 import com.carrotsearch.junitbenchmarks.h2.*;
 
 @BenchmarkHistoryChart(filePrefix = "CLASSNAME-history", maxRuns = 10)
 @BenchmarkMethodChart(filePrefix = "CLASSNAME-methods")
-@BenchmarkOptions(warmupRounds = 5, benchmarkRounds = 5)
+@BenchmarkOptions(warmupRounds = 2, benchmarkRounds = 5)
 public class BigramCounting
 {
     private static H2Consumer consumer = new H2Consumer(new File(".mapadditions"));
@@ -49,6 +51,31 @@ public class BigramCounting
         consumer.close();
     }
 
+    @Test
+    public void hppc()
+    {
+        // [[[start:bigram-counting]]]
+        // Some character data
+        final char [] CHARS = DATA;
+        
+        // We'll use a int -> int map for counting. A bigram can be encoded
+        // as an int by shifting one of the bigram's characters by 16 bits
+        // and then ORing the other character to form a 32-bit int.
+
+        // Note we're using a good hash function here, not identity hashing for integers. 
+        final IntIntOpenHashMap map = new IntIntOpenHashMap(16, 
+            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, new MurmurHashInt());
+
+        for (int i = 0; i < CHARS.length - 1; i++)
+        {
+            final int bigram = CHARS[i] << 16 | CHARS[i+1];
+            map.putOrAdd(bigram, 1, 1);
+        }
+        // [[[end:bigram-counting]]]
+
+        guard = map.size();
+    }
+    
     @Test
     public void trove()
     {
@@ -123,27 +150,6 @@ public class BigramCounting
             map.put(bigram, map.get(bigram) + 1);
         }
 
-        guard = map.size();
-    }
-
-    @Test
-    public void hppc()
-    {
-        // [[[start:bigram-counting]]]
-        // Some character data
-        final char [] CHARS = DATA;
-        
-        // We'll use a int -> int map for counting. A bigram can be encoded
-        // as an int by shifting one of the bigram's characters by 16 bits
-        // and then ORing the other character to form a 32-bit int.
-        final IntIntOpenHashMap map = new IntIntOpenHashMap();
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.putOrAdd(bigram, 1, 1);
-        }
-        // [[[end:bigram-counting]]]
-        
         guard = map.size();
     }
 
