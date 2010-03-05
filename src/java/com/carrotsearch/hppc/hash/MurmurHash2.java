@@ -6,7 +6,7 @@ package com.carrotsearch.hppc.hash;
  * 
  * @see "http://sites.google.com/site/murmurhash/"
  */
-final class MurmurHash2
+public final class MurmurHash2
 {
     private static final int M = 0x5bd1e995;
     private static final int R = 24;
@@ -20,7 +20,7 @@ final class MurmurHash2
     /**
      * Hashes a 4-byte sequence (Java int).
      */
-    static int hash(int k)
+    public static int hash(int k)
     {
         k *= M;
         k ^= k >>> R;
@@ -38,7 +38,7 @@ final class MurmurHash2
     /**
      * Hashes a 8-byte sequence (Java long).
      */
-    static int hash(long v)
+    public static int hash(long v)
     {
         int k = (int) (v >>> 32);
         k *= M;
