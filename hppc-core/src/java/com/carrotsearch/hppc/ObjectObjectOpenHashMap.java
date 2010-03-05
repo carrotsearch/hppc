@@ -43,6 +43,12 @@ import com.carrotsearch.hppc.hash.*;
  * <p>This implementation supports <code>null</code> keys and values in generic 
  * versions.</p>
  * 
+ * <p><b>Important node.</b> The implementation uses power-of-two tables, which may
+ * cause poor performance (many collisions) if hash values differ in higher bits only.
+ * If unsure about the input data distribution, use a well-mixing hash function. 
+ * {@link MurmurHashObject} and primitive derivatives are provided in HPPC for
+ * convenience.</p>
+ * 
  * @author This code is partially inspired by the implementation found in the <a
  *         href="http://code.google.com/p/google-sparsehash/">Google sparsehash</a>
  *         project.
@@ -140,11 +146,13 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * Hash function for keys.
      */
     public final HashFunctionObject hashFunction;
-    
+
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link HashFunctionObject}.
+     * load factor of {@value #DEFAULT_LOAD_FACTOR} and the default hash function
+     * {@link HashFunctionObject}.
+     * 
+     * <p>See class notes about hash distribution importance.</p>
      */
     public ObjectObjectOpenHashMap()
     {
@@ -154,6 +162,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Creates a hash map with the given initial capacity, default load factor of
      * {@value #DEFAULT_LOAD_FACTOR} and hash function from {@link HashFunctionObject}.
+     * 
+     * <p>See class notes about hash distribution importance.</p>
      * 
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
@@ -166,6 +176,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Creates a hash map with the given initial capacity,
      * load factor and hash function from {@link HashFunctionObject}.
+     * 
+     * <p>See class notes about hash distribution importance.</p>
      * 
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
@@ -180,6 +192,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Creates a hash map with the given predefined capacity. The actual allocated
      * capacity is always rounded to the next power of two.
+     * 
+     * <p>See class notes about hash distribution importance.</p>
      */
     public ObjectObjectOpenHashMap(
         int initialCapacity, float loadFactor, HashFunctionObject hashFunction)
