@@ -62,9 +62,15 @@ public class BigramCounting
         // as an int by shifting one of the bigram's characters by 16 bits
         // and then ORing the other character to form a 32-bit int.
 
-        // Note we're using a good hash function here, not identity hashing for integers. 
-        final IntIntOpenHashMap map = new IntIntOpenHashMap(16, 
-            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, new MurmurHashInt());
+        /* 
+         * The input data is specific; it has low variance on lower bits and
+         * high variance overall. We need to use a better hashing function
+         * than simple identity. MurmurHash is good enough.
+         */ 
+        final IntIntOpenHashMap map = new IntIntOpenHashMap(
+            IntIntOpenHashMap.DEFAULT_CAPACITY, 
+            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, 
+            new MurmurHashInt());
 
         for (int i = 0; i < CHARS.length - 1; i++)
         {
