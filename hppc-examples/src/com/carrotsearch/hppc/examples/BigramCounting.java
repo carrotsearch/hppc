@@ -5,6 +5,7 @@ import java.util.*;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.IntIntOpenHashMap;
+import com.carrotsearch.hppc.hash.MurmurHashInt;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 public class BigramCounting extends AbstractBenchmark
@@ -27,10 +28,20 @@ public class BigramCounting extends AbstractBenchmark
         // Some character data
         final char [] CHARS = DATA;
         
-        // We'll use a int -> int map for counting. A bigram can be encoded
-        // as an int by shifting one of the bigram's characters by 16 bits
-        // and then ORing the other character to form a 32-bit int.
-        final IntIntOpenHashMap counts = new IntIntOpenHashMap();
+        /* 
+         * We'll use a int -> int map for counting. A bigram can be encoded
+         * as an int by shifting one of the bigram's characters by 16 bits
+         * and then ORing the other character to form a 32-bit int.
+         * 
+         * The input data is specific; it has low variance on lower bits and
+         * high variance overall. We need to use a better hashing function
+         * than simple identity. MurmurHash is good enough.
+         */ 
+        final IntIntOpenHashMap counts = new IntIntOpenHashMap(
+            IntIntOpenHashMap.DEFAULT_CAPACITY, 
+            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, 
+            new MurmurHashInt());
+
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             counts.putOrAdd((CHARS[i] << 16 | CHARS[i+1]), 1, 1);
