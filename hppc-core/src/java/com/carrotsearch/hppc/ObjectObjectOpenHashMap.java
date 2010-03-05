@@ -152,9 +152,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Creates a hash map with the given initial capacity, default
-     * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link HashFunctionObject}.
+     * Creates a hash map with the given initial capacity, default load factor of
+     * {@value #DEFAULT_LOAD_FACTOR} and hash function from {@link HashFunctionObject}.
+     * 
+     * @param initialCapacity Initial capacity (greater than zero and automatically
+     *            rounded to the next power of two).
      */
     public ObjectObjectOpenHashMap(int initialCapacity)
     {
@@ -164,6 +166,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Creates a hash map with the given initial capacity,
      * load factor and hash function from {@link HashFunctionObject}.
+     * 
+     * @param initialCapacity Initial capacity (greater than zero and automatically
+     *            rounded to the next power of two).
+     *
+     * @param loadFactor The load factor (greater than zero and smaller than 1).
      */
     public ObjectObjectOpenHashMap(int initialCapacity, float loadFactor)
     {
@@ -179,8 +186,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         assert initialCapacity > 0 && initialCapacity <= Integer.MAX_VALUE
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
-        assert loadFactor > 0 && loadFactor < 1
-            : "Load factor must be between (0, 1).";
+        assert loadFactor > 0 && loadFactor <= 1
+            : "Load factor must be between (0, 1].";
 
         this.hashFunction = hashFunction;
         this.loadFactor = loadFactor;
@@ -358,7 +365,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         this.values = Intrinsics.newVTypeArray(capacity);
         this.states = new byte [capacity];
 
-        this.resizeThreshold = (int) (capacity * DEFAULT_LOAD_FACTOR);
+        this.resizeThreshold = (int) (capacity * loadFactor);
     }
 
     /**
