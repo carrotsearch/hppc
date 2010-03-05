@@ -253,6 +253,36 @@ public class ObjectObjectOpenHashMapTest
         assertFalse(map.iterator().hasNext());
     }
 
+    /* */
+    @Test
+    public void testFullLoadFactor()
+    {
+        map = new ObjectObjectOpenHashMap<Object, Object>(1, 1f);
+
+        for (int i = 0; i < 0x100; i++)
+        {
+            map.put(/* intrinsic:ktypecast */ i, value1);
+        }
+
+        assertEquals(0x100, map.size());
+        assertEquals(0x100, map.keys.length);
+    }
+
+    /* */
+    @Test
+    public void testHalfLoadFactor()
+    {
+        map = new ObjectObjectOpenHashMap<Object, Object>(1, 0.5f);
+
+        for (int i = 0; i < 0x100; i++)
+        {
+            map.put(/* intrinsic:ktypecast */ i, value1);
+        }
+
+        assertEquals(0x100, map.size());
+        assertEquals(0x100 * 2, map.keys.length);
+    }
+
     /* removeIf:primitiveKType */
     @Test
     public void testNullKey()
