@@ -50,28 +50,6 @@ public class BigramCounting
     }
 
     @Test
-    public void jcfWithHolder2()
-    {
-        final char [] CHARS = DATA;
-        final Map<Integer, IntHolder> map = new _HashMap<Integer, IntHolder>();
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            final IntHolder currentCount = map.get(bigram);
-            if (currentCount == null)
-            {
-                map.put(bigram, new IntHolder(1));
-            }
-            else
-            {
-                currentCount.value++;
-            }
-        }
-
-        guard = map.size();
-    }
-
-    @Test
     public void trove()
     {
         final char [] CHARS = DATA;
