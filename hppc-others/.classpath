@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/pcj.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/junit-benchmarks"/>
+	<classpathentry kind="lib" path="lib/junit-benchmarks-0.2.0-SNAPSHOT.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/hppc-core"/>
 	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/trove-3.0.0a3.jar"/>
