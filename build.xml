@@ -693,7 +693,7 @@
 
     
     <!-- -->
-    <target name="benchmark" depends="compile" description="Run benchmarks.">
+    <target name="benchmark" depends="compile" description="Run benchmarks." unless="benchmark.skip">
         <mkdir dir="${benchmarks.report.dir}" />
 
         <junit fork="true"
