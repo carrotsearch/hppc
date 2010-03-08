@@ -41,7 +41,7 @@ import com.carrotsearch.hppc.procedures.*;
  * <p>This implementation supports <code>null</code> keys.</p>
  */
 public class ObjectOpenHashSet<KType>
-    implements Iterable<ObjectCursor<KType>>
+    implements Iterable<ObjectCursor<KType>>, ObjectLookupContainer<KType>
 {
     /**
      * Default capacity.

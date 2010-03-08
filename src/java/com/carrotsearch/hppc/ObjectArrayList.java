@@ -3,6 +3,7 @@ package com.carrotsearch.hppc;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.predicates.ObjectPredicate;
 import com.carrotsearch.hppc.procedures.*;
 
 /**
@@ -25,7 +26,8 @@ import com.carrotsearch.hppc.procedures.*;
  * <tr            ><td>get            </td><td>get            </td></tr>
  * <tr class="odd"><td>removeRange, 
  *                     removeElementAt</td><td>removeRange, remove</td></tr>                     
- * <tr            ><td>remove(Object) </td><td>removeFirstOccurrence, removeLastOccurrence, removeAll</td></tr>
+ * <tr            ><td>remove(Object) </td><td>removeFirstOccurrence, removeLastOccurrence, 
+ *                                             removeAllOccurrences</td></tr>
  * <tr class="odd"><td>clear          </td><td>clear, release </td></tr>
  * <tr            ><td>size           </td><td>size           </td></tr>
  * <tr class="odd"><td>ensureCapacity </td><td>ensureCapacity, resize</td></tr>
@@ -38,7 +40,7 @@ import com.carrotsearch.hppc.procedures.*;
  * </table>
  */
 public class ObjectArrayList<KType>
-    implements Iterable<ObjectCursor<KType>>
+    extends AbstractObjectCollection<KType>
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -113,13 +115,13 @@ public class ObjectArrayList<KType>
     }
 
     /**
-     * Appends the given element at the end of the list. To insert at an arbitrary
-     * position, use the <code>insert</code> method. 
+     * {@inheritDoc}
      */
-    public  void add(KType e1)
+    public int add(KType e1)
     {
         ensureBufferSpace(1);
         buffer[elementsCount++] = e1;
+        return 1;
     }
 
     /**
@@ -157,7 +159,7 @@ public class ObjectArrayList<KType>
     }
 
     /**
-     * Adds all elements from a cursor.
+     * Adds all elements from a cursor iterator.
      * 
      * @param iterator An iterator returning a cursor over a collection of KType elements. 
      * @return Returns the number of elements actually added as a result of this
@@ -180,6 +182,7 @@ public class ObjectArrayList<KType>
      * 
      * @see #addAll(Iterator)
      */
+    @Override
     public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
     {
         return addAll(iterable.iterator());
@@ -298,7 +301,8 @@ public class ObjectArrayList<KType>
      * 
      * @return Returns the count of elements removed from the list.
      */
-    public final int removeAll(KType e1)
+    @Override
+    public final int removeAllOccurrences(KType e1)
     {
         int to = 0;
         for (int from = 0; from < elementsCount; from++)
@@ -323,37 +327,10 @@ public class ObjectArrayList<KType>
     }
 
     /**
-     * Removes all elements present in a given iterator.
-     * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
-     * @return Returns the number of elements actually removed as a result of this
-     * call.
-     */
-    public final int removeAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
-    {
-        int count = 0;
-        while (iterator.hasNext())
-        {
-            count += removeAll((KType) iterator.next().value);
-        }
-
-        return count;
-    }
-
-    /**
-     * Removes all elements present in an iterable.
-     * 
-     * @see #removeAll(Iterator)
-     */
-    public final int removeAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return removeAll(iterable.iterator());
-    }
-    
-    /**
      * Returns <code>true</code> if this list contains the specified element
      * (linear scan).
      */
+    @Override
     public final boolean contains(KType e1)
     {
         return indexOf(e1) >= 0;
@@ -388,6 +365,7 @@ public class ObjectArrayList<KType>
     /**
      * Return <code>true</code> if this list is empty. 
      */
+    @Override
     public final boolean isEmpty()
     {
         return elementsCount == 0;
@@ -462,6 +440,7 @@ public class ObjectArrayList<KType>
     /**
      * @return The number of currently stored elements.
      */
+    @Override
     public final int size()
     {
         return elementsCount;
@@ -485,6 +464,7 @@ public class ObjectArrayList<KType>
      * </pre>  
      * to clean the buffer and the array at the same time.
      */
+    @Override
     public final void clear()
     {
         /* removeIf:primitiveKType */
@@ -512,6 +492,7 @@ public class ObjectArrayList<KType>
      * Create a copy of the list's elements. The returned array is sized to match exactly
      * the number of elements of the stack.
      */
+    @Override
     public final KType [] toArray()
     {
         final KType [] cloned = Intrinsics.newKTypeArray(elementsCount);
@@ -591,24 +572,10 @@ public class ObjectArrayList<KType>
      *   System.out.println("index=" + c.index + " value=" + c.value);
      * }
      * </pre>
-     * 
-     * @see #values()
      */
     public Iterator<ObjectCursor<KType>> iterator()
     {
         return new ValueIterator();
-    }
-
-    /**
-     * Returns an iterable view of the values in this {@link ObjectArrayList}, effectively
-     * an alias for <code>this</code> because {@link ObjectArrayList} is already
-     * iterable over the stored values.
-     * 
-     * @see #iterator()
-     */
-    public Iterable<ObjectCursor<KType>> values()
-    {
-        return this;
     }
 
     /**
@@ -628,7 +595,8 @@ public class ObjectArrayList<KType>
      * <code>fromIndex</code>, inclusive, to <code>toIndex</code>, 
      * exclusive.
      */
-    public void forEach(ObjectProcedure<? super KType> procedure, int fromIndex, final int toIndex)
+    public void forEach(ObjectProcedure<? super KType> procedure, int fromIndex,
+        final int toIndex)
     {
         assert (fromIndex >= 0 && fromIndex <= size()) :
             "Index " + fromIndex + " out of bounds [" + 0 + ", " + size() + ").";
@@ -647,14 +615,48 @@ public class ObjectArrayList<KType>
     }
 
     /**
-     * Create a list from a variable number of arguments or an array of <code>KType</code>
-     * s. The elements are copied from the argument to the internal buffer.
+     * Create a list from a variable number of arguments or an array of <code>KType</code>.
+     * The elements are copied from the argument to the internal buffer.
      */
-    public static /* removeIf:primitive */ <KType> /* end:removeIf */ 
-    ObjectArrayList<KType> from(KType... elements)
+    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
+      ObjectArrayList<KType> from(KType... elements)
     {
         final ObjectArrayList<KType> list = new ObjectArrayList<KType>(elements.length);
         list.add(elements);
         return list;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAll(ObjectPredicate<? super KType> predicate)
+    {
+        final int elementsCount = this.elementsCount;
+        int to = 0;
+        try
+        {
+            for (int from = 0; from < elementsCount; from++)
+            {
+                if (predicate.apply(buffer[from]))
+                {
+                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    continue;
+                }
+    
+                if (to != from)
+                {
+                    buffer[to] = buffer[from];
+                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                }
+                to++;
+            }
+        }
+        finally
+        {
+            this.elementsCount = to;
+        }
+
+        return elementsCount - to; 
     }
 }

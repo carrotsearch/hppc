@@ -246,8 +246,18 @@
             <filtermapper id="filter.specific.@{KType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
+                    pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|Predicate|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
                     replace="@{UKType}\1" />
+
+                <!-- Replace interfaces. -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:Object)(Collection|Container|LookupContainer)(&lt;[^&gt;]+&gt;)?" 
+                    replace="@{UKType}\1" />
+
+                <!-- Replace abstract classes. -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:AbstractObject)(Collection)(&lt;[^&gt;]+&gt;)?" 
+                    replace="Abstract@{UKType}\1" />
 
                 <!-- Intrinsics.equals(a, b) → (a == b) -->
                 <replaceregex byline="false"  flags="gmi" 
@@ -408,8 +418,15 @@
                 <include name="**/ObjectStack*.java" />
                 <include name="**/ObjectCursor*.java" />
                 <include name="**/ObjectProcedure*.java" />
+            	<include name="**/ObjectPredicate*.java" />
                 <include name="**/ObjectOpenHashSet*.java" />
                 <include name="**/ObjectArrayDeque*.java" />
+
+                <include name="**/ObjectContainer.java" />
+                <include name="**/ObjectLookupContainer.java" />
+                <include name="**/ObjectCollection.java" />
+
+                <include name="**/AbstractObjectCollection.java" />
             </fileset>
             <fileset dir="${src.test}">
                 <include name="**/ObjectArrayList*.java" />
