@@ -66,12 +66,19 @@ removeFirstOccurrence(KType)               +         +
 removeLastOccurrence(KType)                +         +
 addFirst(KType)                                      +
 addLast(KType)                                       +
+removeFirst()                                        +
+removeLast()                                         +
+getFirst()                                           +
+getLast()                                            +
+descendingIterator()                                 +
+descendingForEach(Procedure)                         +
+descendingForEach(Predicate)                         +
 
                  [ObjectSet: ObjectCollection]
 
 add(KType)                    +            +
 
-                    [ObjectLookupContainer]               [O(1) lookup]
+                [ObjectLookupContainer: ObjectContainer]   [(1) lookup]
 
 contains(KType)               +
 </pre>

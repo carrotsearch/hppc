@@ -251,7 +251,7 @@
 
                 <!-- Replace interfaces. -->
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:Object)(Collection|Container|LookupContainer|Set|IndexedContainer)(&lt;[^&gt;]+&gt;)?" 
+                    pattern="(?:Object)(Collection|Deque|Container|LookupContainer|Set|IndexedContainer)(&lt;[^&gt;]+&gt;)?" 
                     replace="@{UKType}\1" />
 
                 <!-- Replace abstract classes. -->
@@ -423,6 +423,7 @@
                 <include name="**/ObjectArrayDeque*.java" />
 
                 <include name="**/ObjectContainer.java" />
+                <include name="**/ObjectDeque.java" />
                 <include name="**/ObjectLookupContainer.java" />
                 <include name="**/ObjectCollection.java" />
                 <include name="**/ObjectSet.java" />

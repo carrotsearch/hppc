@@ -604,9 +604,10 @@ public class ObjectArrayList<KType>
     {
         final int elementsCount = this.elementsCount;
         int to = 0;
+        int from = 0;
         try
         {
-            for (int from = 0; from < elementsCount; from++)
+            for (; from < elementsCount; from++)
             {
                 if (predicate.apply(buffer[from]))
                 {
@@ -624,6 +625,17 @@ public class ObjectArrayList<KType>
         }
         finally
         {
+            // Keep the list in a consistent state, even if the predicate throws an exception.
+            for (; from < elementsCount; from++)
+            {
+                if (to != from)
+                {
+                    buffer[to] = buffer[from];
+                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                }
+                to++;
+            }
+            
             this.elementsCount = to;
         }
 

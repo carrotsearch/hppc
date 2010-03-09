@@ -261,7 +261,7 @@ public class ObjectArrayListTest<KType>
     @Test
     public void testRemoveAllWithPredicate()
     {
-        list.add(newArray(list.buffer, 0, key1, key2, key1, 0));
+        list.add(newArray(list.buffer, 0, key1, key2, key1, 4));
 
         assertEquals(3, list.removeAll(new ObjectPredicate<Object>()
         {
@@ -271,7 +271,7 @@ public class ObjectArrayListTest<KType>
             };
         }));
 
-        assertListEquals(list.toArray(), 0, 0);
+        assertListEquals(list.toArray(), 0, 4);
     }
 
     /* */
@@ -291,6 +291,37 @@ public class ObjectArrayListTest<KType>
         assertListEquals(list.toArray(), 1, 2, 1);
     }
 
+    /* */
+    @Test
+    public void testRemoveAllWithPredicateInterrupted()
+    {
+        list.add(newArray(list.buffer, 0, key1, key2, key1, 4));
+
+        final RuntimeException t = new RuntimeException(); 
+
+        try
+        {
+            assertEquals(3, list.removeAll(new ObjectPredicate<Object>()
+            {
+                public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+                {
+                    if (v == key2) throw t;
+                    return v == key1;
+                };
+            }));
+            fail();
+        }
+        catch (RuntimeException e)
+        {
+            // Make sure it's really our exception...
+            if (e != t) throw e;
+        }
+
+        // And check if the list is in consistent state.
+        assertListEquals(list.toArray(), 0, key2, key1, 4);
+        assertEquals(4, list.size());
+    }
+    
     /* */
     @Test
     public void testIndexOf()
