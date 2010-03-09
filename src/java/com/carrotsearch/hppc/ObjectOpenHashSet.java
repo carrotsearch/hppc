@@ -2,9 +2,10 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
-import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.hash.*;
-import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.carrotsearch.hppc.hash.HashFunctionObject;
+import com.carrotsearch.hppc.predicates.ObjectPredicate;
+import com.carrotsearch.hppc.procedures.ObjectProcedure;
 
 /**
  * A hash set of <code>KType</code>s, implemented using open addressing with 
@@ -29,10 +30,10 @@ import com.carrotsearch.hppc.procedures.*;
  * </thead>
  * <tbody>
  * <tr            ><td>boolean add(E) </td><td>boolean add(E)</td></tr>
- * <tr class="odd"><td>boolean remove(E)    </td><td>boolean remove(E)</td></tr>
+ * <tr class="odd"><td>boolean remove(E)    </td><td>int removeAllOccurrences(E)</td></tr>
  * <tr            ><td>size, clear, 
- *                     isEmpty</td><td>size, clear, isEmpty</td></tr>                     
- * <tr class="odd"><td>contains(E)    </td><td>contains(E), has(E), lget()</td></tr>
+ *                     isEmpty</td><td>size, clear, isEmpty</td></tr>
+ * <tr class="odd"><td>contains(E)    </td><td>contains(E), lget()</td></tr>
  * <tr            ><td>iterator       </td><td>{@linkplain #iterator() iterator} over set values,
  *                                               pseudo-closures</td></tr>
  * </tbody>
@@ -41,7 +42,8 @@ import com.carrotsearch.hppc.procedures.*;
  * <p>This implementation supports <code>null</code> keys.</p>
  */
 public class ObjectOpenHashSet<KType>
-    implements Iterable<ObjectCursor<KType>>, ObjectLookupContainer<KType>
+    extends AbstractObjectCollection<KType> 
+    implements ObjectLookupContainer<KType>, ObjectSet<KType>
 {
     /**
      * Default capacity.
@@ -172,11 +174,9 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Adds the specified element to this set if it is not already present. 
-     * 
-     * @return <tt>true</tt> if the element was added to the set (this set did not 
-     *      already contain it).
+     * {@inheritDoc}
      */
+    @Override
     public boolean add(KType e)
     {
         if (assigned + deleted >= resizeThreshold)
@@ -309,7 +309,16 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Semantically identical to: {@link Set#remove(Object)}.
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAllOccurrences(KType key)
+    {
+        return remove(key) ? 1 : 0;
+    }
+
+    /**
+     * An alias for the (preferred) {@link #removeAllOccurrences(Object)}.
      */
     public boolean remove(KType key)
     {
@@ -331,34 +340,6 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Removes all elements present in a given iterator.
-     * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
-     * @return Returns the number of elements actually removed as a result of this
-     * call.
-     */
-    public final int removeAllIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
-    {
-        int count = 0;
-        while (iterator.hasNext())
-        {
-            if (remove((KType) iterator.next().value)) count++;
-        }
-
-        return count;
-    }
-
-    /**
-     * Removes all elements present in an iterable.
-     * 
-     * @see #removeAllIn(Iterator)
-     */
-    public final int removeAllIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return removeAllIn(iterable.iterator());
-    }
-
-    /**
      * Returns the last value saved in a call to {@link #contains}.
      * 
      * @see #contains
@@ -373,26 +354,19 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Return <code>true</code> if the entry exists in the set and
-     * save the associated value for fast access using {@link #lget()}.
-     *
+     * {@inheritDoc}
+     * 
+     * <p>Saves the associated value for fast access using {@link #lget()}.</p>
      * <pre>
      * if (map.contains(key))
      *   value = map.lget(); 
      * </pre>
      */
+    @Override
     public boolean contains(KType key)
     {
         final int slot = (lastSlot = slotFor(key));
         return states[slot] == ASSIGNED;
-    }
-
-    /**
-     * An alias for {@link #contains}. 
-     */
-    public final boolean has(KType key)
-    {
-        return contains(key);
     }
 
     /**
@@ -428,9 +402,9 @@ public class ObjectOpenHashSet<KType>
 
     /**
      * Lookup the slot index for <code>key</code> inside
-     * {@link ObjectOpenHashSet#values}. This method implements quadratic slot
+     * {@link ObjectOpenHashSet#keys}. This method implements quadratic slot
      * lookup under the assumption that the number of slots (
-     * <code>{@link ObjectOpenHashSet#values}.length</code>) is a power of two.
+     * <code>{@link ObjectOpenHashSet#keys}.length</code>) is a power of two.
      * Given this, the following formula yields a sequence of numbers with distinct values
      * between [0, slots - 1]. For a hash <code>h(k)</code> and the <code>i</code>-th
      * probe, where <code>i</code> is in <code>[0, slots - 1]</code>:
@@ -475,9 +449,11 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Clear all keys and values in the hash map, without releasing the 
-     * current buffers.
+     * {@inheritDoc}
+     * 
+     * <p>Does not release internal buffers.</p>
      */
+    @Override
     public void clear()
     {
         assigned = deleted = 0;
@@ -487,18 +463,18 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * @return Return the current size (number of assigned keys) in the hash map.
+     * {@inheritDoc}
      */
+    @Override
     public int size()
     {
         return assigned;
     }
 
     /**
-     * @return Return <code>true</code> if this hash map contains no assigned keys.
-     * Note that an empty hash map may still contain many deleted keys (that keep buffer
-     * space).
+     * {@inheritDoc}
      */
+    @Override
     public boolean isEmpty()
     {
         return size() == 0;
@@ -582,43 +558,18 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Returns a cursor over the entries in this set. The iterator is
-     * implemented as a cursor and it returns <b>the same cursor instance</b> on every
-     * call to {@link Iterator#next()}. To read the current entry (or index inside
-     * internal buffers in the set) use the cursor's public fields. An example is shown below.
-     * 
-     * <pre>
-     * for (IntCursor c : intSet)
-     * {
-     *     System.out.println(&quot;index=&quot; + c.index 
-     *       + &quot; value=&quot; + c.value);
-     * }
-     * </pre>
-     * 
-     * @see #values()
+     * {@inheritDoc}
      */
+    @Override
     public Iterator<ObjectCursor<KType>> iterator()
     {
         return new EntryIterator();
     }
 
     /**
-     * Returns an iterable view of the entries in this set. Effectively
-     * an alias for <code>this</code> because {@link ObjectOpenHashSet} is already
-     * iterable over the stored entries.
-     * 
-     * @see #iterator()
+     * {@inheritDoc}
      */
-    public Iterable<ObjectCursor<KType>> values()
-    {
-        return this;
-    }
-
-    /**
-     * Applies <code>procedure</code> to all entries in this set.
-     *
-     * @see "HPPC benchmarks." 
-     */
+    @Override
     public void forEach(ObjectProcedure<? super KType> procedure)
     {
         final KType [] keys = this.keys;
@@ -630,11 +581,11 @@ public class ObjectOpenHashSet<KType>
                 procedure.apply(keys[i]);
         }
     }
-    
+
     /**
-     * Create a copy of the set's elements. The returned array is sized to match exactly
-     * the number of elements in the set.
+     * {@inheritDoc}
      */
+    @Override
     public final KType [] toArray()
     {
         final KType [] cloned = Intrinsics.newKTypeArray(assigned);
@@ -643,5 +594,57 @@ public class ObjectOpenHashSet<KType>
                 cloned[j++] = keys[i];
 
         return cloned;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forEach(ObjectPredicate<? super KType> predicate)
+    {
+        final KType [] keys = this.keys;
+        final byte [] states = this.states;
+
+        for (int i = 0; i < states.length; i++)
+        {
+            if (states[i] == ASSIGNED)
+            {
+                if (!predicate.apply(keys[i]))
+                    break;
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAll(ObjectPredicate<? super KType> predicate)
+    {
+        final KType [] keys = this.keys;
+        final byte [] states = this.states;
+
+        int deleted = 0;
+        try
+        {
+            for (int i = 0; i < states.length; i++)
+            {
+                if (states[i] == ASSIGNED)
+                {
+                    if (predicate.apply(keys[i]))
+                    {
+                        states[i] = DELETED;
+                        deleted++;
+                    }
+                }
+            }
+
+            return deleted;
+        }
+        finally
+        {
+            this.assigned -= deleted;
+            this.deleted += deleted;
+        }
     }
 }

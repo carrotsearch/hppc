@@ -9,20 +9,6 @@ import com.carrotsearch.hppc.predicates.ObjectPredicate;
 abstract class AbstractObjectCollection<KType> implements ObjectCollection<KType>
 {
     /**
-     * Add all elements from an iterable cursor.
-     */
-    @Override
-    public int addAll(Iterable<? extends ObjectCursor<? extends KType>> c)
-    {
-        int added = 0;
-        for (ObjectCursor<? extends KType> cursor : c)
-        {
-            added += add(cursor.value);
-        }
-        return added;
-    }
-
-    /**
      * Default implementation uses a predicate for removal.
      */
     @SuppressWarnings("unchecked")

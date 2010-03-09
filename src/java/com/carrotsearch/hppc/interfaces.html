@@ -1,0 +1,80 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />    
+        <title>High Performance Primitive Collections (HPPC): interfaces</title>
+        <style type="text/css">
+        <!--
+        @import url("styles.css");
+        -->
+        </style>        
+    </head>
+
+    <body>
+        Overview of HPPC's higher level interfaces and abstract classes.
+
+        <h2>Interfaces and container inheritance</h2>
+
+        <p>HPPC's high-level interfaces are modeled to encapsulate
+        the common functionality enforced from <i>all</i> the classes that 
+        implement a given interface. We tried to avoid imposing method names that would
+        be confusing in the context of a given sub-class. For example, <code>add()</code>
+        in the context of a <code>Deque</code>.</p>
+
+        <p>The resulting highest super-interface will not allow performing modifications 
+        to the collection, but will allow iterating through the collection, for example.</p>
+
+<pre>
+Method name                 sets        lists      deque
+---------------------------------------------------------
+
+                   [ObjectContainer]
+
+contains(KType)               +            +         +
+isEmpty()                     +            +         +
+size()                        +            +         +
+clear()                       +            +         +
+KType [] toArray              +            +         +
+iterable [KType]              +            +         +
+
+forEach(Procedure)            +            +         +    [apply to all elements]
+forEach(Predicate)            +            +         +    [stop if false returned]
+apply(Function)               +            +         +    [apply and modify]
+
+                [ObjectCollection: ObjectContainer]
+
+retainAll(Predicate)          +            +         +
+retainAll(LookupContainer)    +            +         +
+removeAll(Predicate)          +            +         +
+removeAll(LookupContainer)    +            +         +
+removeAllOccurrences(KType)   +            +         +
+
+      [ObjectIndexedContainer: ObjectCollection, RandomAccess]
+
+removeFirstOccurrence(KType)               +         +
+removeLastOccurrence(KType)                +         +
+indexOf(KType)                             +
+lastIndexOf(KType)                         +
+add(KType)                    +            +
+insert(index, KType)                       +
+get(index)                                 +
+remove(index)                              +
+removeRange(...)                           +
+
+                 [ObjectDeque: ObjectCollection]
+
+removeFirstOccurrence(KType)               +         +
+removeLastOccurrence(KType)                +         +
+addFirst(KType)                                      +
+addLast(KType)                                       +
+
+                 [ObjectSet: ObjectCollection]
+
+add(KType)                    +            +
+
+                    [ObjectLookupContainer]               [O(1) lookup]
+
+contains(KType)               +
+</pre>
+
+    </body>
+</html>
