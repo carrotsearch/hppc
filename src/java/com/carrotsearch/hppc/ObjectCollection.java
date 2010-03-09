@@ -68,9 +68,4 @@ public interface ObjectCollection<KType> extends ObjectContainer<KType>
      * Removes all elements from this collection.
      */
     public void clear();
-
-    /**
-     * Copies all elements of this collection to an array.  
-     */
-    public KType [] toArray();
 }
