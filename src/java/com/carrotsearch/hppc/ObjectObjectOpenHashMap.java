@@ -54,7 +54,7 @@ import com.carrotsearch.hppc.hash.*;
  *         project.
  */
 public class ObjectObjectOpenHashMap<KType, VType>
-    implements Iterable<ObjectObjectCursor<KType, VType>>
+    implements ObjectObjectAssociativeContainer<KType, VType>
 {
     /**
      * Default capacity.
@@ -404,11 +404,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Removes all keys present in a given iterator.
+     * Removes all keys present in a given container.
      * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
-     * @return Returns the number of elements actually removed as a result of this
-     * call.
+     * @return Returns the number of elements actually removed as a result of this call.
      */
     public final int removeAllKeysIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
     {

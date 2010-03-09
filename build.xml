@@ -292,7 +292,7 @@
             <filtermapper id="filter.specific.@{KType}@{VType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)?" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)(&lt;[^&gt;]+&gt;)?" 
                     replace="@{UKType}@{UVType}\1" />
 
                 <!-- Intrinsics.equals(a, b) → (a == b) -->
@@ -310,6 +310,7 @@
 
                 <!-- Replace hash function references. -->
                 <replacestring from="HashFunctionObject" to="HashFunction@{UKType}" />
+                <replacestring from="MurmurHashObject" to="HashFunction@{UKType}" />
             </filtermapper>
 
             <apply.filter 
@@ -333,19 +334,19 @@
 
             <filtermapper id="filter.specific.generic.@{VType}">
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)(&lt;[^&gt;]+&gt;)" 
                     replace="\1 Object@{UVType}\2&lt;KType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
                     replace="Object@{UVType}\1&lt;KType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
                     replace="Object@{UVType}\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)" 
                     replace="Object@{UVType}\1" />
             </filtermapper>
 
@@ -379,19 +380,19 @@
                     replace="\(\1 == \2\)" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)(&lt;[^&gt;]+&gt;)" 
                     replace="\1 @{UKType}Object\2&lt;VType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
                     replace="@{UKType}Object\1&lt;VType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
                     replace="@{UKType}Object\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer)" 
                     replace="@{UKType}Object\1" />
             </filtermapper>
 
@@ -456,6 +457,7 @@
                 <include name="**/ObjectObjectOpenHashMap*.java" />
                 <include name="**/ObjectObjectCursor.java" />
                 <include name="**/ObjectObjectProcedure.java" />
+                <include name="**/ObjectObjectAssociativeContainer.java" />
             </fileset>
             <fileset dir="${src.test}">
                 <include name="**/ObjectObjectOpenHashMapTest.java" />
