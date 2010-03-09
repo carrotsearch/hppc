@@ -107,7 +107,7 @@ public class ObjectArrayListTest<KType>
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
         list2.add(newArray(list2.buffer, 0, 1, 2));
 
-        list.addAll(list2.iterator());
+        list.addAll(list2);
         list.addAll(list2);
 
         assertListEquals(list.toArray(), 0, 1, 2, 0, 1, 2);
@@ -130,7 +130,7 @@ public class ObjectArrayListTest<KType>
         list3.add(new B());
         list3.add(new A());
 
-        list3.addAll(list2.iterator());
+        list3.addAll(list2);
 
         assertEquals(3, list3.size());
     }

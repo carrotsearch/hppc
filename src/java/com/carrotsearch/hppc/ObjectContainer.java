@@ -53,11 +53,6 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
     public boolean isEmpty();
 
     /**
-     * Removes all elements from this collection.
-     */
-    public void clear();
-
-    /**
      * Copies all elements from this container to an array. The returned array is always a copy,
      * regardless of the storage used by the container.
      */

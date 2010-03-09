@@ -117,7 +117,7 @@ public class ObjectArrayDequeTest<KType>
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
         list2.add(newArray(list2.buffer, 0, 1, 2));
 
-        deque.addFirst(list2.iterator());
+        deque.addFirst(list2);
         assertListEquals(deque.toArray(), 2, 1, 0);
         deque.addFirst(list2);
         assertListEquals(deque.toArray(), 2, 1, 0, 2, 1, 0);
@@ -136,7 +136,7 @@ public class ObjectArrayDequeTest<KType>
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
         list2.add(newArray(list2.buffer, 0, 1, 2));
 
-        deque.addLast(list2.iterator());
+        deque.addLast(list2);
         assertListEquals(deque.toArray(), 0, 1, 2);
         deque.addLast(list2);
         assertListEquals(deque.toArray(), 0, 1, 2, 0, 1, 2);

@@ -45,4 +45,9 @@ public interface ObjectCollection<KType> extends ObjectContainer<KType>
      * given predicate returns <code>true</code>.
      */
     public int retainAll(ObjectPredicate<? super KType> predicate);
+
+    /**
+     * Removes all elements from this collection.
+     */
+    public void clear();
 }

@@ -40,8 +40,7 @@ import com.carrotsearch.hppc.procedures.*;
  * </table>
  */
 public class ObjectArrayList<KType>
-    extends AbstractObjectCollection<KType>
-    implements ObjectIndexedContainer<KType>
+    extends AbstractObjectCollection<KType> implements ObjectIndexedContainer<KType>
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -160,32 +159,19 @@ public class ObjectArrayList<KType>
     }
 
     /**
-     * Adds all elements from a cursor iterator.
-     * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
-     * @return Returns the number of elements actually added as a result of this
-     * call.
+     * Adds all elements from another container.
      */
-    public final int addAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int addAll(ObjectContainer<? extends KType> container)
     {
-        int count = 0;
-        while (iterator.hasNext())
+        final int size = container.size();
+        ensureBufferSpace(size);
+
+        for (ObjectCursor<? extends KType> cursor : container)
         {
-            add(iterator.next().value);
-            count++;
+            add(cursor.value);
         }
 
-        return count;
-    }
-
-    /**
-     * Adds all element from an iterable.
-     * 
-     * @see #addAll(Iterator)
-     */
-    public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return addAll(iterable.iterator());
+        return size;
     }
 
     /**

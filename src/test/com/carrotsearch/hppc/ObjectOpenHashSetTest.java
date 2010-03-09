@@ -103,7 +103,7 @@ public class ObjectOpenHashSetTest<KType>
         set.add(newArray(set2.keys, 0, 1));
 
         assertEquals(1, set.addAll(set2));
-        assertEquals(0, set.addAll(set2.iterator()));
+        assertEquals(0, set.addAll(set2));
 
         assertEquals(3, set.size());
         assertSortedListEquals(set.toArray(), 0, 1, 2);

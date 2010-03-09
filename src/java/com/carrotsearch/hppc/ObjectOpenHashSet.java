@@ -224,31 +224,20 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Adds all elements from an iterable cursor to this set.
+     * Adds all elements from a given container to this set.
      * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
      * @return Returns the number of elements actually added as a result of this
      * call (not previously present in the set).
      */
-    public final int addAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int addAll(ObjectContainer<? extends KType> container)
     {
         int count = 0;
-        while (iterator.hasNext())
+        for (ObjectCursor<? extends KType> cursor : container)
         {
-            if (add(iterator.next().value)) count++;
+            if (add(cursor.value)) count++;
         }
 
         return count;
-    }
-
-    /**
-     * Adds all elements from an iterable cursor to this set.
-     *
-     * @see #addAll(Iterator)
-     */
-    public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return addAll(iterable.iterator());
     }
 
     /**

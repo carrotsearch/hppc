@@ -138,38 +138,30 @@ public class ObjectArrayDeque<KType>
      */
     public void addFirst(KType... elements)
     {
+        ensureBufferSpace(elements.length);
+
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++)
             addFirst(elements[i]);
     }
 
     /**
-     * Inserts all elements from the given cursor to the front of this deque.
+     * Inserts all elements from the given container to the front of this deque.
      * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addFirst(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int addFirst(ObjectContainer<? extends KType> container)
     {
-        int count = 0;
-        while (iterator.hasNext())
+        int size = container.size();
+        ensureBufferSpace(size);
+
+        for (ObjectCursor<? extends KType> cursor : container)
         {
-            addFirst(iterator.next().value);
-            count++;
+            addFirst(cursor.value);
         }
 
-        return count;
-    }
-
-    /**
-     * Inserts all elements from the given iterable to the front of this deque.
-     * 
-     * @see #addFirst(Iterator)
-     */
-    public final int addFirst(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return addFirst(iterable.iterator());
+        return size;
     }
 
     /**
@@ -196,38 +188,30 @@ public class ObjectArrayDeque<KType>
      */
     public void addLast(KType... elements)
     {
+        ensureBufferSpace(1);
+
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++)
             addLast(elements[i]);
     }
 
     /**
-     * Inserts all elements from the given cursor to the end of this deque.
+     * Inserts all elements from the given container to the end of this deque.
      * 
-     * @param cursor An iterator returning a cursor over a collection of KType elements. 
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addLast(Iterator<? extends ObjectCursor<? extends KType>> cursor)
+    public final int addLast(ObjectContainer<? extends KType> container)
     {
-        int count = 0;
-        while (cursor.hasNext())
+        int size = container.size();
+        ensureBufferSpace(size);
+
+        for (ObjectCursor<? extends KType> cursor : container)
         {
-            addLast(cursor.next().value);
-            count++;
+            addLast(cursor.value);
         }
 
-        return count;
-    }
-
-    /**
-     * Inserts all elements from the given iterable to the end of this deque.
-     * 
-     * @see #addLast(Iterator)
-     */
-    public final int addLast(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return addLast(iterable.iterator());
+        return size;
     }
 
     /**
@@ -497,7 +481,7 @@ public class ObjectArrayDeque<KType>
         final int requestedMinimum = 1 + elementsCount + expectedAdditions; 
         if (requestedMinimum >= bufferLen)
         {
-            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions);
+            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
             assert newSize >= requestedMinimum : "Resizer failed to" +
                     " return sensible new size: " + newSize + " <= " 
                     + (elementsCount + expectedAdditions);
