@@ -204,6 +204,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public ObjectObjectOpenHashMap(
         int initialCapacity, float loadFactor, HashFunctionObject hashFunction)
     {
+        initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
+
         assert initialCapacity > 0 && initialCapacity <= Integer.MAX_VALUE
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
         assert loadFactor > 0 && loadFactor <= 1
@@ -212,6 +214,15 @@ public class ObjectObjectOpenHashMap<KType, VType>
         this.hashFunction = hashFunction;
         this.loadFactor = loadFactor;
         allocateBuffers(roundCapacity(initialCapacity));
+    }
+    
+    /**
+     * Create a hash map from all key-value pairs of another container.
+     */
+    public ObjectObjectOpenHashMap(ObjectObjectAssociativeContainer<KType, VType> container)
+    {
+        this((int)(container.size() * (1 + DEFAULT_LOAD_FACTOR)));
+        putAll(container);
     }
 
     /**
@@ -891,5 +902,32 @@ public class ObjectObjectOpenHashMap<KType, VType>
              */
             throw new UnsupportedOperationException();
         }
+    }
+
+    /**
+     * Creates a hash map from two index-aligned arrays of key-value pairs. 
+     */
+    public static /* removeIf:primitive */<KType, VType> /* end:removeIf */ 
+      ObjectObjectOpenHashMap<KType, VType> from(KType [] keys, VType [] values)
+    {
+        if (keys.length != values.length) 
+            throw new IllegalArgumentException("Arrays of keys and values must have an identical length."); 
+
+        ObjectObjectOpenHashMap<KType, VType> map = new ObjectObjectOpenHashMap<KType, VType>();
+        for (int i = 0; i < keys.length; i++)
+        {
+            map.put(keys[i], values[i]);
+        }
+        return map;
+    }
+
+    /**
+     * Create a hash map from another associative container.
+     */
+    public static /* removeIf:primitive */<KType, VType> /* end:removeIf */ 
+        ObjectObjectOpenHashMap<KType, VType> from(
+            ObjectObjectAssociativeContainer<KType, VType> container)
+    {
+        return new ObjectObjectOpenHashMap<KType, VType>(container);
     }
 }

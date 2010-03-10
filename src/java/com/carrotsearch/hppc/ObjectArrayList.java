@@ -115,6 +115,15 @@ public class ObjectArrayList<KType>
     }
 
     /**
+     * Creates a new list from elements of another container.
+     */
+    public ObjectArrayList(ObjectContainer<? extends KType> container)
+    {
+        this(container.size());
+        addAll(container);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -672,5 +681,14 @@ public class ObjectArrayList<KType>
         final ObjectArrayList<KType> list = new ObjectArrayList<KType>(elements.length);
         list.add(elements);
         return list;
+    }
+    
+    /**
+     * Create a list from elements of another container.
+     */
+    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
+      ObjectArrayList<KType> from(ObjectContainer<KType> container)
+    {
+        return new ObjectArrayList<KType>(container);
     }
 }
