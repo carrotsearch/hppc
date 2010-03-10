@@ -74,8 +74,9 @@
             runtime (using Java 1.4+ <code>-ea</code> switch). When the algorithm is tested and verified,
             it can run with no additional overhead from contract checks.</li>
 
-            <li>There are no complex interface hierarchies, superclasses, specialisations, etc. The
-            programmer chooses a given list at design-time and he knows what he's doing.</li>
+            <li>We tried to avoid complex interface hierarchies, although certain
+            interfaces are defined for clarity. The programmer should still choose 
+            a proper data structure at design-time and he should know what he's doing.</li>
 
             <li>HPPC provides utilities for the most common tasks like filtering, iterating
             or joining collections, but these utilities are usually more expensive than implementing
@@ -83,7 +84,8 @@
 
             <li>There is no special support for data serialization.</li>
 
-            <li>The implementation is not thread safe.</li>
+            <li>The implementation is not thread safe and does not attempt to provide 
+            fast-failing concurrency problems detection.</li>
         </ul>
 
 
@@ -102,11 +104,12 @@
         <h2>Interfaces and their relation to Java Collections API</h2>
         <p>HPPC is not strictly modeled after Java Collections API, although we did
         try to make the APIs look similar enough for comfortable use. 
-        One particular thing not found in HPPC are view projections 
-        (views over the collection of keys or values). These views
-        can be implemented with closure-like filters on top of HPPC or
-        by accessing the exposed data fields of each class (the internals are known,
-        after all).</p>
+        One particular thing largerly missing in HPPC are view projections 
+        (sublists or views over the collection of keys or values). Certain classes provide such views
+        (like {@linkplain com.carrotsearch.hppc.ObjectObjectOpenHashMap 
+        <code>ObjectObjectOpenHashMap</code>}), but for the most part, specific methods are
+        provided that accept ranges or closure-like filters. If performance is still unsatisfactory,
+        the internals of each class are available for direct manipulation.</p>
 
         <p>Rough relationships between Java Collections classes and HPPC classes are
         presented in the table below.</p>
@@ -169,5 +172,110 @@
 
         <p>The method-level API of the corresponding types is also similar, but distinct
         differences exist (consult the JavaDoc of each class).</p>
+
+
+        <h2>Interfaces and container inheritance</h2>
+
+        <p>HPPC's interfaces are modeled to encapsulate
+        the common functionality enforced from <i>all</i> the classes that 
+        implement a given interface. The interface hierarchy is loosely inspired by STL.</p>
+
+        <p>An overview of interfaces and their relationship to data structures implemented
+        in HPPC is shown in the table below.</p>
+
+        <!--  At some point, it'd be nice to convert it to a real table... -->
+<pre>
+Method name                 sets        lists      deque
+---------------------------------------------------------
+
+[ObjectContainer]
+
+contains(KType)               +            +         +
+isEmpty()                     +            +         +
+size()                        +            +         +
+clear()                       +            +         +
+KType [] toArray              +            +         +
+iterable [KType]              +            +         +
+
+forEach(Procedure)            +            +         +
+forEach(Predicate)            +            +         +
+apply(Function)               +            +         +
+
+
+[ObjectCollection: ObjectContainer]
+
+retainAll(Predicate)          +            +         +
+retainAll(LookupContainer)    +            +         +
+removeAll(Predicate)          +            +         +
+removeAll(LookupContainer)    +            +         +
+removeAllOccurrences(KType)   +            +         +
+
+
+[ObjectIndexedContainer: ObjectCollection, RandomAccess]
+
+removeFirstOccurrence(KType)               +         +
+removeLastOccurrence(KType)                +         +
+indexOf(KType)                             +
+lastIndexOf(KType)                         +
+add(KType)                    +            +
+insert(index, KType)                       +
+get(index)                                 +
+remove(index)                              +
+removeRange(...)                           +
+
+
+[ObjectDeque: ObjectCollection]
+
+removeFirstOccurrence(KType)               +         +
+removeLastOccurrence(KType)                +         +
+addFirst(KType)                                      +
+addLast(KType)                                       +
+removeFirst()                                        +
+removeLast()                                         +
+getFirst()                                           +
+getLast()                                            +
+descendingIterator()                                 +
+descendingForEach(Procedure)                         +
+descendingForEach(Predicate)                         +
+
+
+[ObjectSet: ObjectCollection]
+
+add(KType)                    +            +
+
+
+[ObjectLookupContainer: ObjectContainer], {guaranteed constant object lookup}
+
+contains(KType)               +
+</pre>
+
+
+        <p>And a similar overview of associative containers.</p>
+
+<pre>
+Method name                  map       [?multimap]         
+---------------------------------------------------------
+
+[ObjectObjectAssociativeContainer]
+
+iterable [KType, VType]       +
+containsKey                   +
+size                          +
+isEmpty                       +
+removeAll(ObjectContainer)    +
+removeAll(predicate)          +
+forEach(procedure)            +
+clear                         +
+keySet                        +
+
+
+[ObjectObjectMap : ObjectObjectAssociativeContainer]
+
+put                           +
+get                           +
+putAll                        +
+remove                        +
+</pre>
+
     </body>
 </html>
