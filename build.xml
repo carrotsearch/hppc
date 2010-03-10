@@ -215,7 +215,7 @@
                 <replaceregex byline="false" flags="gms"
                     pattern="(?:/\*\s*)(?:replaceIf:primitiveVType)(.+?)(\*/)(.+?)(end:replaceIf)(\s*\*/)" 
                     replace="/* replaceIf:applied. */ \1 /* end */" />
-    
+
                 <!-- /* removeIf:primitiveVType ... end:removeIf */ → (removed) -->
                 <replaceregex byline="false" flags="gms"
                     pattern="(/\*\s*)(removeIf:primitiveVType\s)(.+?)(end:removeIf)(\s*\*/)" 
@@ -307,6 +307,11 @@
                     pattern="(?:Object)(Cursor|Container|Predicate|Collection|Procedure|LookupContainer)(&lt;[^&gt;]+&gt;)" 
                     replace="@{UKType}\1" />
 
+                <!-- replaceWith:genericSignature → (empty generic signature) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(?:/\*\s*)(?:replaceWith:genericSignature)(.+?)(\*/)(.+?)(end:replaceWith)(\s*\*/)" 
+                    replace="/* replaceWith:applied. */" />
+
                 <!-- Replace generic argument (KType, VType) references with the actual type. -->
                 <replacestring from="&lt;KType, VType&gt;" to="" />
 
@@ -350,6 +355,11 @@
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)" 
                     replace="Object@{UVType}\1" />
+                
+                <!-- replaceWith:genericSignature → KType -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(?:/\*\s*)(?:replaceWith:genericSignature)(.+?)(\*/)(.+?)(end:replaceWith)(\s*\*/)" 
+                    replace="/* replaceWith:applied. */ &lt;KType&gt;" />
             </filtermapper>
 
             <apply.filter 
@@ -396,6 +406,11 @@
                 <replaceregex byline="false" flags="gmi" 
                     pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)" 
                     replace="@{UKType}Object\1" />
+                
+                <!-- replaceWith:genericSignature → VType -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(?:/\*\s*)(?:replaceWith:genericSignature)(.+?)(\*/)(.+?)(end:replaceWith)(\s*\*/)" 
+                    replace="/* replaceWith:applied. */ &lt;VType&gt;" />
             </filtermapper>
 
             <apply.filter 
