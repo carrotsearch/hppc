@@ -905,6 +905,28 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
+     * Convert the contents of this map to a human-friendly string. 
+     */
+    @Override
+    public String toString()
+    {
+        final StringBuilder buffer = new StringBuilder();
+        buffer.append("[");
+
+        boolean first = true;
+        for (ObjectObjectCursor<KType, VType> cursor : this)
+        {
+            if (!first) buffer.append(", ");
+            buffer.append(cursor.key);
+            buffer.append("=>");
+            buffer.append(cursor.value);
+            first = false;
+        }
+        buffer.append("]");
+        return buffer.toString();
+    }
+
+    /**
      * Creates a hash map from two index-aligned arrays of key-value pairs. 
      */
     public static
