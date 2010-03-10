@@ -1,11 +1,10 @@
 package com.carrotsearch.hppc;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
-import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.cursors.ByteCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
-import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.procedures.ByteProcedure;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.h2.BenchmarkHistoryChart;
@@ -30,6 +29,12 @@ public class IterationSpeedBenchmark extends AbstractBenchmark
     {
         list = new ByteArrayList();
         list.resize(CELLS);
+    }
+
+    @AfterClass
+    public static void after()
+    {
+        list = null;
     }
 
     /* */
