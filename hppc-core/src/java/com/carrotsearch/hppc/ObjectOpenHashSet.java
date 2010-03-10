@@ -157,12 +157,23 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
+     * Creates a hash set from elements of another container. Default load factor is used.
+     */
+    public ObjectOpenHashSet(ObjectContainer<KType> container)
+    {
+        this((int) (container.size() * (1 + DEFAULT_LOAD_FACTOR)));
+        addAll(container);
+    }
+
+    /**
      * Creates a hash set with the given predefined capacity. The actual allocated
      * capacity is always rounded to the next power of two.
      */
     public ObjectOpenHashSet(
         int initialCapacity, float loadFactor, HashFunctionObject hashFunction)
     {
+        initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
+
         assert initialCapacity > 0 && initialCapacity <= Integer.MAX_VALUE
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
         assert loadFactor > 0 && loadFactor < 1
@@ -635,5 +646,27 @@ public class ObjectOpenHashSet<KType>
             this.assigned -= deleted;
             this.deleted += deleted;
         }
+    }
+
+    /**
+     * Create a set from a variable number of arguments or an array of <code>KType</code>.
+     * The elements are copied from the argument to the internal buffer.
+     */
+    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
+      ObjectOpenHashSet<KType> from(KType... elements)
+    {
+        final ObjectOpenHashSet<KType> set = new ObjectOpenHashSet<KType>(
+            (int) (elements.length * (1 + DEFAULT_LOAD_FACTOR)));
+        set.add(elements);
+        return set;
+    }
+
+    /**
+     * Create a set from elements of another container.
+     */
+    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
+        ObjectOpenHashSet<KType> from(ObjectContainer<KType> container)
+    {
+        return new ObjectOpenHashSet<KType>(container);
     }
 }

@@ -56,6 +56,14 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     }
 
     /**
+     * Create a stack by pushing all elements of another container to it.
+     */
+    public ObjectStack(ObjectContainer<KType> container)
+    {
+        super(container);
+    }
+
+    /**
      * Adds one KType to the stack.
      */
     public final void push(KType e1)
@@ -186,5 +194,14 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
         final ObjectStack<KType> stack = new ObjectStack<KType>(elements.length);
         stack.push(elements);
         return stack;
+    }
+
+    /**
+     * Create a stack by pushing all elements of another container to it.
+     */
+    public static /* removeIf:primitive */ <KType> /* end:removeIf */ 
+        ObjectStack<KType> from(ObjectContainer<KType> container)
+    {
+        return new ObjectStack<KType>(container);
     }
 }

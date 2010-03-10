@@ -123,6 +123,23 @@ public class ObjectOpenHashSetTest<KType>
 
     /* */
     @Test
+    public void testInitialCapacityAndGrowth()
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            ObjectOpenHashSet<Object> set = new ObjectOpenHashSet<Object>(i);
+            
+            for (int j = 0; j < i; j++)
+            {
+                set.add(/* intrinsic:ktypecast */ j);
+            }
+
+            assertEquals(i, set.size());
+        }
+    }
+
+    /* */
+    @Test
     public void testRemoveAllFromLookupContainer()
     {
         set.add(newArray(set.keys, 0, 1, 2, 3, 4));
