@@ -1,5 +1,7 @@
 package com.carrotsearch.hppc;
 
+import java.util.Arrays;
+
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
 
@@ -77,5 +79,14 @@ abstract class AbstractObjectCollection<KType> implements ObjectCollection<KType
             array[i++] = c.value;
         }
         return array;
+    }
+
+    /**
+     * Convert the contents of this container to a human-friendly string.
+     */
+    @Override
+    public String toString()
+    {
+        return Arrays.toString(this.toArray());
     }
 }
