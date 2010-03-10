@@ -7,6 +7,7 @@ import org.junit.*;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.predicates.ObjectPredicate;
 
 /**
  * Unit tests for {@link ObjectOpenHashSet}.
@@ -102,7 +103,7 @@ public class ObjectOpenHashSetTest<KType>
         set.add(newArray(set2.keys, 0, 1));
 
         assertEquals(1, set.addAll(set2));
-        assertEquals(0, set.addAll(set2.iterator()));
+        assertEquals(0, set.addAll(set2));
 
         assertEquals(3, set.size());
         assertSortedListEquals(set.toArray(), 0, 1, 2);
@@ -122,16 +123,50 @@ public class ObjectOpenHashSetTest<KType>
 
     /* */
     @Test
-    public void testRemoveAllIn()
+    public void testRemoveAllFromLookupContainer()
     {
-        set.add(newArray(set.keys, 0, 1, 2));
-        
-        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.add(newArray(list2.buffer, 1, 3));
+        set.add(newArray(set.keys, 0, 1, 2, 3, 4));
 
-        set.removeAllIn(list2);
-        assertEquals(2, set.size());
-        assertSortedListEquals(set.toArray(), 0, 2);
+        ObjectOpenHashSet<Object> list2 = new ObjectOpenHashSet<Object>();
+        list2.add(newArray(list2.keys, 1, 3, 5));
+
+        assertEquals(2, set.removeAll(list2));
+        assertEquals(3, set.size());
+        assertSortedListEquals(set.toArray(), 0, 2, 4);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllWithPredicate()
+    {
+        set.add(newArray(set.keys, 0, key1, key2));
+
+        assertEquals(1, set.removeAll(new ObjectPredicate<Object>()
+        {
+            public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+            {
+                return v == key1;
+            };
+        }));
+
+        assertSortedListEquals(set.toArray(), 0, key2);
+    }
+
+    /* */
+    @Test
+    public void testRetainAllWithPredicate()
+    {
+        set.add(newArray(set.keys, 0, key1, key2, 3, 4, 5));
+
+        assertEquals(4, set.retainAll(new ObjectPredicate<Object>()
+        {
+            public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+            {
+                return v == key1 || v == key2;
+            };
+        }));
+
+        assertSortedListEquals(set.toArray(), key1, key2);
     }
 
     /* */

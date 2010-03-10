@@ -36,7 +36,7 @@ public final class MurmurHash2
     }
 
     /**
-     * Hashes a 8-byte sequence (Java long).
+     * Hashes an 8-byte sequence (Java long).
      */
     public static int hash(long v)
     {

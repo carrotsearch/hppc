@@ -163,7 +163,8 @@
     <macrodef name="declare.filter.ktype">
         <attribute name="filterName" />
         <attribute name="KType" />
-            
+        <attribute name="UKType" />
+
         <sequential>
             <filtermapper id="@{filterName}">
                 <!-- intrinsic:ktypecast → (KType) -->
@@ -192,6 +193,7 @@
                     pattern="(Intrinsics\s*\.)(&lt;[^&gt;]+&gt;)?(\s*)defaultKTypeValue\(\)" 
                     replace="((@{KType}) 0)" />
     
+                <replacestring from="UKType"        to="@{UKType}" />
                 <replacestring from="KType"         to="@{KType}" />
             </filtermapper>
         </sequential>
@@ -241,13 +243,23 @@
 
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}" />
-            <declare.filter.ktype  filterName="filter.ktype.@{KType}" KType="@{KType}" />
+            <declare.filter.ktype  filterName="filter.ktype.@{KType}" KType="@{KType}" UKType="@{UKType}" />
 
             <filtermapper id="filter.specific.@{KType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
+                    pattern="(?:Object)(Stack|ArrayList|Cursor|Procedure|Predicate|OpenHashSet|ArrayDeque)(&lt;[^&gt;]+&gt;)?" 
                     replace="@{UKType}\1" />
+
+                <!-- Replace interfaces. -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:Object)(Collection|Deque|Container|LookupContainer|Set|IndexedContainer)(&lt;[^&gt;]+&gt;)?" 
+                    replace="@{UKType}\1" />
+
+                <!-- Replace abstract classes. -->
+                <replaceregex byline="false" flags="gmi" 
+                    pattern="(?:AbstractObject)(Collection)(&lt;[^&gt;]+&gt;)?" 
+                    replace="Abstract@{UKType}\1" />
 
                 <!-- Intrinsics.equals(a, b) → (a == b) -->
                 <replaceregex byline="false"  flags="gmi" 
@@ -276,13 +288,13 @@
 
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}@{VType}" />
-            <declare.filter.ktype  filterName="filter.ktype.@{KType}@{VType}" KType="@{KType}" />
+            <declare.filter.ktype  filterName="filter.ktype.@{KType}@{VType}" KType="@{KType}" UKType="@{UKType}" />
             <declare.filter.vtype  filterName="filter.vtype.@{KType}@{VType}" VType="@{VType}" />
 
             <filtermapper id="filter.specific.@{KType}@{VType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)?" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)(&lt;[^&gt;]+&gt;)?" 
                     replace="@{UKType}@{UVType}\1" />
 
                 <!-- Intrinsics.equals(a, b) → (a == b) -->
@@ -292,7 +304,7 @@
 
                 <!-- Replace cursors -->
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:Object)(Cursor)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(?:Object)(Cursor|Container|Predicate|Collection|Procedure|LookupContainer)(&lt;[^&gt;]+&gt;)" 
                     replace="@{UKType}\1" />
 
                 <!-- Replace generic argument (KType, VType) references with the actual type. -->
@@ -300,6 +312,7 @@
 
                 <!-- Replace hash function references. -->
                 <replacestring from="HashFunctionObject" to="HashFunction@{UKType}" />
+                <replacestring from="MurmurHashObject" to="HashFunction@{UKType}" />
             </filtermapper>
 
             <apply.filter 
@@ -323,19 +336,19 @@
 
             <filtermapper id="filter.specific.generic.@{VType}">
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)(&lt;[^&gt;]+&gt;)" 
                     replace="\1 Object@{UVType}\2&lt;KType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
                     replace="Object@{UVType}\1&lt;KType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
                     replace="Object@{UVType}\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)" 
                     replace="Object@{UVType}\1" />
             </filtermapper>
 
@@ -355,12 +368,12 @@
 
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}.generic" />
-            <declare.filter.ktype  filterName="filter.ktype.@{KType}.generic" KType="@{KType}" />
+            <declare.filter.ktype  filterName="filter.ktype.@{KType}.generic" KType="@{KType}" UKType="@{UKType}" />
 
             <filtermapper id="filter.specific.@{KType}.generic">
                 <!-- Replace cursors -->
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?&lt;!Object)(?:Object)(Cursor)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(?&lt;!Object)(?:Object)(Cursor|Container|Predicate|Collection|Procedure|LookupContainer)(&lt;[^&gt;]+&gt;)" 
                     replace="@{UKType}\1" />
 
                 <!-- Intrinsics.equals(a, b) → (a == b) -->
@@ -369,19 +382,19 @@
                     replace="\(\1 == \2\)" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;[^&gt;]+&gt;)" 
+                    pattern="(class|interface)(?:\s+)(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)(&lt;[^&gt;]+&gt;)" 
                     replace="\1 @{UKType}Object\2&lt;VType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)(&lt;)(?!Object)([^&gt;]+)(&gt;)" 
                     replace="@{UKType}Object\1&lt;VType&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)(&lt;)(?=Object)([^&gt;]+)(&gt;)" 
                     replace="@{UKType}Object\1&lt;Object&gt;" />
 
                 <replaceregex byline="false" flags="gmi" 
-                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure)" 
+                    pattern="(?:ObjectObject)(OpenHashMap|Cursor|Procedure|AssociativeContainer|Map)" 
                     replace="@{UKType}Object\1" />
             </filtermapper>
 
@@ -408,8 +421,18 @@
                 <include name="**/ObjectStack*.java" />
                 <include name="**/ObjectCursor*.java" />
                 <include name="**/ObjectProcedure*.java" />
+            	<include name="**/ObjectPredicate*.java" />
                 <include name="**/ObjectOpenHashSet*.java" />
                 <include name="**/ObjectArrayDeque*.java" />
+
+                <include name="**/ObjectContainer.java" />
+                <include name="**/ObjectDeque.java" />
+                <include name="**/ObjectLookupContainer.java" />
+                <include name="**/ObjectCollection.java" />
+                <include name="**/ObjectSet.java" />
+                <include name="**/ObjectIndexedContainer.java" />
+
+                <include name="**/AbstractObjectCollection.java" />
             </fileset>
             <fileset dir="${src.test}">
                 <include name="**/ObjectArrayList*.java" />
@@ -436,6 +459,8 @@
                 <include name="**/ObjectObjectOpenHashMap*.java" />
                 <include name="**/ObjectObjectCursor.java" />
                 <include name="**/ObjectObjectProcedure.java" />
+                <include name="**/ObjectObjectAssociativeContainer.java" />
+                <include name="**/ObjectObjectMap.java" />
             </fileset>
             <fileset dir="${src.test}">
                 <include name="**/ObjectObjectOpenHashMapTest.java" />

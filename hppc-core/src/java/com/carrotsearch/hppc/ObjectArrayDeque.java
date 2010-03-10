@@ -2,8 +2,9 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
-import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.carrotsearch.hppc.predicates.ObjectPredicate;
+import com.carrotsearch.hppc.procedures.ObjectProcedure;
 
 /**
  * An array-backed deque (doubly linked queue) of KTypes. A single array is used to store and 
@@ -37,7 +38,8 @@ import com.carrotsearch.hppc.procedures.*;
  * </tbody>
  * </table>
  */
-public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
+public class ObjectArrayDeque<KType> 
+    extends AbstractObjectCollection<KType> implements ObjectDeque<KType> 
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -114,10 +116,9 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Inserts the specified element at the front of this deque.
-     *
-     * @param e1 the element to add
+     * {@inheritDoc}
      */
+    @Override
     public void addFirst(KType e1)
     {
         int h = oneLeft(head, buffer.length);
@@ -137,45 +138,36 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      */
     public void addFirst(KType... elements)
     {
+        ensureBufferSpace(elements.length);
+
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++)
             addFirst(elements[i]);
     }
 
     /**
-     * Inserts all elements from the given cursor to the front of this deque.
+     * Inserts all elements from the given container to the front of this deque.
      * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addFirst(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int addFirst(ObjectContainer<? extends KType> container)
     {
-        int count = 0;
-        while (iterator.hasNext())
+        int size = container.size();
+        ensureBufferSpace(size);
+
+        for (ObjectCursor<? extends KType> cursor : container)
         {
-            addFirst(iterator.next().value);
-            count++;
+            addFirst(cursor.value);
         }
 
-        return count;
+        return size;
     }
 
     /**
-     * Inserts all elements from the given iterable to the front of this deque.
-     * 
-     * @see #addFirst(Iterator)
+     * {@inheritDoc}
      */
-    public final int addFirst(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return addFirst(iterable.iterator());
-    }
-
-    /**
-     * Inserts the specified element at the end of this deque.
-     *
-     * @param e1 the element to add
-     */
+    @Override
     public void addLast(KType e1)
     {
         int t = oneRight(tail, buffer.length);
@@ -196,46 +188,36 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      */
     public void addLast(KType... elements)
     {
+        ensureBufferSpace(1);
+
         // For now, naive loop.
         for (int i = 0; i < elements.length; i++)
             addLast(elements[i]);
     }
 
     /**
-     * Inserts all elements from the given cursor to the end of this deque.
+     * Inserts all elements from the given container to the end of this deque.
      * 
-     * @param cursor An iterator returning a cursor over a collection of KType elements. 
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addLast(Iterator<? extends ObjectCursor<? extends KType>> cursor)
+    public final int addLast(ObjectContainer<? extends KType> container)
     {
-        int count = 0;
-        while (cursor.hasNext())
+        int size = container.size();
+        ensureBufferSpace(size);
+
+        for (ObjectCursor<? extends KType> cursor : container)
         {
-            addLast(cursor.next().value);
-            count++;
+            addLast(cursor.value);
         }
 
-        return count;
+        return size;
     }
 
     /**
-     * Inserts all elements from the given iterable to the end of this deque.
-     * 
-     * @see #addLast(Iterator)
+     * {@inheritDoc}
      */
-    public final int addLast(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return addLast(iterable.iterator());
-    }
-
-    /**
-     * Retrieves and removes the first element of this deque.
-     *
-     * @return the head element of this deque.
-     * @throws AssertionError if this deque is empty and assertions are enabled.
-     */
+    @Override
     public KType removeFirst()
     {
         assert size() > 0 : "The deque is empty.";
@@ -247,11 +229,9 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Retrieves and removes the last element of this deque.
-     *
-     * @return the tail of this deque.
-     * @throws AssertionError if this deque is empty and assertions are enabled.
+     * {@inheritDoc}
      */
+    @Override
     public KType removeLast()
     {
         assert size() > 0 : "The deque is empty.";
@@ -263,11 +243,9 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Retrieves, but does not remove, the first element of this deque.
-     *
-     * @return the head of this deque.
-     * @throws AssertionError if this deque is empty and assertions are enabled.
+     * {@inheritDoc}
      */
+    @Override
     public KType getFirst()
     {
         assert size() > 0 : "The deque is empty.";
@@ -276,11 +254,9 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Retrieves, but does not remove, the last element of this deque.
-     *
-     * @return the tail of this deque.
-     * @throws AssertionError if this deque is empty and assertions are enabled.
+     * {@inheritDoc}
      */
+    @Override
     public KType getLast()
     {
         assert size() > 0 : "The deque is empty.";
@@ -289,20 +265,14 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Removes the first occurrence of the specified element from this deque.
-     * If the deque does not contain the element, it is unchanged.
-     * 
-     * <p>Returns <tt>true</tt> if this deque contained the specified element
-     * (or equivalently, if this deque changed as a result of the call).
-     *
-     * @param e1 element to be removed from this deque, if present
-     * @return <tt>true</tt> if an element was removed as a result of this call
+     * {@inheritDoc}
      */
-    public boolean removeFirstOccurrence(KType e1)
+    @Override
+    public int removeFirstOccurrence(KType e1)
     {
         final int index = bufferIndexOf(e1);
         if (index >= 0) removeAtBufferIndex(index);
-        return index >= 0;
+        return index;
     }
 
     /**
@@ -327,20 +297,14 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Removes the last occurrence of the specified element from this deque.
-     * If the deque does not contain the element, it is unchanged.
-     * 
-     * <p>Returns <tt>true</tt> if this deque contained the specified element
-     * (or equivalently, if this deque changed as a result of the call).
-     *
-     * @param e1 element to be removed from this deque, if present
-     * @return <tt>true</tt> if an element was removed as a result of this call
+     * {@inheritDoc}
      */
-    public boolean removeLastOccurrence(KType e1)
+    @Override
+    public int removeLastOccurrence(KType e1)
     {
         final int index = lastBufferIndexOf(e1);
         if (index >= 0) removeAtBufferIndex(index);
-        return index >= 0;
+        return index;
     }
 
     /**
@@ -365,13 +329,10 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
     
     /**
-     * Removes all occurrences of the specified element in this deque.
-     * If the deque does not contain the element, it is unchanged.
-     * 
-     * @param e1 element to be removed from this deque, if present
-     * @return The number of removed occurrences of <code>e1</code>.
+     * {@inheritDoc}
      */
-    public int removeAll(KType e1)
+    @Override
+    public int removeAllOccurrences(KType e1)
     {
         int removed = 0;
         final int last = tail;
@@ -397,34 +358,6 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     
         tail = to;
         return removed;
-    }
-
-    /**
-     * Removes all elements present in a given iterator.
-     * 
-     * @param iterator An iterator returning a cursor over a collection of KType elements. 
-     * @return Returns the number of elements actually removed as a result of this
-     * call.
-     */
-    public final int removeAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
-    {
-        int count = 0;
-        while (iterator.hasNext())
-        {
-            count += removeAll((KType) iterator.next().value);
-        }
-
-        return count;
-    }
-
-    /**
-     * Removes all elements present in an iterable.
-     * 
-     * @see #removeAll(Iterator)
-     */
-    public final int removeAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        return removeAll(iterable.iterator());
     }
 
     /**
@@ -484,16 +417,18 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
     
     /**
-     * @return Return <code>true</code> if this deque has no elements.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isEmpty()
     {
         return size() == 0;
     }
 
     /**
-     * @return the number of elements in this deque
+     * {@inheritDoc}
      */
+    @Override
     public int size()
     {
         if (head <= tail)
@@ -503,9 +438,13 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Clear the deque without releasing internal buffers. The buffer's content is
-     * set to default values for the deque's type.
+     * {@inheritDoc}
+     * 
+     * <p>The internal array buffers are not released as a result of this call.</p>
+     * 
+     * @see #release()
      */
+    @Override
     public void clear()
     {
         if (head < tail)
@@ -542,7 +481,7 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
         final int requestedMinimum = 1 + elementsCount + expectedAdditions; 
         if (requestedMinimum >= bufferLen)
         {
-            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions);
+            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
             assert newSize >= requestedMinimum : "Resizer failed to" +
                     " return sensible new size: " + newSize + " <= " 
                     + (elementsCount + expectedAdditions);
@@ -563,10 +502,9 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Creates a new array that will contain the elements in this deque. The content of
-     * the <code>target</code> array is filled from index 0 (head of the queue) to index
-     * <code>size() - 1</code> (tail of the queue).
+     * {@inheritDoc}
      */
+    @Override
     public KType [] toArray()
     {
         final int size = size();
@@ -717,8 +655,6 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      *         + c.index + &quot; value=&quot; + c.value);
      * }
      * </pre>
-     * 
-     * @see #values()
      */
     public Iterator<ObjectCursor<KType>> iterator()
     {
@@ -740,8 +676,6 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
      *         + c.index + &quot; value=&quot; + c.value);
      * }
      * </pre>
-     * 
-     * @see #values()
      */
     public Iterator<ObjectCursor<KType>> descendingIterator()
     {
@@ -749,22 +683,9 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
-     * Returns an iterable view of the values in this {@link ObjectArrayDeque}, effectively
-     * an alias for <code>this</code> because {@link ObjectArrayDeque} is already
-     * iterable over the stored values.
-     * 
-     * @see #iterator()
+     * {@inheritDoc}
      */
-    public Iterable<ObjectCursor<KType>> values()
-    {
-        return this;
-    }
-
-    /**
-     * Applies <code>procedure</code> to all elements of this deque, head to tail.
-     *
-     * @see "HPPC benchmarks." 
-     */
+    @Override
     public void forEach(ObjectProcedure<? super KType> procedure)
     {
         forEach(procedure, head, tail);
@@ -785,9 +706,26 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forEach(ObjectPredicate<? super KType> predicate)
+    {
+        int fromIndex = head;
+        int toIndex = tail;
+
+        final KType [] buffer = this.buffer;
+        for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
+        {
+            if (!predicate.apply(buffer[i]))
+                break;
+        }
+    }
+
+    /**
      * Applies <code>procedure</code> to all elements of this deque, tail to head. 
      */
-    public void descendingforEach(ObjectProcedure<? super KType> procedure)
+    public void descendingForEach(ObjectProcedure<? super KType> procedure)
     {
         descendingForEach(procedure, head, tail);
     }
@@ -809,5 +747,104 @@ public class ObjectArrayDeque<KType> implements Iterable<ObjectCursor<KType>>
             i = oneLeft(i, buffer.length);
             procedure.apply(buffer[i]);
         } while (i != fromIndex);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void descendingForEach(ObjectPredicate<? super KType> predicate)
+    {
+        descendingForEach(predicate, head, tail);
+    }
+    
+    /**
+     * Applies <code>predicate</code> to a slice of the deque,
+     * <code>toIndex</code>, exclusive, down to <code>fromIndex</code>, inclusive
+     * or until the predicate returns <code>false</code>.
+     */
+    private void descendingForEach(ObjectPredicate<? super KType> predicate, 
+        int fromIndex, final int toIndex)
+    {
+        if (fromIndex == toIndex)
+            return;
+
+        final KType [] buffer = this.buffer;
+        int i = toIndex;
+        do
+        {
+            i = oneLeft(i, buffer.length);
+            if (!predicate.apply(buffer[i]))
+                break;
+        } while (i != fromIndex);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int removeAll(ObjectPredicate<? super KType> predicate)
+    {
+        int removed = 0;
+        final int last = tail;
+        final int bufLen = buffer.length;
+        int from, to;
+        from = to = head;
+        try
+        {
+            for (from = to = head; from != last; from = oneRight(from, bufLen))
+            {
+                if (predicate.apply(buffer[from]))
+                {
+                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    removed++;
+                    continue;
+                }
+    
+                if (to != from)
+                {
+                    buffer[to] = buffer[from];
+                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                }
+        
+                to = oneRight(to, bufLen);
+            }
+        }
+        finally
+        {
+            // Keep the deque in consistent state even if the predicate throws an exception.
+            for (; from != last; from = oneRight(from, bufLen))
+            {
+                if (to != from)
+                {
+                    buffer[to] = buffer[from];
+                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                }
+        
+                to = oneRight(to, bufLen);
+            }
+            tail = to;
+        }
+
+        return removed;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean contains(KType e)
+    {
+        int fromIndex = head;
+        int toIndex = tail;
+
+        final KType [] buffer = this.buffer;
+        for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
+        {
+            if (Intrinsics.equals(e, buffer[i]))
+                return true;
+        }
+
+        return false;
     }
 }

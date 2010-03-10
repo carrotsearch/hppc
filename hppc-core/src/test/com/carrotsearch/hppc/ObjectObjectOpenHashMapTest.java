@@ -10,6 +10,7 @@ import org.junit.*;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.predicates.*;
 
 /**
  * Tests for {@link ObjectObjectOpenHashMap}.
@@ -180,22 +181,80 @@ public class ObjectObjectOpenHashMapTest
 
     /* */
     @Test
-    public void testRemoveAllIn()
+    public void testRemoveAllWithContainer()
     {
         map.put(key1, value1);
         map.put(key2, value1);
         map.put(key3, value1);
 
-        /* replaceIf:primitiveKType 
-           // TODO: temporarily not available in the primitive version.
+        /* replaceIf:primitiveKType
+        UKTypeArrayList list2 = new UKTypeArrayList();
          */
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
+        /* end:replaceIf */
         list2.add(newArray(list2.buffer, key2, key3, key4));
 
-        map.removeAllKeysIn(list2);
+        map.removeAll(list2);
         assertEquals(1, map.size());
         assertTrue(map.containsKey(key1));
-        /* end:replaceIf */
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllWithPredicate()
+    {
+        map.put(key1, value1);
+        map.put(key2, value1);
+        map.put(key3, value1);
+
+        map.removeAll(new ObjectPredicate<Object>()
+        {
+            public boolean apply(/* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ value)
+            {
+                return value == key2 || value == key3;
+            }
+        });
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(key1));
+    }
+
+    /* */
+    @Test
+    public void testRemoveViaKeySetView()
+    {
+        map.put(key1, value1);
+        map.put(key2, value1);
+        map.put(key3, value1);
+
+        map.keySet().removeAll(new ObjectPredicate<Object>()
+        {
+            public boolean apply(/* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ value)
+            {
+                return value == key2 || value == key3;
+            }
+        });
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(key1));
+    }
+
+    /* */
+    @Test
+    public void testMapsIntersection()
+    {
+        ObjectObjectOpenHashMap<Object, Object> map2 = 
+            new ObjectObjectOpenHashMap<Object, Object>(); 
+
+        map.put(key1, value1);
+        map.put(key2, value1);
+        map.put(key3, value1);
+        
+        map2.put(key2, value1);
+        map2.put(key4, value1);
+
+        assertEquals(2, map.keySet().retainAll(map2.keySet()));
+
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(key2));
     }
 
     /* */
