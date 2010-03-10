@@ -11,7 +11,9 @@ abstract class AbstractObjectCollection<KType> implements ObjectCollection<KType
     /**
      * Default implementation uses a predicate for removal.
      */
+    /* removeIf:primitiveKType */
     @SuppressWarnings("unchecked")
+    /* end:removeIf */
     @Override
     public int removeAll(final ObjectLookupContainer<? extends KType> c)
     {
@@ -29,7 +31,9 @@ abstract class AbstractObjectCollection<KType> implements ObjectCollection<KType
     /**
      * Default implementation uses a predicate for retaining.
      */
+    /* removeIf:primitiveKType */
     @SuppressWarnings("unchecked")
+    /* end:removeIf */
     @Override
     public int retainAll(final ObjectLookupContainer<? extends KType> c)
     {

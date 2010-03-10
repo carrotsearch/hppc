@@ -3,8 +3,9 @@ package com.carrotsearch.hppc;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.procedures.*;
 import com.carrotsearch.hppc.hash.*;
+import com.carrotsearch.hppc.predicates.*;
+import com.carrotsearch.hppc.procedures.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
@@ -36,7 +37,7 @@ import com.carrotsearch.hppc.hash.*;
  * <tr            ><td>containsKey(K) </td><td>containsKey(K), lget()</td></tr>
  * <tr class="odd"><td>containsValue(K) </td><td>(no efficient equivalent)</td></tr>
  * <tr            ><td>keySet, entrySet </td><td>{@linkplain #iterator() iterator} over map entries,
- *                                               pseudo-closures</td></tr>
+ *                                               keySet, pseudo-closures</td></tr>
  * </tbody>
  * </table>
  * 
@@ -54,7 +55,7 @@ import com.carrotsearch.hppc.hash.*;
  *         project.
  */
 public class ObjectObjectOpenHashMap<KType, VType>
-    implements ObjectObjectAssociativeContainer<KType, VType>
+    implements ObjectObjectMap<KType, VType>
 {
     /**
      * Default capacity.
@@ -148,6 +149,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public final HashFunctionObject hashFunction;
 
     /**
+     * Lazily initialized view of the keys.
+     */
+    private KeySet keySetView;
+
+    /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and the default hash function
      * {@link HashFunctionObject}.
@@ -209,9 +215,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Place a given key and value in the hash map. The value previously
-     * stored under the given key in the hash map is returned.
+     * {@inheritDoc}
      */
+    @Override
     public VType put(KType key, VType value)
     {
         if (assigned + deleted >= resizeThreshold)
@@ -234,37 +240,20 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Puts all keys from an iterable cursor to this map, replacing the values
-     * of existing keys, if such keys are present.   
-     * 
-     * @param iterator An iterator returning a cursor over KType keys and VType values. 
-     * @return Returns the number of keys added to the map as a result of this
-     * call (not previously present in the map). Values of existing keys are overwritten.
+     * {@inheritDoc}
      */
+    @Override
     public final int putAll(
-        Iterator<? extends ObjectObjectCursor<? extends KType, ? extends VType>> iterator)
+        ObjectObjectAssociativeContainer<? extends KType, ? extends VType> container)
     {
         int count = this.assigned;
-        while (iterator.hasNext())
+        
+        for (ObjectObjectCursor<? extends KType, ? extends VType> c : container)
         {
-            final ObjectObjectCursor<? extends KType, ? extends VType> c 
-                = iterator.next();
             put(c.key, c.value);
         }
 
         return this.assigned - count;
-    }
-
-    /**
-     * Puts all keys from an iterable cursor to this map, replacing the values
-     * of existing keys, if such keys are present.
-     *    
-     * @see #putAll(Iterator)
-     */
-    public final int putAll(
-        Iterable<? extends ObjectObjectCursor<? extends KType, ? extends VType>> iterable)
-    {
-        return putAll(iterable.iterator());
     }
 
     /**
@@ -281,7 +270,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public final boolean putIfAbsent(KType key, VType value)
     {
-        if (!hasKey(key))
+        if (!containsKey(key))
         {
             put(key, value);
             return true;
@@ -304,12 +293,15 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * @param additionValue The value to add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
-    /* replaceIf:primitiveVType
     public final VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        if (hasKey(key))
+        if (containsKey(key))
         {
-            return values[lastSlot] += additionValue;
+            /* replaceIf:primitiveVType
+            return values[lastSlot] += additionValue 
+            */ 
+            throw new RuntimeException("Primitive version only.") 
+            /* end:replaceIf */;
         }
         else
         {
@@ -317,7 +309,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
             return putValue;
         }
     }
-    *//* end:replaceIf */
 
     /**
      * Expand the internal storage buffers (capacity) or rehash current
@@ -383,14 +374,16 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Remove the value at the given key, if it exists.
+     * {@inheritDoc}
      */
+    @Override
     public VType remove(KType key)
     {
         final int slot = slotFor(key);
 
         final VType value = values[slot];
-        if (states[slot] == ASSIGNED)
+        final byte state = states[slot]; 
+        if (state == ASSIGNED)
         {
             deleted++;
             assigned--;
@@ -399,46 +392,69 @@ public class ObjectObjectOpenHashMap<KType, VType>
             values[slot] = Intrinsics.<VType>defaultVTypeValue();
             states[slot] = DELETED;
         }
+        else
+        {
+            assert (Intrinsics.defaultVTypeValue() == value) : "Default value expected.";
+        }
 
         return value;
     }
 
     /**
-     * Removes all keys present in a given container.
-     * 
-     * @return Returns the number of elements actually removed as a result of this call.
+     * {@inheritDoc}
      */
-    public final int removeAllKeysIn(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    @Override
+    public final int removeAll(ObjectContainer<? extends KType> container)
     {
-        int before = this.deleted;
-        while (iterator.hasNext())
+        final int before = this.deleted;
+
+        for (ObjectCursor<? extends KType> cursor : container)
         {
-            remove(iterator.next().value);
+            remove(cursor.value);
         }
 
         return this.deleted - before;
     }
 
     /**
-     * Removes all keys present in an iterable.
-     * 
-     * @see #removeAllKeysIn(Iterator)
+     * {@inheritDoc}
      */
-    public final int removeAllKeysIn(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    @Override
+    public final int removeAll(ObjectPredicate<? super KType> predicate)
     {
-        return removeAllKeysIn(iterable.iterator());
+        final int before = this.deleted;
+
+        final KType [] keys = this.keys;
+        final VType [] values = this.values;
+        final byte [] states = this.states;
+
+        for (int i = 0; i < states.length; i++)
+        {
+            if (states[i] == ASSIGNED && predicate.apply(keys[i]))
+            {
+                deleted++;
+                assigned--;
+
+                keys[i] = Intrinsics.<KType>defaultKTypeValue();
+                values[i] = Intrinsics.<VType>defaultVTypeValue();
+                states[i] = DELETED;
+            }
+        }
+
+        return this.deleted - before;
     }
 
     /**
-     * Return the value at the given slot or the default value
-     * for a given value type, if the key does not exist. Use 
-     * the following snippet of code to check for key existence
-     * first and then retrieve the value if it exists.
+     * {@inheritDoc}
+     * 
+     * <p> Use the following snippet of code to check for key existence
+     * first and then retrieve the value if it exists.</p>
      * <pre>
      * if (map.containsKey(key))
      *   value = map.lget(); 
      * </pre>
      */
+    @Override
     public VType get(KType key)
     {
         return values[slotFor(key)];
@@ -478,9 +494,10 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Return <code>true</code> if the key exists in the map and
-     * save the associated value for fast access using {@link #lget}
-     * or {@link #lset}.
+     * {@inheritDoc}
+     * 
+     * <p>Saves the associated value for fast access using {@link #lget}
+     * or {@link #lset}.</p>
      * <pre>
      * if (map.containsKey(key))
      *   value = map.lget();
@@ -492,18 +509,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
      *   map.lset(map.lget() + 1);
      * </pre>
      */
+    @Override
     public boolean containsKey(KType key)
     {
         final int slot = (lastSlot = slotFor(key));
         return states[slot] == ASSIGNED;
-    }
-
-    /**
-     * An alias for {@link #containsKey}. 
-     */
-    public final boolean hasKey(KType key)
-    {
-        return containsKey(key);
     }
 
     /**
@@ -582,9 +592,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Clear all keys and values in the hash map, without releasing the 
-     * current buffers.
+     * {@inheritDoc}
+     * 
+     * <p>Does not release internal buffers.</p>
      */
+    @Override
     public void clear()
     {
         assigned = deleted = 0;
@@ -602,17 +614,19 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * @return Return the current size (number of assigned keys) in the hash map.
+     * {@inheritDoc}
      */
+    @Override
     public int size()
     {
         return assigned;
     }
 
     /**
-     * @return Return <code>true</code> if this hash map contains no assigned keys.
-     * Note that an empty hash map may still contain many deleted keys (that keep buffer
-     * space).
+     * {@inheritDoc}
+     * 
+     * <p>Note that an empty container may still contain many deleted keys (that occupy buffer
+     * space). Adding even a single element to such a container may cause rehashing.</p>
      */
     public boolean isEmpty()
     {
@@ -636,7 +650,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         throw new UnsupportedOperationException("equals() not implemented.");
     }
-    
+
     /**
      * An iterator implementation for {@link #iterator}.
      */
@@ -698,44 +712,18 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Returns a cursor over the entries (key-value pairs) in this map. The iterator is
-     * implemented as a cursor and it returns <b>the same cursor instance</b> on every
-     * call to {@link Iterator#next()}. To read the current key and value (or index inside
-     * internal buffers in the map) use the cursor's public fields. An example is shown below.
-     * 
-     * <pre>
-     * for (IntShortCursor c : intShortMap)
-     * {
-     *     System.out.println(&quot;index=&quot; + c.index 
-     *       + &quot; key=&quot; + c.key
-     *       + &quot; value=&quot; + c.value);
-     * }
-     * </pre>
-     * 
-     * @see #values()
+     * {@inheritDoc}
      */
+    @Override
     public Iterator<ObjectObjectCursor<KType, VType>> iterator()
     {
         return new EntryIterator();
     }
 
     /**
-     * Returns an iterable view of the entries (key-value pairs) in this map. Effectively
-     * an alias for <code>this</code> because {@link ObjectObjectOpenHashMap} is already
-     * iterable over the stored entries.
-     * 
-     * @see #iterator()
+     * {@inheritDoc}
      */
-    public Iterable<ObjectObjectCursor<KType, VType>> values()
-    {
-        return this;
-    }
-
-    /**
-     * Applies <code>procedure</code> to all entries (key, value pairs) in this map.
-     *
-     * @see "HPPC benchmarks." 
-     */
+    @Override
     public void forEach(ObjectObjectProcedure<? super KType, ? super VType> procedure)
     {
         final KType [] keys = this.keys;
@@ -746,6 +734,162 @@ public class ObjectObjectOpenHashMap<KType, VType>
         {
             if (states[i] == ASSIGNED)
                 procedure.apply(keys[i], values[i]);
+        }
+    }
+
+    /**
+     * Returns a specialized view of the keys of this associated container. The view additionally
+     * implements {@link ObjectLookupContainer}.
+     */
+    public KeySet keySet()
+    {
+        if (keySetView == null)
+            keySetView = new KeySet();
+        return keySetView;
+    }
+
+    /**
+     * A view of the keys inside this hash map.
+     */
+    public final class KeySet 
+        extends AbstractObjectCollection<KType> implements ObjectLookupContainer<KType>
+    {
+        private final ObjectObjectOpenHashMap<KType, VType> owner = 
+            ObjectObjectOpenHashMap.this;
+        
+        @Override
+        public boolean contains(KType e)
+        {
+            return containsKey(e);
+        }
+
+        @Override
+        public void forEach(ObjectProcedure<? super KType> procedure)
+        {
+            final KType [] localKeys = owner.keys;
+            final byte [] localStates = owner.states;
+
+            for (int i = 0; i < localStates.length; i++)
+            {
+                if (localStates[i] == ASSIGNED)
+                    procedure.apply(localKeys[i]);
+            }
+        }
+
+        @Override
+        public void forEach(ObjectPredicate<? super KType> predicate)
+        {
+            final KType [] localKeys = owner.keys;
+            final byte [] localStates = owner.states;
+
+            for (int i = 0; i < localStates.length; i++)
+            {
+                if (localStates[i] == ASSIGNED)
+                {
+                    if (!predicate.apply(localKeys[i]))
+                        break;
+                }
+            }
+        }
+
+        @Override
+        public boolean isEmpty()
+        {
+            return owner.isEmpty();
+        }
+
+        @Override
+        public Iterator<ObjectCursor<KType>> iterator()
+        {
+            return new KeySetIterator();
+        }
+
+        @Override
+        public int size()
+        {
+            return owner.size();
+        }
+
+        @Override
+        public void clear()
+        {
+            owner.clear();
+        }
+
+        @Override
+        public int removeAll(ObjectPredicate<? super KType> predicate)
+        {
+            return owner.removeAll(predicate);
+        }
+
+        @Override
+        public int removeAllOccurrences(final KType e)
+        {
+            final boolean hasKey = owner.containsKey(e);
+            int result = 0;
+            if (hasKey)
+            {
+                owner.remove(e);
+                result = 1;
+            }
+            return result;
+        }
+    };
+    
+    /**
+     * An iterator over the set of assigned keys.
+     */
+    private final class KeySetIterator implements Iterator<ObjectCursor<KType>>
+    {
+        private final static int NOT_CACHED = -1;
+        private final static int AT_END = -2;
+
+        private final ObjectCursor<KType> cursor;
+
+        /** The next valid index or {@link #NOT_CACHED} if not available. */
+        private int nextIndex = NOT_CACHED;
+
+        public KeySetIterator()
+        {
+            cursor = new ObjectCursor<KType>();
+            cursor.index = NOT_CACHED;
+        }
+
+        public boolean hasNext()
+        {
+            if (nextIndex == NOT_CACHED)
+            {
+                // Advance from current cursor's position.
+                int i = cursor.index + 1;
+                for (; i < keys.length; i++)
+                {
+                    if (states[i] == ASSIGNED)
+                        break;
+                }
+                nextIndex = (i != keys.length ? i : AT_END);
+            }
+
+            return nextIndex != AT_END;
+        }
+
+        public ObjectCursor<KType> next()
+        {
+            if (!hasNext())
+                throw new NoSuchElementException();
+
+            cursor.index = nextIndex;
+            cursor.value = keys[nextIndex];
+
+            nextIndex = NOT_CACHED;
+            return cursor;
+        }
+
+        public void remove()
+        {
+            /* 
+             * Use closures and other more efficient alternatives.
+             */
+            throw new UnsupportedOperationException();
         }
     }
 }

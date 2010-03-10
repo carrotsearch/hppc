@@ -307,7 +307,7 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * An alias for the (preferred) {@link #removeAllOccurrences(Object)}.
+     * An alias for the (preferred) {@link #removeAllOccurrences}.
      */
     public boolean remove(KType key)
     {
@@ -503,7 +503,7 @@ public class ObjectOpenHashSet<KType>
         public EntryIterator()
         {
             cursor = new ObjectCursor<KType>();
-            cursor.index = -1;
+            cursor.index = NOT_CACHED;
         }
 
         public boolean hasNext()
