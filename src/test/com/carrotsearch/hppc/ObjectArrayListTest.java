@@ -11,6 +11,7 @@ import org.junit.*;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.predicates.ObjectPredicate;
 import com.carrotsearch.hppc.procedures.*;
 
 /**
@@ -22,6 +23,10 @@ public class ObjectArrayListTest<KType>
      * Per-test fresh initialized instance.
      */
     public ObjectArrayList<Object> list;
+
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key1 = 1;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key2 = 2;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key3 = 3;
 
     /**
      * Require assertions for all tests.
@@ -102,7 +107,7 @@ public class ObjectArrayListTest<KType>
         ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
         list2.add(newArray(list2.buffer, 0, 1, 2));
 
-        list.addAll(list2.iterator());
+        list.addAll(list2);
         list.addAll(list2);
 
         assertListEquals(list.toArray(), 0, 1, 2, 0, 1, 2);
@@ -125,7 +130,7 @@ public class ObjectArrayListTest<KType>
         list3.add(new B());
         list3.add(new A());
 
-        list3.addAll(list2.iterator());
+        list3.addAll(list2);
 
         assertEquals(3, list3.size());
     }
@@ -221,37 +226,102 @@ public class ObjectArrayListTest<KType>
     {
         list.add(newArray(list.buffer, 0, 1, 0, 1, 0));
 
-        assertEquals(0, list.removeAll(/* intrinsic:ktypecast */ 2));
-        assertEquals(3, list.removeAll(/* intrinsic:ktypecast */ 0));
+        assertEquals(0, list.removeAllOccurrences(/* intrinsic:ktypecast */ 2));
+        assertEquals(3, list.removeAllOccurrences(/* intrinsic:ktypecast */ 0));
         assertListEquals(list.toArray(), 1, 1);
 
-        assertEquals(2, list.removeAll(/* intrinsic:ktypecast */ 1));
+        assertEquals(2, list.removeAllOccurrences(/* intrinsic:ktypecast */ 1));
         assertTrue(list.isEmpty());
 
         /* removeIf:primitive */
         list.clear();
         list.add(newArray(list.buffer, 0, null, 2, null, 0));
-        assertEquals(2, list.removeAll((Object) null));
-        assertEquals(0, list.removeAll((Object) null));
+        assertEquals(2, list.removeAllOccurrences((Object) null));
+        assertEquals(0, list.removeAllOccurrences((Object) null));
         assertListEquals(list.toArray(), 0, 2, 0);
         /* end:removeIf */
     }
 
     /* */
     @Test
-    public void testRemoveAllIn()
+    public void testRemoveAllFromLookupContainer()
     {
         list.add(newArray(list.buffer, 0, 1, 2, 1, 0));
         
-        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.add(newArray(list2.buffer, 0, 2));
+        ObjectOpenHashSet<Object> list2 = new ObjectOpenHashSet<Object>();
+        list2.add(newArray(list2.keys, 0, 2));
 
         assertEquals(3, list.removeAll(list2));
-        assertEquals(0, list.removeAll(list2.iterator()));
+        assertEquals(0, list.removeAll(list2));
 
         assertListEquals(list.toArray(), 1, 1);
     }
 
+    /* */
+    @Test
+    public void testRemoveAllWithPredicate()
+    {
+        list.add(newArray(list.buffer, 0, key1, key2, key1, 4));
+
+        assertEquals(3, list.removeAll(new ObjectPredicate<Object>()
+        {
+            public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+            {
+                return v == key1 || v == key2;
+            };
+        }));
+
+        assertListEquals(list.toArray(), 0, 4);
+    }
+
+    /* */
+    @Test
+    public void testRetainAllWithPredicate()
+    {
+        list.add(newArray(list.buffer, 0, key1, key2, key1, 0));
+
+        assertEquals(2, list.retainAll(new ObjectPredicate<Object>()
+        {
+            public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+            {
+                return v == key1 || v == key2;
+            };
+        }));
+
+        assertListEquals(list.toArray(), 1, 2, 1);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllWithPredicateInterrupted()
+    {
+        list.add(newArray(list.buffer, 0, key1, key2, key1, 4));
+
+        final RuntimeException t = new RuntimeException(); 
+
+        try
+        {
+            assertEquals(3, list.removeAll(new ObjectPredicate<Object>()
+            {
+                public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+                {
+                    if (v == key2) throw t;
+                    return v == key1;
+                };
+            }));
+            fail();
+        }
+        catch (RuntimeException e)
+        {
+            // Make sure it's really our exception...
+            if (e != t) throw e;
+        }
+
+        // And check if the list is in consistent state.
+        assertListEquals(list.toArray(), 0, key2, key1, 4);
+        assertEquals(4, list.size());
+    }
+    
     /* */
     @Test
     public void testIndexOf()

@@ -1,8 +1,5 @@
 package com.carrotsearch.hppc;
 
-import java.util.Iterator;
-
-import com.carrotsearch.hppc.cursors.*;
 
 /**
  * An extension to {@link ObjectArrayList} adding stack-related utility methods.
@@ -123,21 +120,11 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     }
 
     /**
-     * Pushes all elements from a iterable cursor to the top of the stack.
-     * An alias for {@link #addAll(Iterator)}.
+     * Pushes all elements from another container to the top of the stack.
      */
-    public final void pushAll(Iterator<? extends ObjectCursor<? extends KType>> iterator)
+    public final int pushAll(ObjectContainer<? extends KType> container)
     {
-        addAll(iterator);
-    }
-
-    /**
-     * Pushes all elements from a iterable cursor to the top of the stack.
-     * An alias for {@link #addAll(Iterable)}.
-     */
-    public final void pushAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
-    {
-        addAll(iterable);
+        return addAll(container);
     }
 
     /**
