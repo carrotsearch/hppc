@@ -907,8 +907,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Creates a hash map from two index-aligned arrays of key-value pairs. 
      */
-    public static /* removeIf:primitive */<KType, VType> /* end:removeIf */ 
-      ObjectObjectOpenHashMap<KType, VType> from(KType [] keys, VType [] values)
+    public static
+        /* replaceWith:genericSignature */ <KType, VType> /* end:replaceWith */
+        ObjectObjectOpenHashMap<KType, VType> from(KType [] keys, VType [] values)
     {
         if (keys.length != values.length) 
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length."); 
@@ -924,7 +925,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Create a hash map from another associative container.
      */
-    public static /* removeIf:primitive */<KType, VType> /* end:removeIf */ 
+    public static 
+        /* replaceWith:genericSignature */ <KType, VType> /* end:replaceWith */
         ObjectObjectOpenHashMap<KType, VType> from(
             ObjectObjectAssociativeContainer<KType, VType> container)
     {
