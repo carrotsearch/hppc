@@ -116,6 +116,16 @@ public class ObjectArrayDeque<KType>
     }
 
     /**
+     * Creates a new deque from elements of another container, appending them
+     * at the end of this deque. 
+     */
+    public ObjectArrayDeque(ObjectContainer<? extends KType> container)
+    {
+        this(container.size());
+        addLast(container);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -846,5 +856,25 @@ public class ObjectArrayDeque<KType>
         }
 
         return false;
+    }
+
+    /**
+     * Create a new deque by pushing a variable number of arguments to the end of it.
+     */
+    public static /* removeIf:primitive */ <KType> /* end:removeIf */ 
+        ObjectArrayDeque<KType> from(KType... elements)
+    {
+        final ObjectArrayDeque<KType> coll = new ObjectArrayDeque<KType>(elements.length);
+        coll.addLast(elements);
+        return coll;
+    }
+
+    /**
+     * Create a new deque by pushing a variable number of arguments to the end of it.
+     */
+    public static /* removeIf:primitive */ <KType> /* end:removeIf */ 
+        ObjectArrayDeque<KType> from(ObjectContainer<KType> container)
+    {
+        return new ObjectArrayDeque<KType>(container);
     }
 }
