@@ -1,17 +1,15 @@
 package com.carrotsearch.hppc.cursors;
 
-import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 
 /**
- * A cursor over map entries (keys and values).
- * 
- * @see ObjectObjectOpenHashMap#iterator()
+ * A cursor over entries of an associative container (KType keys and VType values).
  */
 public final class ObjectObjectCursor<KType, VType>
 {
     /**
-     * The current index in the internal buffers of the map 
-     * being traversed.
+     * The current key and value's index in the container this cursor belongs to. The meaning of
+     * this index is defined by the container (usually it will be an index in the underlying
+     * storage buffer).
      */
     public int index;
 
