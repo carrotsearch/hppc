@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/trove-3.0.0a3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar" sourcepath="/home/dweiss/.m2/repository/commons-lang/commons-lang/2.4/commons-lang-2.4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/h2-1.2.127.jar"/>
 	<classpathentry kind="output" path="tmp/eclipse"/>
 </classpath>
