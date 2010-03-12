@@ -316,8 +316,8 @@
                 <replacestring from="&lt;KType, VType&gt;" to="" />
 
                 <!-- Replace hash function references. -->
-                <replacestring from="HashFunctionObject" to="HashFunction@{UKType}" />
-                <replacestring from="MurmurHashObject" to="HashFunction@{UKType}" />
+                <replacestring from="ObjectHashFunction" to="@{UKType}HashFunction" />
+                <replacestring from="ObjectMurmurHash"   to="@{UKType}MurmurHash" />
             </filtermapper>
 
             <apply.filter 
