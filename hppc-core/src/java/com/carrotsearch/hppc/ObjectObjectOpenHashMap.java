@@ -156,18 +156,18 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and the default hash function
-     * {@link HashFunctionObject}.
+     * {@link MurmurHashObject}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
     public ObjectObjectOpenHashMap()
     {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new HashFunctionObject());
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
     }
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-     * {@value #DEFAULT_LOAD_FACTOR} and hash function from {@link HashFunctionObject}.
+     * {@value #DEFAULT_LOAD_FACTOR} and hash function from {@link MurmurHashObject}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 
@@ -176,12 +176,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(int initialCapacity)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR, new HashFunctionObject());
+        this(initialCapacity, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
     }
 
     /**
      * Creates a hash map with the given initial capacity,
-     * load factor and hash function from {@link HashFunctionObject}.
+     * load factor and hash function {@link MurmurHashObject}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 
@@ -192,7 +192,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, new HashFunctionObject());
+        this(initialCapacity, loadFactor, new MurmurHashObject());
     }
 
     /**
