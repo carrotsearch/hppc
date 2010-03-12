@@ -3,7 +3,7 @@ package com.carrotsearch.hppc.hash;
 /**
  * Default hash function for <code>int</code> values.
  */
-public class HashFunctionInt
+public class IntHashFunction
 {
     public int hash(int key)
     {
