@@ -16,7 +16,7 @@ import org.junit.rules.MethodRule;
 import bak.pcj.map.IntKeyIntChainedHashMap;
 import bak.pcj.map.IntKeyIntOpenHashMap;
 
-import com.carrotsearch.hppc.hash.MurmurHashInt;
+import com.carrotsearch.hppc.hash.IntMurmurHash;
 import com.carrotsearch.junitbenchmarks.*;
 import com.carrotsearch.junitbenchmarks.h2.*;
 
@@ -70,7 +70,7 @@ public class BigramCounting
         final IntIntOpenHashMap map = new IntIntOpenHashMap(
             IntIntOpenHashMap.DEFAULT_CAPACITY, 
             IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, 
-            new MurmurHashInt());
+            new IntMurmurHash());
 
         for (int i = 0; i < CHARS.length - 1; i++)
         {

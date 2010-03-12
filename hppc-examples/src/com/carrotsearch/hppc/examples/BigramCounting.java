@@ -5,7 +5,7 @@ import java.util.*;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.IntIntOpenHashMap;
-import com.carrotsearch.hppc.hash.MurmurHashInt;
+import com.carrotsearch.hppc.hash.IntMurmurHash;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 public class BigramCounting extends AbstractBenchmark
@@ -40,7 +40,7 @@ public class BigramCounting extends AbstractBenchmark
         final IntIntOpenHashMap counts = new IntIntOpenHashMap(
             IntIntOpenHashMap.DEFAULT_CAPACITY, 
             IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, 
-            new MurmurHashInt());
+            new IntMurmurHash());
 
         for (int i = 0; i < CHARS.length - 1; i++)
         {
