@@ -291,9 +291,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
 
     /**
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code:
+     * of the following code (although a bit faster):
      * <pre>
-     * if (map.hasKey(key)) 
+     * if (map.containsKey(key)) 
      *    map.lset(map.lget() + additionValue);
      * else
      *    map.put(key, putValue);
@@ -306,18 +306,32 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public final VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        if (containsKey(key))
+        // Eagerly check and make sure there is enough room for an update, if needed.
+        if (assigned + deleted >= resizeThreshold)
+            expandAndRehash();
+
+        final int slot = slotFor(key);
+        final byte state = states[slot];
+
+        if (state == ASSIGNED)
         {
             /* replaceIf:primitiveVType
-            return values[lastSlot] += additionValue 
+            return values[slot] += additionValue 
             */ 
             throw new RuntimeException("Primitive version only.") 
             /* end:replaceIf */;
         }
         else
         {
-            put(key, putValue);
-            return putValue;
+            // Must have been EMPTY or DELETED, we increase the assigned count.
+            assigned++;
+            // If DELETED, we decrease the deleted count.
+            if (state == DELETED) deleted--;
+
+            states[slot] = ASSIGNED;
+            keys[slot] = key;
+
+            return values[slot] = putValue;
         }
     }
 
@@ -352,6 +366,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 keys[slot] = oldKeys[i];
                 values[slot] = oldValues[i];
                 states[slot] = ASSIGNED;
+
+                /* Nullify while accessing these memory regions to use cpu cache. */
 
                 /* removeIf:primitiveKType */
                 oldKeys[i] = null; 
