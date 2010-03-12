@@ -3,7 +3,7 @@ package com.carrotsearch.hppc.hash;
 /**
  * Default hash function for <code>long</code> values.
  */
-public class HashFunctionLong
+public class LongHashFunction
 {
     /**
      * Consistent with {@link Long#hashCode()}. 

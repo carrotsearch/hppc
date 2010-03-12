@@ -124,36 +124,36 @@ public class ObjectOpenHashSet<KType>
     /**
      * Hash function for entries.
      */
-    public final HashFunctionObject hashFunction;
+    public final ObjectHashFunction hashFunction;
     
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link MurmurHashObject}.
+     * from {@link ObjectMurmurHash}.
      */
     public ObjectOpenHashSet()
     {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
     }
 
     /**
      * Creates a hash set with the given capacity,
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link MurmurHashObject}.
+     * from {@link ObjectMurmurHash}.
      */
     public ObjectOpenHashSet(int initialCapacity)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
+        this(initialCapacity, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
     }
 
     /**
      * Creates a hash set with the given capacity,
      * load factor and hash function
-     * from {@link MurmurHashObject}.
+     * from {@link ObjectMurmurHash}.
      */
     public ObjectOpenHashSet(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, new MurmurHashObject());
+        this(initialCapacity, loadFactor, new ObjectMurmurHash());
     }
 
     /**
@@ -170,7 +170,7 @@ public class ObjectOpenHashSet<KType>
      * capacity is always rounded to the next power of two.
      */
     public ObjectOpenHashSet(
-        int initialCapacity, float loadFactor, HashFunctionObject hashFunction)
+        int initialCapacity, float loadFactor, ObjectHashFunction hashFunction)
     {
         initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
 
