@@ -206,7 +206,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
-        assert initialCapacity > 0 && initialCapacity <= Integer.MAX_VALUE
+        assert initialCapacity > 0
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
         assert loadFactor > 0 && loadFactor <= 1
             : "Load factor must be between (0, 1].";
