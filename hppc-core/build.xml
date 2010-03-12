@@ -962,4 +962,40 @@
            <arg value="${upload.user}@${upload.host}:${upload.path}" />
         </exec>
     </target>
+
+    <target name="maven.prepare">
+        <copy file="etc/maven/pom.xml" tofile="${dist.dir}/pom.xml" filtering="true" encoding="UTF-8">
+            <filterchain>
+                <expandproperties/>
+            </filterchain>
+        </copy>
+    </target>
+    
+    <target name="maven.deploy.snapshot" depends="maven.prepare">
+        <exec dir="etc/maven" executable="mvn" vmlauncher="false" searchpath="true" failonerror="true">
+            <arg value="deploy:deploy-file" />
+            <arg value="-Durl=ftp://174.132.130.8/public_html/com.carrotsearch.repository/labs/snapshots" />
+            <arg value="-DrepositoryId=carrotsearch.labs.snapshots.ftp" />
+            <arg value="-DpomFile=${dist.dir}/pom.xml" />
+            <arg value="-DgeneratePom=false" />
+            <arg value="-DuniqueVersion=false" />
+            <arg value="-DupdateReleaseInfo=false" />
+            <arg value="-Dversion=${hppc.version}" />
+            <arg value="-Dfile=${dist.dir}/${dist.name}.jar" />
+        </exec>
+    </target>
+
+    <target name="maven.deploy.release" depends="maven.prepare">
+        <exec dir="etc/maven" executable="mvn" vmlauncher="false" searchpath="true" failonerror="true">
+            <arg value="deploy:deploy-file" />
+            <arg value="-Durl=ftp://174.132.130.8/public_html/com.carrotsearch.repository/labs/releases" />
+            <arg value="-DrepositoryId=carrotsearch.labs.releases.ftp" />
+            <arg value="-DpomFile=${dist.dir}/pom.xml" />
+            <arg value="-DgeneratePom=false" />
+            <arg value="-DuniqueVersion=false" />
+            <arg value="-DupdateReleaseInfo=true" />
+            <arg value="-Dversion=${hppc.version}" />
+            <arg value="-Dfile=${dist.dir}/${dist.name}.jar" />
+        </exec>
+    </target>
 </project>
