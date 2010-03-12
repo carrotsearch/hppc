@@ -1,5 +1,8 @@
 <FindBugsFilter>
    <Match>
+      <Bug code="EI2" /> <!-- Internal representation exposure. -->
+   </Match>
+   <Match>
       <Bug code="UuF" />
    </Match>
    <Match>
