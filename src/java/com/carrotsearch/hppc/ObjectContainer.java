@@ -43,7 +43,7 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
     /**
      * Return the current number of elements in this container. The time for calculating
      * the container's size may take <code>O(n)</code> time, although implementing classes
-     * should try to keep the current size cached.
+     * should try to maintain the current size and return in constant time.
      */
     public int size();
 
