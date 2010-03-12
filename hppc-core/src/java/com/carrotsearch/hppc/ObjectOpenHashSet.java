@@ -130,7 +130,7 @@ public class ObjectOpenHashSet<KType>
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
      * from {@link ObjectMurmurHash}.
-     */
+`     */
     public ObjectOpenHashSet()
     {
         this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
@@ -174,7 +174,7 @@ public class ObjectOpenHashSet<KType>
     {
         initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
 
-        assert initialCapacity > 0 && initialCapacity <= Integer.MAX_VALUE
+        assert initialCapacity > 0
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
         assert loadFactor > 0 && loadFactor < 1
             : "Load factor must be between (0, 1).";
