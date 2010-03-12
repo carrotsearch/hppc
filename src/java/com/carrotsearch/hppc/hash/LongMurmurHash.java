@@ -3,7 +3,7 @@ package com.carrotsearch.hppc.hash;
 /**
  * Murmur hash for <code>long</code>s.
  */
-public final class MurmurHashLong extends HashFunctionLong
+public final class LongMurmurHash extends LongHashFunction
 {
     @Override
     public int hash(long k)

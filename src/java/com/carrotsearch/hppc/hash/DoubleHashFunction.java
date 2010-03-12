@@ -3,7 +3,7 @@ package com.carrotsearch.hppc.hash;
 /**
  * Default hash function for <code>double</code> values.
  */
-public class HashFunctionDouble
+public class DoubleHashFunction
 {
     /**
      * Consistent with {@link Double#hashCode()}.

@@ -47,7 +47,7 @@ import com.carrotsearch.hppc.procedures.*;
  * <p><b>Important node.</b> The implementation uses power-of-two tables, which may
  * cause poor performance (many collisions) if hash values differ in higher bits only.
  * If unsure about the input data distribution, use a well-mixing hash function. 
- * {@link MurmurHashObject} and primitive derivatives are provided in HPPC for
+ * {@link ObjectMurmurHash} and primitive derivatives are provided in HPPC for
  * convenience.</p>
  * 
  * @author This code is partially inspired by the implementation found in the <a
@@ -146,7 +146,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Hash function for keys.
      */
-    public final HashFunctionObject hashFunction;
+    public final ObjectHashFunction hashFunction;
 
     /**
      * Lazily initialized view of the keys.
@@ -156,18 +156,18 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and the default hash function
-     * {@link MurmurHashObject}.
+     * {@link ObjectMurmurHash}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
     public ObjectObjectOpenHashMap()
     {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
     }
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-     * {@value #DEFAULT_LOAD_FACTOR} and hash function from {@link MurmurHashObject}.
+     * {@value #DEFAULT_LOAD_FACTOR} and hash function from {@link ObjectMurmurHash}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 
@@ -176,12 +176,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(int initialCapacity)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
+        this(initialCapacity, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
     }
 
     /**
      * Creates a hash map with the given initial capacity,
-     * load factor and hash function {@link MurmurHashObject}.
+     * load factor and hash function {@link ObjectMurmurHash}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 
@@ -192,7 +192,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, new MurmurHashObject());
+        this(initialCapacity, loadFactor, new ObjectMurmurHash());
     }
 
     /**
@@ -202,7 +202,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * <p>See class notes about hash distribution importance.</p>
      */
     public ObjectObjectOpenHashMap(
-        int initialCapacity, float loadFactor, HashFunctionObject hashFunction)
+        int initialCapacity, float loadFactor, ObjectHashFunction hashFunction)
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
