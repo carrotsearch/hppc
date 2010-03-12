@@ -162,7 +162,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap()
     {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
+        this(DEFAULT_CAPACITY);
     }
 
     /**
@@ -176,7 +176,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(int initialCapacity)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
+        this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -304,6 +304,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * @param additionValue The value to add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
+    /* replaceIf:primitiveVType
     public final VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
         // Eagerly check and make sure there is enough room for an update, if needed.
@@ -315,11 +316,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
 
         if (state == ASSIGNED)
         {
-            /* replaceIf:primitiveVType
-            return values[slot] += additionValue 
-            */ 
-            throw new RuntimeException("Primitive version only.") 
-            /* end:replaceIf */;
+            return values[slot] += additionValue; 
         }
         else
         {
@@ -334,6 +331,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
             return values[slot] = putValue;
         }
     }
+    *//* end:replaceIf */
 
     /**
      * Expand the internal storage buffers (capacity) or rehash current
