@@ -3,14 +3,14 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
 
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 
 import org.junit.*;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
+import com.carrotsearch.hppc.procedures.*;
 
 /**
  * Tests for {@link ObjectObjectOpenHashMap}.
@@ -66,6 +66,51 @@ public class ObjectObjectOpenHashMapTest
             }
             assertEquals(occupied, map.deleted + map.assigned);
         }
+    }
+
+    /* */
+    @Test
+    public void testCloningConstructor()
+    {
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value3);
+
+        assertSameMap(map, ObjectObjectOpenHashMap.from(map));
+        assertSameMap(map, new ObjectObjectOpenHashMap<Object, Object>(map));
+    }
+
+    /* */
+    @Test
+    public void testFromArrays()
+    {
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value3);
+
+        ObjectObjectOpenHashMap<Object, Object> map2 = ObjectObjectOpenHashMap.from(
+            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1, key2, key3},
+            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1, value2, value3});
+
+        assertSameMap(map, map2);
+    }
+
+    private void assertSameMap(
+        final ObjectObjectMap<Object, Object> c1,
+        final ObjectObjectMap<Object, Object> c2)
+    {
+        assertEquals(c1.size(), c2.size());
+
+        c1.forEach(new ObjectObjectProcedure<Object, Object>()
+        {
+            public void apply(
+                /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key,
+                /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value)
+            {
+                assertTrue(c2.containsKey(key));
+                assertEquals2(value, c2.get(key));
+            }
+        });
     }
 
     /* */
@@ -255,6 +300,34 @@ public class ObjectObjectOpenHashMapTest
 
         assertEquals(1, map.size());
         assertTrue(map.containsKey(key2));
+    }
+
+    /* */
+    @Test
+    public void testMapKeySet()
+    {
+        map.put(key1, value3);
+        map.put(key2, value2);
+        map.put(key3, value1);
+
+        assertSortedListEquals(map.keySet().toArray(), key1, key2, key3);
+    }
+
+    /* */
+    @Test
+    public void testMapKeySetIterator()
+    {
+        map.put(key1, value3);
+        map.put(key2, value2);
+        map.put(key3, value1);
+
+        int counted = 0;
+        for (ObjectCursor<Object> c : map.keySet())
+        {
+            assertEquals2(map.keys[c.index], c.value);
+            counted++;
+        }
+        assertEquals(counted, map.size());
     }
 
     /* */
