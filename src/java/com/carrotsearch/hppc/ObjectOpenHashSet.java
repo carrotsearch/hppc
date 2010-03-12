@@ -2,10 +2,10 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.carrotsearch.hppc.hash.HashFunctionObject;
-import com.carrotsearch.hppc.predicates.ObjectPredicate;
-import com.carrotsearch.hppc.procedures.ObjectProcedure;
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.hash.*;
+import com.carrotsearch.hppc.predicates.*;
+import com.carrotsearch.hppc.procedures.*;
 
 /**
  * A hash set of <code>KType</code>s, implemented using open addressing with 
@@ -129,31 +129,31 @@ public class ObjectOpenHashSet<KType>
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link HashFunctionObject}.
+     * from {@link MurmurHashObject}.
      */
     public ObjectOpenHashSet()
     {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new HashFunctionObject());
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
     }
 
     /**
      * Creates a hash set with the given capacity,
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link HashFunctionObject}.
+     * from {@link MurmurHashObject}.
      */
     public ObjectOpenHashSet(int initialCapacity)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR, new HashFunctionObject());
+        this(initialCapacity, DEFAULT_LOAD_FACTOR, new MurmurHashObject());
     }
 
     /**
      * Creates a hash set with the given capacity,
      * load factor and hash function
-     * from {@link HashFunctionObject}.
+     * from {@link MurmurHashObject}.
      */
     public ObjectOpenHashSet(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, new HashFunctionObject());
+        this(initialCapacity, loadFactor, new MurmurHashObject());
     }
 
     /**
