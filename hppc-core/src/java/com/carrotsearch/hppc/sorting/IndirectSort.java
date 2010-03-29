@@ -1,4 +1,3 @@
-
 package com.carrotsearch.hppc.sorting;
 
 import java.util.Comparator;
@@ -20,6 +19,11 @@ public final class IndirectSort
      */
     static int MIN_LENGTH_FOR_QUICKSORT = 15;
 
+    /**
+     * Minimum window length to apply insertion sort in merge sort.
+     */
+    static int MIN_LENGTH_FOR_INSERTION_SORT = 30;
+
     /** We use a bit larger values than Sedgewick's "magic constants". */
     static int MIN_MED3_SIZE = 30;
 
@@ -37,6 +41,9 @@ public final class IndirectSort
     /**
      * Returns the order of elements between indices <code>start</code> and
      * <code>length</code>, as indicated by the given <code>comparator</code>.
+     * <p>
+     * This routine uses recursive quicksort.
+     * </p>
      */
     public static int [] sort(int start, int length, IndirectComparator comparator)
     {
@@ -50,12 +57,101 @@ public final class IndirectSort
      * <code>length</code>, as indicated by the given <code>comparator</code>. This method
      * is equivalent to calling {@link #sort(int, int, IndirectComparator)} with
      * {@link IndirectComparator.DelegatingComparator}.
+     * <p>
+     * This routine uses recursive quicksort.
+     * </p>
      */
     public static <T> int [] sort(T [] input, int start, int length,
         Comparator<? super T> comparator)
     {
         return sort(start, length, new IndirectComparator.DelegatingComparator<T>(input,
             comparator));
+    }
+
+    /**
+     * Returns the order of elements between indices <code>start</code> and
+     * <code>length</code>, as indicated by the given <code>comparator</code>.
+     * <p>
+     * This routine uses merge sort.
+     * </p>
+     */
+    public static int [] mergesort(int start, int length, IndirectComparator comparator)
+    {
+        final int [] src = createOrderArray(start, length);
+
+        if (length > 1)
+        {
+            final int [] dst = (int []) src.clone();
+            topDownMergeSort(src, dst, 0, length, comparator);
+            return dst;
+        }
+
+        return src;
+    }
+
+    /**
+     * Returns the order of elements between indices <code>start</code> and
+     * <code>length</code>, as indicated by the given <code>comparator</code>. This method
+     * is equivalent to calling {@link #mergesort(int, int, IndirectComparator)} with
+     * {@link IndirectComparator.DelegatingComparator}.
+     * <p>
+     * This routine uses merge sort.
+     * </p>
+     */
+    public static <T> int [] mergesort(T [] input, int start, int length,
+        Comparator<? super T> comparator)
+    {
+        return mergesort(start, length, new IndirectComparator.DelegatingComparator<T>(
+            input, comparator));
+    }
+
+    /**
+     * Perform a recursive, descending merge sort.
+     * 
+     * @param fromIndex inclusive
+     * @param toIndex exclusive
+     */
+    private static void topDownMergeSort(int [] src, int [] dst, int fromIndex, int toIndex,
+        IndirectComparator comp)
+    {
+        if (toIndex - fromIndex <= MIN_LENGTH_FOR_INSERTION_SORT)
+        {
+            insertionSort(fromIndex, toIndex - fromIndex, dst, comp);
+            return;
+        }
+
+        final int mid = (fromIndex + toIndex) >>> 1;
+        topDownMergeSort(dst, src, fromIndex, mid, comp);
+        topDownMergeSort(dst, src, mid, toIndex, comp);
+
+        /*
+         * Both splits in of src are now sorted.
+         */
+        if (comp.compare(src[mid - 1], src[mid]) <= 0)
+        {
+            /*
+             * If the lowest element in upper slice is larger than the highest element in
+             * the lower slice, simply copy over, the data is fully sorted.
+             */
+            System.arraycopy(src, fromIndex, dst, fromIndex, toIndex - fromIndex);
+        }
+        else
+        {
+            /*
+             * Run a manual merge.
+             */
+            for (int i = fromIndex, j = mid, k = fromIndex; k < toIndex; k++)
+            {
+                if (j == toIndex || (i < mid && comp.compare(src[i], src[j]) <= 0))
+                {
+                    dst[k] = src[i++];
+                }
+                else
+                {
+                    dst[k] = src[j++];
+                }
+            }
+        }
     }
 
     /**
@@ -117,15 +213,17 @@ public final class IndirectSort
 
         // Swap back equal elements.
         int s, n = off + len;
-        s = Math.min(a - off, b - a);   vecswap(order, off, b - s, s);
-        s = Math.min(d - c, n - d - 1); vecswap(order, b, n - s, s);
+        s = Math.min(a - off, b - a);
+        vecswap(order, off, b - s, s);
+        s = Math.min(d - c, n - d - 1);
+        vecswap(order, b, n - s, s);
 
         // Go for smaller fragments first to reduce stack use.
         final int s1 = b - a;
         final int s2 = d - c;
 
-        assert (s1 < len && s2 < len) 
-            : "Recursive call must decrease range length, comparator: " + comp;
+        assert (s1 < len && s2 < len) : "Recursive call must decrease range length, comparator: "
+            + comp;
 
         if (s1 < s2)
         {
@@ -147,7 +245,6 @@ public final class IndirectSort
         for (int i = 0; i < n; i++, a++, b++)
             swap(x, a, b);
     }
-
 
     /**
      * Internal insertion sort for <code>int</code>s.
