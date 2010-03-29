@@ -1,4 +1,3 @@
-
 package com.carrotsearch.hppc.sorting;
 
 import java.util.Arrays;
@@ -46,12 +45,33 @@ public class IndirectSortTest
         ordered, sawtooth, rand, stagger, plateau, shuffle
     }
 
+    enum Algorithm
+    {
+        QUICKSORT, MERGESORT
+    }
 
     /**
      * Test "certification" program as in Bentley and McIlroy's paper.
      */
     @Test
-    public void testSortCertification()
+    public void testSortCertificationMergeSort()
+    {
+        sortCertification(Algorithm.MERGESORT);
+    }
+
+    /**
+     * Test "certification" program as in Bentley and McIlroy's paper.
+     */
+    @Test
+    public void testSortCertificationQuickSort()
+    {
+        sortCertification(Algorithm.QUICKSORT);
+    }
+
+    /**
+     * Run a "sort certification" test.
+     */
+    static void sortCertification(Algorithm algorithm)
     {
         int [] n_values =
         {
@@ -67,20 +87,20 @@ public class IndirectSortTest
                     int [] x = generate(dist, n, m);
 
                     String testName = dist + "-" + n + "-" + m;
-                    testOn(x, testName + "-normal");
-                    testOn(reverse(x, 0, n), testName + "-reversed");
-                    testOn(reverse(x, 0, n/2), testName + "-reversed_front");
-                    testOn(reverse(x, n/2, n), testName + "-reversed_back");
-                    testOn(sort(x), testName + "-sorted");
-                    testOn(dither(x), testName + "-dither");
+                    testOn(algorithm, x, testName + "-normal");
+                    testOn(algorithm, reverse(x, 0, n), testName + "-reversed");
+                    testOn(algorithm, reverse(x, 0, n / 2), testName + "-reversed_front");
+                    testOn(algorithm, reverse(x, n / 2, n), testName + "-reversed_back");
+                    testOn(algorithm, sort(x), testName + "-sorted");
+                    testOn(algorithm, dither(x), testName + "-dither");
                 }
             }
         }
     }
 
     /**
-     * Generate <code>n</code>-length data set distributed according to <code>dist</code>. 
-
+     * Generate <code>n</code>-length data set distributed according to <code>dist</code>.
+     * 
      * @param m Step for sawtooth, stagger, plateau and shuffle.
      */
     static int [] generate(final DataDistribution dist, int n, int m)
@@ -114,7 +134,7 @@ public class IndirectSortTest
                     throw new RuntimeException();
             }
         }
-        
+
         return x;
     }
 
@@ -123,14 +143,15 @@ public class IndirectSortTest
         x = copy(x);
         Arrays.sort(x);
         return x;
-    }    
+    }
 
     static int [] dither(int [] x)
     {
         x = copy(x);
-        for (int i = 0; i < x.length; i++) x[i] += i % 5;
+        for (int i = 0; i < x.length; i++)
+            x[i] += i % 5;
         return x;
-    }    
+    }
 
     static int [] reverse(int [] x, int start, int end)
     {
@@ -152,20 +173,78 @@ public class IndirectSortTest
     /*
      * 
      */
-    private static void testOn(int [] x, String testName)
+    private static void testOn(Algorithm algo, int [] x, String testName)
     {
         final IndirectComparator c = new IndirectComparator.AscendingIntComparator(x);
-        final int [] order = IndirectSort.sort(0, x.length, c);
+
+        final int [] order;
+        switch (algo)
+        {
+            case QUICKSORT:
+                order = IndirectSort.sort(0, x.length, c);
+                break;
+            case MERGESORT:
+                order = IndirectSort.mergesort(0, x.length, c);
+                break;
+            default:
+                Assert.fail();
+                throw new RuntimeException();
+        }
+
         assertOrder(order, x.length, c);
+    }
+
+    /**
+     * Empty and single-item input.
+     */
+    @Test
+    public void testEmptyAndSingle()
+    {
+        final IndirectComparator comparator = new OrderedInputComparator();
+        int [] qSortOrder = IndirectSort.sort(0, 0, comparator);
+        int [] mSortOrder = IndirectSort.mergesort(0, 0, comparator);
+        Assert.assertEquals(qSortOrder.length, 0);
+        Assert.assertEquals(mSortOrder.length, 0);
+
+        for (int i = 0; i < 1000; i++)
+        {
+            qSortOrder = IndirectSort.sort(0, i, comparator);
+            mSortOrder = IndirectSort.mergesort(0, i, comparator);
+            Assert.assertEquals(qSortOrder.length, i);
+            Assert.assertEquals(mSortOrder.length, i);
+            Assert.assertArrayEquals(qSortOrder, mSortOrder);
+        }
     }
 
     /**
      * Large ordered input.
      */
     @Test
-    public void testOrdered()
+    public void testOrderedQuickSort()
     {
         final IndirectComparator comparator = new OrderedInputComparator();
+        int [] order = IndirectSort.sort(0, DATA_LENGTH, comparator);
+        assertOrder(order, DATA_LENGTH, comparator);
+    }
+
+    /**
+     * Large ordered input.
+     */
+    @Test
+    public void testOrderedMergeSort()
+    {
+        final IndirectComparator comparator = new OrderedInputComparator();
+        int [] order = IndirectSort.mergesort(0, DATA_LENGTH, comparator);
+        assertOrder(order, DATA_LENGTH, comparator);
+    }
+
+    /**
+     * Large reversed input.
+     */
+    @Test
+    public void testReversedQuickSort()
+    {
+        final IndirectComparator comparator = new ReverseOrderedInputComparator();
         final int [] order = IndirectSort.sort(0, DATA_LENGTH, comparator);
         assertOrder(order, DATA_LENGTH, comparator);
     }
@@ -174,10 +253,10 @@ public class IndirectSortTest
      * Large reversed input.
      */
     @Test
-    public void testReversed()
+    public void testReversedMergeSort()
     {
         final IndirectComparator comparator = new ReverseOrderedInputComparator();
-        final int [] order = IndirectSort.sort(0, DATA_LENGTH, comparator);
+        final int [] order = IndirectSort.mergesort(0, DATA_LENGTH, comparator);
         assertOrder(order, DATA_LENGTH, comparator);
     }
 
@@ -213,8 +292,11 @@ public class IndirectSortTest
 
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
-            final int [] order = IndirectSort.sort(start, length, comparator);
 
+            int [] order = IndirectSort.sort(start, length, comparator);
+            assertOrder(order, length, comparator);
+
+            order = IndirectSort.mergesort(start, length, comparator);
             assertOrder(order, length, comparator);
         }
     }
@@ -239,8 +321,11 @@ public class IndirectSortTest
 
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
-            final int [] order = IndirectSort.sort(start, length, comparator);
 
+            int [] order = IndirectSort.sort(start, length, comparator);
+            assertOrder(order, length, comparator);
+
+            order = IndirectSort.mergesort(start, length, comparator);
             assertOrder(order, length, comparator);
         }
     }
@@ -264,8 +349,11 @@ public class IndirectSortTest
 
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
-            final int [] order = IndirectSort.sort(start, length, comparator);
 
+            int [] order = IndirectSort.sort(start, length, comparator);
+            assertOrder(order, length, comparator);
+
+            order = IndirectSort.mergesort(start, length, comparator);
             assertOrder(order, length, comparator);
         }
     }
