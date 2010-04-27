@@ -46,7 +46,7 @@
     <property name="hppc.base" value="hppc" />
     <property name="dist.name" value="${hppc.base}-${hppc.version}" />
 
-    <property name="maxmem" value="1024m" />
+    <property name="maxmem" value="1400m" />
 
     <!-- Compilation presets. -->
     <presetdef name="javac">
