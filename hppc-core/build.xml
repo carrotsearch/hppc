@@ -655,13 +655,13 @@
     <target name="artifacts" description="Build distributable artifacts.">
         <mkdir dir="${artifacts.dir}" />
         <zip destfile="${artifacts.dir}/${dist.name}.zip">
-            <fileset dir="${dist.dir}">
+            <zipfileset prefix="${dist.name}/" dir="${dist.dir}">
                 <exclude name="reports/coverage" />
                 <exclude name="reports/coverage/**/*" />
 
                 <exclude name="reports/tests/**/*.xml" />
                 <exclude name="reports/benchmarks/**/*.xml" />
-            </fileset>
+            </zipfileset>
         </zip>
     </target>
 
