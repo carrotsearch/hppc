@@ -2,7 +2,8 @@
  * Repackaged from org.apache.lucene.util.OpenBitSet (Lucene).
  * svn rev. 893130, http://svn.apache.org/repos/asf/lucene/java/trunk/
  * 
- * Minor changes in class hierarchy, removed serialization and several methods.
+ * Minor changes in class hierarchy, removed serialization and several methods. 
+ * Added container adapters.
  */
 
 /**
@@ -24,17 +25,31 @@
 
 package com.carrotsearch.hppc;
 
-import java.util.Arrays;
+import java.util.*;
+
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.LongCursor;
+import com.carrotsearch.hppc.predicates.IntPredicate;
+import com.carrotsearch.hppc.predicates.LongPredicate;
+import com.carrotsearch.hppc.procedures.IntProcedure;
+import com.carrotsearch.hppc.procedures.LongProcedure;
 
 /**
  * An "open" BitSet implementation that allows direct access to the array of words storing
  * the bits.
- * <p/>
+ * <p>
  * Unlike java.util.bitset, the fact that bits are packed into an array of longs is part
  * of the interface. This allows efficient implementation of other algorithms by someone
  * other than the author. It also allows one to efficiently implement alternate
- * serialization or interchange formats.
- * <p/>
+ * serialization or interchange formats.<p/>
+ * <p>
+ * The index range for a bitset can easily exceed positive <code>int</code> range in Java
+ * (0x7fffffff), so many methods in this class accept or return a <code>long</code>. There
+ * are adapter methods that return views compatible with 
+ * {@link LongLookupContainer} and {@link IntLookupContainer} interfaces.</p>
+ * 
+ * @see #asIntLookupContainer()
+ * @see #asLongLookupContainer()
  * 
  * @author "Original implementation from the Lucene project."
  */
@@ -621,7 +636,7 @@ public class BitSet implements Cloneable
         this.wlen = newLen;
     }
 
-    // some BitSet compatability methods
+    // some BitSet compatibility methods
 
     // ** see {@link intersect} */
     public void and(BitSet other)
@@ -766,5 +781,226 @@ public class BitSet implements Cloneable
         // fold leftmost bits into right and add a constant to prevent
         // empty sets from returning 0, which is too common.
         return (int) ((h >> 32) ^ h) + 0x98761234;
+    }
+
+    /**
+     * Returns a view over this bitset data compatible with {@link IntLookupContainer}. A new
+     * object is always returned, but its methods reflect the current state of the bitset
+     * (the view is not a snapshot).
+     * 
+     * <p>Methods of the returned {@link IntLookupContainer} may throw a {@link RuntimeException}
+     * if the cardinality of this bitset exceeds the int range.
+     */
+    public IntLookupContainer asIntLookupContainer() 
+    {
+        return new IntLookupContainer()
+        {
+            @Override
+            public int size()
+            {
+                return getCurrentCardinality();
+            }
+
+            @Override
+            public boolean isEmpty()
+            {
+                return BitSet.this.isEmpty();
+            }
+
+            @Override
+            public Iterator<IntCursor> iterator()
+            {
+                return new Iterator<IntCursor>() {
+                    private long nextBitSet = BitSet.this.nextSetBit(0);
+                    private final IntCursor cursor = new IntCursor();
+                    
+                    @Override
+                    public boolean hasNext()
+                    {
+                        return nextBitSet >= 0;
+                    }
+
+                    @Override
+                    public IntCursor next()
+                    {
+                        final long value = nextBitSet;
+                        if (value < 0) throw new NoSuchElementException();
+                        if (value > Integer.MAX_VALUE) 
+                            throw new RuntimeException("BitSet range larger than maximum positive integer.");
+
+                        nextBitSet = BitSet.this.nextSetBit(value + 1);
+                        cursor.index = cursor.value = (int) value;
+                        return cursor;
+                    }
+
+                    @Override
+                    public void remove()
+                    {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+            }
+
+            @Override
+            public int [] toArray()
+            {
+                final int [] data = new int [getCurrentCardinality()];
+                final BitSetIterator i = BitSet.this.iterator();
+                for (int j = 0, bit = i.nextSetBit(); bit >= 0; bit = i.nextSetBit())
+                {
+                    data[j++] = bit;
+                }
+                return data;
+            }
+
+            @Override
+            public void forEach(IntPredicate predicate)
+            {
+                final BitSetIterator i = BitSet.this.iterator();
+                for (int bit = i.nextSetBit(); bit >= 0; bit = i.nextSetBit())
+                {
+                    if (predicate.apply(bit) == false)
+                        break;
+                }
+            }
+
+            @Override
+            public void forEach(IntProcedure procedure)
+            {
+                final BitSetIterator i = BitSet.this.iterator();
+                for (int bit = i.nextSetBit(); bit >= 0; bit = i.nextSetBit())
+                {
+                    procedure.apply(bit);
+                }
+            }
+            
+            @Override
+            public boolean contains(int index)
+            {
+                return index < 0 || BitSet.this.get(index);
+            }
+
+            /**
+             * Rounds the bitset's cardinality to an integer or throws a 
+             * {@link RuntimeException} if the cardinality exceeds maximum int range. 
+             */
+            private int getCurrentCardinality()
+            {
+                long cardinality = BitSet.this.cardinality();
+                if (cardinality > Integer.MAX_VALUE)
+                    throw new RuntimeException("Bitset is larger than maximum positive integer: " 
+                        + cardinality);
+                return (int) cardinality;
+            }
+        };
+    }
+    
+    /**
+     * Returns a view over this bitset data compatible with {@link LongLookupContainer}. A new
+     * object is always returned, but its methods reflect the current state of the bitset
+     * (the view is not a snapshot).
+     */
+    public LongLookupContainer asLongLookupContainer() 
+    {
+        return new LongLookupContainer()
+        {
+            @Override
+            public int size()
+            {
+                return getCurrentCardinality();
+            }
+
+            @Override
+            public boolean isEmpty()
+            {
+                return BitSet.this.isEmpty();
+            }
+
+            @Override
+            public Iterator<LongCursor> iterator()
+            {
+                return new Iterator<LongCursor>() {
+                    private long nextBitSet = BitSet.this.nextSetBit(0);
+                    private final LongCursor cursor = new LongCursor();
+
+                    @Override
+                    public boolean hasNext()
+                    {
+                        return nextBitSet >= 0;
+                    }
+
+                    @Override
+                    public LongCursor next()
+                    {
+                        final long value = nextBitSet;
+                        if (value < 0) throw new NoSuchElementException();
+
+                        nextBitSet = BitSet.this.nextSetBit(value + 1);
+                        cursor.index = (int) value;
+                        cursor.value = value;
+                        return cursor;
+                    }
+
+                    @Override
+                    public void remove()
+                    {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+            }
+
+            @Override
+            public long [] toArray()
+            {
+                final long [] data = new long [getCurrentCardinality()];
+                final BitSet bset = BitSet.this;
+                int j = 0;
+                for (long bit = bset.nextSetBit((long) 0); bit >= 0; bit = bset.nextSetBit(bit + 1))
+                {
+                    data[j++] = bit;
+                }
+                return data;
+            }
+
+            @Override
+            public void forEach(LongPredicate predicate)
+            {
+                final BitSet bset = BitSet.this;
+                for (long bit = bset.nextSetBit((long) 0); bit >= 0; bit = bset.nextSetBit(bit + 1))
+                {
+                    if (predicate.apply(bit) == false)
+                        break;
+                }
+            }
+
+            @Override
+            public void forEach(LongProcedure procedure)
+            {
+                final BitSet bset = BitSet.this;
+                for (long bit = bset.nextSetBit((long) 0); bit >= 0; bit = bset.nextSetBit(bit + 1))
+                {
+                    procedure.apply(bit);
+                }
+            }
+
+            @Override
+            public boolean contains(long index)
+            {
+                return index < 0 || BitSet.this.get(index);
+            }
+
+            /**
+             * Rounds the bitset's cardinality to an integer or throws a 
+             * {@link RuntimeException} if the cardinality exceeds maximum int range. 
+             */
+            private int getCurrentCardinality()
+            {
+                long cardinality = BitSet.this.cardinality();
+                if (cardinality > Integer.MAX_VALUE)
+                    throw new RuntimeException("Bitset is larger than maximum positive integer: " 
+                        + cardinality);
+                return (int) cardinality;
+            }
+        };
     }
 }

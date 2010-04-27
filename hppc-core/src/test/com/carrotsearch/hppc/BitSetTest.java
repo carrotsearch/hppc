@@ -1,11 +1,16 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-import java.util.Random;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.LongCursor;
+import com.carrotsearch.hppc.predicates.IntPredicate;
+import com.carrotsearch.hppc.predicates.LongPredicate;
 
 /**
  * Regression tests against <code>java.util.BitSet</code>.
@@ -48,9 +53,11 @@ public class BitSetTest
             }
             
             assertSame(jre, hppc);
+            assertIntLookupContainer(jre, hppc.asIntLookupContainer());
+            assertLongLookupContainer(jre, hppc.asLongLookupContainer());
         }
     }
-    
+
     /** */
     @Test
     public void testHashCodeEquals()
@@ -67,7 +74,7 @@ public class BitSetTest
     /**
      * Assert that the two bitsets are identical. 
      */
-    private void assertSame(java.util.BitSet jre, BitSet hppc)
+    private void assertSame(final java.util.BitSet jre, BitSet hppc)
     {
         // Cardinality and emptiness status.
         assertEquals(jre.cardinality(), hppc.cardinality());
@@ -89,8 +96,130 @@ public class BitSetTest
             i = jre.nextSetBit(i + 1);
             j = hppc.nextSetBit(j + 1);
         }
-
         assertEquals(-1, k.nextSetBit());
         assertEquals(-1, j);
+    }
+    
+    private void assertIntLookupContainer(final java.util.BitSet jre, IntLookupContainer ilc)
+    {
+        int i, j;
+
+        // Check adapter to IntLookupContainer
+        assertEquals(ilc.size(), jre.cardinality());
+
+        i = jre.nextSetBit(0);
+        Iterator<IntCursor> ilcCursor = ilc.iterator();
+        while (i >= 0) 
+        {
+            assertTrue(ilcCursor.hasNext());
+            IntCursor c = ilcCursor.next();
+            assertEquals(i, c.index);
+            assertEquals(i, c.value);
+
+            i = jre.nextSetBit(i + 1);
+        }
+        assertEquals(-1, i);
+        assertFalse(ilcCursor.hasNext());
+        try
+        {
+            ilcCursor.next();
+            fail();
+        }
+        catch (NoSuchElementException e)
+        {
+            // expected.
+        }
+        
+        // Check toArray()
+        int [] setIndexes = ilc.toArray();
+        int [] expected = new int [jre.cardinality()];
+        for (j = 0, i = jre.nextSetBit(0); i >= 0; i = jre.nextSetBit(i + 1))
+        {
+            expected[j++] = i;
+        }
+        assertArrayEquals(expected, setIndexes);
+
+        // Test for-each predicates.
+        ilc.forEach(new IntPredicate()
+        {
+            int i = jre.nextSetBit(0);
+            public boolean apply(int setBit)
+            {
+                assertEquals(i, setBit);
+                i = jre.nextSetBit(i + 1);
+                return true;
+            }
+        });
+
+        // Test contains.
+        for (i = 0; i < jre.size() + 65; i++)
+        {
+            assertEquals(hppc.get(i), ilc.contains(i));
+        }
+
+        // IntLookupContainer must not throw exceptions on negative arguments. 
+        ilc.contains(-1);
+    }
+
+    private void assertLongLookupContainer(final java.util.BitSet jre, LongLookupContainer llc)
+    {
+        int i, j;
+
+        // Check adapter to IntLookupContainer
+        assertEquals(llc.size(), jre.cardinality());
+
+        i = jre.nextSetBit(0);
+        Iterator<LongCursor> llcCursor = llc.iterator();
+        while (i >= 0) 
+        {
+            assertTrue(llcCursor.hasNext());
+            LongCursor c = llcCursor.next();
+            assertEquals(i, c.index);
+            assertEquals(i, c.value);
+
+            i = jre.nextSetBit(i + 1);
+        }
+        assertEquals(-1, i);
+        assertFalse(llcCursor.hasNext());
+        try
+        {
+            llcCursor.next();
+            fail();
+        }
+        catch (NoSuchElementException e)
+        {
+            // expected.
+        }
+        
+        // Check toArray()
+        long [] setIndexes = llc.toArray();
+        long [] expected = new long [jre.cardinality()];
+        for (j = 0, i = jre.nextSetBit(0); i >= 0; i = jre.nextSetBit(i + 1))
+        {
+            expected[j++] = i;
+        }
+        assertArrayEquals(expected, setIndexes);
+
+        // Test for-each predicates.
+        llc.forEach(new LongPredicate()
+        {
+            int i = jre.nextSetBit(0);
+
+            public boolean apply(long setBit)
+            {
+                assertEquals(i, setBit);
+                i = jre.nextSetBit(i + 1);
+                return true;
+            }
+        });
+
+        // Test contains.
+        for (i = 0; i < jre.size() + 65; i++)
+        {
+            assertEquals(hppc.get(i), llc.contains(i));
+        }
+
+        // IntLookupContainer must not throw exceptions on negative arguments. 
+        llc.contains(-1);
     }
 }
