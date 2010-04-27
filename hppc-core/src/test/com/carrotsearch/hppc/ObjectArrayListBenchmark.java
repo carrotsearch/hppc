@@ -21,7 +21,7 @@ import com.carrotsearch.junitbenchmarks.h2.BenchmarkMethodChart;
 /* end:removeIf */
 public class ObjectArrayListBenchmark<KType> extends AbstractBenchmark
 {
-    public static final int CELLS = (1024 * 1024) * 100;
+    public static final int CELLS = (1024 * 1024) * 50;
     private static ObjectArrayList<Object> singleton;
     private ObjectArrayList<KType> list = (ObjectArrayList<KType>) singleton; 
 
