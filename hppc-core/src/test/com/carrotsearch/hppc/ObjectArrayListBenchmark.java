@@ -1,10 +1,13 @@
 package com.carrotsearch.hppc;
 
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
-import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.procedures.ObjectProcedure;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.h2.BenchmarkHistoryChart;
@@ -34,6 +37,12 @@ public class ObjectArrayListBenchmark<KType> extends AbstractBenchmark
     {
         singleton = new ObjectArrayList<Object>();
         singleton.resize(CELLS);
+    }
+    
+    @AfterClass
+    public static void cleanup()
+    {
+        singleton = null;
     }
 
     /* */
