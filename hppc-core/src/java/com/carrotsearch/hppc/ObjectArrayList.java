@@ -510,18 +510,20 @@ public class ObjectArrayList<KType>
     /**
      * An iterator implementation for {@link ObjectArrayList#iterator}.
      */
-    private final class ValueIterator implements Iterator<ObjectCursor<KType>>
+    final static class ValueIterator<KType> implements Iterator<ObjectCursor<KType>>
     {
         private final ObjectCursor<KType> cursor;
 
         /** The last index at which {@link #hasNext()} will return <code>true</code>. */
         private final int lastIndex;
+        private final KType [] buffer;
 
-        public ValueIterator()
+        public ValueIterator(KType [] buffer, int startIndex, int endIndex)
         {
+            this.buffer = buffer;
             cursor = new ObjectCursor<KType>();
-            cursor.index = -1;
-            lastIndex = size() - 1;
+            cursor.index = startIndex - 1;
+            lastIndex = endIndex;
         }
 
         public boolean hasNext()
@@ -555,7 +557,7 @@ public class ObjectArrayList<KType>
     @Override
     public Iterator<ObjectCursor<KType>> iterator()
     {
-        return new ValueIterator();
+        return new ValueIterator<KType>(buffer, 0, size() - 1);
     }
 
     /**
