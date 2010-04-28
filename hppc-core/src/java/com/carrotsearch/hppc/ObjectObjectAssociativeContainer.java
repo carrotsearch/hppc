@@ -9,6 +9,8 @@ import com.carrotsearch.hppc.procedures.*;
 /**
  * An associative container (alias: map, dictionary) from keys to values. Object keys must
  * fulfill the contract of {@link Object#hashCode()} and {@link Object#equals(Object)}.
+ * 
+ * @see ObjectContainer
  */
 public interface ObjectObjectAssociativeContainer<KType, VType> 
     extends Iterable<ObjectObjectCursor<KType, VType>>
