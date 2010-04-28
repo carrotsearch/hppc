@@ -7,7 +7,11 @@ import com.carrotsearch.hppc.predicates.ObjectPredicate;
 import com.carrotsearch.hppc.procedures.ObjectProcedure;
 
 /**
- * A generic container holding <code>KType</code>s.
+ * A generic container holding <code>KType</code>s. An overview of interface relationships
+ * is given in the figure below:
+ * 
+ * <p><img src="doc-files/interfaces.png"
+ *      alt="HPPC interfaces" /></p>
  */
 public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
 {
@@ -16,7 +20,6 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
      * is not defined. More than one cursor may be active at a time. The behavior of
      * iterators is undefined if structural changes are made to the underlying collection.
      * 
-     * 
      * <p>The iterator is implemented as a
      * cursor and it returns <b>the same cursor instance</b> on every call to
      * {@link Iterator#next()} (to avoid boxing of primitive types). To read the current
@@ -24,7 +27,7 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
      * shown below.</p>
      * 
      * <pre>
-     * for (IntValueCursor c : intList) {
+     * for (IntCursor c : intList) {
      *   System.out.println("index=" + c.index + " value=" + c.value);
      * }
      * </pre> 

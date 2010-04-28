@@ -82,6 +82,10 @@
         <exclude name="**/RequireAssertionsRule*" />
         <exclude name="com/carrotsearch/tests/**" />
     </patternset>
+    
+    <patternset id="patterns.exclude.docfiles">
+        <exclude name="**/doc-files/**" />
+    </patternset>
 
     <!-- Javac wants a path -->
     <path id="src.java">
@@ -424,7 +428,7 @@
 
     <!-- Generate sources from generic templates. -->
     <target name="preprocess" description="Preprocess sources and generate versions for primitive types.">
-        <delete dir="${src.generated}" />
+        <delete dir="${src.generated}" failonerror="false" />
         <mkdir dir="${src.generated}" />
 
         <!--
@@ -598,6 +602,7 @@
         <jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
             <fileset dir="${classes.dir}">
                 <patternset refid="patterns.exclude.tests" />
+		<patternset refid="patterns.exclude.docfiles" />
             </fileset>
         </jar>
     </target>
@@ -611,6 +616,7 @@
                  use="false"
                  encoding="UTF-8"
                  docencoding="UTF-8"
+                 includenosourcepackages="true"
                  windowtitle="HPPC v${hppc.version} API Documentation (JavaDoc)"
                  doctitle="HPPC v${hppc.version} API Documentation"
                  header="&lt;div id='header'&gt;&lt;a class='logo' target='_top' href='http://labs.carrotsearch.com'&gt;&lt;img src='logo.png'&gt;&lt;/a&gt;High Performance Primitive Collections (HPPC) v${hppc.version} &lt;br&gt;API Documentation&lt;/div&gt;"
@@ -622,6 +628,7 @@
           <sourcefiles>
             <fileset dir="${src.java}">
                 <include name="**/*.java" />
+                <include name="**/doc-files" />
                 <patternset refid="patterns.exclude.tests" />
             </fileset>
             <fileset dir="${src.generated}">
@@ -629,6 +636,11 @@
                 <patternset refid="patterns.exclude.tests" />
             </fileset>
           </sourcefiles>
+
+          <!-- Unfortunately this needs to be given explicitly for doc-files to work... -->
+          <packageset dir="src/java" defaultexcludes="yes">
+           <include name="com/**"/>
+          </packageset>
 
           <link href="http://java.sun.com/javase/6/docs/api/" />
 
