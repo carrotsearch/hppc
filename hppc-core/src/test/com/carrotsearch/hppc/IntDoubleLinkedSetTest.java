@@ -3,6 +3,8 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.assertSortedListEquals;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.junit.*;
 import org.junit.rules.MethodRule;
 
@@ -195,7 +197,7 @@ public class IntDoubleLinkedSetTest<KType>
         set.clear();
         assertFalse(set.iterator().hasNext());
     }
-    
+
     /**
      * Run some random insertions/ deletions and compare the results
      * against <code>java.util.HashSet</code>.
@@ -217,9 +219,7 @@ public class IntDoubleLinkedSetTest<KType>
 
                 if (rnd.nextBoolean())
                 {
-                    other.add(key);
-                    set.add(key);
-
+                    assertEquals(other.add(key), set.add(key));
                     assertTrue(set.contains(key));
                 }
                 else
@@ -229,6 +229,15 @@ public class IntDoubleLinkedSetTest<KType>
 
                 assertEquals(other.size(), set.size());
             }
+            
+            int [] actual = set.toArray();
+            int [] expected = new int [other.size()];
+            int i = 0;
+            for (Integer v : other)
+                expected[i++] = v;
+            Arrays.sort(expected);
+            Arrays.sort(actual);
+            assertArrayEquals(expected, actual);
         }
     }
 }
