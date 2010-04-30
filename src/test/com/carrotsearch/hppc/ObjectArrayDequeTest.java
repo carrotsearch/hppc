@@ -595,4 +595,37 @@ public class ObjectArrayDequeTest<KType>
         testAgainstArrayDeque();
     }
     /* end:removeIf */
+    
+    /* */
+    @Test
+    public void testHashCodeEquals()
+    {
+        ObjectArrayDeque<Integer> l0 = ObjectArrayDeque.from();
+        assertEquals(1, l0.hashCode());
+        assertEquals(l0, ObjectArrayDeque.from());
+
+        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        ObjectArrayDeque<Integer> l2 = ObjectArrayDeque.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+    
+    /* removeIf:primitive */
+    @Test
+    public void testHashCodeWithNulls()
+    {
+        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, null, 3);
+        ObjectArrayDeque<Integer> l2 = ObjectArrayDeque.from(1, null, 3);
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+    /* end:removeIf */
 }

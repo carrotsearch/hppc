@@ -3,6 +3,7 @@ package com.carrotsearch.hppc;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.carrotsearch.hppc.hash.ObjectHashFunction;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
 import com.carrotsearch.hppc.procedures.ObjectProcedure;
 
@@ -82,6 +83,12 @@ public class ObjectArrayDeque<KType>
     protected final ArraySizingStrategy resizer;
 
     /**
+     * Hash function for entries, required for {@link #hashCode()}. The default is
+     * {@link ObjectHashFunction} (weak hash for primitive types).
+     */
+    public final ObjectHashFunction hashFunction;
+
+    /**
      * Create with default sizing strategy and initial capacity for storing 
      * {@value #DEFAULT_CAPACITY} elements.
      * 
@@ -107,9 +114,20 @@ public class ObjectArrayDeque<KType>
      */
     public ObjectArrayDeque(int initialCapacity, ArraySizingStrategy resizer)
     {
+        this(initialCapacity, resizer, new ObjectHashFunction());
+    }
+
+    /**
+     * Create with a custom buffer resizing strategy.
+     */
+    public ObjectArrayDeque(int initialCapacity, ArraySizingStrategy resizer, 
+        ObjectHashFunction hashFunction)
+    {
         assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
+        assert hashFunction != null;
 
+        this.hashFunction = hashFunction;
         this.resizer = resizer;
         initialCapacity = resizer.round(initialCapacity);
         buffer = Intrinsics.newKTypeArray(initialCapacity);
@@ -855,6 +873,56 @@ public class ObjectArrayDeque<KType>
                 return true;
         }
 
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        int h = 1;
+        int fromIndex = head;
+        int toIndex = tail;
+
+        final KType [] buffer = this.buffer;
+        for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
+        {
+            h = 31 * h + hashFunction.hash(this.buffer[i]);
+        }
+        return h;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    /* removeIf:primitive */ 
+    @SuppressWarnings("unchecked") 
+    /* end:removeIf */
+    public boolean equals(Object obj)
+    {
+        if (obj != null)
+        {
+            if (obj instanceof ObjectDeque<?>)
+            {
+                ObjectDeque<Object> other = (ObjectDeque<Object>) obj;
+                if (other.size() == this.size())
+                {
+                    int fromIndex = head;
+                    final KType [] buffer = this.buffer;
+                    int i = fromIndex;
+                    for (ObjectCursor<Object> c : other)
+                    {
+                        if (!Intrinsics.equals(c.value, buffer[i]))
+                            return false;
+                        i = oneRight(i, buffer.length);                        
+                    }
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
