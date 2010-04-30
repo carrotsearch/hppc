@@ -268,4 +268,45 @@ public class ObjectOpenHashSetTest<KType>
         }
     }
     /* end:removeIf */
+    
+    /* */
+    @Test
+    public void testHashCodeEquals()
+    {
+        ObjectOpenHashSet<Integer> l0 = ObjectOpenHashSet.from();
+        assertEquals(0, l0.hashCode());
+        assertEquals(l0, ObjectOpenHashSet.from());
+
+        ObjectOpenHashSet<Integer> l1 = ObjectOpenHashSet.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        ObjectOpenHashSet<Integer> l2 = ObjectOpenHashSet.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+
+    /* removeIf:primitive */
+    @Test
+    public void testHashCodeWithNulls()
+    {
+        ObjectOpenHashSet<Integer> l1 = ObjectOpenHashSet.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ null, 
+            /* intrinsic:ktypecast */ 3);
+
+        ObjectOpenHashSet<Integer> l2 = ObjectOpenHashSet.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ null, 
+            /* intrinsic:ktypecast */ 3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+    /* end:removeIf */    
 }
