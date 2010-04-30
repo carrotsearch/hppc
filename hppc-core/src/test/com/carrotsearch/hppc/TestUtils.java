@@ -263,6 +263,7 @@ public class TestUtils
     {
         assertEquals(elements.length, array.length);
         Arrays.sort(array);
+        Arrays.sort(elements);
         assertArrayEquals(elements, array);
     }
 
