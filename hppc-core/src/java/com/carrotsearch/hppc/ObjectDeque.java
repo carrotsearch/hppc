@@ -1,6 +1,7 @@
 package com.carrotsearch.hppc;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
@@ -85,4 +86,29 @@ public interface ObjectDeque<KType> extends ObjectCollection<KType>
      * returns <code>true</code>. The iteration is interrupted otherwise. 
      */
     public void descendingForEach(ObjectPredicate<? super KType> predicate);
+
+    /**
+     * Compares the specified object with this deque for equality. Returns
+     * <tt>true</tt> if and only if the specified object is also a
+     * {@link ObjectDeque}, and all corresponding
+     * pairs of elements acquired from forward iterators are the same. In other words, two indexed
+     * containers are defined to be equal if they contain the same elements in the same
+     * order of iteration.
+     * <p>
+     * Note that, unlike in {@link List}, deques may be of different types and still
+     * return <code>true</code> from {@link #equals}. This may be dangerous if you use
+     * different hash functions in two containers, but don't override the default 
+     * implementation of {@link #equals}. It is the programmer's responsibility to 
+     * enforcing these contracts properly.
+     * </p>
+     */
+    public boolean equals(Object obj);
+
+    /**
+     * @return A hash code of elements stored in the deque. The hash code
+     * is defined identically to {@link List#hashCode()} (should be implemented
+     * with the same algorithm), replacing forward index loop with a forward iterator
+     * loop.
+     */
+    public int hashCode();
 }
