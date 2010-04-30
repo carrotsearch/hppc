@@ -205,7 +205,8 @@
 
     <macrodef name="declare.filter.vtype">
         <attribute name="filterName" />
-        <attribute name="VType" />
+        <attribute name="VType" />  <!-- Primitive type. -->
+    	<attribute name="UVType" /> <!-- Uppercase (boxed) type. -->
 
         <sequential>
             <filtermapper id="@{filterName}">
@@ -235,6 +236,7 @@
                     pattern="(Intrinsics\s*\.)(&lt;[^&gt;]+&gt;)?(\s*)defaultVTypeValue\(\)" 
                     replace="((@{VType}) 0)" />
     
+            	<replacestring from="UVType"        to="@{UVType}" />
                 <replacestring from="VType"         to="@{VType}" />
             </filtermapper>
         </sequential>
@@ -297,7 +299,7 @@
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}@{VType}" />
             <declare.filter.ktype  filterName="filter.ktype.@{KType}@{VType}" KType="@{KType}" UKType="@{UKType}" />
-            <declare.filter.vtype  filterName="filter.vtype.@{KType}@{VType}" VType="@{VType}" />
+            <declare.filter.vtype  filterName="filter.vtype.@{KType}@{VType}" VType="@{VType}" UVType="@{UVType}" />
 
             <filtermapper id="filter.specific.@{KType}@{VType}">
                 <!-- Replace template class declarations in tests and benchmarks. -->
@@ -319,6 +321,11 @@
                 <replaceregex byline="false" flags="gms"
                     pattern="(?:/\*\s*)(?:replaceWith:genericSignature)(.+?)(\*/)(.+?)(end:replaceWith)(\s*\*/)" 
                     replace="/* replaceWith:applied. */" />
+
+                <!-- replaceIf:allprimitives → (empty) -->
+                <replaceregex byline="false" flags="gms"
+                    pattern="(?:/\*\s*)(?:replaceIf:allprimitives)(.+?)(\*/)(.+?)(end:replaceIf)(\s*\*/)" 
+                    replace="/* replaceIf:applied. */" />
 
                 <!-- Replace generic argument (KType, VType) references with the actual type. -->
                 <replacestring from="&lt;KType, VType&gt;" to="" />
@@ -345,7 +352,7 @@
 
         <sequential>
             <declare.filter.common filterName="filter.common.generic.@{VType}" />
-            <declare.filter.vtype  filterName="filter.vtype.generic.@{VType}" VType="@{VType}" />
+            <declare.filter.vtype  filterName="filter.vtype.generic.@{VType}" VType="@{VType}" UVType="@{UVType}" />
 
             <filtermapper id="filter.specific.generic.@{VType}">
                 <replaceregex byline="false" flags="gmi" 

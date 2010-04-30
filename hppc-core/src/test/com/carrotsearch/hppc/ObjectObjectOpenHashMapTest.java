@@ -415,6 +415,34 @@ public class ObjectObjectOpenHashMapTest
         assertEquals(0x100 * 2, map.keys.length);
     }
 
+    /* */
+    @Test
+    public void testHashCodeEquals()
+    {
+        ObjectObjectOpenHashMap<Object, Object> l0 = 
+            new ObjectObjectOpenHashMap<Object, Object>();
+        assertEquals(0, l0.hashCode());
+        assertEquals(l0, new ObjectObjectOpenHashMap<Object, Object>());
+
+        ObjectObjectOpenHashMap<Object, Object> l1 = ObjectObjectOpenHashMap.from(
+            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1, key2, key3},
+            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1, value2, value3});
+
+        ObjectObjectOpenHashMap<Object, Object> l2 = ObjectObjectOpenHashMap.from(
+            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key2, key1, key3},
+            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value2, value1, value3});        
+
+        ObjectObjectOpenHashMap<Object, Object> l3 = ObjectObjectOpenHashMap.from(
+            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1, key2},
+            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value2, value1});        
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+
+        assertFalse(l1.equals(l3));
+        assertFalse(l2.equals(l3));
+    }
+
     /* removeIf:primitiveKType */
     @Test
     public void testNullKey()
