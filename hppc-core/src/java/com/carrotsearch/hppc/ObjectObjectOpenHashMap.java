@@ -47,8 +47,11 @@ import com.carrotsearch.hppc.procedures.*;
  * <p><b>Important node.</b> The implementation uses power-of-two tables, which may
  * cause poor performance (many collisions) if hash values differ in higher bits only.
  * If unsure about the input data distribution, use a well-mixing hash function. 
- * {@link ObjectMurmurHash} and primitive derivatives are provided in HPPC for
- * convenience.</p>
+ * This implementation uses {@link ObjectMurmurHash} for keys by 
+ * default (primitive derivatives are provided in HPPC for convenience). For the needs
+ * of {@link #hashCode()} and {@link #equals}, a separate hash function for values is provided.
+ * The default hash function for values is {@link ObjectHashFunction}, which is consistent
+ * with Java types default {@link #hashCode()}.</p>
  * 
  * @author This code is partially inspired by the implementation found in the <a
  *         href="http://code.google.com/p/google-sparsehash/">Google sparsehash</a>
@@ -146,7 +149,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Hash function for keys.
      */
-    public final ObjectHashFunction hashFunction;
+    public final /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction;
+
+    /**
+     * Hash function for values.
+     */
+    public final /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ valueHashFunction;
 
     /**
      * Lazily initialized view of the keys.
@@ -192,7 +200,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, new ObjectMurmurHash());
+        this(initialCapacity, loadFactor, 
+            /* replaceIf:primitiveKType new UKTypeMurmurHash() */ new ObjectMurmurHash() /* end:replaceIf */);
     }
 
     /**
@@ -202,7 +211,23 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * <p>See class notes about hash distribution importance.</p>
      */
     public ObjectObjectOpenHashMap(
-        int initialCapacity, float loadFactor, ObjectHashFunction hashFunction)
+        int initialCapacity, float loadFactor, 
+        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction)
+    {
+        this(initialCapacity, loadFactor, keyHashFunction, 
+            /* replaceIf:primitiveVType new UVTypeHashFunction() */ new ObjectHashFunction() /* end:replaceIf */);
+    }
+
+    /**
+     * Creates a hash map with the given predefined capacity. The actual allocated
+     * capacity is always rounded to the next power of two.
+     * 
+     * <p>See class notes about hash distribution importance.</p>
+     */
+    public ObjectObjectOpenHashMap(
+        int initialCapacity, float loadFactor,
+        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction,
+        /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ valueHashFunction)
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
@@ -211,7 +236,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
         assert loadFactor > 0 && loadFactor <= 1
             : "Load factor must be between (0, 1].";
 
-        this.hashFunction = hashFunction;
+        this.valueHashFunction = valueHashFunction;
+        this.keyHashFunction = keyHashFunction;
         this.loadFactor = loadFactor;
         allocateBuffers(roundCapacity(initialCapacity));
     }
@@ -595,7 +621,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         // This is already verified when reallocating.
         // assert slots > 0 && Integer.bitCount(slots) == 1 : "Bucket count must be a power of 2.";
 
-        int slot = hashFunction.hash(key) & bucketMask;
+        int slot = keyHashFunction.hash(key) & bucketMask;
         int i = 0;
         int deletedSlot = -1;
 
@@ -659,21 +685,53 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Currently not implemented and throws an {@link UnsupportedOperationException}. 
+     * {@inheritDoc} 
      */
     @Override
     public int hashCode()
     {
-        throw new UnsupportedOperationException("hashCode() not implemented.");
+        int h = 0;
+        for (ObjectObjectCursor<KType, VType> c : this)
+        {
+            h += keyHashFunction.hash(c.key) + valueHashFunction.hash(c.value);
+        }
+        return h;
     }
 
     /**
-     * Currently not implemented and throws an {@link UnsupportedOperationException}. 
+     * {@inheritDoc} 
      */
     @Override
+    /* replaceIf:allprimitives */
+    @SuppressWarnings("unchecked")
+    /* end:replaceIf */
     public boolean equals(Object obj)
     {
-        throw new UnsupportedOperationException("equals() not implemented.");
+        if (obj != null)
+        {
+            if (obj == this) return true;
+
+            if (obj instanceof ObjectObjectMap)
+            {
+                ObjectObjectMap<KType, VType> other = (ObjectObjectMap<KType, VType>) obj;
+                if (other.size() == this.size())
+                {
+                    for (ObjectObjectCursor<KType, VType> c : this)
+                    {
+                        if (other.containsKey(c.key))
+                        {
+                            VType v = other.get(c.key);
+                            if (!Intrinsics.equals(c.value, v))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
