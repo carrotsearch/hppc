@@ -481,21 +481,56 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Currently not implemented and throws an {@link UnsupportedOperationException}. 
+     * {@inheritDoc} 
      */
     @Override
     public int hashCode()
     {
-        throw new UnsupportedOperationException("hashCode() not implemented.");
+        int h = 0;
+
+        final KType [] keys = this.keys;
+        final byte [] states = this.states;
+        for (int i = states.length; --i >= 0;)
+        {
+            if (states[i] == ASSIGNED)
+            {
+                h += hashFunction.hash(keys[i]);
+            }
+        }
+
+        return h;
     }
 
     /**
-     * Currently not implemented and throws an {@link UnsupportedOperationException}. 
+     * {@inheritDoc} 
      */
     @Override
+    /* removeIf:primitive */ 
+    @SuppressWarnings("unchecked") 
+    /* end:removeIf */
     public boolean equals(Object obj)
     {
-        throw new UnsupportedOperationException("equals() not implemented.");
+        if (obj != null)
+        {
+            if (obj == this) return true;
+
+            if (obj instanceof ObjectSet<?>)
+            {
+                ObjectSet<Object> other = (ObjectSet<Object>) obj;
+                if (other.size() == this.size())
+                {
+                    for (ObjectCursor<KType> c : this)
+                    {
+                        if (!other.contains(c.value))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
