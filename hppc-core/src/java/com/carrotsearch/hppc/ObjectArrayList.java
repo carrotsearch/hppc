@@ -3,6 +3,7 @@ package com.carrotsearch.hppc;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.hash.ObjectHashFunction;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
 import com.carrotsearch.hppc.procedures.*;
 
@@ -82,6 +83,12 @@ public class ObjectArrayList<KType>
     protected final ArraySizingStrategy resizer;
 
     /**
+     * Hash function for entries, required for {@link #hashCode()}. The default is
+     * {@link ObjectHashFunction} (weak hash for primitive types).
+     */
+    public final ObjectHashFunction hashFunction;
+
+    /**
      * Create with default sizing strategy and initial capacity for storing 
      * {@value #DEFAULT_CAPACITY} elements.
      * 
@@ -107,9 +114,20 @@ public class ObjectArrayList<KType>
      */
     public ObjectArrayList(int initialCapacity, ArraySizingStrategy resizer)
     {
+        this(initialCapacity, resizer, new ObjectHashFunction());
+    }
+
+    /**
+     * Create with a custom buffer resizing strategy and hash function.
+     */
+    public ObjectArrayList(int initialCapacity, ArraySizingStrategy resizer, 
+        ObjectHashFunction hashFunction)
+    {
         assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
+        assert hashFunction != null;
 
+        this.hashFunction = hashFunction;
         this.resizer = resizer;
         ensureBufferSpace(resizer.round(initialCapacity));
     }
@@ -490,23 +508,86 @@ public class ObjectArrayList<KType>
     }
 
     /**
-     * Currently not implemented and throws an {@link UnsupportedOperationException}. 
+     * {@inheritDoc}
      */
     @Override
     public int hashCode()
     {
-        throw new UnsupportedOperationException("hashCode() not implemented.");
+        int h = 1, max = elementsCount;
+        for (int i = 0; i < max; i++)
+        {
+            h = 31 * h + hashFunction.hash(this.buffer[i]);
+        }
+        return h;
     }
 
     /**
-     * Currently not implemented and throws an {@link UnsupportedOperationException}. 
+     * {@inheritDoc}
      */
     @Override
+    /* removeIf:primitive */ 
+    @SuppressWarnings("unchecked") 
+    /* end:removeIf */
     public boolean equals(Object obj)
     {
-        throw new UnsupportedOperationException("equals() not implemented.");
+        if (obj != null)
+        {
+            if (obj instanceof ObjectArrayList<?>)
+            {
+                ObjectArrayList<?> other = (ObjectArrayList<?>) obj;
+                return other.size() == this.size() &&
+                    rangeEquals(
+                        /* removeIf:primitive v */ (KType[]) /* end:removeIf */ other.buffer, 
+                        /* removeIf:primitive v */ (KType[]) /* end:removeIf */ this.buffer, 
+                        size());
+            }
+            else if (obj instanceof ObjectIndexedContainer<?>)
+            {
+                ObjectIndexedContainer<?> other = (ObjectIndexedContainer<?>) obj;
+                return other.size() == this.size() &&
+                    allIndexesEqual(this, (ObjectIndexedContainer<KType>) other, this.size());
+            }
+        }
+        return false;
     }
 
+    /**
+     * Compare a range of values in two arrays. 
+     */
+    private boolean rangeEquals(KType [] b1, KType [] b2, int length)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            if (!Intrinsics.equals(b1[i], b2[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Compare index-aligned objects. 
+     */
+    private boolean allIndexesEqual(
+        ObjectIndexedContainer<KType> b1, 
+        ObjectIndexedContainer<KType> b2, int length)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            KType o1 = b1.get(i); 
+            KType o2 = b2.get(i);
+
+            if (!Intrinsics.equals(o1, o2))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
     /**
      * An iterator implementation for {@link ObjectArrayList#iterator}.
      */

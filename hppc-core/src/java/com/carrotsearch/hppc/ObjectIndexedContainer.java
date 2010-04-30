@@ -75,4 +75,25 @@ public interface ObjectIndexedContainer<KType> extends ObjectCollection<KType>, 
      * <code>fromIndex</code>, inclusive, and <code>toIndex</code>, exclusive.
      */
     public void removeRange(int fromIndex, int toIndex);
+
+    /**
+     * Compares the specified object with this container for equality. Returns
+     * <tt>true</tt> if and only if the specified object is also a
+     * {@link ObjectIndexedContainer}, both have the same size, and all corresponding
+     * pairs of elements at the same index are <i>equal</i>. In other words, two indexed
+     * containers are defined to be equal if they contain the same elements in the same
+     * order.
+     * <p>
+     * Note that, unlike in {@link List}, containers may be of different types and still
+     * return <code>true</code>.
+     * </p>
+     */
+    public boolean equals(Object obj);
+
+    /**
+     * @return A hash code of elements stored in the container. The hash code
+     * is defined identically to {@link List#hashCode()} (should be implemented
+     * with the same algorithm).
+     */
+    public int hashCode();
 }
