@@ -1,8 +1,7 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.*;
 import org.junit.rules.MethodRule;
@@ -159,5 +158,50 @@ public class ObjectStackTest
     {
         stack.push(/* intrinsic:ktypecast */ 0);
         stack.discard(2);
+    }
+
+    /* */
+    @Test
+    public void testHashCodeEquals()
+    {
+        ObjectStack<Integer> l0 = ObjectStack.from();
+        assertEquals(1, l0.hashCode());
+        assertEquals(l0, ObjectArrayList.from());
+
+        ObjectStack<Integer> l1 = ObjectStack.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        ObjectStack<Integer> l2 = ObjectStack.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+
+        l1 = ObjectStack.from(
+            /* intrinsic:ktypecast */ 1,
+            /* intrinsic:ktypecast */ 3);            
+        assertFalse(l1.equals(l2));
+    }
+
+    /* */
+    @Test
+    public void testHashCodeEqualsWithOtherContainer()
+    {
+        ObjectStack<Integer> l1 = ObjectStack.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        ObjectArrayList<Integer> l2 = ObjectArrayList.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
     }
 }
