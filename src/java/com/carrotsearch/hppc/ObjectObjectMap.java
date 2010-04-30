@@ -1,6 +1,7 @@
 package com.carrotsearch.hppc;
 
 
+
 /**
  * An associative container with unique binding from keys to a single value.
  */
@@ -35,4 +36,19 @@ public interface ObjectObjectMap<KType, VType>
      * if the value does not exist in the map. 
      */
     public VType remove(KType key);
+    
+    /**
+     * Compares the specified object with this set for equality. Returns
+     * <tt>true</tt> if and only if the specified object is also a
+     * {@link ObjectObjectMap} and both objects contains exactly the same key-value pairs.
+     */
+    public boolean equals(Object obj);
+
+    /**
+     * @return A hash code of elements stored in the map. The hash code
+     * is defined as a sum of hash codes of keys and values stored
+     * within the set). Because sum is commutative, this ensures that different order
+     * of elements in a set does not affect the hash code.
+     */
+    public int hashCode();
 }
