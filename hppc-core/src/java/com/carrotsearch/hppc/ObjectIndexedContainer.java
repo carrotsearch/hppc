@@ -85,7 +85,10 @@ public interface ObjectIndexedContainer<KType> extends ObjectCollection<KType>, 
      * order.
      * <p>
      * Note that, unlike in {@link List}, containers may be of different types and still
-     * return <code>true</code>.
+     * return <code>true</code> from {@link #equals}. This may be dangerous if you use
+     * different hash functions in two containers, but don't override the default 
+     * implementation of {@link #equals}. It is the programmer's responsibility to 
+     * enforcing these contracts properly.
      * </p>
      */
     public boolean equals(Object obj);
