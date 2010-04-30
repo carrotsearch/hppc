@@ -67,13 +67,6 @@ final class Intrinsics
      */
     public static boolean equals(Object e1, Object e2)
     {
-        if (e1 == null)
-        {
-            return e2 == null;
-        }
-        else
-        {
-            return e1.equals(e2);
-        }
+        return e1 == null ? e2 == null : e1.equals(e2);
     }
 }

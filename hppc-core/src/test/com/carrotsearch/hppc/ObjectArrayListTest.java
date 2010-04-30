@@ -523,4 +523,45 @@ public class ObjectArrayListTest<KType>
         assertEquals(3, variable.size());
         assertListEquals(variable.toArray(), 1, 2, 3);
     }
+    
+    /* */
+    @Test
+    public void testHashCodeEquals()
+    {
+        ObjectArrayList<Integer> l0 = ObjectArrayList.from();
+        assertEquals(1, l0.hashCode());
+        assertEquals(l0, ObjectArrayList.from());
+
+        ObjectArrayList<Integer> l1 = ObjectArrayList.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        ObjectArrayList<Integer> l2 = ObjectArrayList.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ 2, 
+            /* intrinsic:ktypecast */ 3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+
+    /* removeIf:primitive */
+    @Test
+    public void testHashCodeWithNulls()
+    {
+        ObjectArrayList<Integer> l1 = ObjectArrayList.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ null, 
+            /* intrinsic:ktypecast */ 3);
+
+        ObjectArrayList<Integer> l2 = ObjectArrayList.from(
+            /* intrinsic:ktypecast */ 1, 
+            /* intrinsic:ktypecast */ null, 
+            /* intrinsic:ktypecast */ 3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+    /* end:removeIf */
 }

@@ -272,6 +272,10 @@
 
                 <!-- Replace generic argument (KType) references with the actual type. -->
                 <replacestring from="&lt;KType&gt;" to="" />
+            	
+                <!-- Replace hash function references. -->
+                <replacestring from="ObjectHashFunction" to="@{UKType}HashFunction" />
+                <replacestring from="ObjectMurmurHash"   to="@{UKType}MurmurHash" />
             </filtermapper>
 
             <apply.filter 
