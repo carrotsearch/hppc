@@ -1,5 +1,6 @@
 package com.carrotsearch.hppc;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
@@ -76,6 +77,18 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
         this.resizer = resizer;
         ensureDenseCapacity(resizer.round(denseCapacity));
         ensureSparseCapacity(sparseCapacity);
+    }
+
+    /**
+     * Creates a set from elements of another container.
+     */
+    public IntDoubleLinkedSet(IntContainer container)
+    {
+        this(container.size(), 1 + maxElement(container));
+        for (IntCursor cursor : container)
+        {
+            addNoChecks(cursor.value);
+        }
     }
 
     /**
@@ -165,7 +178,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
         final boolean containsAlready = contains(value);  
         if (!containsAlready)
         {
-            // TODO: check if a fixed-size set is faster without these checks?
+            // TODO: check if a fixed-size set is (much) faster without these checks?
             ensureDenseCapacity(1);
             ensureSparseCapacity(value);
             
@@ -175,6 +188,25 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
         return !containsAlready;
     }
 
+    /**
+     * A faster version of {@link #add(int)} that does check or attempt to expand the 
+     * internal buffers. Assertions are still present.
+     */
+    private void addNoChecks(int value)
+    {
+        assert value >= 0 : "Double linked set supports values >= 0 only.";
+
+        final boolean containsAlready = contains(value);  
+        if (!containsAlready)
+        {
+            assert size() + 1 < dense.length : "Dense array too small.";
+            assert value < sparse.length : "Value too large for sparse.";
+
+            sparse[value] = elementsCount;
+            dense[elementsCount++] = value;
+        }
+    }
+    
     /**
      * Adds two elements to the set.
      */
@@ -352,5 +384,54 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
                 return !predicate.apply(value);
             };
         });
+    }
+    
+    /**
+     * Create a set from a variable number of arguments or an array of <code>int</code>.
+     * The elements are copied from the argument to the internal buffer.
+     */
+    public static IntDoubleLinkedSet from(int... elements)
+    {
+        final IntDoubleLinkedSet set = 
+            new IntDoubleLinkedSet(elements.length, 1 + maxElement(elements));
+        for (int i : elements)
+            set.addNoChecks(i);
+        return set;
+    }
+
+    /**
+     * Create a set from elements of another container.
+     */
+    public static IntDoubleLinkedSet from(IntContainer container)
+    {
+        return new IntDoubleLinkedSet(container);
+    }
+
+    /**
+     * Return the value of the maximum element (or zero) in a given container. 
+     */
+    private static int maxElement(IntContainer container)
+    {
+        int max = 0;
+        for (IntCursor c : container)
+            max = Math.max(max, c.value);
+        return max;
+    }
+
+    /**
+     * Return the value of the maximum element (or zero) in a given container. 
+     */
+    private static int maxElement(int... elements)
+    {
+        int max = 0;
+        for (int c : elements)
+            max = Math.max(max, c);
+        return max;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return Arrays.toString(this.toArray());
     }
 }

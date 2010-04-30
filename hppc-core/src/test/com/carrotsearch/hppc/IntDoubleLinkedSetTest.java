@@ -198,6 +198,39 @@ public class IntDoubleLinkedSetTest<KType>
         assertFalse(set.iterator().hasNext());
     }
 
+    /* */
+    @Test
+    public void testConstructorFromContainer()
+    {
+        IntOpenHashSet list2 = new IntOpenHashSet();
+        list2.add(1, 3, 5);
+
+        set = new IntDoubleLinkedSet(list2);
+        assertEquals(3, set.size());
+        assertSortedListEquals(list2.toArray(), set.toArray());
+    }
+
+    /* */
+    @Test
+    public void testFromMethod()
+    {
+        IntOpenHashSet list2 = new IntOpenHashSet();
+        list2.add(1, 3, 5);
+
+        IntDoubleLinkedSet s1 = IntDoubleLinkedSet.from(1, 3, 5);
+        IntDoubleLinkedSet s2 = IntDoubleLinkedSet.from(1, 3, 5);
+
+        assertSortedListEquals(list2.toArray(), s1.toArray());
+        assertSortedListEquals(list2.toArray(), s2.toArray());
+    }
+
+    /* */
+    @Test
+    public void testToString()
+    {
+        assertEquals("[1, 3, 5]", IntDoubleLinkedSet.from(1, 3, 5).toString());
+    }
+    
     /**
      * Run some random insertions/ deletions and compare the results
      * against <code>java.util.HashSet</code>.
