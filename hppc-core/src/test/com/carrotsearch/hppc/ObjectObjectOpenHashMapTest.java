@@ -9,8 +9,7 @@ import org.junit.*;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.hash.ObjectHashFunction;
-import com.carrotsearch.hppc.hash.ObjectMurmurHash;
+import com.carrotsearch.hppc.hash.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
