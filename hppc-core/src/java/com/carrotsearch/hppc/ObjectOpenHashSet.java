@@ -45,6 +45,17 @@ public class ObjectOpenHashSet<KType>
     extends AbstractObjectCollection<KType> 
     implements ObjectLookupContainer<KType>, ObjectSet<KType>
 {
+    /* removeIf:primitive */
+    /**
+     * Static key comparator for generic key sets.
+     */
+    private final static Comparator<Object> EQUALS_COMPARATOR = new Comparator<Object>() {
+        public int compare(Object o1, Object o2) {
+            return Intrinsics.equals(o1, o2) ? 0 : 1;
+        }
+    };
+    /* end:removeIf */
+
     /**
      * Default capacity.
      */
@@ -124,8 +135,16 @@ public class ObjectOpenHashSet<KType>
     /**
      * Hash function for entries.
      */
-    public final ObjectHashFunction hashFunction;
+    public final ObjectHashFunction<? super KType> hashFunction;
     
+    /* removeIf:primitive */
+    /**
+     * Key comparator function. We're only interested in comparator returning 0 (equals) or
+     * non zero (not equals).
+     */
+    public final Comparator<? super KType> keyComparator;
+    /* end:removeIf */
+
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
@@ -133,7 +152,7 @@ public class ObjectOpenHashSet<KType>
 `     */
     public ObjectOpenHashSet()
     {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
+        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -143,7 +162,7 @@ public class ObjectOpenHashSet<KType>
      */
     public ObjectOpenHashSet(int initialCapacity)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR, new ObjectMurmurHash());
+        this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -153,7 +172,8 @@ public class ObjectOpenHashSet<KType>
      */
     public ObjectOpenHashSet(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, new ObjectMurmurHash());
+        this(initialCapacity, loadFactor, new ObjectMurmurHash() 
+            /* removeIf:primitive */, EQUALS_COMPARATOR /* end:removeIf */);
     }
 
     /**
@@ -170,7 +190,8 @@ public class ObjectOpenHashSet<KType>
      * capacity is always rounded to the next power of two.
      */
     public ObjectOpenHashSet(
-        int initialCapacity, float loadFactor, ObjectHashFunction hashFunction)
+        int initialCapacity, float loadFactor, ObjectHashFunction<? super KType> hashFunction
+        /* removeIf:primitive */, Comparator<? super KType> keyComparator /* end:removeIf */)
     {
         initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
 
@@ -178,6 +199,12 @@ public class ObjectOpenHashSet<KType>
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
         assert loadFactor > 0 && loadFactor < 1
             : "Load factor must be between (0, 1).";
+        assert hashFunction != null : "Hash function must not be null.";
+
+        /* removeIf:primitive */
+        assert keyComparator != null : "Key comparator must not be null.";
+        this.keyComparator = keyComparator;
+        /* end:removeIf */
 
         this.hashFunction = hashFunction;
         this.loadFactor = loadFactor;
@@ -438,8 +465,12 @@ public class ObjectOpenHashSet<KType>
             if (state == ObjectOpenHashSet.EMPTY)
                 return deletedSlot != -1 ? deletedSlot : slot;
 
-            if (state == ObjectOpenHashSet.ASSIGNED && Intrinsics.equals(keys[slot], key))
+            if (state == ObjectOpenHashSet.ASSIGNED &&
+                /* replaceIf:primitive (keys[slot] == key) */ 
+                                       keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+            {
                 return slot;
+            }
 
             if (state == ObjectOpenHashSet.DELETED && deletedSlot < 0)
                 deletedSlot = slot;

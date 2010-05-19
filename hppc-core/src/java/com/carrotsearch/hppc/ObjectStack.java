@@ -62,7 +62,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
      * Create with a custom buffer resizing strategy and hash function.
      */
     public ObjectStack(int initialCapacity, ArraySizingStrategy resizer, 
-        ObjectHashFunction hashFunction)
+        ObjectHashFunction<? super KType> hashFunction)
     {
         super(initialCapacity, resizer, hashFunction);
     }

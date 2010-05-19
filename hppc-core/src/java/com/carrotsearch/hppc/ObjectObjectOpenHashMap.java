@@ -149,12 +149,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Hash function for keys.
      */
-    public final /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction;
+    public final /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction;
 
     /**
      * Hash function for values.
      */
-    public final /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ valueHashFunction;
+    public final /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction;
 
     /**
      * Lazily initialized view of the keys.
@@ -212,10 +212,10 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(
         int initialCapacity, float loadFactor, 
-        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction)
+        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction)
     {
         this(initialCapacity, loadFactor, keyHashFunction, 
-            /* replaceIf:primitiveVType new UVTypeHashFunction() */ new ObjectHashFunction() /* end:replaceIf */);
+            /* replaceIf:primitiveVType new UVTypeHashFunction() */ new ObjectHashFunction<VType>() /* end:replaceIf */);
     }
 
     /**
@@ -226,8 +226,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(
         int initialCapacity, float loadFactor,
-        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction,
-        /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ valueHashFunction)
+        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction,
+        /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction)
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
