@@ -91,7 +91,7 @@ public class BigramCounting
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.put(bigram, map.get(bigram) + 1);
+            map.adjustOrPutValue(bigram, 1, 1);
         }
 
         guard = map.size();
@@ -168,14 +168,7 @@ public class BigramCounting
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
             final Integer currentCount = map.get(bigram);
-            if (currentCount == null)
-            {
-                map.put(bigram, 1);
-            }
-            else
-            {
-                map.put(bigram, currentCount + 1);
-            }
+            map.put(bigram, currentCount == null ? 1 : currentCount + 1);
         }
         
         guard = map.size();
