@@ -86,7 +86,7 @@ public class ObjectArrayDeque<KType>
      * Hash function for entries, required for {@link #hashCode()}. The default is
      * {@link ObjectHashFunction} (weak hash for primitive types).
      */
-    public final ObjectHashFunction hashFunction;
+    public final ObjectHashFunction<? super KType> hashFunction;
 
     /**
      * Create with default sizing strategy and initial capacity for storing 
@@ -114,14 +114,14 @@ public class ObjectArrayDeque<KType>
      */
     public ObjectArrayDeque(int initialCapacity, ArraySizingStrategy resizer)
     {
-        this(initialCapacity, resizer, new ObjectHashFunction());
+        this(initialCapacity, resizer, new ObjectHashFunction<KType>());
     }
 
     /**
      * Create with a custom buffer resizing strategy.
      */
     public ObjectArrayDeque(int initialCapacity, ArraySizingStrategy resizer, 
-        ObjectHashFunction hashFunction)
+        ObjectHashFunction<? super KType> hashFunction)
     {
         assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
