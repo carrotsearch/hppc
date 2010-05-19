@@ -158,7 +158,7 @@ public final class IndirectSort
      * A slightly modified classic 3-way quicksort from L. Bentley and M. Douglas
      * McIlroy's "Engineering a Sort Function", Software-Practice and Experience, Vol.
      * 23(11) P. 1249-1265 (November 1993), with fragments from Sedgewick's
-     * "Algorithms in Java: Parts 1-4". The baseline implementation comes from the JDK
+     * "Algorithms in Java: Parts 1-4". The baseline implementation comes from the Apache Harmony code
      * (it's almost a direct copy from Bentley's paper, so I don't think copyright applies
      * here), but has been changed in places.
      */
