@@ -3,7 +3,7 @@ package com.carrotsearch.hppc.hash;
 /**
  * Murmur hash for <code>Object</code>s.
  */
-public final class ObjectMurmurHash extends ObjectHashFunction
+public final class ObjectMurmurHash extends ObjectHashFunction<Object>
 {
     @Override
     public int hash(Object key)

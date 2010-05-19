@@ -60,6 +60,17 @@ import com.carrotsearch.hppc.procedures.*;
 public class ObjectObjectOpenHashMap<KType, VType>
     implements ObjectObjectMap<KType, VType>
 {
+    /* removeIf:primitive */
+    /**
+     * Static key comparator for generic key sets.
+     */
+    private final static Comparator<Object> EQUALS_COMPARATOR = new Comparator<Object>() {
+        public int compare(Object o1, Object o2) {
+            return Intrinsics.equals(o1, o2) ? 0 : 1;
+        }
+    };
+    /* end:removeIf */
+
     /**
      * Default capacity.
      */
@@ -149,12 +160,20 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /**
      * Hash function for keys.
      */
-    public final /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction;
+    public final /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction;
 
     /**
      * Hash function for values.
      */
-    public final /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ valueHashFunction;
+    public final /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction;
+
+    /* removeIf:primitive */
+    /**
+     * Key comparator function. We're only interested in comparator returning 0 (equals) or
+     * non zero (not equals).
+     */
+    public final Comparator<? super KType> keyComparator;
+    /* end:removeIf */
 
     /**
      * Lazily initialized view of the keys.
@@ -212,10 +231,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(
         int initialCapacity, float loadFactor, 
-        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction)
+        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction)
     {
         this(initialCapacity, loadFactor, keyHashFunction, 
-            /* replaceIf:primitiveVType new UVTypeHashFunction() */ new ObjectHashFunction() /* end:replaceIf */);
+            /* replaceIf:primitiveVType new UVTypeHashFunction() */ new ObjectHashFunction<VType>() /* end:replaceIf */
+            /* removeIf:primitive */, EQUALS_COMPARATOR /* end:removeIf */);
     }
 
     /**
@@ -226,8 +246,10 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(
         int initialCapacity, float loadFactor,
-        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ keyHashFunction,
-        /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction /* end:replaceIf */ valueHashFunction)
+        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction,
+        /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction
+        /* removeIf:primitive */, Comparator<? super KType> keyComparator /* end:removeIf */
+        )
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
@@ -235,6 +257,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
         assert loadFactor > 0 && loadFactor <= 1
             : "Load factor must be between (0, 1].";
+
+        /* removeIf:primitive */
+        assert keyComparator != null : "Key comparator must not be null.";
+        this.keyComparator = keyComparator;
+        /* end:removeIf */
 
         this.valueHashFunction = valueHashFunction;
         this.keyHashFunction = keyHashFunction;
@@ -632,8 +659,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
             if (state == ObjectObjectOpenHashMap.EMPTY)
                 return deletedSlot != -1 ? deletedSlot : slot;
 
-            if (state == ObjectObjectOpenHashMap.ASSIGNED && Intrinsics.equals(keys[slot], key))
+            if (state == ObjectObjectOpenHashMap.ASSIGNED && 
+                /* replaceIf:primitive (keys[slot] == key) */ 
+                keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+            {
                 return slot;
+            }
 
             if (state == ObjectObjectOpenHashMap.DELETED && deletedSlot < 0)
                 deletedSlot = slot;
@@ -721,7 +752,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
                         if (other.containsKey(c.key))
                         {
                             VType v = other.get(c.key);
-                            if (!Intrinsics.equals(c.value, v))
+                            if (!(Intrinsics.equals(c.value, v)))
                             {
                                 return false;
                             }
