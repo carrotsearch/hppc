@@ -60,7 +60,7 @@ import com.carrotsearch.hppc.procedures.*;
 public class ObjectObjectOpenHashMap<KType, VType>
     implements ObjectObjectMap<KType, VType>
 {
-    /* removeIf:primitive */
+    /* removeIf:primitiveKType */
     /**
      * Static key comparator for generic key sets.
      */
@@ -167,7 +167,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public final /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction;
 
-    /* removeIf:primitive */
+    /* removeIf:primitiveKType */
     /**
      * Key comparator function. We're only interested in comparator returning 0 (equals) or
      * non zero (not equals).
@@ -235,7 +235,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         this(initialCapacity, loadFactor, keyHashFunction, 
             /* replaceIf:primitiveVType new UVTypeHashFunction() */ new ObjectHashFunction<VType>() /* end:replaceIf */
-            /* removeIf:primitive */, EQUALS_COMPARATOR /* end:removeIf */);
+            /* removeIf:primitiveKType */, EQUALS_COMPARATOR /* end:removeIf */);
     }
 
     /**
@@ -248,7 +248,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         int initialCapacity, float loadFactor,
         /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction,
         /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction
-        /* removeIf:primitive */, Comparator<? super KType> keyComparator /* end:removeIf */
+        /* removeIf:primitiveKType */, Comparator<? super KType> keyComparator /* end:removeIf */
         )
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
@@ -258,7 +258,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         assert loadFactor > 0 && loadFactor <= 1
             : "Load factor must be between (0, 1].";
 
-        /* removeIf:primitive */
+        /* removeIf:primitiveKType */
         assert keyComparator != null : "Key comparator must not be null.";
         this.keyComparator = keyComparator;
         /* end:removeIf */
@@ -660,7 +660,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 return deletedSlot != -1 ? deletedSlot : slot;
 
             if (state == ObjectObjectOpenHashMap.ASSIGNED && 
-                /* replaceIf:primitive (keys[slot] == key) */ 
+                /* replaceIf:primitiveKType (keys[slot] == key) */ 
                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
             {
                 return slot;
