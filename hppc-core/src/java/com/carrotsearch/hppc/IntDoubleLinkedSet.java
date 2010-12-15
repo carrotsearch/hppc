@@ -289,7 +289,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
     }
 
     @Override
-    public void forEach(IntProcedure procedure)
+    public <T extends IntProcedure> T forEach(T procedure)
     {
         final int max = size();
         final int [] dense = this.dense;
@@ -297,10 +297,12 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
         {
             procedure.apply(dense[i]);
         }
+
+        return procedure;
     }
 
     @Override
-    public void forEach(IntPredicate predicate)
+    public <T extends IntPredicate> T forEach(T predicate)
     {
         final int max = size();
         final int [] dense = this.dense;
@@ -309,6 +311,8 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
             if (predicate.apply(dense[i]))
                 break;
         }
+        
+        return predicate;
     }
 
     @Override

@@ -645,9 +645,9 @@ public class ObjectArrayList<KType>
      * {@inheritDoc} 
      */
     @Override
-    public void forEach(ObjectProcedure<? super KType> procedure)
+    public <T extends ObjectProcedure<? super KType>> T forEach(T procedure)
     {
-        forEach(procedure, 0, size());
+        return forEach(procedure, 0, size());
     }
 
     /**
@@ -655,8 +655,8 @@ public class ObjectArrayList<KType>
      * <code>fromIndex</code>, inclusive, to <code>toIndex</code>, 
      * exclusive.
      */
-    public void forEach(ObjectProcedure<? super KType> procedure, int fromIndex,
-        final int toIndex)
+    public <T extends ObjectProcedure<? super KType>> T forEach(T procedure, 
+        int fromIndex, final int toIndex)
     {
         assert (fromIndex >= 0 && fromIndex <= size()) :
             "Index " + fromIndex + " out of bounds [" + 0 + ", " + size() + ").";
@@ -672,6 +672,8 @@ public class ObjectArrayList<KType>
         {
             procedure.apply(buffer[i]);
         }
+
+        return procedure;
     }
 
     /**
@@ -724,9 +726,9 @@ public class ObjectArrayList<KType>
      * {@inheritDoc} 
      */
     @Override
-    public void forEach(ObjectPredicate<? super KType> predicate)
+    public <T extends ObjectPredicate<? super KType>> T forEach(T predicate)
     {
-        forEach(predicate, 0, size());
+        return forEach(predicate, 0, size());
     }
 
     /**
@@ -734,8 +736,8 @@ public class ObjectArrayList<KType>
      * <code>fromIndex</code>, inclusive, to <code>toIndex</code>, 
      * exclusive, or until predicate returns <code>false</code>.
      */
-    public void forEach(ObjectPredicate<? super KType> predicate, int fromIndex,
-        final int toIndex)
+    public <T extends ObjectPredicate<? super KType>> T forEach(T predicate, 
+        int fromIndex, final int toIndex)
     {
         assert (fromIndex >= 0 && fromIndex <= size()) :
             "Index " + fromIndex + " out of bounds [" + 0 + ", " + size() + ").";
@@ -752,6 +754,8 @@ public class ObjectArrayList<KType>
             if (!predicate.apply(buffer[i]))
                 break;
         }
+        
+        return predicate;
     }
 
     /**
