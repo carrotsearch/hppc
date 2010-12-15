@@ -752,11 +752,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
                         if (other.containsKey(c.key))
                         {
                             VType v = other.get(c.key);
-                            if (!(Intrinsics.equals(c.value, v)))
+                            if (Intrinsics.equals(c.value, v))
                             {
-                                return false;
+                                continue;
                             }
                         }
+                        return false;
                     }
                     return true;
                 }

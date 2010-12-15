@@ -444,6 +444,22 @@ public class ObjectObjectOpenHashMapTest
         assertFalse(l2.equals(l3));
     }
 
+    /* */
+    @Test
+    public void testBug_HPPC37()
+    {
+        ObjectObjectOpenHashMap<Object, Object> l1 = ObjectObjectOpenHashMap.from(
+            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1},
+            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1});
+
+        ObjectObjectOpenHashMap<Object, Object> l2 = ObjectObjectOpenHashMap.from(
+            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key2},
+            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1});        
+
+        assertFalse(l1.equals(l2));
+        assertFalse(l2.equals(l1));
+    }    
+
     /* removeIf:primitiveKType */
     @Test
     public void testNullKey()
