@@ -877,7 +877,7 @@ public class BitSet implements Cloneable
             }
 
             @Override
-            public void forEach(IntPredicate predicate)
+            public <T extends IntPredicate> T forEach(T predicate)
             {
                 final BitSetIterator i = BitSet.this.iterator();
                 for (int bit = i.nextSetBit(); bit >= 0; bit = i.nextSetBit())
@@ -885,16 +885,20 @@ public class BitSet implements Cloneable
                     if (predicate.apply(bit) == false)
                         break;
                 }
+
+                return predicate;
             }
 
             @Override
-            public void forEach(IntProcedure procedure)
+            public <T extends IntProcedure> T forEach(T procedure)
             {
                 final BitSetIterator i = BitSet.this.iterator();
                 for (int bit = i.nextSetBit(); bit >= 0; bit = i.nextSetBit())
                 {
                     procedure.apply(bit);
                 }
+
+                return procedure;
             }
             
             @Override
@@ -986,7 +990,7 @@ public class BitSet implements Cloneable
             }
 
             @Override
-            public void forEach(LongPredicate predicate)
+            public <T extends LongPredicate> T forEach(T predicate)
             {
                 final BitSet bset = BitSet.this;
                 for (long bit = bset.nextSetBit((long) 0); bit >= 0; bit = bset.nextSetBit(bit + 1))
@@ -994,16 +998,20 @@ public class BitSet implements Cloneable
                     if (predicate.apply(bit) == false)
                         break;
                 }
+
+                return predicate;
             }
 
             @Override
-            public void forEach(LongProcedure procedure)
+            public <T extends LongProcedure> T forEach(T procedure)
             {
                 final BitSet bset = BitSet.this;
                 for (long bit = bset.nextSetBit((long) 0); bit >= 0; bit = bset.nextSetBit(bit + 1))
                 {
                     procedure.apply(bit);
                 }
+
+                return procedure;
             }
 
             @Override

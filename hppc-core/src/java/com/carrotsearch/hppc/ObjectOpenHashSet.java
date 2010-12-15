@@ -636,7 +636,7 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public void forEach(ObjectProcedure<? super KType> procedure)
+    public <T extends ObjectProcedure<? super KType>> T forEach(T procedure)
     {
         final KType [] keys = this.keys;
         final byte [] states = this.states;
@@ -646,6 +646,8 @@ public class ObjectOpenHashSet<KType>
             if (states[i] == ASSIGNED)
                 procedure.apply(keys[i]);
         }
+
+        return procedure;
     }
 
     /**
@@ -666,7 +668,7 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public void forEach(ObjectPredicate<? super KType> predicate)
+    public <T extends ObjectPredicate<? super KType>> T forEach(T predicate)
     {
         final KType [] keys = this.keys;
         final byte [] states = this.states;
@@ -679,6 +681,8 @@ public class ObjectOpenHashSet<KType>
                     break;
             }
         }
+
+        return predicate;
     }
 
     /**

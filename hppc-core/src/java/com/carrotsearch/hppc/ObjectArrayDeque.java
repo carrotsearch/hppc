@@ -714,9 +714,10 @@ public class ObjectArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
-    public void forEach(ObjectProcedure<? super KType> procedure)
+    public <T extends ObjectProcedure<? super KType>> T forEach(T procedure)
     {
         forEach(procedure, head, tail);
+        return procedure;
     }
 
     /**
@@ -737,7 +738,7 @@ public class ObjectArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
-    public void forEach(ObjectPredicate<? super KType> predicate)
+    public <T extends ObjectPredicate<? super KType>> T forEach(T predicate)
     {
         int fromIndex = head;
         int toIndex = tail;
@@ -748,16 +749,20 @@ public class ObjectArrayDeque<KType>
             if (!predicate.apply(buffer[i]))
                 break;
         }
+        
+        return predicate;
     }
 
     /**
      * Applies <code>procedure</code> to all elements of this deque, tail to head. 
      */
-    public void descendingForEach(ObjectProcedure<? super KType> procedure)
+    @Override
+    public <T extends ObjectProcedure<? super KType>> T descendingForEach(T procedure)
     {
         descendingForEach(procedure, head, tail);
+        return procedure;
     }
-    
+
     /**
      * Applies <code>procedure</code> to a slice of the deque,
      * <code>toIndex</code>, exclusive, down to <code>fromIndex</code>, inclusive.
@@ -781,9 +786,10 @@ public class ObjectArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
-    public void descendingForEach(ObjectPredicate<? super KType> predicate)
+    public <T extends ObjectPredicate<? super KType>> T descendingForEach(T predicate)
     {
         descendingForEach(predicate, head, tail);
+        return predicate;
     }
     
     /**

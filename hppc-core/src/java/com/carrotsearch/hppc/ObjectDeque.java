@@ -79,13 +79,13 @@ public interface ObjectDeque<KType> extends ObjectCollection<KType>
     /**
      * Applies a <code>procedure</code> to all container elements.
      */
-    public void descendingForEach(ObjectProcedure<? super KType> procedure);
+    public <T extends ObjectProcedure<? super KType>> T descendingForEach(T procedure);
 
     /**
      * Applies a <code>predicate</code> to container elements as long, as the predicate
      * returns <code>true</code>. The iteration is interrupted otherwise. 
      */
-    public void descendingForEach(ObjectPredicate<? super KType> predicate);
+    public <T extends ObjectPredicate<? super KType>> T descendingForEach(T predicate);
 
     /**
      * Compares the specified object with this deque for equality. Returns
