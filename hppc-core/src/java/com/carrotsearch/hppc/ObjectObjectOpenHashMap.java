@@ -839,7 +839,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public void forEach(ObjectObjectProcedure<? super KType, ? super VType> procedure)
+    public <T extends ObjectObjectProcedure<? super KType, ? super VType>> T forEach(T procedure)
     {
         final KType [] keys = this.keys;
         final VType [] values = this.values;
@@ -850,6 +850,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
             if (states[i] == ASSIGNED)
                 procedure.apply(keys[i], values[i]);
         }
+        
+        return procedure;
     }
 
     /**
@@ -877,9 +879,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
         {
             return containsKey(e);
         }
-
+        
         @Override
-        public void forEach(ObjectProcedure<? super KType> procedure)
+        public <T extends ObjectProcedure<? super KType>> T forEach(T procedure)
         {
             final KType [] localKeys = owner.keys;
             final byte [] localStates = owner.states;
@@ -889,10 +891,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 if (localStates[i] == ASSIGNED)
                     procedure.apply(localKeys[i]);
             }
+
+            return procedure;
         }
 
         @Override
-        public void forEach(ObjectPredicate<? super KType> predicate)
+        public <T extends ObjectPredicate<? super KType>> T forEach(T predicate)
         {
             final KType [] localKeys = owner.keys;
             final byte [] localStates = owner.states;
@@ -905,6 +909,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
                         break;
                 }
             }
+
+            return predicate;
         }
 
         @Override

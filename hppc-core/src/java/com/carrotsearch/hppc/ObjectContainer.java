@@ -62,13 +62,22 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
     public KType [] toArray();
 
     /**
-     * Applies a <code>procedure</code> to all container elements.
+     * Applies a <code>procedure</code> to all container elements. Returns the argument (any
+     * subclass of {@link ObjectProcedure}. This lets the caller to call methods of the argument
+     * by chaining the call (even if the argument is an anonymous type) to retrieve computed values,
+     * for example. 
+     *
+     * <pre>
+     * int count = container.forEach(new IntProcedure() {
+     *      int count; // field!
+     *      public void apply(int value) { count++; }}).count;
+     * </pre>
      */
-    public void forEach(ObjectProcedure<? super KType> procedure);
+    public <T extends ObjectProcedure<? super KType>> T forEach(T procedure);
 
     /**
      * Applies a <code>predicate</code> to container elements as long, as the predicate
      * returns <code>true</code>. The iteration is interrupted otherwise. 
      */
-    public void forEach(ObjectPredicate<? super KType> predicate);
+    public <T extends ObjectPredicate<? super KType>> T forEach(T predicate);
 }

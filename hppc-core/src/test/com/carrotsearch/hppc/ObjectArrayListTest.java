@@ -497,6 +497,24 @@ public class ObjectArrayListTest<KType>
 
     /* */
     @Test
+    /* removeIf:primitive */
+    @SuppressWarnings({"unchecked"})
+    /* end:removeIf */
+    public void testForEachReturnValueFromAnonymousClass()
+    {
+        list.add(newArray(list.buffer, 1, 2, 3));
+        int result = ((ObjectArrayList<KType>) list).forEach(new ObjectProcedure<KType>() {
+            int index = 0;
+            public void apply(KType v)
+            {
+                assertEquals2(v, list.get(index++));
+            }
+        }).index;
+        assertEquals(result, list.size());
+    }
+
+    /* */
+    @Test
     public void testClear()
     {
         list.add(newArray(list.buffer, 1, 2, 3));

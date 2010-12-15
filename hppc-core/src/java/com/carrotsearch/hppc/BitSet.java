@@ -94,8 +94,8 @@ public class BitSet implements Cloneable
      * is long[index/64], and it is at bit number index%64 within that word.
      * <p>
      * numWords are the number of elements in the array that contain set bits (non-zero
-     * longs). numWords should be &lt= bits.length, and any existing words in the array at
-     * position &gt= numWords should be zero.
+     * longs). numWords should be &lt;= bits.length, and any existing words in the array at
+     * position &gt;= numWords should be zero.
      */
     public BitSet(long [] bits, int numWords)
     {
@@ -783,6 +783,29 @@ public class BitSet implements Cloneable
         return (int) ((h >> 32) ^ h) + 0x98761234;
     }
 
+    @Override
+    public String toString()
+    {
+        long bit = nextSetBit(0);
+        if (bit < 0)
+        {
+            return "{}";
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append("{");
+
+        builder.append(Long.toString(bit));
+        while ((bit = nextSetBit(bit + 1)) >= 0)
+        {
+            builder.append(", ");
+            builder.append(Long.toString(bit));
+        }
+        builder.append("}");
+
+        return builder.toString();
+    }
+    
     /**
      * Returns a view over this bitset data compatible with {@link IntLookupContainer}. A new
      * object is always returned, but its methods reflect the current state of the bitset
@@ -854,7 +877,7 @@ public class BitSet implements Cloneable
             }
 
             @Override
-            public void forEach(IntPredicate predicate)
+            public <T extends IntPredicate> T forEach(T predicate)
             {
                 final BitSetIterator i = BitSet.this.iterator();
                 for (int bit = i.nextSetBit(); bit >= 0; bit = i.nextSetBit())
@@ -862,16 +885,20 @@ public class BitSet implements Cloneable
                     if (predicate.apply(bit) == false)
                         break;
                 }
+
+                return predicate;
             }
 
             @Override
-            public void forEach(IntProcedure procedure)
+            public <T extends IntProcedure> T forEach(T procedure)
             {
                 final BitSetIterator i = BitSet.this.iterator();
                 for (int bit = i.nextSetBit(); bit >= 0; bit = i.nextSetBit())
                 {
                     procedure.apply(bit);
                 }
+
+                return procedure;
             }
             
             @Override
@@ -963,7 +990,7 @@ public class BitSet implements Cloneable
             }
 
             @Override
-            public void forEach(LongPredicate predicate)
+            public <T extends LongPredicate> T forEach(T predicate)
             {
                 final BitSet bset = BitSet.this;
                 for (long bit = bset.nextSetBit((long) 0); bit >= 0; bit = bset.nextSetBit(bit + 1))
@@ -971,16 +998,20 @@ public class BitSet implements Cloneable
                     if (predicate.apply(bit) == false)
                         break;
                 }
+
+                return predicate;
             }
 
             @Override
-            public void forEach(LongProcedure procedure)
+            public <T extends LongProcedure> T forEach(T procedure)
             {
                 final BitSet bset = BitSet.this;
                 for (long bit = bset.nextSetBit((long) 0); bit >= 0; bit = bset.nextSetBit(bit + 1))
                 {
                     procedure.apply(bit);
                 }
+
+                return procedure;
             }
 
             @Override

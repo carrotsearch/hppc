@@ -76,9 +76,12 @@ public interface ObjectObjectAssociativeContainer<KType, VType>
     public int removeAll(ObjectPredicate<? super KType> predicate);
 
     /**
-     * Applies a given procedure to all keys-value pairs in this container.
+     * Applies a given procedure to all keys-value pairs in this container. Returns the argument (any
+     * subclass of {@link ObjectObjectProcedure}. This lets the caller to call methods of the argument
+     * by chaining the call (even if the argument is an anonymous type) to retrieve computed values,
+     * for example. 
      */
-    public void forEach(ObjectObjectProcedure<? super KType, ? super VType> procedure);
+    public <T extends ObjectObjectProcedure<? super KType, ? super VType>> T forEach(T procedure);
 
     /**
      * Clear all keys and values in the container.
