@@ -32,6 +32,21 @@ public class BitSetTest
     }
 
     /**
+     * Test to string conversion.
+     */
+    @Test
+    public void testToString()
+    {
+        assertEquals(jre.toString(), hppc.toString());
+
+        for (int i : new int [] {1, 10, 20, 5000}) {
+            hppc.set(i);
+            jre.set(i);
+        }
+        assertEquals(jre.toString(), hppc.toString());
+    }
+    
+    /**
      * Test random insertions into the bitset.
      */
     @Test
