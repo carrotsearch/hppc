@@ -5,6 +5,8 @@ import java.util.Random;
 
 import org.junit.*;
 
+import com.carrotsearch.hppc.CloverSupport;
+
 /**
  * Test cases for {@link IndirectSort}.
  */
@@ -13,7 +15,8 @@ public class IndirectSortTest
     /**
      * Data length for certain tests.
      */
-    static final int DATA_LENGTH = 1000000;
+    static final int DATA_LENGTH = 
+        CloverSupport.isClover() ? 10000 : 1000000;
 
     /**
      * Implies the same order as the order of indices.
