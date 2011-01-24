@@ -322,6 +322,7 @@
         <version>2.3.1</version>
         <configuration>
           <excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
+          <findbugsXmlOutput>true</findbugsXmlOutput>
         </configuration>
       </plugin>
     </plugins>
@@ -341,11 +342,13 @@
             <executions>
               <execution>
                 <id>clover</id>
-                <phase>test-compile<!-- validate --></phase>
+                <phase>test-compile<!-- test-compile, validate --></phase>
                 <configuration>
                   <target>
+                    <!-- This must be declared here because clover attempts to redefine it. -->
                     <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
-                    <ant antfile="${basedir}/src/ant/clover.xml" inheritRefs="true">
+                    <ant antfile="${basedir}/src/ant/clover.xml" inheritRefs="true" inheritAll="true">
+                      <property name="version" value="${version}" />
                       <target name="test" />
                     </ant>
                   </target>

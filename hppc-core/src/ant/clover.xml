@@ -8,84 +8,95 @@
 
 <project name="hppc-clover" default="test" basedir="../../">
 
-    <!-- Compilation presets. -->
-    <presetdef name="javac">
-        <javac deprecation="true" debug="true" target="1.6" source="1.6" encoding="UTF-8" includeantruntime="false" optimize="true" />
-    </presetdef>
+	<!-- Compilation presets. -->
+	<presetdef name="javac">
+		<javac deprecation="true" debug="true" target="1.6" source="1.6" encoding="UTF-8" includeantruntime="false" optimize="true" />
+	</presetdef>
 
 
-    <!-- Input files for Clover. -->
-    <fileset id="src.coverage" dir="${basedir}">
+	<!-- Input files for Clover. -->
+	<fileset id="src.coverage" dir="${basedir}">
         <include name="src/main/java/**/*.java" />
-        <include name="src/test/java/**/*.java" />
         <include name="target/generated-sources/main/java/**/*.java" />
-        <include name="target/generated-sources/test/java/**/*.java" />
         <not>
             <contains text="coverage:exclude" />
         </not>
-    </fileset>
+	</fileset>
 
+	<!-- -->
+	<target name="test" description="Run clover coverage on JUnit tests.">
+		<property name="clover.dir" location="${basedir}/target/clover" />
 
-    <!-- -->
-    <target name="test" description="Run clover coverage on JUnit tests.">
-        <property name="coverage.report.dir" location="${basedir}/target/clover" />
-        <property name="clover.classes.dir" location="${coverage.report.dir}/classes" />
-        <property name="test.report.dir" location="${coverage.report.dir}/test-report" />
-        
-        <delete dir="${coverage.report.dir}" />
-        <mkdir dir="${clover.classes.dir}" />
-        <mkdir dir="${test.report.dir}" />
+		<property name="coverage.report.dir" location="${clover.dir}/report-coverage" />
+		<property name="test.report.dir" location="${clover.dir}/report-tests" />
+		<property name="clover.sources.dir" location="${clover.dir}/sources-modified" />
+		<property name="clover.classes.dir" location="${clover.dir}/classes" />
 
-        <taskdef resource="cloverlib.xml" classpathref="maven.plugin.classpath" />
-        <clover-setup>
-            <fileset refid="src.coverage" />
-        </clover-setup>
+		<delete dir="${clover.dir}" failonerror="false" />
+		<mkdir dir="${clover.classes.dir}" />
+		<mkdir dir="${clover.sources.dir}" />
+		<mkdir dir="${test.report.dir}" />
+		<mkdir dir="${coverage.report.dir}" />
 
-        <echo>Compiling...</echo>
-        <javac destdir="${clover.classes.dir}">
-            <src>
-                <path location="src/main/java" />
-                <path location="src/test/java" />
-                <path location="target/generated-sources/main/java" />
-                <path location="target/generated-sources/test/java" />
-            </src>
+		<taskdef resource="cloverlib.xml" classpathref="maven.plugin.classpath" />
 
-            <classpath refid="maven.test.classpath" />
-        </javac>
+		<clover-clean initstring="${clover.dir}/.clover.db" />
+		<clover-setup initstring="${clover.dir}/.clover.db" enabled="true" preserve="true" tmpdir="${clover.sources.dir}">
+			<fileset refid="src.coverage" />
+		</clover-setup>
 
-        <junit fork="true" forkmode="once" printsummary="on" errorproperty="junit.error" failureproperty="junit.failure">
-            <jvmarg value="-ea" />
-            <jvmarg value="-Xmx1024m" />
+		<javac destdir="${clover.classes.dir}" nowarn="true">
+			<src>
+				<path location="src/main/java" />
+				<path location="src/test/java" />
+				<path location="target/generated-sources/main/java" />
+				<path location="target/generated-sources/test/java" />
+			</src>
 
-            <!-- <jvmarg value="-Dclover.pertest.coverage=diff" /> -->
+			<classpath refid="maven.test.classpath" />
+		</javac>
 
-            <formatter type="xml" />
+		<junit fork="true" forkmode="once" printsummary="on" errorproperty="junit.error" failureproperty="junit.failure">
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx1024m" />
 
-            <classpath location="${clover.classes.dir}" />
-            <classpath refid="maven.test.classpath" />
-            <classpath refid="maven.plugin.classpath" />
+			<!-- Speeds up test execution.
+        	     http://confluence.atlassian.com/display/CLOVER/Clover+Performance+Tuning 
+        	  -->
+			<jvmarg value="-Dclover.pertest.coverage=diff" />
 
-            <batchtest todir="${test.report.dir}">
-                <fileset dir="${clover.classes.dir}">
-                    <include name="**/*Test.class" />
-                    <exclude name="**/*Benchmark.class" />
-                    <exclude name="**/Abstract*" />
-                </fileset>
-            </batchtest>
-        </junit>
+			<formatter type="xml" />
 
-        <clover-report>
-            <current outfile="${coverage.report.dir}/coverage-report" title="HPPC Coverage Report ${version}">
-                <format type="html" />
-            </current>
-        </clover-report>
+			<classpath location="${clover.classes.dir}" />
+			<classpath refid="maven.test.classpath" />
+			<classpath refid="maven.plugin.classpath" />
 
-        <condition property="tests.failed" value="true">
-            <or>
-                <isset property="junit.error" />
-                <isset property="junit.failure" />
-            </or>
-        </condition>
-        <fail message="Coverage Tests failed. See ${test.report.dir} for report." if="tests.failed" />
-    </target>
+			<batchtest todir="${test.report.dir}">
+				<fileset dir="${clover.classes.dir}">
+					<include name="**/*Test.class" />
+					<exclude name="**/*Benchmark.class" />
+					<exclude name="**/Abstract*" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<clover-report>
+			<current outfile="${coverage.report.dir}" title="HPPC Coverage Report ${version}">
+				<format type="html" />
+			</current>
+		</clover-report>
+		<clover-report>
+			<current outfile="${coverage.report.dir}/coverage.xml" title="HPPC Coverage Report ${version}">
+				<format type="xml" />
+			</current>
+		</clover-report>
+
+		<condition property="tests.failed" value="true">
+			<or>
+				<isset property="junit.error" />
+				<isset property="junit.failure" />
+			</or>
+		</condition>
+		<fail message="Coverage Tests failed. See ${test.report.dir} for report." if="tests.failed" />
+	</target>
 </project>

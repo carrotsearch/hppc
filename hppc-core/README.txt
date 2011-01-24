@@ -26,3 +26,26 @@ Release
 
 mvn clean deploy         Snapshot deploy to sonatype [requires proper setup in settings.xml]
 mvn -Prelease,sonatype clean verify Prepare release bundle for manual staging.
+
+
+Clover
+------
+
+A local license is required for Clover support. Edit your ~/.m2/settings.xml and 
+add an active profile definiting these settings:
+
+...
+  <profiles>
+          <profile>
+            <id>clover-license</id>
+            <properties>
+              <clover.license.path>[...]\clover.license</clover.license.path>
+              <maven.clover.licenseLocation>[...]\clover.license</maven.clover.licenseLocation>
+            </properties>
+          </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>clover-license</activeProfile>
+  </activeProfiles>
+...
