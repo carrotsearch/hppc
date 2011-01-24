@@ -10,7 +10,7 @@
 
     <!-- Compilation presets. -->
     <presetdef name="javac">
-        <javac deprecation="true" debug="true" target="1.5" source="1.5" encoding="UTF-8" includeantruntime="false" optimize="true" />
+        <javac deprecation="true" debug="true" target="1.6" source="1.6" encoding="UTF-8" includeantruntime="false" optimize="true" />
     </presetdef>
 
 
@@ -31,7 +31,7 @@
         <property name="coverage.report.dir" location="${basedir}/target/clover" />
         <property name="clover.classes.dir" location="${coverage.report.dir}/classes" />
         <property name="test.report.dir" location="${coverage.report.dir}/test-report" />
-
+        
         <delete dir="${coverage.report.dir}" />
         <mkdir dir="${clover.classes.dir}" />
         <mkdir dir="${test.report.dir}" />
@@ -41,6 +41,7 @@
             <fileset refid="src.coverage" />
         </clover-setup>
 
+        <echo>Compiling...</echo>
         <javac destdir="${clover.classes.dir}">
             <src>
                 <path location="src/main/java" />
@@ -56,12 +57,6 @@
             <jvmarg value="-ea" />
             <jvmarg value="-Xmx1024m" />
 
-            <!-- Run benchmarks as tests, no repeats, no DB logging. -->
-            <jvmarg value="-Djub.rounds.warmup=0" />
-            <jvmarg value="-Djub.rounds.benchmark=1" />
-            <jvmarg value="-Djub.ignore.callgc=true" />
-            <jvmarg value="-Djub.ignore.annotations=true" />
-
             <!-- <jvmarg value="-Dclover.pertest.coverage=diff" /> -->
 
             <formatter type="xml" />
@@ -73,7 +68,7 @@
             <batchtest todir="${test.report.dir}">
                 <fileset dir="${clover.classes.dir}">
                     <include name="**/*Test.class" />
-                    <include name="**/*Benchmark.class" />
+                    <exclude name="**/*Benchmark.class" />
                     <exclude name="**/Abstract*" />
                 </fileset>
             </batchtest>
