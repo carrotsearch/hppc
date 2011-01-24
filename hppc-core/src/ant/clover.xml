@@ -27,7 +27,7 @@
 	<target name="test" description="Run clover coverage on JUnit tests.">
 		<property name="clover.dir" location="${basedir}/target/clover" />
 
-		<property name="coverage.report.dir" location="${clover.dir}/report-coverage" />
+		<property name="coverage.report.dir" location="${basedir}/target/site/coverage" />
 		<property name="test.report.dir" location="${clover.dir}/report-tests" />
 		<property name="clover.sources.dir" location="${clover.dir}/sources-modified" />
 		<property name="clover.classes.dir" location="${clover.dir}/classes" />
