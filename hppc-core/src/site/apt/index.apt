@@ -1,0 +1,25 @@
+ ------
+ Introduction
+ ------
+ ------
+ 2011-01-24
+ ------
+
+
+HPPC, High Performance Primitive Collections
+
+ This is an automatically generated code style and coverage report (Maven2). See the 
+ {{{http://labs.carrotsearch.com}Carrot Search Labs}} page for documentation.
+
+* Reports
+
+   * {{{./cpd.html}Code Duplication}} (<<<cpd>>>).
+
+   * {{{./findbugs.html}Static Bug Analysis, FindBugs}} (<<<findbugs>>>).
+   
+   * {{{./pmd.html}Static Bug Analysis, PMD}} (<<<pmd>>>).
+   
+   * {{{./surefire-report.html}JUnit Tests}} (<<<junit>>>).
+   
+   * {{{./coverage/index.html}Test Code Coverage}} (<<<clover>>>).
+
