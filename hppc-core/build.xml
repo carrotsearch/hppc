@@ -1,81 +1,11 @@
 
-<project name="hppc" default="dist">
-    <!-- Build number (to override by the build server) -->
-    <property name="build.number" value="" />
+<!-- Source code generation phase is handled by an ANT script, it's simply much easier to do it from ANT. -->
 
-    <property name="src.java" location="src/java" />
-    <property name="src.test" location="src/test" />
-    <property name="src.generated" location="src/generated" />
+<project name="hppc" default="-dummy">
 
-    <property name="etc.dir" location="etc" />
+    <property name="project.build.directory" location="target" />
 
-    <!-- Common scratch dir-->
-    <property name="tmp.dir" location="tmp" />
-
-    <!-- Intermediate files -->
-    <property name="build.dir" location="${tmp.dir}/build" />
-
-    <!-- Build results -->
-    <property name="dist.dir" location="${tmp.dir}/dist" />
-  
-    <!-- Publishable artifacts -->
-    <property name="artifacts.dir" location="${tmp.dir}/artifacts" />
-
-    <!-- Artifacts in a layout required for the server upload -->
-    <property name="upload.dir" location="${tmp.dir}/upload" />
-  
-
-    <!-- Classes to be included in the final (production) artifact -->
-    <property name="classes.dir" location="${build.dir}/classes" />
-
-    <!-- Classes used for tests, may be instrumented for coverage analysis -->
-    <property name="test.classes.dir" location="${build.dir}/test-classes" />
-
-    <!-- Reports -->
-    <property name="reports.dir" location="${dist.dir}/reports" />
-    <property name="tests.report.dir" location="${reports.dir}/tests" />
-    <property name="benchmarks.report.dir" location="${reports.dir}/benchmarks" />
-    <property name="coverage.report.dir" location="${reports.dir}/coverage" />
-    <property name="duplication.report.dir" location="${reports.dir}/duplication" />
-    <property name="findbugs.report.dir" location="${reports.dir}/findbugs" />
-
-    <property file="${local.properties}" />
-    <property file="hppc.version" />
-    <property file="local.properties" />
-
-    <property name="hppc.base" value="hppc" />
-    <property name="dist.name" value="${hppc.base}-${hppc.version}" />
-
-    <property name="maxmem" value="1400m" />
-
-    <!-- Compilation presets. -->
-    <presetdef name="javac">
-        <javac deprecation="true" debug="true" 
-            target="1.5" source="1.5" encoding="UTF-8" 
-            includeantruntime="false" optimize="true" />
-    </presetdef>
-
-    <!-- Extra tools the build can use if available -->
-    <property name="pmd.jar" location="${pmd.home}/lib/" />
-    <property name="clover.jar" location="${clover.home}/lib/clover.jar" />
-    <condition property="clover.available">
-        <or>
-            <!-- Clover path provided -->
-            <isset property="clover.home" />
-
-            <!-- Clover installed automatically by the build server -->
-            <isset property="clover.external" />
-        </or>
-    </condition>
-
-    <!-- file and patternsets -->
-    <path id="lib.classpath">
-        <fileset dir="lib">
-            <include name="*.jar" />
-        </fileset>
-        <file file="${clover.jar}" />
-    </path>
-
+    <!-- Exclude tests from generation. -->
     <patternset id="patterns.exclude.tests">
         <exclude name="**/*Benchmark*" />
         <exclude name="**/*Test*" />
@@ -83,32 +13,12 @@
         <exclude name="com/carrotsearch/tests/**" />
     </patternset>
     
+    <!-- Exclude javadoc resources. -->
     <patternset id="patterns.exclude.docfiles">
         <exclude name="**/doc-files/**" />
     </patternset>
 
-    <!-- Javac wants a path -->
-    <path id="src.java">
-        <pathelement location="${src.java}" />
-        <pathelement location="${src.generated}" />
-        <pathelement location="${src.test}" />
-    </path>
-
-    <!-- ... while Clover wants a fileset, cool. -->
-    <fileset id="src.coverage" dir="${basedir}">
-        <include name="src/java/**/*.java" />
-        <include name="src/test/**/*.java" />
-        <include name="src/generated/**/*.java" />
-        <not><contains text="coverage:exclude" /></not>
-    </fileset>
-    
-    <!-- Code duplication checks -->
-    <fileset id="src.duplication" dir="${basedir}">
-        <include name="src/java/**/*.java" />
-        <include name="src/test/**/*.java" />
-        <exclude name="src/java/**/BitUtil.java" /> <!-- performance-motivated duplication -->
-    </fileset>
-
+    <!-- An empty filter. -->
     <filtermapper id="filter.empty">
     </filtermapper>
 
@@ -120,9 +30,10 @@
         <attribute name="filter3" default="filter.empty" />
         <attribute name="filter4" default="filter.empty" />
         <attribute name="fileset" />
+        <attribute name="todir" />
 
         <sequential>
-            <copy todir="${src.generated}" encoding="UTF-8" filtering="true" overwrite="true">
+            <copy todir="@{todir}" encoding="UTF-8" filtering="true" overwrite="true">
                 <path refid="@{fileset}" />
                 <mapper>
                     <chainedmapper>
@@ -163,7 +74,7 @@
             </filtermapper>
         </sequential>
     </macrodef>
-    
+
     <macrodef name="declare.filter.ktype">
         <attribute name="filterName" />
         <attribute name="KType" />
@@ -246,6 +157,7 @@
         <attribute name="KType" />  <!-- Primitive type. -->
         <attribute name="UKType" /> <!-- Uppercase (boxed) type. -->
         <attribute name="fileset" />
+        <attribute name="todir" />
 
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}" />
@@ -287,6 +199,7 @@
                 filter1="filter.specific.@{KType}" 
                 filter2="filter.ktype.@{KType}"
                 filter3="filter.common.@{KType}"
+                todir="@{todir}"
             />
         </sequential>
     </macrodef>
@@ -297,6 +210,7 @@
         <attribute name="VType" />
         <attribute name="UVType" />
         <attribute name="fileset" />
+        <attribute name="todir" />
 
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}@{VType}" />
@@ -343,6 +257,7 @@
                  filter2="filter.ktype.@{KType}@{VType}"
                  filter3="filter.vtype.@{KType}@{VType}"
                  filter4="filter.common.@{KType}@{VType}"
+                 todir="@{todir}"
              />
         </sequential>
     </macrodef>
@@ -351,6 +266,7 @@
         <attribute name="VType" />
         <attribute name="UVType" />
         <attribute name="fileset" />
+        <attribute name="todir" />
 
         <sequential>
             <declare.filter.common filterName="filter.common.generic.@{VType}" />
@@ -384,6 +300,7 @@
                  filter1="filter.specific.generic.@{VType}"
                  filter2="filter.vtype.generic.@{VType}"
                  filter3="filter.common.generic.@{VType}"
+                 todir="@{todir}"
              />
         </sequential>
     </macrodef>
@@ -392,6 +309,7 @@
         <attribute name="KType" />
         <attribute name="UKType" />
         <attribute name="fileset" />
+        <attribute name="todir" />
 
         <sequential>
             <declare.filter.common filterName="filter.common.@{KType}.generic" />
@@ -435,20 +353,121 @@
                  filter1="filter.specific.@{KType}.generic"
                  filter2="filter.ktype.@{KType}.generic"
                  filter3="filter.common.@{KType}.generic"
+                 todir="@{todir}"
              />
         </sequential>
     </macrodef>
 
-    <!-- Generate sources from generic templates. -->
-    <target name="preprocess" description="Preprocess sources and generate versions for primitive types.">
-        <delete dir="${src.generated}" failonerror="false" />
-        <mkdir dir="${src.generated}" />
+    <!-- Process templates from a given path to another path. -->
+    <macrodef name="apply.templates">
+        <attribute name="singleTypePathRef" />
+        <attribute name="doubleTypePathRef" />
+        <attribute name="outputDir" />
 
-        <!--
-        Generate code for single-argument templates. 
-        -->
+        <sequential>
+            <delete dir="@{outputDir}" failonerror="false" />
+            <mkdir  dir="@{outputDir}" />
+
+            <!-- Single type templates. -->
+            <preprocess.KType KType="byte"   UKType="Byte"   fileset="@{singleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KType KType="short"  UKType="Short"  fileset="@{singleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KType KType="char"   UKType="Char"   fileset="@{singleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KType KType="int"    UKType="Int"    fileset="@{singleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KType KType="long"   UKType="Long"   fileset="@{singleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KType KType="float"  UKType="Float"  fileset="@{singleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KType KType="double" UKType="Double" fileset="@{singleTypePathRef}" todir="@{outputDir}" />
+
+            <!-- I assume byte-key hash maps are of very limited use (you could use a table for this...), but anyway. -->
+            <preprocess.KTypeVType KType="byte"   VType="byte"    UKType="Byte"   UVType="Byte"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="byte"   VType="short"   UKType="Byte"   UVType="Short"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="byte"   VType="char"    UKType="Byte"   UVType="Char"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="byte"   VType="int"     UKType="Byte"   UVType="Int"     fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="byte"   VType="long"    UKType="Byte"   UVType="Long"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="byte"   VType="float"   UKType="Byte"   UVType="Float"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="byte"   VType="double"  UKType="Byte"   UVType="Double"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+                                                                                 
+            <!-- short-X. -->                                                    
+            <preprocess.KTypeVType KType="short"  VType="byte"    UKType="Short"  UVType="Byte"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="short"  VType="short"   UKType="Short"  UVType="Short"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="short"  VType="char"    UKType="Short"  UVType="Char"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="short"  VType="int"     UKType="Short"  UVType="Int"     fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="short"  VType="long"    UKType="Short"  UVType="Long"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="short"  VType="float"   UKType="Short"  UVType="Float"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="short"  VType="double"  UKType="Short"  UVType="Double"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+                                                                                 
+            <!-- char-X. -->                                                     
+            <preprocess.KTypeVType KType="char"   VType="byte"    UKType="Char"   UVType="Byte"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="char"   VType="short"   UKType="Char"   UVType="Short"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="char"   VType="char"    UKType="Char"   UVType="Char"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="char"   VType="int"     UKType="Char"   UVType="Int"     fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="char"   VType="long"    UKType="Char"   UVType="Long"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="char"   VType="float"   UKType="Char"   UVType="Float"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="char"   VType="double"  UKType="Char"   UVType="Double"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+                                                                                  
+            <!-- int-X. -->                                                       
+            <preprocess.KTypeVType KType="int"    VType="byte"    UKType="Int"    UVType="Byte"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="int"    VType="short"   UKType="Int"    UVType="Short"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="int"    VType="char"    UKType="Int"    UVType="Char"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="int"    VType="int"     UKType="Int"    UVType="Int"     fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="int"    VType="long"    UKType="Int"    UVType="Long"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="int"    VType="float"   UKType="Int"    UVType="Float"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="int"    VType="double"  UKType="Int"    UVType="Double"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+                                                                                 
+            <!-- long-X. -->                                                     
+            <preprocess.KTypeVType KType="long"   VType="byte"    UKType="Long"   UVType="Byte"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="long"   VType="short"   UKType="Long"   UVType="Short"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="long"   VType="char"    UKType="Long"   UVType="Char"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="long"   VType="int"     UKType="Long"   UVType="Int"     fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="long"   VType="long"    UKType="Long"   UVType="Long"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="long"   VType="float"   UKType="Long"   UVType="Float"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="long"   VType="double"  UKType="Long"   UVType="Double"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+                                                                                 
+            <!-- float-X. -->                                                    
+            <preprocess.KTypeVType KType="float"  VType="byte"    UKType="Float"  UVType="Byte"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="float"  VType="short"   UKType="Float"  UVType="Short"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="float"  VType="char"    UKType="Float"  UVType="Char"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="float"  VType="int"     UKType="Float"  UVType="Int"     fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="float"  VType="long"    UKType="Float"  UVType="Long"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="float"  VType="float"   UKType="Float"  UVType="Float"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="float"  VType="double"  UKType="Float"  UVType="Double"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+                                                                                 
+            <!-- double-X. -->                                                   
+            <preprocess.KTypeVType KType="double" VType="byte"    UKType="Double" UVType="Byte"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="double" VType="short"   UKType="Double" UVType="Short"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="double" VType="char"    UKType="Double" UVType="Char"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="double" VType="int"     UKType="Double" UVType="Int"     fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="double" VType="long"    UKType="Double" UVType="Long"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="double" VType="float"   UKType="Double" UVType="Float"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.KTypeVType KType="double" VType="double"  UKType="Double" UVType="Double"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />  
+    
+            <!-- KType-X (generic key). -->
+            <preprocess.GenericKType VType="byte"   UVType="Byte"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericKType VType="short"  UVType="Short"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericKType VType="char"   UVType="Char"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericKType VType="int"    UVType="Int"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericKType VType="long"   UVType="Long"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericKType VType="float"  UVType="Float"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericKType VType="double" UVType="Double" fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+    
+            <!-- X-KType (generic value). -->
+            <preprocess.GenericVType KType="byte"   UKType="Byte"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericVType KType="short"  UKType="Short"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericVType KType="char"   UKType="Char"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericVType KType="int"    UKType="Int"    fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericVType KType="long"   UKType="Long"   fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericVType KType="float"  UKType="Float"  fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+            <preprocess.GenericVType KType="double" UKType="Double" fileset="@{doubleTypePathRef}" todir="@{outputDir}" />
+        </sequential>
+    </macrodef>
+
+
+    <!-- Generate primitive variations from main sources. -->
+    <target name="generate.sources" description="Generate sources, library classes">
+    	<fail unless="project.build.directory" />
+    	
+        <!-- Single-argument templates. -->
         <path id="KType">
-            <fileset dir="${src.java}">
+            <fileset dir="${basedir}/src/main/java">
                 <include name="**/ObjectArrayList*.java" />
                 <include name="**/ObjectStack*.java" />
                 <include name="**/ObjectCursor*.java" />
@@ -466,7 +485,32 @@
 
                 <include name="**/AbstractObjectCollection.java" />
             </fileset>
-            <fileset dir="${src.test}">
+        </path>
+
+        <!-- Double-argument templates. -->
+        <path id="KTypeVType">
+            <fileset dir="${basedir}/src/main/java">
+                <include name="**/ObjectObjectOpenHashMap*.java" />
+                <include name="**/ObjectObjectCursor.java" />
+                <include name="**/ObjectObjectProcedure.java" />
+                <include name="**/ObjectObjectAssociativeContainer.java" />
+                <include name="**/ObjectObjectMap.java" />
+            </fileset>
+        </path>
+
+        <apply.templates
+            singleTypePathRef="KType"
+            doubleTypePathRef="KTypeVType"
+            outputDir="${project.build.directory}/generated-sources/main/java" />
+    </target>
+
+    <!-- Generate primitive variations from test sources. -->
+    <target name="generate.test.sources" description="Generate sources, test classes">
+    	<fail unless="project.build.directory" />
+
+        <!-- Single-argument templates. -->
+        <path id="KType">
+            <fileset dir="${basedir}/src/test/java">
                 <include name="**/ObjectArrayList*.java" />
                 <include name="**/ObjectStack*.java" />
                 <include name="**/ObjectOpenHashSet*.java" />
@@ -474,553 +518,20 @@
             </fileset>
         </path>
 
-        <preprocess.KType KType="byte"   UKType="Byte"   fileset="KType" />
-        <preprocess.KType KType="short"  UKType="Short"  fileset="KType" />
-        <preprocess.KType KType="char"   UKType="Char"   fileset="KType" />
-        <preprocess.KType KType="int"    UKType="Int"    fileset="KType" />
-        <preprocess.KType KType="long"   UKType="Long"   fileset="KType" />
-        <preprocess.KType KType="float"  UKType="Float"  fileset="KType" />
-        <preprocess.KType KType="double" UKType="Double" fileset="KType" />
-
-
-        <!--
-        Generate code for double-argument templates. 
-        -->
+        <!-- Double-argument templates. -->
         <path id="KTypeVType">
-            <fileset dir="${src.java}">
-                <include name="**/ObjectObjectOpenHashMap*.java" />
-                <include name="**/ObjectObjectCursor.java" />
-                <include name="**/ObjectObjectProcedure.java" />
-                <include name="**/ObjectObjectAssociativeContainer.java" />
-                <include name="**/ObjectObjectMap.java" />
-            </fileset>
-            <fileset dir="${src.test}">
+            <fileset dir="${basedir}/src/test/java">
                 <include name="**/ObjectObjectOpenHashMapTest.java" />
             </fileset>
         </path>
 
-        <!-- I assume byte-key hash maps are of very limited use (you could use a table for this...), but anyway. -->
-        <preprocess.KTypeVType KType="byte"   VType="byte"    UKType="Byte"   UVType="Byte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="byte"   VType="short"   UKType="Byte"   UVType="Short"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="byte"   VType="char"    UKType="Byte"   UVType="Char"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="byte"   VType="int"     UKType="Byte"   UVType="Int"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="byte"   VType="long"    UKType="Byte"   UVType="Long"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="byte"   VType="float"   UKType="Byte"   UVType="Float"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="byte"   VType="double"  UKType="Byte"   UVType="Double"  fileset="KTypeVType" />
-                                                                             
-        <!-- short-X. -->                                                    
-        <preprocess.KTypeVType KType="short"  VType="byte"    UKType="Short"  UVType="Byte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="short"   UKType="Short"  UVType="Short"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="char"    UKType="Short"  UVType="Char"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="int"     UKType="Short"  UVType="Int"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="long"    UKType="Short"  UVType="Long"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="float"   UKType="Short"  UVType="Float"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="short"  VType="double"  UKType="Short"  UVType="Double"  fileset="KTypeVType" />
-                                                                             
-        <!-- char-X. -->                                                     
-        <preprocess.KTypeVType KType="char"   VType="byte"    UKType="Char"   UVType="Byte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="short"   UKType="Char"   UVType="Short"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="char"    UKType="Char"   UVType="Char"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="int"     UKType="Char"   UVType="Int"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="long"    UKType="Char"   UVType="Long"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="float"   UKType="Char"   UVType="Float"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="char"   VType="double"  UKType="Char"   UVType="Double"  fileset="KTypeVType" />
-                                                                              
-        <!-- int-X. -->                                                       
-        <preprocess.KTypeVType KType="int"    VType="byte"    UKType="Int"    UVType="Byte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="short"   UKType="Int"    UVType="Short"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="char"    UKType="Int"    UVType="Char"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="int"     UKType="Int"    UVType="Int"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="long"    UKType="Int"    UVType="Long"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="float"   UKType="Int"    UVType="Float"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="int"    VType="double"  UKType="Int"    UVType="Double"  fileset="KTypeVType" />
-                                                                             
-        <!-- long-X. -->                                                     
-        <preprocess.KTypeVType KType="long"   VType="byte"    UKType="Long"   UVType="Byte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="short"   UKType="Long"   UVType="Short"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="char"    UKType="Long"   UVType="Char"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="int"     UKType="Long"   UVType="Int"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="long"    UKType="Long"   UVType="Long"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="float"   UKType="Long"   UVType="Float"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="long"   VType="double"  UKType="Long"   UVType="Double"  fileset="KTypeVType" />
-                                                                             
-        <!-- float-X. -->                                                    
-        <preprocess.KTypeVType KType="float"  VType="byte"    UKType="Float"  UVType="Byte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="short"   UKType="Float"  UVType="Short"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="char"    UKType="Float"  UVType="Char"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="int"     UKType="Float"  UVType="Int"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="long"    UKType="Float"  UVType="Long"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="float"   UKType="Float"  UVType="Float"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="float"  VType="double"  UKType="Float"  UVType="Double"  fileset="KTypeVType" />
-                                                                             
-        <!-- double-X. -->                                                   
-        <preprocess.KTypeVType KType="double" VType="byte"    UKType="Double" UVType="Byte"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double" VType="short"   UKType="Double" UVType="Short"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double" VType="char"    UKType="Double" UVType="Char"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double" VType="int"     UKType="Double" UVType="Int"     fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double" VType="long"    UKType="Double" UVType="Long"    fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double" VType="float"   UKType="Double" UVType="Float"   fileset="KTypeVType" />
-        <preprocess.KTypeVType KType="double" VType="double"  UKType="Double" UVType="Double"  fileset="KTypeVType" />  
-
-        <!-- KType-X (generic key). -->
-        <preprocess.GenericKType VType="byte"   UVType="Byte"   fileset="KTypeVType" />
-        <preprocess.GenericKType VType="short"  UVType="Short"  fileset="KTypeVType" />
-        <preprocess.GenericKType VType="char"   UVType="Char"   fileset="KTypeVType" />
-        <preprocess.GenericKType VType="int"    UVType="Int"    fileset="KTypeVType" />
-        <preprocess.GenericKType VType="long"   UVType="Long"   fileset="KTypeVType" />
-        <preprocess.GenericKType VType="float"  UVType="Float"  fileset="KTypeVType" />
-        <preprocess.GenericKType VType="double" UVType="Double" fileset="KTypeVType" />
-
-        <!-- X-KType (generic value). -->
-        <preprocess.GenericVType KType="byte"   UKType="Byte"   fileset="KTypeVType" />
-        <preprocess.GenericVType KType="short"  UKType="Short"  fileset="KTypeVType" />
-        <preprocess.GenericVType KType="char"   UKType="Char"   fileset="KTypeVType" />
-        <preprocess.GenericVType KType="int"    UKType="Int"    fileset="KTypeVType" />
-        <preprocess.GenericVType KType="long"   UKType="Long"   fileset="KTypeVType" />
-        <preprocess.GenericVType KType="float"  UKType="Float"  fileset="KTypeVType" />
-        <preprocess.GenericVType KType="double" UKType="Double" fileset="KTypeVType" />
-    </target>
-
-
-    <!-- -->
-    <target name="compile" depends="preprocess, without.clover">
-        <compile classes.dir="${classes.dir}" />
-    </target>
-
-    <target name="compile.tests" depends="preprocess, with.clover">
-        <compile classes.dir="${test.classes.dir}" />
-    </target>
-
-    <macrodef name="compile">
-      <attribute name="classes.dir" />
-
-      <sequential>
-        <mkdir dir="@{classes.dir}" />
-
-        <!-- Library code and generated code. -->
-        <javac destdir="@{classes.dir}">
-            <src>
-              <path refid="src.java" />
-            </src>
-
-            <classpath refid="lib.classpath" />
-        </javac>
-      </sequential>
-    </macrodef>
-
-
-    <!-- -->
-    <target name="jar" depends="clean.build, compile" description="Compile library JAR.">
-        <mkdir dir="${dist.dir}" />
-        <jar update="false" jarfile="${dist.dir}/${dist.name}.jar">
-            <fileset dir="${classes.dir}">
-                <patternset refid="patterns.exclude.tests" />
-		<patternset refid="patterns.exclude.docfiles" />
-            </fileset>
-        </jar>
-    </target>
-
-
-    <!-- -->
-    <target name="javadoc" depends="preprocess" description="Generate API documentation.">
-        <javadoc destdir="${dist.dir}/api"
-                 access="protected"
-                 version="true"
-                 use="false"
-                 encoding="UTF-8"
-                 docencoding="UTF-8"
-                 includenosourcepackages="true"
-                 windowtitle="HPPC v${hppc.version} API Documentation (JavaDoc)"
-                 doctitle="HPPC v${hppc.version} API Documentation"
-                 header="&lt;div id='header'&gt;&lt;a class='logo' target='_top' href='http://labs.carrotsearch.com'&gt;&lt;img src='logo.png'&gt;&lt;/a&gt;High Performance Primitive Collections (HPPC) v${hppc.version} &lt;br&gt;API Documentation&lt;/div&gt;"
-                 overview="${src.java}/com/carrotsearch/hppc/package.html"
-                 failonerror="true"
-                 stylesheetfile="${etc.dir}/javadoc/stylesheet.css"
-                 useexternalfile="true">
-
-          <sourcefiles>
-            <fileset dir="${src.java}">
-                <include name="**/*.java" />
-                <include name="**/doc-files" />
-                <patternset refid="patterns.exclude.tests" />
-            </fileset>
-            <fileset dir="${src.generated}">
-                <include name="**/*.java" />
-                <patternset refid="patterns.exclude.tests" />
-            </fileset>
-          </sourcefiles>
-
-          <!-- Unfortunately this needs to be given explicitly for doc-files to work... -->
-          <packageset dir="src/java" defaultexcludes="yes">
-           <include name="com/**"/>
-          </packageset>
-
-          <link href="http://java.sun.com/javase/6/docs/api/" />
-
-          <group title="HPPC Core" packages="com.carrotsearch.hppc*" />
-
-          <arg value="-quiet" />
-        </javadoc>
-
-        <copy todir="${dist.dir}/api" flatten="true">
-            <fileset dir="${src.java}" includes="**/*.css" />
-            <fileset dir="${etc.dir}/javadoc" includes="**/*.png" />
-        </copy>
-    </target>
-
-    
-    <!-- -->
-    <target name="dist" depends="jar, javadoc" description="Assemble full distribution.">
-        <copy todir="${dist.dir}" flatten="true">
-            <fileset dir="." includes="*.LICENSE" />
-        </copy>
-    </target>
-
-    <!-- -->
-    <target name="artifacts" description="Build distributable artifacts.">
-        <mkdir dir="${artifacts.dir}" />
-        <zip destfile="${artifacts.dir}/${dist.name}.zip">
-            <zipfileset prefix="${dist.name}/" dir="${dist.dir}">
-                <exclude name="reports/coverage" />
-                <exclude name="reports/coverage/**/*" />
-
-                <exclude name="reports/tests/**/*.xml" />
-                <exclude name="reports/benchmarks/**/*.xml" />
-            </zipfileset>
-        </zip>
-    </target>
-
-    <!-- -->
-    <target name="test" depends="compile.tests" description="Run tests.">
-        <mkdir dir="${tests.report.dir}" />
-
-        <!-- Make sure the generated sources don't use Intrinsics.equals. -->
-        <condition property="uses.intrinsics">
-            <resourcecount when="greater" count="0">
-                <fileset dir="${src.generated}" id="fs.used.intrinsics">
-                    <exclude name="**/Object*OpenHashMap*" />
-                    <contains casesensitive="true" text="Intrinsics.equals" />
-                </fileset>
-            </resourcecount>
-        </condition>
-
-        <pathconvert property="intrinsic.offenders" pathsep=" ">
-            <fileset refid="fs.used.intrinsics" />
-        </pathconvert>
-        <fail if="uses.intrinsics">"Intrinsics" referred to from generated sources: ${intrinsic.offenders}</fail>
-        
-        <junit fork="true"
-               forkmode="once"
-               printsummary="on"
-               errorproperty="junit.error"
-               failureproperty="junit.failure"
-        >
-          <jvmarg value="-ea" />
-          <jvmarg value="-Xmx${maxmem}" />
-
-          <!-- Run benchmarks as tests, no repeats, no DB logging. -->
-          <jvmarg value="-Djub.rounds.warmup=0" />
-          <jvmarg value="-Djub.rounds.benchmark=1" />
-          <jvmarg value="-Djub.ignore.callgc=true" />
-          <jvmarg value="-Djub.ignore.annotations=true" />
-
-          <jvmarg value="-Dclover.pertest.coverage=diff" />
-
-          <formatter type="xml" />
-
-          <classpath refid="lib.classpath" />
-          <classpath location="${test.classes.dir}" />
-
-          <batchtest todir="${tests.report.dir}">
-            <fileset dir="${test.classes.dir}">
-              <include name="**/*Test.class" />
-              <include name="**/*Benchmark.class" />
-              <exclude name="**/Abstract*" />
-            </fileset>
-          </batchtest>
-        </junit>
-
-        <junitreport todir="${tests.report.dir}">
-          <fileset dir="${tests.report.dir}">
-            <include name="TEST-*.xml" />
-          </fileset>
-          <report format="frames" todir="${tests.report.dir}" />
-        </junitreport>
-
-        <condition property="tests.failed" value="true">
-          <or>
-            <isset property="junit.error" />
-            <isset property="junit.failure" />
-          </or>
-        </condition>
-        <fail message="Tests failed. See ${tests.report.dir} for report." if="tests.failed" /> 
-    </target>
-
-    
-    <!-- -->
-    <target name="benchmark" depends="compile" description="Run benchmarks." unless="benchmark.skip">
-        <mkdir dir="${benchmarks.report.dir}" />
-
-        <junit fork="true"
-               forkmode="once"
-               printsummary="on"
-               errorproperty="benchmarks.error"
-               failureproperty="benchmarks.error"
-        >
-          <jvmarg value="-Xmx${maxmem}" />
-          <jvmarg value="-server" />
-          <jvmarg value="-da" />
-
-          <jvmarg value="-Djub.consumers=h2,console" />
-          <jvmarg value="-Djub.db.file=.benchmark.db" />
-          <jvmarg value="-Djub.charts.dir=${benchmarks.report.dir}" />
-          <jvmarg value="-Dcustom.key=${build.number}" />
-
-          <!--
-          <jvmarg value="-Djub.rounds.warmup=0" />
-          <jvmarg value="-Djub.rounds.benchmark=1" />
-          <jvmarg value="-Djub.ignore.callgc=true" />
-          <jvmarg value="-Djub.ignore.annotations=true" />
-          -->
-
-          <formatter type="xml" />
-
-          <classpath refid="lib.classpath" />
-          <classpath location="${classes.dir}" />
-
-          <batchtest todir="${benchmarks.report.dir}">
-            <fileset dir="${classes.dir}">
-              <include name="**/*Benchmark.class" />
-              <exclude name="**/Abstract*" />
-            </fileset>
-          </batchtest>
-        </junit>
-
-        <fail message="Benchmarks failed. See ${benchmarks.report.dir} for report." 
-            if="benchmarks.error" />
-
-        <path id="h2.classpath">
-            <fileset dir="lib" includes="h2*.jar" />
-        </path>
-
-        <sql userid="sa" driver="org.h2.Driver" password="" 
-            url="jdbc:h2:.benchmark.db;IFEXISTS=TRUE"
-            classpathref="h2.classpath"
-            print="true" showheaders="false" showtrailers="false"
-            output="${benchmarks.report.dir}/results.txt"
-            src="etc/benchmark-report.sql" />
-
-        <concat><path><pathelement location="${benchmarks.report.dir}/results.txt" /></path></concat>
-    </target>
-
-    <!--
-         All reports
-      -->
-    <target name="reports" description="Generate code quality reports and benchmarks."
-            depends="test, coverage, duplication, findbugs, benchmark" />
-
-    <!-- 
-         Code coverage calculation.
-      -->
-    <target name="clover.tasks" if="clover.home">
-        <echo>${clover.jar}</echo>
-        <taskdef resource="cloverlib.xml" classpath="${clover.jar}" />
-    </target>
-
-    <!-- Enables colver, only when local Clover path is provided -->
-    <target name="with.clover"
-            depends="clover.tasks"
-            if="clover.home">
-        <clover-setup>
-            <fileset refid="src.coverage" />
-        </clover-setup>
-    </target>
-
-    <!--
-         Disables clover, either if Clover is local or provided by the build server.
-      -->
-    <target name="without.clover"
-            depends="clover.tasks"
-            if="clover.available">
-        <clover-setup enabled="false" />
-    </target>
-
-    <target name="coverage"
-            depends="test, coverage.html, coverage.xml"
-            unless="clover.external"
-            description="Generate code coverage reports." />
-
-    <target name="coverage.html"
-            depends="clover.tasks"
-            if="clover.home">
-        <clover-report>
-            <current outfile="${coverage.report.dir}" title="HPPC ${hppc.version}">
-                <format type="html" />
-            </current>
-        </clover-report>
-    </target>
-
-    <target name="coverage.xml"
-            depends="clover.tasks"
-            if="clover.home">
-        <clover-report>
-            <current outfile="${coverage.report.dir}/coverage.xml" title="HPPC ${hppc.version} Unit Test Coverage Report">
-                <format type="xml" />
-            </current>
-        </clover-report>
-    </target>
-
-    <target name="coverage.clean"
-            depends="clover.tasks"
-            if="clover.home">
-        <clover-clean />
-    </target>
-
-    <!-- 
-         Code duplication detection.
-      -->
-    <path id="pmd.classpath">
-        <fileset dir="${pmd.home}/lib" includes="*.jar" />
-    </path>
-
-    <target name="pmd.tasks" if="pmd.home">
-        <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="pmd.classpath" />
-    </target>
-
-    <target name="duplication"
-              depends="pmd.tasks"
-              if="pmd.home"
-              description="Generate code duplication report.">
-        <mkdir dir="${duplication.report.dir}" />
-        <cpd minimumTokenCount="100"
-             outputFile="${duplication.report.dir}/duplication.xml"
-             format="xml"
-             encoding="UTF-8">
-            <fileset refid="src.duplication" />
-        </cpd>
-        <xslt in="${duplication.report.dir}/duplication.xml"
-              style="${etc.dir}/cpd/cpd2html.xsl"
-              out="${duplication.report.dir}/index.html" />
-    </target>
-
-    <!-- 
-         FindBugs static analysis.
-      -->
-    <target name="findbugs"
-            if="findbugs.home"
-            description="Generate FindBugs report."
-            depends="compile">
-        <taskdef name="findbugs"
-                 classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
-                 classpath="${findbugs.home}/lib/findbugs-ant.jar" />
-        <mkdir dir="${findbugs.report.dir}" />
-
-        <property name="findbugs.classes.dir" location="${build.dir}/findbugs-classes" />
-        <mkdir dir="${findbugs.classes.dir}" />
-
-        <!-- We dont' want to analyze all clsses" -->
-        <copy todir="${findbugs.classes.dir}">
-          <fileset dir="${classes.dir}">
-            <exclude name="**/*Benchmark*.class" />
-          </fileset>
-        </copy>
-
-        <findbugs home="${findbugs.home}"
-                  jvmargs="-Xmx512m"
-                  excludeFilter="${etc.dir}/findbugs/excludes.xml"
-                  effort="max"
-                  output="xml:withMessages"
-                  outputFile="${findbugs.report.dir}/findbugs.xml">
-            <class location="${findbugs.classes.dir}" />
-        </findbugs>
-
-        <xslt in="${findbugs.report.dir}/findbugs.xml"
-              style="${etc.dir}/findbugs/findbugs2html.xsl"
-              out="${findbugs.report.dir}/index.html" />
-    </target>
-
-    <!-- -->
-    <target name="clean" depends="coverage.clean, clean.build, clean.dist">
-        <delete dir="${tmp.dir}" excludes="eclipse/**" includeemptydirs="true" />
-        <delete dir="${src.generated}" includes="**/*" includeemptydirs="true" />
-    </target>
-
-    <target name="clean.build">
-        <delete dir="${build.dir}" />
-    </target>
-
-    <target name="clean.dist">
-        <delete dir="${dist.dir}" />
-    </target>
-
-    <target name="all" depends="clean, reports, dist, artifacts" description="Build all HPPC artifacts." />
-
-    <target name="upload.prepare">
-      <!-- Prepare the content in the destination layout -->
-      <property name="version.upload.dir" location="${upload.dir}/${hppc.base}/${hppc.version}" />
-      <mkdir dir="${version.upload.dir}" />
-      
-      <copy todir="${version.upload.dir}">
-        <fileset dir="${dist.dir}">
-          <include name="api/**" />
-        </fileset>
-
-        <fileset dir="${artifacts.dir}" />
-      </copy>
-    </target>
-  
-    <target name="upload.rsync" depends="upload.prepare">
-        <fail unless="upload.rsync.command" />
-        <fail unless="upload.host" />
-        <fail unless="upload.user" />
-        <fail unless="upload.path" />
-        <fail unless="upload.ssh.identity.path" />
-        <fail unless="upload.ssh.port" />
-        
-        <exec executable="${upload.rsync.command}" dir="${upload.dir}">
-           <arg value="-az" />
-           <arg value="-v" />
-           <arg value="-e" />
-           <arg value="ssh -p ${upload.ssh.port} -o StrictHostKeyChecking=no -i ${upload.ssh.identity.path} -o UserKnownHostsFile=/dev/null" />
-           <arg value="--chmod=u=rwX,g=rX,o=rX" />
-           <arg value="." />
-           <arg value="${upload.user}@${upload.host}:${upload.path}" />
-        </exec>
-    </target>
-
-    <target name="maven.prepare">
-        <copy file="etc/maven/pom.xml" tofile="${dist.dir}/pom.xml" filtering="true" encoding="UTF-8">
-            <filterchain>
-                <expandproperties/>
-            </filterchain>
-        </copy>
+        <apply.templates
+            singleTypePathRef="KType"
+            doubleTypePathRef="KTypeVType"
+            outputDir="${project.build.directory}/generated-sources/test/java" />
     </target>
     
-    <target name="maven.deploy.snapshot" depends="maven.prepare">
-        <exec dir="etc/maven" executable="mvn" vmlauncher="false" searchpath="true" failonerror="true">
-            <arg value="deploy:deploy-file" />
-            <arg value="-Durl=ftp://174.132.130.8/public_html/com.carrotsearch.repository/labs/snapshots" />
-            <arg value="-DrepositoryId=carrotsearch.labs.snapshots.ftp" />
-            <arg value="-DpomFile=${dist.dir}/pom.xml" />
-            <arg value="-DgeneratePom=false" />
-            <arg value="-DuniqueVersion=false" />
-            <arg value="-DupdateReleaseInfo=false" />
-            <arg value="-Dversion=${hppc.version}" />
-            <arg value="-Dfile=${dist.dir}/${dist.name}.jar" />
-        </exec>
-    </target>
-
-    <target name="maven.deploy.release" depends="maven.prepare">
-        <exec dir="etc/maven" executable="mvn" vmlauncher="false" searchpath="true" failonerror="true">
-            <arg value="deploy:deploy-file" />
-            <arg value="-Durl=ftp://174.132.130.8/public_html/com.carrotsearch.repository/labs/releases" />
-            <arg value="-DrepositoryId=carrotsearch.labs.releases.ftp" />
-            <arg value="-DpomFile=${dist.dir}/pom.xml" />
-            <arg value="-DgeneratePom=false" />
-            <arg value="-DuniqueVersion=false" />
-            <arg value="-DupdateReleaseInfo=true" />
-            <arg value="-Dversion=${hppc.version}" />
-            <arg value="-Dfile=${dist.dir}/${dist.name}.jar" />
-        </exec>
+    <target name="-dummy">
+        <echo>Use Maven to generate/compile sources.</echo>
     </target>
 </project>

@@ -1,0 +1,96 @@
+
+<!-- 
+  Clover plugin for Maven2 is for some reason severely
+  disturbed by the generated sources (bails out with a note
+  about duplicate classes, for example). We run 
+  clover separately here.
+  -->
+
+<project name="hppc-clover" default="test" basedir="../../">
+
+    <!-- Compilation presets. -->
+    <presetdef name="javac">
+        <javac deprecation="true" debug="true" target="1.5" source="1.5" encoding="UTF-8" includeantruntime="false" optimize="true" />
+    </presetdef>
+
+
+    <!-- Input files for Clover. -->
+    <fileset id="src.coverage" dir="${basedir}">
+        <include name="src/main/java/**/*.java" />
+        <include name="src/test/java/**/*.java" />
+        <include name="target/generated-sources/main/java/**/*.java" />
+        <include name="target/generated-sources/test/java/**/*.java" />
+        <not>
+            <contains text="coverage:exclude" />
+        </not>
+    </fileset>
+
+
+    <!-- -->
+    <target name="test" description="Run clover coverage on JUnit tests.">
+        <property name="coverage.report.dir" location="${basedir}/target/clover" />
+        <property name="clover.classes.dir" location="${coverage.report.dir}/classes" />
+        <property name="test.report.dir" location="${coverage.report.dir}/test-report" />
+
+        <delete dir="${coverage.report.dir}" />
+        <mkdir dir="${clover.classes.dir}" />
+        <mkdir dir="${test.report.dir}" />
+
+        <taskdef resource="cloverlib.xml" classpathref="maven.plugin.classpath" />
+        <clover-setup>
+            <fileset refid="src.coverage" />
+        </clover-setup>
+
+        <javac destdir="${clover.classes.dir}">
+            <src>
+                <path location="src/main/java" />
+                <path location="src/test/java" />
+                <path location="target/generated-sources/main/java" />
+                <path location="target/generated-sources/test/java" />
+            </src>
+
+            <classpath refid="maven.test.classpath" />
+        </javac>
+
+        <junit fork="true" forkmode="once" printsummary="on" errorproperty="junit.error" failureproperty="junit.failure">
+            <jvmarg value="-ea" />
+            <jvmarg value="-Xmx1024m" />
+
+            <!-- Run benchmarks as tests, no repeats, no DB logging. -->
+            <jvmarg value="-Djub.rounds.warmup=0" />
+            <jvmarg value="-Djub.rounds.benchmark=1" />
+            <jvmarg value="-Djub.ignore.callgc=true" />
+            <jvmarg value="-Djub.ignore.annotations=true" />
+
+            <!-- <jvmarg value="-Dclover.pertest.coverage=diff" /> -->
+
+            <formatter type="xml" />
+
+            <classpath location="${clover.classes.dir}" />
+            <classpath refid="maven.test.classpath" />
+            <classpath refid="maven.plugin.classpath" />
+
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${clover.classes.dir}">
+                    <include name="**/*Test.class" />
+                    <include name="**/*Benchmark.class" />
+                    <exclude name="**/Abstract*" />
+                </fileset>
+            </batchtest>
+        </junit>
+
+        <clover-report>
+            <current outfile="${coverage.report.dir}/coverage-report" title="HPPC Coverage Report ${version}">
+                <format type="html" />
+            </current>
+        </clover-report>
+
+        <condition property="tests.failed" value="true">
+            <or>
+                <isset property="junit.error" />
+                <isset property="junit.failure" />
+            </or>
+        </condition>
+        <fail message="Coverage Tests failed. See ${test.report.dir} for report." if="tests.failed" />
+    </target>
+</project>
