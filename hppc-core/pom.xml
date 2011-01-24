@@ -341,11 +341,10 @@
             <executions>
               <execution>
                 <id>clover</id>
-                <phase>test-compile</phase>
+                <phase>test-compile<!-- validate --></phase>
                 <configuration>
                   <target>
-                    <!-- For some reason ant spawned here doesn't see javac on classpath... -->
-                    <property name="build.compiler" value="extJavac" />
+                    <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
                     <ant antfile="${basedir}/src/ant/clover.xml" inheritRefs="true">
                       <target name="test" />
                     </ant>
@@ -362,6 +361,24 @@
                 <artifactId>clover</artifactId>
                 <version>3.0.2</version>
               </dependency>
+              
+              <!--  Use JDT for compilation. -->
+              <dependency>
+                <groupId>org.eclipse.jdt.core.compiler</groupId>
+                <artifactId>ecj</artifactId>
+                <version>3.5.1</version>
+              </dependency>
+
+              <!-- Or add system dependency on tools.jar -->
+              <!-- 
+              <dependency>
+                <groupId>sun.jdk</groupId>
+                <artifactId>tools</artifactId>
+                <version>1.6.0</version>
+                <scope>system</scope>
+                <systemPath>${java.home}/../lib/tools.jar</systemPath>
+              </dependency>
+               -->
             </dependencies>
           </plugin>
         </plugins>
