@@ -25,7 +25,16 @@ Release
 -------
 
 mvn clean deploy         Snapshot deploy to sonatype [requires proper setup in settings.xml]
-mvn -Prelease,sonatype clean verify Prepare release bundle for manual staging.
+
+mvn -Prelease,sonatype clean verify 
+                         Prepare release bundle for manual staging.
+
+mvn -Psite-labs          Creates a release directory for rsyncing to labs.carrotsearch.com
+                         Results in: target/site-labs
+
+                         rsync -azv -e "ssh -p 2222" --chmod=u=rwX,g=rX,o=rX \
+                           target/site-labs/     \
+                           carrot2@hostgator.carrot2.org:./public_html/com.carrotsearch.labs/download/hppc/
 
 
 Clover
