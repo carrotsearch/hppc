@@ -1,0 +1,27 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+  
+  <!-- Manual release (creates a bundle for SonaType's Nexus) -->
+  <id>release</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory />
+      <includes>
+        <include>*.jar</include>
+        <include>*.pom</include>
+        <include>*.asc</include>
+      </includes>
+      <excludes>
+        <exclude>release-bundle.*</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+</assembly>

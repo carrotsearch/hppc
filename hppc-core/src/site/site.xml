@@ -1,0 +1,25 @@
+<project
+    xmlns="http://maven.apache.org/DECORATION/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
+    name="HPPC">
+
+  <publishDate position="bottom" />
+  <version     position="bottom"/>
+
+  <body>
+    <menu name="Overview">
+      <item name="Introduction" href="index.html"/>
+    </menu>
+
+    <menu ref="reports" />
+  </body>
+
+  <!--
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-stylus-skin</artifactId>
+    <version>1.2</version>
+  </skin>
+  -->
+</project>
