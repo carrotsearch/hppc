@@ -153,6 +153,12 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.7.1</version>
         </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>2.2</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -345,9 +351,12 @@
                 <phase>test-compile<!-- test-compile, validate --></phase>
                 <configuration>
                   <target>
-                    <!-- This must be declared here because clover attempts to redefine it. -->
-                    <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
-                    <ant antfile="${basedir}/src/ant/clover.xml" inheritRefs="true" inheritAll="true">
+                    <!-- This must be declared here because clover attempts to redefine 
+                      it. -->
+                    <property name="build.compiler"
+                      value="org.eclipse.jdt.core.JDTCompilerAdapter" />
+                    <ant antfile="${basedir}/src/ant/clover.xml"
+                      inheritRefs="true" inheritAll="true">
                       <property name="version" value="${version}" />
                       <target name="test" />
                     </ant>
@@ -364,8 +373,8 @@
                 <artifactId>clover</artifactId>
                 <version>3.0.2</version>
               </dependency>
-              
-              <!--  Use JDT for compilation. -->
+
+              <!-- Use JDT for compilation. -->
               <dependency>
                 <groupId>org.eclipse.jdt.core.compiler</groupId>
                 <artifactId>ecj</artifactId>
@@ -373,15 +382,9 @@
               </dependency>
 
               <!-- Or add system dependency on tools.jar -->
-              <!-- 
-              <dependency>
-                <groupId>sun.jdk</groupId>
-                <artifactId>tools</artifactId>
-                <version>1.6.0</version>
-                <scope>system</scope>
-                <systemPath>${java.home}/../lib/tools.jar</systemPath>
-              </dependency>
-               -->
+              <!-- <dependency> <groupId>sun.jdk</groupId> <artifactId>tools</artifactId> 
+                <version>1.6.0</version> <scope>system</scope> <systemPath>${java.home}/../lib/tools.jar</systemPath> 
+                </dependency> -->
             </dependencies>
           </plugin>
         </plugins>
@@ -459,6 +462,39 @@
       </build>
     </profile>
 
+    <!-- Labs' site rsync assembly. -->
+    <profile>
+      <id>site-labs</id>
+
+      <build>
+        <defaultGoal>assembly:single</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/site-labs.xml</descriptor>
+              </descriptors>
+              <attach>false</attach>
+              <appendAssemblyId>false</appendAssemblyId>
+              <finalName>site-labs</finalName>
+            </configuration>
+            <executions>
+              <execution>
+                <id>make-assembly</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Release mode (javadocs, sources, zip/tgz bundles). -->
     <profile>
       <id>release</id>
@@ -516,8 +552,8 @@
 
           <!-- Configure assembly of ZIP and TAR.GZ bundles (stand-alone distributions). -->
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.2</version>
             <configuration>
               <descriptors>
                 <descriptor>src/main/assembly/bin.xml</descriptor>
@@ -570,8 +606,8 @@
 
           <!-- Create a release bundle for SonaType. -->
           <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.2</version>
             <configuration>
               <descriptors>
                 <descriptor>src/main/assembly/release.xml</descriptor>
