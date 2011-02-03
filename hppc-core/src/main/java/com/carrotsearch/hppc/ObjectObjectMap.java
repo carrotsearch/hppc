@@ -18,6 +18,10 @@ public interface ObjectObjectMap<KType, VType>
     /**
      * @return Returns the value associated with the given key or the default value
      * for the key type, if the key is not associated with any value. 
+     *
+     * <b>Important note:</b> For primitive type values, the value returned for a non-existing
+     * key may not be the default value of the primitive type (it may be any value previously
+     * assigned to that slot).
      */
     public VType get(KType key);
 
