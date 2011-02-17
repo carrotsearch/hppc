@@ -204,4 +204,22 @@ public class ObjectStackTest
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
     }
+    
+    /* removeIf:primitive */
+    @Test
+    public void testToArrayWithClass()
+    {
+        ObjectStack<Integer> l1 = ObjectStack.from(1, 2, 3);
+        Integer[] result = l1.toArray(Integer.class);
+        assertArrayEquals(new Integer [] {1, 2, 3}, result); // dummy
+    }
+
+    @Test
+    public void testToArray()
+    {
+        ObjectStack<Integer> l1 = ObjectStack.from(1, 2, 3);
+        Object[] result = l1.toArray();
+        assertArrayEquals(new Object [] {1, 2, 3}, result); // dummy
+    }
+    /* end:removeIf */
 }

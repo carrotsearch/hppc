@@ -628,4 +628,22 @@ public class ObjectArrayDequeTest<KType>
         assertEquals(l1, l2);
     }
     /* end:removeIf */
+    
+    /* removeIf:primitive */
+    @Test
+    public void testToArrayWithClass()
+    {
+        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
+        Integer[] result = l1.toArray(Integer.class);
+        assertArrayEquals(new Integer [] {1, 2, 3}, result); // dummy
+    }
+
+    @Test
+    public void testToArray()
+    {
+        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
+        Object[] result = l1.toArray();
+        assertArrayEquals(new Object [] {1, 2, 3}, result); // dummy
+    }
+    /* end:removeIf */
 }

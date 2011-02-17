@@ -533,7 +533,10 @@ public class ObjectArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
-    public KType [] toArray()
+    /* replaceIf:primitive 
+    public final KType [] toArray() */
+    public final Object [] toArray()
+    /* end:replaceIf */
     {
         final int size = size();
         return toArray(Intrinsics.<KType[]>newKTypeArray(size));
@@ -545,6 +548,7 @@ public class ObjectArrayDeque<KType>
      * (tail of the queue).
      * 
      * @param target The target array must be large enough to hold all elements.
+     * @return Returns the target argument for chaining.
      */
     public KType [] toArray(KType [] target)
     {

@@ -69,10 +69,21 @@ abstract class AbstractObjectCollection<KType> implements ObjectCollection<KType
     /**
      * Default implementation of copying to an array.
      */
-    public KType [] toArray()
+    @Override
+    /* replaceIf:primitive 
+    public KType [] toArray() */
+    @SuppressWarnings("unchecked")
+    public KType [] toArray(Class<KType> clazz)
+    /* end:replaceIf */
     {
         final int size = size();
-        final KType [] array = Intrinsics.<KType[]>newKTypeArray(size);
+        final KType [] array = 
+        /* replaceIf:primitive
+           Intrinsics.newKTypeArray(size);
+         */
+           (KType []) java.lang.reflect.Array.newInstance(clazz, size);
+        /* end:replaceIf */
+
         int i = 0;
         for (ObjectCursor<KType> c : this)
         {
@@ -80,6 +91,20 @@ abstract class AbstractObjectCollection<KType> implements ObjectCollection<KType
         }
         return array;
     }
+    
+    /* removeIf:primitiveKType */
+    @Override
+    public Object[] toArray()
+    {
+        final Object [] array = new Object [size()];
+        int i = 0;
+        for (ObjectCursor<KType> c : this)
+        {
+            array[i++] = c.value;
+        }
+        return array;
+    }
+    /* end:removeIf */
 
     /**
      * Convert the contents of this container to a human-friendly string.
