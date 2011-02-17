@@ -654,7 +654,10 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public final KType [] toArray()
+    /* replaceIf:primitive 
+    public final KType [] toArray() */
+    public final Object [] toArray()
+    /* end:replaceIf */
     {
         final KType [] cloned = Intrinsics.newKTypeArray(assigned);
         for (int i = 0, j = 0; i < keys.length; i++)

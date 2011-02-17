@@ -454,10 +454,13 @@ public class ObjectArrayList<KType>
     /**
      * Trim the internal buffer to the current size.
      */
+    /* removeIf:primitive */
+    @SuppressWarnings("unchecked")
+    /* end:removeIf */
     public final void trimToSize()
     {
         if (size() != this.buffer.length)
-            this.buffer = toArray();
+            this.buffer = (KType[]) toArray();
     }
 
     /**
@@ -500,11 +503,12 @@ public class ObjectArrayList<KType>
      * the number of elements of the stack.</p>
      */
     @Override
-    public final KType [] toArray()
+    /* replaceIf:primitive 
+    public final KType [] toArray() */
+    public final Object [] toArray()
+    /* end:replaceIf */
     {
-        final KType [] cloned = Intrinsics.newKTypeArray(elementsCount);
-        System.arraycopy(buffer, 0, cloned, 0, elementsCount);
-        return cloned;
+        return Arrays.copyOf(buffer, elementsCount);
     }
 
     /**

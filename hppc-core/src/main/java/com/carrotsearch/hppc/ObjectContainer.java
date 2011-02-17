@@ -56,10 +56,24 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
     public boolean isEmpty();
 
     /**
-     * Copies all elements from this container to an array. The returned array is always a copy,
-     * regardless of the storage used by the container.
+     * Copies all elements from this container to an array of this container's component
+     * type. The returned array is always a copy, regardless of the storage used by the container.
      */
+    /* replaceIf:primitive 
     public KType [] toArray();
+     */
+    public KType [] toArray(Class<KType> clazz);
+    /* end:replaceIf */
+
+    /* removeIf:primitive */
+    /**
+     * Copies all elements from this container to an Object array. If you need an array
+     * of the type identical with this container's generic type, use {@link #toArray(Class)}.
+     * 
+     * @see #toArray(Class) 
+     */
+    public Object[] toArray();    
+    /* end:removeIf */
 
     /**
      * Applies a <code>procedure</code> to all container elements. Returns the argument (any
