@@ -73,7 +73,7 @@ abstract class AbstractObjectCollection<KType> implements ObjectCollection<KType
     /* replaceIf:primitive 
     public KType [] toArray() */
     @SuppressWarnings("unchecked")
-    public KType [] toArray(Class<KType> clazz)
+    public KType [] toArray(Class<? super KType> clazz)
     /* end:replaceIf */
     {
         final int size = size();

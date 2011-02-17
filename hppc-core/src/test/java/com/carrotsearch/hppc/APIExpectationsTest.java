@@ -1,7 +1,8 @@
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Various API expectations from generated classes.
@@ -45,20 +46,38 @@ public class APIExpectationsTest
         isIntegerArray(ObjectObjectOpenHashMap.from(
             new Integer [] {1, 2}, new Long [] {1L, 2L}).keySet().toArray(Integer.class));
     }
+    
+    @Test
+    public void testWildcards()
+    {
+        ObjectArrayList<? extends Number> t = ObjectArrayList.from(1, 2, 3);
+        isTypeArray(Number.class, t.toArray(Number.class));
+
+        t = ObjectArrayList.from(1L, 2L, 3L);
+        isTypeArray(Number.class, t.toArray(Number.class));
+    }
 
     /**
      * Check if the array is indeed of Object component type.
      */
     private void isObjectArray(Object [] array)
     {
-        assertEquals(Object.class, array.getClass().getComponentType());
+        isTypeArray(Object.class, array);
     }
     
+    /**
+     * 
+     */
+    private void isTypeArray(Class<?> clazz, Object [] array)
+    {
+        assertEquals(clazz, array.getClass().getComponentType());
+    }
+
     /**
      * Check if the array is indeed of Integer component type.
      */
     private void isIntegerArray(Integer [] array)
     {
-        assertEquals(Integer.class, array.getClass().getComponentType());
+        isTypeArray(Integer.class, array);
     }
 }

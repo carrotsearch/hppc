@@ -62,7 +62,7 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
     /* replaceIf:primitive 
     public KType [] toArray();
      */
-    public KType [] toArray(Class<KType> clazz);
+    public KType [] toArray(Class<? super KType> clazz);
     /* end:replaceIf */
 
     /* removeIf:primitive */
