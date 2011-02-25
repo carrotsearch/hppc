@@ -52,9 +52,9 @@
   </mailingLists>
 
   <scm>
-    <url>https://carrot2.svn.sourceforge.net/svnroot/carrot2/labs/hppc/trunk</url>
-    <connection>scm:svn:https://carrot2.svn.sourceforge.net/svnroot/carrot2/labs/hppc/trunk</connection>
-    <developerConnection>scm:svn:https://carrot2.svn.sourceforge.net/svnroot/carrot2/labs/hppc/trunk</developerConnection>
+    <url>git@github.com:carrotsearch/hppc.git</url>
+    <connection>scm:git:git@github.com:carrotsearch/hppc.git</connection>
+    <developerConnection>scm:git:git@github.com:carrotsearch/hppc.git</developerConnection>
   </scm>
 
   <developers>
