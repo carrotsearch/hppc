@@ -18,6 +18,8 @@ import bak.pcj.map.IntKeyIntOpenHashMap;
 
 import com.carrotsearch.hppc.hash.IntMurmurHash;
 import com.carrotsearch.junitbenchmarks.*;
+import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
+import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 import com.carrotsearch.junitbenchmarks.h2.*;
 
 @BenchmarkHistoryChart(filePrefix = "CLASSNAME-history", maxRuns = 10)
