@@ -90,59 +90,65 @@
       <artifactId>junit-benchmarks</artifactId>
       <version>0.2.1</version>
     </dependency>
-    
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.7</version>
-    </dependency>    
-    
-    <dependency>
-    	<groupId>commons-io</groupId>
-    	<artifactId>commons-io</artifactId>
-    	<version>2.0.1</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
     </dependency>
-    
+
     <dependency>
-    	<groupId>commons-lang</groupId>
-    	<artifactId>commons-lang</artifactId>
-    	<version>2.6</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.0.1</version>
+      <type>jar</type>
+      <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
-    	<groupId>com.h2database</groupId>
-    	<artifactId>h2</artifactId>
-    	<version>1.2.147</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+      <type>jar</type>
+      <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
-    	<groupId>pcj</groupId>
-    	<artifactId>pcj</artifactId>
-    	<version>1.2</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.2.147</version>
+      <type>jar</type>
+      <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
-    	<groupId>trove</groupId>
-    	<artifactId>trove</artifactId>
-    	<version>3.0.0rc1</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
+      <groupId>pcj</groupId>
+      <artifactId>pcj</artifactId>
+      <version>1.2</version>
+      <type>jar</type>
+      <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
-        <groupId>it.unimi.dsi</groupId>
-        <artifactId>fastutil</artifactId>
-        <version>6.1.0</version>
-        <type>jar</type>
-        <scope>compile</scope>
+      <groupId>trove</groupId>
+      <artifactId>trove</artifactId>
+      <version>3.0.0rc1</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>6.1.0</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.caliper</groupId>
+      <artifactId>caliper</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -151,4 +157,18 @@
   <build>
     <defaultGoal>install</defaultGoal>
   </build>
+
+  <repositories>
+    <repository>
+      <id>sonatype-nexus-public</id>
+      <name>SonaType public snapshots and releases repository</name>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>
