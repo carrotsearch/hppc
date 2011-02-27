@@ -67,6 +67,6 @@ public class BigramCountingCaliper extends SimpleBenchmark
     
     public static void main(String [] args)
     {
-        Runner.main(BigramCountingCaliper.class);
+        Runner.main(BigramCountingCaliper.class, args);
     }
 }
