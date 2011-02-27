@@ -156,6 +156,43 @@
   <!-- Build tuning. -->
   <build>
     <defaultGoal>install</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.carrotsearch.hppc.BigramCountingCaliper</mainClass>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/binary.xml</descriptor>
+          </descriptors>
+          <attach>false</attach>
+          <appendAssemblyId>false</appendAssemblyId>
+          <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+          <!-- <finalName>dist</finalName> -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>assembly-binary</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <repositories>
