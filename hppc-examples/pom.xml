@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- We use SonaType for publishing artefacts. Parent POM makes things easier here. -->
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>5</version>
+  </parent>
+
+  <!-- Project info. -->
+  <groupId>com.carrotsearch</groupId>
+  <artifactId>hppc-examples</artifactId>
+  <version>0.4.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>HPPC Examples</name>
+  <description>Examples and use patterns of High Performance Primitive Collections (HPPC).</description>
+  <url>http://labs.carrotsearch.com/hppc.html</url>
+
+
+  <!-- Extended project info. -->
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Carrot Search s.c.</name>
+    <url>http://www.carrotsearch.com</url>
+  </organization>
+
+  <issueManagement>
+    <system>Jira</system>
+    <url>http://issues.carrot2.org/browse/HPPC</url>
+  </issueManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>Announcements and bug reports mailing list</name>
+      <subscribe>java-high-performance-primitive-collections+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>java-high-performance-primitive-collections+unsubscribe@googlegroups.com</unsubscribe>
+      <post>java-high-performance-primitive-collections@googlegroups.com</post>
+    </mailingList>
+  </mailingLists>
+
+  <scm>
+    <url>git@github.com:carrotsearch/hppc.git</url>
+    <connection>scm:git:git@github.com:carrotsearch/hppc.git</connection>
+    <developerConnection>scm:git:git@github.com:carrotsearch/hppc.git</developerConnection>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>dawid.weiss</id>
+      <name>Dawid Weiss</name>
+      <email>dawid.weiss@carrotsearch.com</email>
+    </developer>
+
+    <developer>
+      <id>stanislaw.osinski</id>
+      <name>Stanisław Osiński</name>
+      <email>stanislaw.osinski@carrotsearch.com</email>
+    </developer>
+  </developers>
+
+  <!-- Global properties. -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+  </properties>
+
+
+  <!-- Dependencies. -->
+  <dependencies>
+    <dependency>
+      <groupId>com.carrotsearch</groupId>
+      <artifactId>hppc</artifactId>
+      <version>0.4.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.carrotsearch</groupId>
+      <artifactId>junit-benchmarks</artifactId>
+      <version>0.2.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.7</version>
+    </dependency>    
+  </dependencies>
+
+
+  <!-- Build tuning. -->
+  <build>
+    <defaultGoal>install</defaultGoal>
+  </build>
+</project>

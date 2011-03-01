@@ -4,38 +4,26 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.*;
-import org.junit.rules.MethodRule;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import bak.pcj.map.IntKeyIntChainedHashMap;
 import bak.pcj.map.IntKeyIntOpenHashMap;
 
 import com.carrotsearch.hppc.hash.IntMurmurHash;
-import com.carrotsearch.junitbenchmarks.*;
-import com.carrotsearch.junitbenchmarks.h2.*;
 
-@BenchmarkHistoryChart(filePrefix = "CLASSNAME-history", maxRuns = 10)
-@BenchmarkMethodChart(filePrefix = "CLASSNAME-methods")
-@BenchmarkOptions(warmupRounds = 2, benchmarkRounds = 5)
-public class BigramCounting
+public class BigramCountingBase
 {
-    private static H2Consumer consumer = new H2Consumer(new File(".mapadditions"));
-
-    @Rule
-    public MethodRule runBenchmarks = new BenchmarkRule(consumer, new WriterConsumer());
-
     /* Prepare some test data */
-    private static char [] DATA;
+    public static char [] DATA;
 
     /* Prevent dead code removal. */
-    @SuppressWarnings("unused")
-    private volatile int guard;
+    public volatile int guard;
 
     @BeforeClass
     public static void prepareData() throws IOException
@@ -45,10 +33,14 @@ public class BigramCounting
         DATA = new String(dta, "UTF-8").toCharArray();
     }
 
-    @AfterClass
-    public static void cleanup()
+    public static final class IntHolder
     {
-        consumer.close();
+        public int value;
+    
+        public IntHolder(int initial)
+        {
+            value = initial;
+        }
     }
 
     @Test
@@ -61,7 +53,7 @@ public class BigramCounting
         // We'll use a int -> int map for counting. A bigram can be encoded
         // as an int by shifting one of the bigram's characters by 16 bits
         // and then ORing the other character to form a 32-bit int.
-
+    
         /* 
          * The input data is specific; it has low variance on lower bits and
          * high variance overall. We need to use a better hashing function
@@ -71,29 +63,29 @@ public class BigramCounting
             IntIntOpenHashMap.DEFAULT_CAPACITY, 
             IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, 
             new IntMurmurHash());
-
+    
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
             map.putOrAdd(bigram, 1, 1);
         }
         // [[[end:bigram-counting]]]
-
+    
         guard = map.size();
     }
-    
+
     @Test
     public void trove()
     {
         final char [] CHARS = DATA;
         final TIntIntHashMap map = new TIntIntHashMap();
-
+    
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
             map.adjustOrPutValue(bigram, 1, 1);
         }
-
+    
         guard = map.size();
     }
 
@@ -103,13 +95,13 @@ public class BigramCounting
         final char [] CHARS = DATA;
         final Int2IntOpenHashMap map = new Int2IntOpenHashMap(); 
         map.defaultReturnValue(0);
-
+    
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
             map.put(bigram, map.get(bigram) + 1);
         }
-
+    
         guard = map.size();
     }
 
@@ -119,13 +111,13 @@ public class BigramCounting
         final char [] CHARS = DATA;
         final Int2IntLinkedOpenHashMap map = new Int2IntLinkedOpenHashMap(); 
         map.defaultReturnValue(0);
-
+    
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
             map.put(bigram, map.get(bigram) + 1);
         }
-
+    
         guard = map.size();
     }
 
@@ -134,13 +126,13 @@ public class BigramCounting
     {
         final char [] CHARS = DATA;
         final IntKeyIntOpenHashMap map = new IntKeyIntOpenHashMap();
-
+    
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
             map.put(bigram, map.get(bigram) + 1);
         }
-
+    
         guard = map.size();
     }
 
@@ -149,13 +141,13 @@ public class BigramCounting
     {
         final char [] CHARS = DATA;
         final IntKeyIntChainedHashMap map = new IntKeyIntChainedHashMap();
-
+    
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
             map.put(bigram, map.get(bigram) + 1);
         }
-
+    
         guard = map.size();
     }
 
@@ -192,18 +184,13 @@ public class BigramCounting
                 currentCount.value++;
             }
         }
-
+    
         guard = map.size();
     }
 
-    /* Mutable integer. */
-    public static final class IntHolder
+    public BigramCountingBase()
     {
-        public int value;
-
-        public IntHolder(int initial)
-        {
-            value = initial;
-        }
+        super();
     }
+
 }

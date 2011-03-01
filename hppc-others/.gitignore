@@ -1,0 +1,8 @@
+.classpath
+.project
+.settings
+*.db
+.clover
+target
+/*.html
+/*.json
