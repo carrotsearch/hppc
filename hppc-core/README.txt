@@ -12,8 +12,6 @@ mvn clean                Clean the working copy.
 mvn install -DskipTests  Quick compile, no tests.
 mvn -Pbenchmark          Include a benchmark round in the build.
                          Results in: target/benchmarks
-mvn -Prelease            Release mode (javadocs, sources, zip/tgz bundles).
-                         Results in: target/*.tgz
 mvn site                 Generate reports: pmd, cpd, findbugs.
                          Results in: target/site
 mvn -Pclover             Code coverage reports [requires -Dclover.license or global setting]
