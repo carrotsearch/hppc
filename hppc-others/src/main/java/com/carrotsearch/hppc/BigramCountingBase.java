@@ -188,6 +188,21 @@ public class BigramCountingBase
         guard = map.size();
     }
 
+    @Test
+    public void mahoutCollections()
+    {
+        final char [] CHARS = DATA;
+        final org.apache.mahout.math.map.OpenIntIntHashMap map = 
+            new org.apache.mahout.math.map.OpenIntIntHashMap();
+        for (int i = 0; i < CHARS.length - 1; i++)
+        {
+            final int bigram = CHARS[i] << 16 | CHARS[i+1];
+            map.adjustOrPutValue(bigram, 1, 1);
+        }
+
+        guard = map.size();
+    }
+    
     public BigramCountingBase()
     {
         super();

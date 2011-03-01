@@ -22,7 +22,8 @@ public class BigramCountingCaliper extends SimpleBenchmark
         PCJ_OPEN,
         PCJ_CHAINED,
         JCF,
-        JCF_HOLDER
+        JCF_HOLDER,
+        MAHOUT
     }
 
     static
@@ -58,6 +59,7 @@ public class BigramCountingCaliper extends SimpleBenchmark
                 case PCJ_OPEN: bc.pcjOpenHashMap(); break;
                 case JCF: bc.jcf(); break;
                 case JCF_HOLDER: bc.jcfWithHolder(); break;
+                case MAHOUT: bc.mahoutCollections(); break;
             }
         }
 
