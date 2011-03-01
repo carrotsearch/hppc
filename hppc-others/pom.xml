@@ -150,12 +150,17 @@
       <artifactId>caliper</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>6.1.0</version>
+    </dependency>
+
     <dependency>
     	<groupId>org.apache.mahout</groupId>
     	<artifactId>mahout-collections</artifactId>
     	<version>1.0</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
     </dependency>
   </dependencies>
 
