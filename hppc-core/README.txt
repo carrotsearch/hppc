@@ -14,8 +14,6 @@ mvn -Pbenchmark          Include a benchmark round in the build.
                          Results in: target/benchmarks
 mvn -Prelease            Release mode (javadocs, sources, zip/tgz bundles).
                          Results in: target/*.tgz
-mvn -Prelease,sonatype   Release mode, sign and prepare upload release bundle.
-                         Results in: target/release-bundle.jar
 mvn site                 Generate reports: pmd, cpd, findbugs.
                          Results in: target/site
 mvn -Pclover             Code coverage reports [requires -Dclover.license or global setting]
@@ -26,8 +24,8 @@ Release
 
 mvn clean deploy         Snapshot deploy to sonatype [requires proper setup in settings.xml]
 
-mvn -Prelease,sonatype clean verify 
-                         Prepare release bundle for manual staging.
+mvn -Prelease clean deploy
+                         Push snapshot or release artefacts to SonaType.
 
 mvn -Psite-labs          Creates a release directory for rsyncing to labs.carrotsearch.com
                          Results in: target/site-labs

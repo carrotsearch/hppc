@@ -495,7 +495,7 @@
       </build>
     </profile>
 
-    <!-- Release mode (javadocs, sources, zip/tgz bundles). -->
+    <!-- Release mode (javadocs, sources, zip/tgz bundles, signing). -->
     <profile>
       <id>release</id>
 
@@ -572,18 +572,7 @@
               </execution>
             </executions>
           </plugin>
-        </plugins>
-      </build>
-    </profile>
 
-    <!-- Manual release mode. Prepare bundle ZIPs, sign everything once completed 
-      and prepare sonatype's release bundle. -->
-    <profile>
-      <id>sonatype</id>
-      <build>
-        <defaultGoal>verify</defaultGoal>
-
-        <plugins>
           <!-- GPG sign artefacts. -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -599,30 +588,6 @@
               <execution>
                 <goals>
                   <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- Create a release bundle for SonaType. -->
-          <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/release.xml</descriptor>
-              </descriptors>
-              <tarLongFileMode>gnu</tarLongFileMode>
-              <finalName>release-bundle</finalName>
-              <attach>false</attach>
-              <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-            <executions>
-              <execution>
-                <id>make-assembly</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>single</goal>
                 </goals>
               </execution>
             </executions>
