@@ -27,7 +27,7 @@ public class BenchmarkPut extends SimpleBenchmark
 
     @Param(
     {
-        "100000", "1000000", "2000000", "4000000",
+        "100000", "1000000", "2000000", "4000000"
     })
     public int size;
 
