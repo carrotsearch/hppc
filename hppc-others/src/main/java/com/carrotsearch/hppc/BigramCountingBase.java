@@ -16,6 +16,7 @@ import bak.pcj.map.IntKeyIntChainedHashMap;
 import bak.pcj.map.IntKeyIntOpenHashMap;
 
 import com.carrotsearch.hppc.hash.IntMurmurHash;
+import com.carrotsearch.hppc.mutables.IntHolder;
 
 public class BigramCountingBase
 {
@@ -31,16 +32,6 @@ public class BigramCountingBase
         byte [] dta = IOUtils.toByteArray(
             Thread.currentThread().getContextClassLoader().getResourceAsStream("books-polish.txt"));
         DATA = new String(dta, "UTF-8").toCharArray();
-    }
-
-    public static final class IntHolder
-    {
-        public int value;
-    
-        public IntHolder(int initial)
-        {
-            value = initial;
-        }
     }
 
     @Test
@@ -70,7 +61,7 @@ public class BigramCountingBase
             map.putOrAdd(bigram, 1, 1);
         }
         // [[[end:bigram-counting]]]
-    
+
         guard = map.size();
     }
 
