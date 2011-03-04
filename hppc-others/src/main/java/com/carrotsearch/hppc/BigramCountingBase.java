@@ -15,7 +15,7 @@ import org.junit.Test;
 import bak.pcj.map.IntKeyIntChainedHashMap;
 import bak.pcj.map.IntKeyIntOpenHashMap;
 
-import com.carrotsearch.hppc.hash.IntMurmurHash;
+import com.carrotsearch.hppc.hash.MurmurHash3.IntMurmurHash;
 import com.carrotsearch.hppc.mutables.IntHolder;
 
 public class BigramCountingBase

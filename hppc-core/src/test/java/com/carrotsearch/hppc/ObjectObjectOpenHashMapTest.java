@@ -14,6 +14,7 @@ import com.carrotsearch.hppc.procedures.*;
 
 /* removeIf:primitive */
 import com.carrotsearch.hppc.hash.*;
+import com.carrotsearch.hppc.hash.MurmurHash3.*;
 /* end:removeIf */
 
 /**

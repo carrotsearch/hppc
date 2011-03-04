@@ -1,11 +1,13 @@
 package com.carrotsearch.hppc.examples;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import org.junit.Test;
 
 import com.carrotsearch.hppc.IntIntOpenHashMap;
-import com.carrotsearch.hppc.hash.IntMurmurHash;
+import com.carrotsearch.hppc.hash.MurmurHash3.IntMurmurHash;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 public class BigramCounting extends AbstractBenchmark
