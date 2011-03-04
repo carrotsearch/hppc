@@ -183,7 +183,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.carrotsearch.hppc.BigramCountingCaliper</mainClass>
+              <mainClass>com.carrotsearch.hppc.caliper.BenchmarkSuite</mainClass>
               <addClasspath>true</addClasspath>
             </manifest>
           </archive>
