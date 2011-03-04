@@ -20,10 +20,6 @@ public class BenchmarkBigramCounting extends SimpleBenchmark
         TROVE,
         FASTUTIL_OPEN,
         FASTUTIL_LINKED,
-        PCJ_OPEN,
-        PCJ_CHAINED,
-        JCF,
-        JCF_HOLDER,
         MAHOUT
     }
 
@@ -56,10 +52,6 @@ public class BenchmarkBigramCounting extends SimpleBenchmark
                 case TROVE: bc.trove(); break;
                 case FASTUTIL_LINKED: bc.fastutilLinkedOpenHashMap(); break;
                 case FASTUTIL_OPEN: bc.fastutilOpenHashMap(); break;
-                case PCJ_CHAINED: bc.pcjChainedHashMap(); break;
-                case PCJ_OPEN: bc.pcjOpenHashMap(); break;
-                case JCF: bc.jcf(); break;
-                case JCF_HOLDER: bc.jcfWithHolder(); break;
                 case MAHOUT: bc.mahoutCollections(); break;
             }
         }
