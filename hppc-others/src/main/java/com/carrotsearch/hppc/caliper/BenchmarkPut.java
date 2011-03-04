@@ -16,7 +16,7 @@ public class BenchmarkPut extends SimpleBenchmark
 
     public enum Distribution
     {
-        RANDOM, LINEAR;
+        RANDOM, LINEAR, HIGHBITS;
     }
 
     @Param
@@ -27,10 +27,13 @@ public class BenchmarkPut extends SimpleBenchmark
 
     @Param(
     {
-        "100000", "1000000", "2000000", "4000000"
+        "1000000"
     })
     public int size;
 
+    /*
+     * 
+     */
     @Override
     protected void setUp() throws Exception
     {
@@ -42,11 +45,17 @@ public class BenchmarkPut extends SimpleBenchmark
             case LINEAR:
                 keys = prepareLinear(size);
                 break;
+            case HIGHBITS:
+                keys = prepareHighbits(size);
+                break;
             default:
                 throw new RuntimeException();
         }
     }
 
+    /**
+     * Time the 'put' operation. 
+     */
     public int timePut(int reps)
     {
         int count = 0;
@@ -58,6 +67,9 @@ public class BenchmarkPut extends SimpleBenchmark
         return count;
     }
 
+    /**
+     * Linear increment by 1.
+     */
     private int [] prepareLinear(int size)
     {
         int [] t = new int [size];
@@ -66,12 +78,19 @@ public class BenchmarkPut extends SimpleBenchmark
         return t;
     }
 
+    /**
+     * Linear increments on 12 high bits first, then on lower bits. 
+     */
+    private int [] prepareHighbits(int size)
+    {
+        int [] t = new int [size];
+        for (int i = 0; i < size; i++)
+            t[i] = (i << (32 - 12)) | (i >>> 12);
+        return t;
+    }
+
     public static void main(String [] args)
     {
-        Runner.main(BenchmarkPut.class, "--timeUnit", "ms"
-        // "-Dsize=1000000",
-        // "-DremovedKeys=0.8,0.9,0.99,1",
-        // "-Dimplementation=FASTUTIL"
-            );
+        Runner.main(BenchmarkPut.class, args);
     }
 }
