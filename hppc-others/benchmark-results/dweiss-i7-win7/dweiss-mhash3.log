@@ -1,0 +1,198 @@
+Benchmarks suite starting.
+Date now: Fri Mar 04 12:27:03 CET 2011
+
+
+================================================================================
+------------------------------ System properties -------------------------------
+================================================================================
+awt.toolkit: sun.awt.windows.WToolkit
+file.encoding: Cp1252
+file.encoding.pkg: sun.io
+file.separator: \\
+java.awt.graphicsenv: sun.awt.Win32GraphicsEnvironment
+java.awt.printerjob: sun.awt.windows.WPrinterJob
+java.class.path: hppc-others-0.4.0-SNAPSHOT.jar
+java.class.version: 50.0
+java.endorsed.dirs: c:\\java\\jdk\\jre\\lib\\endorsed
+java.ext.dirs: c:\\java\\jdk\\jre\\lib\\ext;C:\\Windows\\Sun\\Java\\lib\\ext
+java.home: c:\\java\\jdk\\jre
+java.io.tmpdir: C:\\Users\\dweiss\\AppData\\Local\\Temp\\
+java.library.path: c:\\java\\jdk\\bin;.;C:\\Windows\\Sun\\Java\\bin;C:\\Windows\\system32;C:\\Windows;C:\\Program Files\\Common Files\\Microsoft Shared\\Windows Live;C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\Windows Live;C:\\Program Files (x86)\\MiKTeX 2.8\\miktex\\bin;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files\\TortoiseSVN\\bin;C:\\tools\\graphviz\\bin;C:\\Program Files (x86)\\GtkSharp\\2.12\\bin;C:\\tools\\doxygen\\bin;C:\\tools\\git\\cmd;D:\\Program Files\\TortoiseHg\\;C:\\Program Files (x86)\\Windows Live\\Shared;C:\\Program Files (x86)\\QuickTime\\QTSystem\\;c:\\tools\\svn;c:\\java\\jdk\\bin;C:\\tools\\bin-neutral\\ant\\bin;C:\\tools\\bin-neutral\\mvn\\bin;c:\\tools;C:\\tools\\uedit;C:\\tools\\uedit\\;c:\\tools\\git\\cmd;c:\\tools\\gnuplot\\bin;C:\\tools\\jruby\\bin;c:\\tools\\nant\\bin;C:\\Users\\dweiss\\AppData\\Roaming\\MiKTeX\\2.8\\miktex\\bin\\;C:\\tools\\python27\\;c:\\tools\\gpg
+java.runtime.name: Java(TM) SE Runtime Environment
+java.runtime.version: 1.6.0_20-b02
+java.specification.name: Java Platform API Specification
+java.specification.vendor: Sun Microsystems Inc.
+java.specification.version: 1.6
+java.vendor: Sun Microsystems Inc.
+java.vendor.url: http://java.sun.com/
+java.vendor.url.bug: http://java.sun.com/cgi-bin/bugreport.cgi
+java.version: 1.6.0_20
+java.vm.info: mixed mode
+java.vm.name: Java HotSpot(TM) 64-Bit Server VM
+java.vm.specification.name: Java Virtual Machine Specification
+java.vm.specification.vendor: Sun Microsystems Inc.
+java.vm.specification.version: 1.0
+java.vm.vendor: Sun Microsystems Inc.
+java.vm.version: 16.3-b01
+line.separator: \r\n
+os.arch: amd64
+os.name: Windows 7
+os.version: 6.1
+path.separator: ;
+sun.arch.data.model: 64
+sun.boot.class.path: c:\\java\\jdk\\jre\\lib\\resources.jar;c:\\java\\jdk\\jre\\lib\\rt.jar;c:\\java\\jdk\\jre\\lib\\sunrsasign.jar;c:\\java\\jdk\\jre\\lib\\jsse.jar;c:\\java\\jdk\\jre\\lib\\jce.jar;c:\\java\\jdk\\jre\\lib\\charsets.jar;c:\\java\\jdk\\jre\\classes
+sun.boot.library.path: c:\\java\\jdk\\jre\\bin
+sun.cpu.endian: little
+sun.cpu.isalist: amd64
+sun.desktop: windows
+sun.io.unicode.encoding: UnicodeLittle
+sun.java.launcher: SUN_STANDARD
+sun.jnu.encoding: Cp1250
+sun.management.compiler: HotSpot 64-Bit Server Compiler
+sun.os.patch.level: 
+user.country: GB
+user.dir: d:\\carrot2\\carrotsearch.labs\\hppc\\hppc-others\\target\\hppc-others-0.4.0-SNAPSHOT
+user.home: C:\\Users\\dweiss
+user.language: en
+user.name: dweiss
+user.timezone: Europe/Belgrade
+user.variant: 
+
+================================================================================
+------------------------------------- CPU --------------------------------------
+================================================================================
+NUMBER_OF_PROCESSORS=8
+PROCESSOR_ARCHITECTURE=AMD64
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 30 Stepping 5, GenuineIntel
+PROCESSOR_LEVEL=6
+PROCESSOR_REVISION=1e05
+
+================================================================================
+------------------------ BenchmarkBigramCounting (1/3) -------------------------
+================================================================================
+ 0% Scenario{vm=java, trial=0, benchmark=Library, library=HPPC} 106162928.14 ns; ?=195640.03 ns @ 3 trials
+11% Scenario{vm=java, trial=0, benchmark=Library, library=TROVE} 160579883.00 ns; ?=1612987.96 ns @ 5 trials
+22% Scenario{vm=java, trial=0, benchmark=Library, library=FASTUTIL_OPEN} 126200901.43 ns; ?=368411.60 ns @ 3 trials
+33% Scenario{vm=java, trial=0, benchmark=Library, library=FASTUTIL_LINKED} 163345012.00 ns; ?=429561.15 ns @ 3 trials
+44% Scenario{vm=java, trial=0, benchmark=Library, library=PCJ_OPEN} 235150989.25 ns; ?=717372.88 ns @ 3 trials
+56% Scenario{vm=java, trial=0, benchmark=Library, library=PCJ_CHAINED} 210063764.50 ns; ?=150063.87 ns @ 3 trials
+67% Scenario{vm=java, trial=0, benchmark=Library, library=JCF} 303611432.00 ns; ?=2988020.33 ns @ 6 trials
+78% Scenario{vm=java, trial=0, benchmark=Library, library=JCF_HOLDER} 189982015.86 ns; ?=839630.80 ns @ 3 trials
+89% Scenario{vm=java, trial=0, benchmark=Library, library=MAHOUT} 164747901.50 ns; ?=508146.88 ns @ 3 trials
+
+        library  ms linear runtime
+           HPPC 106 ==========
+          TROVE 161 ===============
+  FASTUTIL_OPEN 126 ============
+FASTUTIL_LINKED 163 ================
+       PCJ_OPEN 235 =======================
+    PCJ_CHAINED 210 ====================
+            JCF 304 ==============================
+     JCF_HOLDER 190 ==================
+         MAHOUT 165 ================
+
+vm: java
+trial: 0
+benchmark: Library
+
+================================================================================
+------------------------ BenchmarkGetWithRemoved (2/3) -------------------------
+================================================================================
+ 0% Scenario{vm=java, trial=0, benchmark=Get, implementation=HPPC, removedKeys=0, size=2000000} 64050002.13 ns; ?=126311.15 ns @ 3 trials
+ 4% Scenario{vm=java, trial=0, benchmark=Get, implementation=FASTUTIL, removedKeys=0, size=2000000} 52336790.89 ns; ?=70608.91 ns @ 3 trials
+ 8% Scenario{vm=java, trial=0, benchmark=Get, implementation=JAVA, removedKeys=0, size=2000000} 156792512.42 ns; ?=1530781.21 ns @ 10 trials
+12% Scenario{vm=java, trial=0, benchmark=Get, implementation=TROVE, removedKeys=0, size=2000000} 75333468.08 ns; ?=259243.70 ns @ 3 trials
+16% Scenario{vm=java, trial=0, benchmark=Get, implementation=MAHOUT, removedKeys=0, size=2000000} 85720060.76 ns; ?=228664.93 ns @ 3 trials
+20% Scenario{vm=java, trial=0, benchmark=Get, implementation=HPPC, removedKeys=0.25, size=2000000} 85248899.47 ns; ?=57359.11 ns @ 3 trials
+24% Scenario{vm=java, trial=0, benchmark=Get, implementation=FASTUTIL, removedKeys=0.25, size=2000000} 58239869.32 ns; ?=156960.87 ns @ 3 trials
+28% Scenario{vm=java, trial=0, benchmark=Get, implementation=JAVA, removedKeys=0.25, size=2000000} 151610090.50 ns; ?=359869.39 ns @ 3 trials
+32% Scenario{vm=java, trial=0, benchmark=Get, implementation=TROVE, removedKeys=0.25, size=2000000} 123812787.67 ns; ?=235447.86 ns @ 3 trials
+36% Scenario{vm=java, trial=0, benchmark=Get, implementation=MAHOUT, removedKeys=0.25, size=2000000} 115171501.25 ns; ?=3840780.56 ns @ 10 trials
+40% Scenario{vm=java, trial=0, benchmark=Get, implementation=HPPC, removedKeys=0.5, size=2000000} 97208244.80 ns; ?=136400.87 ns @ 3 trials
+44% Scenario{vm=java, trial=0, benchmark=Get, implementation=FASTUTIL, removedKeys=0.5, size=2000000} 55674254.94 ns; ?=99200.13 ns @ 3 trials
+48% Scenario{vm=java, trial=0, benchmark=Get, implementation=JAVA, removedKeys=0.5, size=2000000} 135214061.00 ns; ?=113659.69 ns @ 3 trials
+52% Scenario{vm=java, trial=0, benchmark=Get, implementation=TROVE, removedKeys=0.5, size=2000000} 92892074.60 ns; ?=34840.27 ns @ 3 trials
+56% Scenario{vm=java, trial=0, benchmark=Get, implementation=MAHOUT, removedKeys=0.5, size=2000000} 116125817.67 ns; ?=388869.88 ns @ 3 trials
+60% Scenario{vm=java, trial=0, benchmark=Get, implementation=HPPC, removedKeys=0.75, size=2000000} 90878847.69 ns; ?=342859.11 ns @ 3 trials
+64% Scenario{vm=java, trial=0, benchmark=Get, implementation=FASTUTIL, removedKeys=0.75, size=2000000} 42579405.91 ns; ?=58107.03 ns @ 3 trials
+68% Scenario{vm=java, trial=0, benchmark=Get, implementation=JAVA, removedKeys=0.75, size=2000000} 101692910.25 ns; ?=412715.03 ns @ 3 trials
+72% Scenario{vm=java, trial=0, benchmark=Get, implementation=TROVE, removedKeys=0.75, size=2000000} 76425706.17 ns; ?=255705.75 ns @ 3 trials
+76% Scenario{vm=java, trial=0, benchmark=Get, implementation=MAHOUT, removedKeys=0.75, size=2000000} 94383191.60 ns; ?=406187.19 ns @ 3 trials
+80% Scenario{vm=java, trial=0, benchmark=Get, implementation=HPPC, removedKeys=1, size=2000000} 59296513.50 ns; ?=66306.06 ns @ 3 trials
+84% Scenario{vm=java, trial=0, benchmark=Get, implementation=FASTUTIL, removedKeys=1, size=2000000} 10809945.10 ns; ?=26102.97 ns @ 3 trials
+88% Scenario{vm=java, trial=0, benchmark=Get, implementation=JAVA, removedKeys=1, size=2000000} 44380652.77 ns; ?=49092.98 ns @ 3 trials
+92% Scenario{vm=java, trial=0, benchmark=Get, implementation=TROVE, removedKeys=1, size=2000000} 9517495.88 ns; ?=8691.27 ns @ 3 trials
+96% Scenario{vm=java, trial=0, benchmark=Get, implementation=MAHOUT, removedKeys=1, size=2000000} 30969162.31 ns; ?=50592.07 ns @ 3 trials
+
+removedKeys implementation     ms linear runtime
+          0           HPPC  64.05 ============
+          0       FASTUTIL  52.34 ==========
+          0           JAVA 156.79 ==============================
+          0          TROVE  75.33 ==============
+          0         MAHOUT  85.72 ================
+       0.25           HPPC  85.25 ================
+       0.25       FASTUTIL  58.24 ===========
+       0.25           JAVA 151.61 =============================
+       0.25          TROVE 123.81 =======================
+       0.25         MAHOUT 115.17 ======================
+        0.5           HPPC  97.21 ==================
+        0.5       FASTUTIL  55.67 ==========
+        0.5           JAVA 135.21 =========================
+        0.5          TROVE  92.89 =================
+        0.5         MAHOUT 116.13 ======================
+       0.75           HPPC  90.88 =================
+       0.75       FASTUTIL  42.58 ========
+       0.75           JAVA 101.69 ===================
+       0.75          TROVE  76.43 ==============
+       0.75         MAHOUT  94.38 ==================
+          1           HPPC  59.30 ===========
+          1       FASTUTIL  10.81 ==
+          1           JAVA  44.38 ========
+          1          TROVE   9.52 =
+          1         MAHOUT  30.97 =====
+
+vm: java
+trial: 0
+benchmark: Get
+size: 2000000
+
+================================================================================
+------------------------------ BenchmarkPut (3/3) ------------------------------
+================================================================================
+ 0% Scenario{vm=java, trial=0, benchmark=Put, distribution=RANDOM, implementation=HPPC, size=1000000} 74817347.25 ns; ?=149880.29 ns @ 3 trials
+ 7% Scenario{vm=java, trial=0, benchmark=Put, distribution=LINEAR, implementation=HPPC, size=1000000} 74881512.67 ns; ?=235549.12 ns @ 3 trials
+13% Scenario{vm=java, trial=0, benchmark=Put, distribution=HIGHBITS, implementation=HPPC, size=1000000} 75290284.26 ns; ?=105075.11 ns @ 3 trials
+20% Scenario{vm=java, trial=0, benchmark=Put, distribution=RANDOM, implementation=FASTUTIL, size=1000000} 100918894.33 ns; ?=919488.53 ns @ 5 trials
+27% Scenario{vm=java, trial=0, benchmark=Put, distribution=LINEAR, implementation=FASTUTIL, size=1000000} 101439914.44 ns; ?=871302.67 ns @ 3 trials
+33% Scenario{vm=java, trial=0, benchmark=Put, distribution=HIGHBITS, implementation=FASTUTIL, size=1000000} 101156517.00 ns; ?=972703.24 ns @ 3 trials
+40% Scenario{vm=java, trial=0, benchmark=Put, distribution=RANDOM, implementation=JAVA, size=1000000} 233827091.33 ns; ?=466499.28 ns @ 3 trials
+47% Scenario{vm=java, trial=0, benchmark=Put, distribution=LINEAR, implementation=JAVA, size=1000000} 73294238.62 ns; ?=1038922.18 ns @ 10 trials
+53% Scenario{vm=java, trial=0, benchmark=Put, distribution=HIGHBITS, implementation=JAVA, size=1000000} 180700023.10 ns; ?=1671304.55 ns @ 6 trials
+60% Scenario{vm=java, trial=0, benchmark=Put, distribution=RANDOM, implementation=TROVE, size=1000000} 111335507.83 ns; ?=1067079.88 ns @ 6 trials
+67% Scenario{vm=java, trial=0, benchmark=Put, distribution=LINEAR, implementation=TROVE, size=1000000} 43546280.91 ns; ?=116683.20 ns @ 3 trials
+73% Scenario{vm=java, trial=0, benchmark=Put, distribution=HIGHBITS, implementation=TROVE, size=1000000} 83354837.73 ns; ?=782790.93 ns @ 3 trials
+80% Scenario{vm=java, trial=0, benchmark=Put, distribution=RANDOM, implementation=MAHOUT, size=1000000} 127054322.29 ns; ?=880782.20 ns @ 3 trials
+87% Scenario{vm=java, trial=0, benchmark=Put, distribution=LINEAR, implementation=MAHOUT, size=1000000} 60644036.20 ns; ?=137264.78 ns @ 3 trials
+93% Scenario{vm=java, trial=0, benchmark=Put, distribution=HIGHBITS, implementation=MAHOUT, size=1000000} 98246347.44 ns; ?=700311.31 ns @ 3 trials
+
+distribution implementation    ms linear runtime
+      RANDOM           HPPC  74.8 =========
+      RANDOM       FASTUTIL 100.9 ============
+      RANDOM           JAVA 233.8 ==============================
+      RANDOM          TROVE 111.3 ==============
+      RANDOM         MAHOUT 127.1 ================
+      LINEAR           HPPC  74.9 =========
+      LINEAR       FASTUTIL 101.4 =============
+      LINEAR           JAVA  73.3 =========
+      LINEAR          TROVE  43.5 =====
+      LINEAR         MAHOUT  60.6 =======
+    HIGHBITS           HPPC  75.3 =========
+    HIGHBITS       FASTUTIL 101.2 ============
+    HIGHBITS           JAVA 180.7 =======================
+    HIGHBITS          TROVE  83.4 ==========
+    HIGHBITS         MAHOUT  98.2 ============
+
+vm: java
+trial: 0
+benchmark: Put
+size: 1000000
