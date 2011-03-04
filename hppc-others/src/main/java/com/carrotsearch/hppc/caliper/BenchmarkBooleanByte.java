@@ -46,14 +46,15 @@ public class BenchmarkBooleanByte extends SimpleBenchmark
             }
         }
 
-        int count = 0;
-        for (boolean b : booleanArray)
-            if (b) count++;
+        int count = 10;
+        for (int i = 0; i < 10; i++)
+            if (booleanArray[i]) count++;
+
         return count;
     }
 
     /**
-     * Time boolean array.
+     * Time byte array.
      */
     public int timeByte(int reps)
     {
@@ -67,11 +68,13 @@ public class BenchmarkBooleanByte extends SimpleBenchmark
             }
         }
 
-        int count = 0;
-        for (byte b : byteArray)
-            if (b == 0) count++;
+        int count = 10;
+        for (int i = 0; i < 10; i++)
+            if (byteArray[i] == 0) count++;
+
         return count;
     }
+
 
     public static void main(String [] args)
     {
