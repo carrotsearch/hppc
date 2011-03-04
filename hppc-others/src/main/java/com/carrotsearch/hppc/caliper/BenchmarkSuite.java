@@ -121,41 +121,42 @@ public class BenchmarkSuite
         Project project = new Project();
         task.setProject(project);
 
-		String pattern = ".*";
+        String pattern = ".*";
         if (SystemUtils.IS_OS_WINDOWS)
         {
             task.setExecutable("cmd");
             task.createArg().setLine("/c set");
-			pattern = "PROCESSOR";
+            pattern = "PROCESSOR";
         }
         else
         {
-			if (new File("/proc/cpuinfo").exists())
-			{
-				task.setExecutable("cat");
-				task.createArg().setLine("/proc/cpuinfo");
-			}
-			else
-			{
-				task.setExecutable("sysctl");
-				task.createArg().setLine("-a");
-				pattern = "(kern\\..*)|(hw\\..*)|(machdep\\..*)";
-			}
+            if (new File("/proc/cpuinfo").exists())
+            {
+                task.setExecutable("cat");
+                task.createArg().setLine("/proc/cpuinfo");
+            }
+            else
+            {
+                task.setExecutable("sysctl");
+                task.createArg().setLine("-a");
+                pattern = "(kern\\..*)|(hw\\..*)|(machdep\\..*)";
+            }
         }
 
         try
         {
             task.execute();
+
             String property = project.getProperty("stdout");
-			// Restrict to processor related data only.
-			Pattern patt = Pattern.compile(pattern);
-			for (String line : IOUtils.readLines(new StringReader(property)))
-			{
-				if (patt.matcher(line).find())
-				{
-					System.out.println(line);
-				}
-			}
+            // Restrict to processor related data only.
+            Pattern patt = Pattern.compile(pattern);
+            for (String line : IOUtils.readLines(new StringReader(property)))
+            {
+                if (patt.matcher(line).find())
+                {
+                    System.out.println(line);
+                }
+            }
         }
         catch (Throwable e)
         {
