@@ -1,5 +1,6 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.caliper;
 
+import com.carrotsearch.hppc.BigramCounting;
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
@@ -7,7 +8,7 @@ import com.google.caliper.SimpleBenchmark;
 /**
  * Caliper version of {@link BigramCounting}.
  */
-public class BigramCountingCaliper extends SimpleBenchmark
+public class BenchmarkBigramCounting extends SimpleBenchmark
 {
     private BigramCounting bc;
 
@@ -69,6 +70,6 @@ public class BigramCountingCaliper extends SimpleBenchmark
     
     public static void main(String [] args)
     {
-        Runner.main(BigramCountingCaliper.class, args);
+        Runner.main(BenchmarkBigramCounting.class, args);
     }
 }
