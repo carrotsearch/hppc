@@ -6,18 +6,12 @@ import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import bak.pcj.map.IntKeyIntChainedHashMap;
-import bak.pcj.map.IntKeyIntOpenHashMap;
-
 import com.carrotsearch.hppc.hash.MurmurHash3.IntMurmurHash;
-import com.carrotsearch.hppc.mutables.IntHolder;
 
 public class BigramCountingBase
 {
@@ -72,6 +66,21 @@ public class BigramCountingBase
         final char [] CHARS = DATA;
         final TIntIntHashMap map = new TIntIntHashMap();
     
+        for (int i = 0; i < CHARS.length - 1; i++)
+        {
+            final int bigram = CHARS[i] << 16 | CHARS[i+1];
+            map.adjustOrPutValue(bigram, 1, 1);
+        }
+    
+        guard = map.size();
+    }
+
+    @Test
+    public void mahoutCollections()
+    {
+        final char [] CHARS = DATA;
+        final org.apache.mahout.math.map.OpenIntIntHashMap map = 
+            new org.apache.mahout.math.map.OpenIntIntHashMap();
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
@@ -137,92 +146,4 @@ public class BigramCountingBase
     
         guard = map.size();
     }
-
-    @Test
-    public void pcjOpenHashMap()
-    {
-        final char [] CHARS = DATA;
-        final IntKeyIntOpenHashMap map = new IntKeyIntOpenHashMap();
-    
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.put(bigram, map.get(bigram) + 1);
-        }
-    
-        guard = map.size();
-    }
-
-    @Test
-    public void pcjChainedHashMap()
-    {
-        final char [] CHARS = DATA;
-        final IntKeyIntChainedHashMap map = new IntKeyIntChainedHashMap();
-    
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.put(bigram, map.get(bigram) + 1);
-        }
-    
-        guard = map.size();
-    }
-
-    @Test
-    public void jcf()
-    {
-        final char [] CHARS = DATA;
-        final Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            final Integer currentCount = map.get(bigram);
-            map.put(bigram, currentCount == null ? 1 : currentCount + 1);
-        }
-        
-        guard = map.size();
-    }
-
-    @Test
-    public void jcfWithHolder()
-    {
-        final char [] CHARS = DATA;
-        final Map<Integer, IntHolder> map = new HashMap<Integer, IntHolder>();
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            final IntHolder currentCount = map.get(bigram);
-            if (currentCount == null)
-            {
-                map.put(bigram, new IntHolder(1));
-            }
-            else
-            {
-                currentCount.value++;
-            }
-        }
-    
-        guard = map.size();
-    }
-
-    @Test
-    public void mahoutCollections()
-    {
-        final char [] CHARS = DATA;
-        final org.apache.mahout.math.map.OpenIntIntHashMap map = 
-            new org.apache.mahout.math.map.OpenIntIntHashMap();
-        for (int i = 0; i < CHARS.length - 1; i++)
-        {
-            final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.adjustOrPutValue(bigram, 1, 1);
-        }
-
-        guard = map.size();
-    }
-    
-    public BigramCountingBase()
-    {
-        super();
-    }
-
 }
