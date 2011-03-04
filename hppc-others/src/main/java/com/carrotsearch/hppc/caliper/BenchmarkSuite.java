@@ -3,6 +3,8 @@ package com.carrotsearch.hppc.caliper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
+import java.util.regex.*;
+import java.io.File;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.*;
@@ -110,17 +112,6 @@ public class BenchmarkSuite
         // Try to determine CPU.
         ExecTask task = new ExecTask();
         task.setVMLauncher(true);
-        if (SystemUtils.IS_OS_WINDOWS)
-        {
-            task.setExecutable("cmd");
-            task.createArg().setLine("/c set");
-        }
-        else
-        {
-            task.setExecutable("cat");
-            task.createArg().setLine("/proc/cpuinfo");
-        }
-        
         task.setOutputproperty("stdout");
         task.setErrorProperty("stderr");
         
@@ -129,24 +120,42 @@ public class BenchmarkSuite
         
         Project project = new Project();
         task.setProject(project);
+
+		String pattern = ".*";
+        if (SystemUtils.IS_OS_WINDOWS)
+        {
+            task.setExecutable("cmd");
+            task.createArg().setLine("/c set");
+			pattern = "PROCESSOR";
+        }
+        else
+        {
+			if (new File("/proc/cpuinfo").exists())
+			{
+				task.setExecutable("cat");
+				task.createArg().setLine("/proc/cpuinfo");
+			}
+			else
+			{
+				task.setExecutable("sysctl");
+				task.createArg().setLine("-a");
+				pattern = "(kern\\..*)|(hw\\..*)|(machdep\\..*)";
+			}
+        }
+
         try
         {
             task.execute();
             String property = project.getProperty("stdout");
-            if (SystemUtils.IS_OS_WINDOWS)
-            {
-                // Restrict to processor related data only.
-                for (String line : IOUtils.readLines(new StringReader(property)))
-                {
-                    if (line.indexOf("PROCESSOR") >= 0) {
-                        System.out.println(line);
-                    }
-                }
-            }
-            else
-            {
-                System.out.println(property);
-            }
+			// Restrict to processor related data only.
+			Pattern patt = Pattern.compile(pattern);
+			for (String line : IOUtils.readLines(new StringReader(property)))
+			{
+				if (patt.matcher(line).find())
+				{
+					System.out.println(line);
+				}
+			}
         }
         catch (Throwable e)
         {
