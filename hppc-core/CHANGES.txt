@@ -1,0 +1,6 @@
+
+[0.4.0-SNAPSHOT]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10210
+
+HPPC-47: Changed the implementation of MurmurHash to MurmurHash3, impl.
+         borrowed from Sebastiano Vigna's fastutil library. [ASL]
