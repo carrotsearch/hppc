@@ -129,22 +129,28 @@ public class BenchmarkSuite
         
         Project project = new Project();
         task.setProject(project);
-        task.execute();
-
-        String property = project.getProperty("stdout");
-        if (SystemUtils.IS_OS_WINDOWS)
+        try
         {
-            // Restrict to processor related data only.
-            for (String line : IOUtils.readLines(new StringReader(property)))
+            task.execute();
+            String property = project.getProperty("stdout");
+            if (SystemUtils.IS_OS_WINDOWS)
             {
-                if (line.indexOf("PROCESSOR") >= 0) {
-                    System.out.println(line);
+                // Restrict to processor related data only.
+                for (String line : IOUtils.readLines(new StringReader(property)))
+                {
+                    if (line.indexOf("PROCESSOR") >= 0) {
+                        System.out.println(line);
+                    }
                 }
             }
+            else
+            {
+                System.out.println(property);
+            }
         }
-        else
+        catch (Throwable e)
         {
-            System.out.println(property);
+            System.out.println("WARN: CPU information could not be extracted: " + e.getMessage());
         }
     }
 
