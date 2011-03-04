@@ -140,7 +140,7 @@
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
-      <version>6.1.0</version>
+      <version>6.2.1-local</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
@@ -149,12 +149,6 @@
       <groupId>com.google.code.caliper</groupId>
       <artifactId>caliper</artifactId>
       <version>1.0-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>it.unimi.dsi</groupId>
-      <artifactId>fastutil</artifactId>
-      <version>6.1.0</version>
     </dependency>
 
     <dependency>
