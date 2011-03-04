@@ -63,7 +63,7 @@ public class BenchmarkBooleanByte extends SimpleBenchmark
         {
             for (int k = 0; k < size * 2; k++)
             {
-                j = (j + /* prime */30727) & size;
+                j = (j + /* prime */30727) & (size - 1);
                 byteArray[j] = byteArray[j + 1];
             }
         }
