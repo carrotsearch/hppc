@@ -1,5 +1,6 @@
 package com.carrotsearch.hppc;
 
+import static it.unimi.dsi.fastutil.HashCommon.arraySize;
 import gnu.trove.map.hash.TIntIntHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -80,17 +81,42 @@ public class BigramCountingBase
         guard = map.size();
     }
 
+    @SuppressWarnings("serial")
+    private static class Int2IntOpenHashMapExt extends Int2IntOpenHashMap
+    {
+        public void putOrAdd(final int k, final int v, final int adjust)
+        {
+            final int key[] = this.key;
+            final boolean used[] = this.used;
+            final int mask = this.mask;
+            // The starting point.
+            int pos = (it.unimi.dsi.fastutil.HashCommon.murmurHash3((k))) & mask;
+            // There's always an unused entry.
+            while (used[pos] && !((k) == (key[pos])))
+                pos = (pos + 1) & mask;
+            if (used[pos])
+            {
+                value[pos] += adjust;
+                return;
+            }
+            used[pos] = true;
+            key[pos] = k;
+            value[pos] = v;
+            if (++size >= maxFill) rehash(arraySize(size, f));
+        }
+    }
+
     @Test
     public void fastutilOpenHashMap()
     {
         final char [] CHARS = DATA;
-        final Int2IntOpenHashMap map = new Int2IntOpenHashMap(); 
+        final Int2IntOpenHashMapExt map = new Int2IntOpenHashMapExt(); 
         map.defaultReturnValue(0);
     
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.put(bigram, map.get(bigram) + 1);
+            map.putOrAdd(bigram, 1, 1);
         }
     
         guard = map.size();
