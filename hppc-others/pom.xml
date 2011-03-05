@@ -121,6 +121,7 @@
       <scope>compile</scope>
     </dependency>
 
+    <!-- PCJ is not maintained, we don't care about it anymore.
     <dependency>
       <groupId>pcj</groupId>
       <artifactId>pcj</artifactId>
@@ -128,6 +129,7 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
+    -->
 
     <dependency>
       <groupId>trove</groupId>
@@ -156,6 +158,7 @@
     	<artifactId>mahout-collections</artifactId>
     	<version>1.0</version>
     </dependency>
+
     <dependency>
     	<groupId>org.apache.ant</groupId>
     	<artifactId>ant</artifactId>
