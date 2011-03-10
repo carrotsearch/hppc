@@ -1,12 +1,5 @@
 
 mvn install:install-file \
-    -DgroupId=it.unimi.dsi \
-    -DartifactId=fastutil \
-    -Dversion=6.2.1-local \
-    -Dfile=fastutil-6.2.1.jar \
-    -Dpackaging=jar -DgeneratePom=true
-
-mvn install:install-file \
     -DgroupId=trove \
     -DartifactId=trove \
     -Dversion=3.0.0rc1 \
