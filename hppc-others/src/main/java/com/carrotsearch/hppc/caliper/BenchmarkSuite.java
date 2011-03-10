@@ -45,7 +45,8 @@ public class BenchmarkSuite
 
                 Class<? extends Benchmark> [] benchmarkClasses = new Class []
                 {
-                    BenchmarkBigramCounting.class, BenchmarkGetWithRemoved.class,
+                    BenchmarkBigramCounting.class, 
+                    BenchmarkGetWithRemoved.class,
                     BenchmarkPut.class
                 };
 
