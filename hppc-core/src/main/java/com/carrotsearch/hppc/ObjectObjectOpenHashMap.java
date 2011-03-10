@@ -10,7 +10,7 @@ import com.carrotsearch.hppc.procedures.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
- * addressing with quadratic collision resolution.
+ * addressing with linear probing for collision resolution.
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, {@link #values},
@@ -45,17 +45,17 @@ import com.carrotsearch.hppc.procedures.*;
  * <p>This implementation supports <code>null</code> keys and values in generic 
  * versions.</p>
  * 
- * <p><b>Important node.</b> The implementation uses power-of-two tables, which may
- * cause poor performance (many collisions) if hash values differ in higher bits only.
- * If unsure about the input data distribution, use a well-mixing hash function. 
+ * <p><b>Important node.</b> The implementation uses power-of-two tables and linear
+ * probing, which may cause poor performance (many collisions) if hash values are
+ * not properly distributed. Use a well-mixing hash function. 
  * This implementation uses {@link ObjectMurmurHash} for keys by 
  * default (primitive derivatives are provided in HPPC for convenience). For the needs
  * of {@link #hashCode()} and {@link #equals}, a separate hash function for values is provided.
  * The default hash function for values is {@link ObjectHashFunction}, which is consistent
  * with Java types default {@link #hashCode()}.</p>
  * 
- * @author This code is partially inspired by the implementation found in the <a
- *         href="http://code.google.com/p/google-sparsehash/">Google sparsehash</a>
+ * @author This code is inspired by the collaboration and implementation in the <a
+ *         href="http://fastutil.dsi.unimi.it/">fastutil</a>
  *         project.
  */
 public class ObjectObjectOpenHashMap<KType, VType>
@@ -93,11 +93,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public final static byte EMPTY = 0;
 
     /** 
-     * A marker for a deleted slot in {@link #keys}, stored in {@link #states}. 
-     */
-    public final static byte DELETED = 1;
-
-    /** 
      * A marker for an assigned slot in {@link #keys}, stored in {@link #states}. 
      */
     public final static byte ASSIGNED = 2;  
@@ -121,17 +116,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
 
     /**
      * Each entry (slot) in the {@link #values} table has an associated state 
-     * information ({@link #EMPTY}, {@link #ASSIGNED} or {@link #DELETED}).
+     * information ({@link #EMPTY} or {@link #ASSIGNED}.
      * 
-     * @see #deleted
      * @see #assigned
      */
     public byte [] states;
-
-    /**
-     * Cached number of deleted slots in {@link #states}.
-     */
-    public int deleted;
 
     /**
      * Cached number of assigned slots in {@link #states}.
@@ -139,7 +128,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public int assigned;
 
     /**
-     * The load factor for this map (fraction of allocated or deleted slots
+     * The load factor for this map (fraction of allocated slots
      * before the buffers must be rehashed or reallocated).
      */
     public final float loadFactor;
@@ -285,23 +274,42 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public VType put(KType key, VType value)
     {
-        if (assigned + deleted >= resizeThreshold)
+        if (assigned >= resizeThreshold)
             expandAndRehash();
 
-        final int slot = slotFor(key);
-        final byte state = states[slot];
+        return putNoRehash(key, value);
+    }
+    
+    /**
+     * Put a given key, no rehashing. 
+     */
+    protected VType putNoRehash(KType key, VType value)
+    {
+        assert assigned < resizeThreshold;
 
-        // If EMPTY or DELETED, we increase the assigned count.
-        if (state != ASSIGNED) assigned++;
-        // If DELETED, we decrease the deleted count.
-        if (state == DELETED) deleted--;
+        final int mask = states.length - 1;
+        int slot = keyHashFunction.hash(key) & mask;
+        while (states[slot] == ASSIGNED)
+        {
+            if (/* replaceIf:primitiveKType 
+               (keys[slot] == key) */ 
+                keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+            {
+                final VType oldValue = values[slot];
+                // keys[slot] = key;  // This only matters if we'd like to substitute objects that are equal.                
+                values[slot] = value;
+                return oldValue;
+            }
 
-        final VType oldValue = values[slot]; 
-        keys[slot] = key;
-        values[slot] = value;
+            slot = (slot + 1) & mask;
+        }
+
+        assigned++;
         states[slot] = ASSIGNED;
+        keys[slot] = key;                
+        values[slot] = value;
 
-        return oldValue;
+        return Intrinsics.<VType> defaultVTypeValue();        
     }
 
     /**
@@ -311,13 +319,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public final int putAll(
         ObjectObjectAssociativeContainer<? extends KType, ? extends VType> container)
     {
-        int count = this.assigned;
-        
+        final int count = this.assigned;
         for (ObjectObjectCursor<? extends KType, ? extends VType> c : container)
         {
             put(c.key, c.value);
         }
-
         return this.assigned - count;
     }
 
@@ -325,7 +331,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
      * of the following code:
      * <pre>
-     * if (!map.hasKey(key)) map.put(value);
+     * if (!map.containsKey(key)) map.put(value);
      * </pre>
      * 
      * @param key The key of the value to check.
@@ -345,7 +351,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
 
     /**
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code (although a bit faster):
+     * of the following code:
      * <pre>
      * if (map.containsKey(key)) 
      *    map.lset(map.lget() + additionValue);
@@ -361,29 +367,24 @@ public class ObjectObjectOpenHashMap<KType, VType>
     /* replaceIf:primitiveVType
     public final VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        // Eagerly check and make sure there is enough room for an update, if needed.
-        if (assigned + deleted >= resizeThreshold)
+        if (assigned >= resizeThreshold)
             expandAndRehash();
 
-        final int slot = slotFor(key);
-        final byte state = states[slot];
-
-        if (state == ASSIGNED)
+        final int mask = states.length - 1;
+        int slot = keyHashFunction.hash(key) & mask;
+        while (states[slot] == ASSIGNED)
         {
-            return values[slot] += additionValue; 
+            if (keys[slot] == key)
+            {
+                return values[slot] += additionValue;
+            }
+            slot = (slot + 1) & mask;
         }
-        else
-        {
-            // Must have been EMPTY or DELETED, we increase the assigned count.
-            assigned++;
-            // If DELETED, we decrease the deleted count.
-            if (state == DELETED) deleted--;
 
-            states[slot] = ASSIGNED;
-            keys[slot] = key;
-
-            return values[slot] = putValue;
-        }
+        assigned++;
+        states[slot] = ASSIGNED;
+        keys[slot] = key;
+        return values[slot] = putValue;
     }
     *//* end:replaceIf */
 
@@ -397,36 +398,39 @@ public class ObjectObjectOpenHashMap<KType, VType>
         final VType [] oldValues = this.values;
         final byte [] oldStates = this.states;
 
-        if (assigned >= resizeThreshold)
-        {
-            allocateBuffers(nextCapacity(keys.length));
-        }
-        else
-        {
-            allocateBuffers(this.values.length);
-        }
+        assert assigned >= resizeThreshold;
+        allocateBuffers(nextCapacity(keys.length));
 
         /*
          * Rehash all assigned slots from the old hash table. Deleted
          * slots are discarded.
          */
+        final int mask = states.length - 1;
         for (int i = 0; i < oldStates.length; i++)
         {
             if (oldStates[i] == ASSIGNED)
             {
-                final int slot = slotFor(oldKeys[i]);
-                keys[slot] = oldKeys[i];
-                values[slot] = oldValues[i];
+                final KType key = oldKeys[i];
+                final VType value = oldValues[i];
+                
+                /* removeIf:primitiveKType */ oldKeys[i] = null; /* end:removeIf */
+                /* removeIf:primitiveVType */ oldValues[i] = null; /* end:removeIf */
+
+                int slot = keyHashFunction.hash(key) & mask;
+                while (states[slot] == ASSIGNED)
+                {
+                    if (/* replaceIf:primitiveKType 
+                       (keys[slot] == key) */ 
+                        keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+                    {
+                        break;
+                    }
+                    slot = (slot + 1) & mask;
+                }
+
                 states[slot] = ASSIGNED;
-
-                /* Nullify while accessing these memory regions to use cpu cache. */
-
-                /* removeIf:primitiveKType */
-                oldKeys[i] = null; 
-                /* end:removeIf */
-                /* removeIf:primitiveVType */
-                oldValues[i] = null;
-                /* end:removeIf */
+                keys[slot] = key;                
+                values[slot] = value;
             }
         }
 
@@ -434,7 +438,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
          * The number of assigned items does not change, the number of deleted
          * items is zero since we have resized.
          */
-        deleted = 0;
         lastSlot = -1;
     }
 
@@ -458,25 +461,72 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public VType remove(KType key)
     {
-        final int slot = slotFor(key);
+        final int mask = states.length - 1;
+        int slot = keyHashFunction.hash(key) & mask; 
 
-        final VType value = values[slot];
-        final byte state = states[slot]; 
-        if (state == ASSIGNED)
+        while (states[slot] == ASSIGNED)
         {
-            deleted++;
-            assigned--;
-
-            keys[slot] = Intrinsics.<KType>defaultKTypeValue();
-            values[slot] = Intrinsics.<VType>defaultVTypeValue();
-            states[slot] = DELETED;
+            if (/* replaceIf:primitiveKType 
+                (keys[slot] == key) */ 
+                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+             {
+                assigned--;
+                VType v = values[slot];
+                shiftConflictingKeys(slot);
+                return v;
+             }
+             slot = (slot + 1) & mask;
         }
-        else
+
+        return Intrinsics.<VType> defaultVTypeValue();
+    }
+
+    /**
+     * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>. 
+     */
+    protected final void shiftConflictingKeys(int slotCurr)
+    {
+        // Copied nearly verbatim from fastutil's impl.
+        final int mask = states.length - 1;
+        int slotPrev, slotOther;
+        while (true)
         {
-            assert (Intrinsics.defaultVTypeValue() == value) : "Default value expected.";
+            slotCurr = ((slotPrev = slotCurr) + 1) & mask;
+
+            while (states[slotCurr] == ASSIGNED)
+            {
+                slotOther = keyHashFunction.hash(keys[slotCurr]) & mask;
+                if (slotPrev <= slotCurr)
+                {
+                    // we're on the right of the original slot.
+                    if (slotPrev >= slotOther || slotOther > slotCurr)
+                        break;
+                }
+                else
+                {
+                    // we've wrapped around.
+                    if (slotPrev >= slotOther && slotOther > slotCurr)
+                        break;
+                }
+                slotCurr = (slotCurr + 1) & mask;
+            }
+
+            if (states[slotCurr] != ASSIGNED) 
+                break;
+
+            // Shift key/value pair.
+            keys[slotPrev] = keys[slotCurr];           
+            values[slotPrev] = values[slotCurr];           
         }
 
-        return value;
+        states[slotPrev] = EMPTY;
+        
+        /* removeIf:primitiveKType */ 
+        keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
+        /* end:removeIf */
+        /* removeIf:primitiveVType */ 
+        values[slotPrev] = Intrinsics.<VType> defaultVTypeValue(); 
+        /* end:removeIf */
     }
 
     /**
@@ -485,14 +535,14 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public final int removeAll(ObjectContainer<? extends KType> container)
     {
-        final int before = this.deleted;
+        final int before = this.assigned;
 
         for (ObjectCursor<? extends KType> cursor : container)
         {
             remove(cursor.value);
         }
 
-        return this.deleted - before;
+        return before - this.assigned;
     }
 
     /**
@@ -501,26 +551,26 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public final int removeAll(ObjectPredicate<? super KType> predicate)
     {
-        final int before = this.deleted;
+        final int before = this.assigned;
 
         final KType [] keys = this.keys;
-        final VType [] values = this.values;
         final byte [] states = this.states;
 
-        for (int i = 0; i < states.length; i++)
+        for (int i = 0; i < states.length;)
         {
-            if (states[i] == ASSIGNED && predicate.apply(keys[i]))
+            if (states[i] == ASSIGNED)
             {
-                deleted++;
-                assigned--;
-
-                keys[i] = Intrinsics.<KType>defaultKTypeValue();
-                values[i] = Intrinsics.<VType>defaultVTypeValue();
-                states[i] = DELETED;
+                if (predicate.apply(keys[i]))
+                {
+                    assigned--;
+                    shiftConflictingKeys(i);
+                    // Repeat the check for the same i.
+                    continue;
+                }
             }
+            i++;
         }
-
-        return this.deleted - before;
+        return before - this.assigned;
     }
 
     /**
@@ -536,7 +586,20 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public VType get(KType key)
     {
-        return values[slotFor(key)];
+        final int mask = states.length - 1;
+        int slot = keyHashFunction.hash(key) & mask;
+        while (states[slot] == ASSIGNED)
+        {
+            if (/* replaceIf:primitiveKType 
+                (keys[slot] == key) */ 
+                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */)
+            {
+                return values[slot]; 
+            }
+            
+            slot = (slot + 1) & mask;
+        }
+        return Intrinsics.<VType> defaultVTypeValue();
     }
 
     /**
@@ -591,8 +654,21 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public boolean containsKey(KType key)
     {
-        final int slot = (lastSlot = slotFor(key));
-        return states[slot] == ASSIGNED;
+        final int mask = states.length - 1;
+        int slot = keyHashFunction.hash(key) & mask;
+        while (states[slot] == ASSIGNED)
+        {
+            if (/* replaceIf:primitiveKType 
+                (keys[slot] == key) */ 
+                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */)
+            {
+                lastSlot = slot;
+                return true; 
+            }
+            slot = (slot + 1) & mask;
+        }
+        lastSlot = -1;
+        return false;
     }
 
     /**
@@ -623,58 +699,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Lookup the slot index for <code>key</code> inside
-     * {@link ObjectObjectOpenHashMap#values}. This method implements quadratic slot
-     * lookup under the assumption that the number of slots (
-     * <code>{@link ObjectObjectOpenHashMap#values}.length</code>) is a power of two.
-     * Given this, the following formula yields a sequence of numbers with distinct values
-     * between [0, slots - 1]. For a hash <code>h(k)</code> and the <code>i</code>-th
-     * probe, where <code>i</code> is in <code>[0, slots - 1]</code>:
-     * <pre>
-     * h(k, i) = h(k) + (i + i^2) / 2   (mod slots)
-     * </pre>
-     * which can be rewritten recursively as:
-     * <pre>
-     * h(k, 0) = h(k),                (mod slots)
-     * h(k, i + 1) = h(k, i) + i.     (mod slots)
-     * </pre>
-     * 
-     * @see "http://en.wikipedia.org/wiki/Quadratic_probing"
-     */
-    public int slotFor(KType key)
-    {
-        final int slots = states.length;
-        final int bucketMask = (slots - 1);
-
-        // This is already verified when reallocating.
-        // assert slots > 0 && Integer.bitCount(slots) == 1 : "Bucket count must be a power of 2.";
-
-        int slot = keyHashFunction.hash(key) & bucketMask;
-        int i = 0;
-        int deletedSlot = -1;
-
-        while (true)
-        {
-            final int state = states[slot];
-            
-            if (state == ObjectObjectOpenHashMap.EMPTY)
-                return deletedSlot != -1 ? deletedSlot : slot;
-
-            if (state == ObjectObjectOpenHashMap.ASSIGNED && 
-                /* replaceIf:primitiveKType (keys[slot] == key) */ 
-                keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
-            {
-                return slot;
-            }
-
-            if (state == ObjectObjectOpenHashMap.DELETED && deletedSlot < 0)
-                deletedSlot = slot;
-
-            slot = (slot + (++i)) & bucketMask;
-        }
-    }
-
-    /**
      * {@inheritDoc}
      * 
      * <p>Does not release internal buffers.</p>
@@ -682,7 +706,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public void clear()
     {
-        assigned = deleted = 0;
+        assigned = 0;
 
         // States are always cleared.
         Arrays.fill(states, EMPTY);

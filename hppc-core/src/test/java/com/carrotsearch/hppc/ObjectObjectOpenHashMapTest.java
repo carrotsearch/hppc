@@ -12,6 +12,8 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
+import com.carrotsearch.hppc.hash.MurmurHash3;
+
 /* removeIf:primitive */
 import com.carrotsearch.hppc.hash.*;
 import com.carrotsearch.hppc.hash.MurmurHash3.*;
@@ -69,10 +71,60 @@ public class ObjectObjectOpenHashMapTest
                     occupied++;
                 }
             }
-            assertEquals(occupied, map.deleted + map.assigned);
+            assertEquals(occupied, map.assigned);
         }
     }
 
+    @Test
+    public void testAddRemoveSameHashCollision()
+    {
+        // This test is only applicable to selected key types.
+        Assume.assumeTrue(
+            int[].class.isInstance(map.keys) ||
+            long[].class.isInstance(map.keys) ||
+            Object[].class.isInstance(map.keys));
+
+        /*
+         * Generate a sequence of numbers with the same lower bits of their
+         * hash (MurmurHash3). 
+         */
+        IntArrayList hashChain = new IntArrayList();
+        int mask = 0x1fff;
+        for (int i = 1; i != 0; i++)
+        {
+            int hash = MurmurHash3.hash(i) & mask;
+
+            if (hash == 0x7e)
+            {
+                hashChain.add(i);
+                if (hashChain.size() > mask / 3)
+                    break;
+            }
+        }
+
+        /*
+         * Add all of the conflicting keys to a map. 
+         */
+        for (IntCursor c : hashChain)
+            map.put(/* intrinsic:ktypecast */ c.value, this.value1);
+
+        assertEquals(hashChain.size(), map.size());
+
+        /* 
+         * Verify the map contains all of the keys.
+         */
+        for (IntCursor c : hashChain)
+            assertEquals2(value1, map.get(/* intrinsic:ktypecast */ c.value));
+
+        /*
+         * Iteratively remove the keys, from first to last.
+         */
+        for (IntCursor c : hashChain)
+            assertEquals2(value1, map.remove(/* intrinsic:ktypecast */ c.value));
+
+        assertEquals(0, map.size());
+    }
+    
     /* */
     @Test
     public void testCloningConstructor()
@@ -169,6 +221,7 @@ public class ObjectObjectOpenHashMapTest
             map.put(
                 /* intrinsic:ktypecast */ v, 
                 /* intrinsic:vtypecast */ v);
+            assertEquals(values.size(), map.size());
         }
         assertEquals(values.size(), map.size());
     }
@@ -225,7 +278,6 @@ public class ObjectObjectOpenHashMapTest
         assertEquals(0, map.size());
 
         // These are internals, but perhaps worth asserting too.
-        assertEquals(1, map.deleted);
         assertEquals(0, map.assigned);
     }
 
@@ -345,7 +397,6 @@ public class ObjectObjectOpenHashMapTest
         assertEquals(0, map.size());
 
         // These are internals, but perhaps worth asserting too.
-        assertEquals(0, map.deleted);
         assertEquals(0, map.assigned);
 
         // Check if the map behaves properly upon subsequent use.
