@@ -193,6 +193,22 @@ public class ObjectArrayDeque<KType>
     }
 
     /**
+     * Inserts all elements from the given iterable to the front of this deque.
+     * 
+     * @return Returns the number of elements actually added as a result of this call.
+     */
+    public final int addFirst(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        int size = 0;
+        for (ObjectCursor<? extends KType> cursor : iterable)
+        {
+            addFirst(cursor.value);
+            size++;
+        }
+        return size;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -239,6 +255,22 @@ public class ObjectArrayDeque<KType>
             addLast(cursor.value);
         }
 
+        return size;
+    }
+    
+    /**
+     * Inserts all elements from the given iterable to the end of this deque.
+     * 
+     * @return Returns the number of elements actually added as a result of this call.
+     */
+    public final int addLast(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        int size = 0;
+        for (ObjectCursor<? extends KType> cursor : iterable)
+        {
+            addLast(cursor.value);
+            size++;
+        }
         return size;
     }
 

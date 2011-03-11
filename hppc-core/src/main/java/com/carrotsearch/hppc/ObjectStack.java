@@ -1,5 +1,6 @@
 package com.carrotsearch.hppc;
 
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.carrotsearch.hppc.hash.ObjectHashFunction;
 
 
@@ -145,6 +146,14 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     public final int pushAll(ObjectContainer<? extends KType> container)
     {
         return addAll(container);
+    }
+
+    /**
+     * Pushes all elements from another iterable to the top of the stack.
+     */
+    public final int pushAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        return addAll(iterable);
     }
 
     /**

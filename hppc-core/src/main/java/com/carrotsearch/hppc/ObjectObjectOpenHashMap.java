@@ -316,6 +316,21 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
+     * Puts all key/value pairs from a given iterable into this map.
+     */
+    @Override
+    public final int putAll(
+        Iterable<? extends ObjectObjectCursor<? extends KType, ? extends VType>> iterable)
+    {
+        final int count = this.assigned;
+        for (ObjectObjectCursor<? extends KType, ? extends VType> c : iterable)
+        {
+            put(c.key, c.value);
+        }
+        return this.assigned - count;
+    }
+
+    /**
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
      * of the following code:
      * <pre>
