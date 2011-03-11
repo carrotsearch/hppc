@@ -274,14 +274,24 @@ public class ObjectOpenHashSet<KType>
      */
     public final int addAll(ObjectContainer<? extends KType> container)
     {
+        return addAll((Iterable<? extends ObjectCursor<? extends KType>>) container);
+    }
+
+    /**
+     * Adds all elements from a given iterable to this set.
+     * 
+     * @return Returns the number of elements actually added as a result of this
+     * call (not previously present in the set).
+     */
+    public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
         int count = 0;
-        for (ObjectCursor<? extends KType> cursor : container)
+        for (ObjectCursor<? extends KType> cursor : iterable)
         {
             if (add(cursor.value)) count++;
         }
         return count;
     }
-
 
     /**
      * Expand the internal storage buffers (capacity) or rehash current

@@ -1,5 +1,7 @@
 package com.carrotsearch.hppc;
 
+import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
+
 
 
 /**
@@ -26,7 +28,7 @@ public interface ObjectObjectMap<KType, VType>
     public VType get(KType key);
 
     /**
-     * Puts all keys from an iterable cursor to this map, replacing the values
+     * Puts all keys from another container to this map, replacing the values
      * of existing keys, if such keys are present.   
      * 
      * @return Returns the number of keys added to the map as a result of this
@@ -34,7 +36,17 @@ public interface ObjectObjectMap<KType, VType>
      */
     public int putAll(
         ObjectObjectAssociativeContainer<? extends KType, ? extends VType> container);
-    
+
+    /**
+     * Puts all keys from an iterable cursor to this map, replacing the values
+     * of existing keys, if such keys are present.   
+     * 
+     * @return Returns the number of keys added to the map as a result of this
+     * call (not previously present in the map). Values of existing keys are overwritten.
+     */
+    public int putAll(
+        Iterable<? extends ObjectObjectCursor<? extends KType, ? extends VType>> iterable);
+
     /**
      * Remove all values at the given key. The default value for the key type is returned
      * if the value does not exist in the map. 

@@ -242,8 +242,19 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
      */
     public final int addAll(IntContainer container)
     {
+        return addAll((Iterable<IntCursor>) container);
+    }
+
+    /**
+     * Adds all elements from a given iterable to this set.
+     * 
+     * @return Returns the number of elements actually added as a result of this
+     * call (not previously present in the set).
+     */
+    public final int addAll(Iterable<? extends IntCursor> iterable)
+    {
         int count = 0;
-        for (IntCursor cursor : container)
+        for (IntCursor cursor : iterable)
         {
             if (add(cursor.value)) count++;
         }

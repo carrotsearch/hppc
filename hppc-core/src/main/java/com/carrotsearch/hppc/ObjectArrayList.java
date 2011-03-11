@@ -202,6 +202,20 @@ public class ObjectArrayList<KType>
     }
 
     /**
+     * Adds all elements from another iterable.
+     */
+    public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    {
+        int size = 0;
+        for (ObjectCursor<? extends KType> cursor : iterable)
+        {
+            add(cursor.value);
+            size++;
+        }
+        return size;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
