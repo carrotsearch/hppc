@@ -8,6 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.CharIntOpenHashMap;
+import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.procedures.CharIntProcedure;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
@@ -181,16 +182,6 @@ public class CharacterCounting extends AbstractBenchmark
         public void apply(char key, int value)
         {
             total += value;
-        }
-    }
-
-    private static final class IntHolder
-    {
-        int value;
-
-        IntHolder(int initial)
-        {
-            value = initial;
         }
     }
 }

@@ -1,13 +1,12 @@
 package com.carrotsearch.hppc.examples;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import org.junit.Test;
 
 import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.hash.MurmurHash3.IntMurmurHash;
+import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 public class BigramCounting extends AbstractBenchmark
@@ -88,16 +87,6 @@ public class BigramCounting extends AbstractBenchmark
             {
                 counts.put(bigram, currentCount + 1);
             }
-        }
-    }
-
-    private static final class IntHolder
-    {
-        int value;
-
-        IntHolder(int initial)
-        {
-            value = initial;
         }
     }
 }
