@@ -664,6 +664,9 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testToString()
     {
-        assertEquals("[1, 2, 3]", ObjectArrayDeque.from(key1, key2, key3).toString());
+        assertEquals("[" 
+            + key1 + ", "
+            + key2 + ", "
+            + key3 + "]", ObjectArrayDeque.from(key1, key2, key3).toString());
     }    
 }
