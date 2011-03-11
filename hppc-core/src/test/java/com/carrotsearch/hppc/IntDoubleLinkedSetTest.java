@@ -231,6 +231,19 @@ public class IntDoubleLinkedSetTest<KType>
         assertEquals("[1, 3, 5]", IntDoubleLinkedSet.from(1, 3, 5).toString());
     }
     
+    /* */
+    @Test
+    public void testClone()
+    {
+        set.add(1, 2, 3);
+        
+        IntDoubleLinkedSet cloned = set.clone();
+        cloned.remove(1);
+
+        assertSortedListEquals(set.toArray(), 1, 2, 3);
+        assertSortedListEquals(cloned.toArray(), 2, 3);
+    }
+    
     /**
      * Run some random insertions/ deletions and compare the results
      * against <code>java.util.HashSet</code>.

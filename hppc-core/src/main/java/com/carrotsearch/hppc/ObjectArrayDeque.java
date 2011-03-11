@@ -40,7 +40,7 @@ import com.carrotsearch.hppc.procedures.ObjectProcedure;
  * </table>
  */
 public class ObjectArrayDeque<KType> 
-    extends AbstractObjectCollection<KType> implements ObjectDeque<KType> 
+    extends AbstractObjectCollection<KType> implements ObjectDeque<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -601,6 +601,35 @@ public class ObjectArrayDeque<KType>
         }
 
         return target;
+    }
+
+    /**
+     * Clone this object. The returned clone will reuse the same hash function
+     * and array resizing strategy.
+     */
+    @Override
+    protected ObjectArrayDeque<KType> clone()
+    {
+        try
+        {
+            @SuppressWarnings("unchecked")
+            ObjectArrayDeque<KType> cloned = (ObjectArrayDeque<KType>) super.clone();
+            cloned.buffer = buffer.clone();
+            return cloned;
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * Converts this deque to a string.
+     */
+    @Override
+    public String toString()
+    {
+        return Arrays.toString(this.toArray());
     }
 
     /**
