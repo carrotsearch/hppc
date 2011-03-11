@@ -72,7 +72,7 @@
   <modules>
     <module>hppc-core</module>
     <module>hppc-examples</module>
-    <module>hppc-others</module>
+    <module>hppc-benchmarks</module>
   </modules>
 </project>
 
