@@ -646,4 +646,24 @@ public class ObjectArrayDequeTest<KType>
         assertArrayEquals(new Object [] {1, 2, 3}, result); // dummy
     }
     /* end:removeIf */
+    
+    /* */
+    @Test
+    public void testClone()
+    {
+        this.deque.addLast(key1, key2, key3);
+        
+        ObjectArrayDeque<Object> cloned = deque.clone();
+        cloned.removeAllOccurrences(key1);
+
+        assertSortedListEquals(deque.toArray(), key1, key2, key3);
+        assertSortedListEquals(cloned.toArray(), key2, key3);
+    }
+
+    /* */
+    @Test
+    public void testToString()
+    {
+        assertEquals("[1, 2, 3]", ObjectArrayDeque.from(key1, key2, key3).toString());
+    }    
 }

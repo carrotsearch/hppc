@@ -16,7 +16,7 @@ import com.carrotsearch.hppc.procedures.IntProcedure;
  * <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.30.7319">
  * Preston Briggs and Linda Torczon's paper "An Efficient Representation for Sparse Sets"</a></p>
  */
-public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
+public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -443,7 +443,29 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet
             max = Math.max(max, c);
         return max;
     }
-    
+
+    /**
+     * Clone this object.
+     */
+    @Override
+    protected IntDoubleLinkedSet clone()
+    {
+        try
+        {
+            IntDoubleLinkedSet cloned = (IntDoubleLinkedSet) super.clone();
+            cloned.dense = dense.clone();
+            cloned.sparse = sparse.clone();
+            return cloned;
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*
+     * 
+     */
     @Override
     public String toString()
     {
