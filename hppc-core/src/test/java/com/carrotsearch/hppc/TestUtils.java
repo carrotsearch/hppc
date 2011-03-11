@@ -3,6 +3,8 @@ package com.carrotsearch.hppc;
 import static org.junit.Assert.*;
 import java.util.Arrays;
 
+import com.carrotsearch.hppc.hash.MurmurHash3;
+
 /**
  * Test utilities.
  */
@@ -411,5 +413,28 @@ public abstract class TestUtils
     public static void assertEquals2(Object a, Object b)
     {
         org.junit.Assert.assertEquals(a, b);
+    }
+
+    /**
+     * Generate a sequence of numbers with the same lower bits of their
+     * hash (MurmurHash3). 
+     */
+    public static IntArrayList generateMurmurHash3CollisionChain(int mask, 
+        int maskedSeed, int values)
+    {
+        IntArrayList hashChain = new IntArrayList();
+        for (int i = 1; i != 0; i++)
+        {
+            int hash = MurmurHash3.hash(i) & mask;
+
+            if (hash == maskedSeed)
+            {
+                hashChain.add(i);
+                if (hashChain.size() > values)
+                    break;
+            }
+        }
+
+        return hashChain;
     }
 }

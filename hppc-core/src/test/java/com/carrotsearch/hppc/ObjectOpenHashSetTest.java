@@ -5,14 +5,13 @@ import static org.junit.Assert.*;
 
 import org.junit.*;
 import org.junit.rules.MethodRule;
+import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
 
 /* removeIf:primitive */
 import com.carrotsearch.hppc.hash.*;
-import java.util.Arrays;
-import java.util.Comparator;
 /* end:removeIf */
 
 /**
@@ -54,17 +53,83 @@ public class ObjectOpenHashSetTest<KType>
             {
                 if (set.states[i] == ObjectOpenHashSet.EMPTY)
                 {
+                    /* removeIf:primitive */
                     assertEquals2(Intrinsics.defaultKTypeValue(), set.keys[i]);
+                    /* end:removeIf */
                 }
                 else
                 {
                     occupied++;
                 }
             }
-            assertEquals(occupied, set.deleted + set.assigned);
+            assertEquals(occupied, set.assigned);
         }
     }
 
+    @Test
+    public void testAddRemoveSameHashCollision()
+    {
+        // This test is only applicable to selected key types.
+        Assume.assumeTrue(
+            int[].class.isInstance(set.keys) ||
+            long[].class.isInstance(set.keys) ||
+            Object[].class.isInstance(set.keys));
+
+        IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff /3);
+
+        /*
+         * Add all of the conflicting keys to a map. 
+         */
+        for (IntCursor c : hashChain)
+            set.add(/* intrinsic:ktypecast */ c.value);
+
+        assertEquals(hashChain.size(), set.size());
+        
+        /*
+         * Add some more keys (random).
+         */
+        Random rnd = new Random(0xbabebeef);
+        IntSet chainKeys = IntOpenHashSet.from(hashChain);
+        IntSet differentKeys = new IntOpenHashSet();
+        while (differentKeys.size() < 500)
+        {
+            int k = rnd.nextInt();
+            if (!chainKeys.contains(k) && !differentKeys.contains(k))
+                differentKeys.add(k);
+        }
+
+        for (IntCursor c : differentKeys)
+            set.add(/* intrinsic:ktypecast */ c.value);
+
+        assertEquals(hashChain.size() + differentKeys.size(), set.size());
+
+        /* 
+         * Verify the map contains all of the conflicting keys.
+         */
+        for (IntCursor c : hashChain)
+            assertTrue(set.contains(/* intrinsic:ktypecast */ c.value));
+
+        /*
+         * Verify the map contains all the other keys.
+         */
+        for (IntCursor c : differentKeys)
+            assertTrue(set.contains(/* intrinsic:ktypecast */ c.value));
+
+        /*
+         * Iteratively remove the keys, from first to last.
+         */
+        for (IntCursor c : hashChain)
+            assertTrue(set.remove(/* intrinsic:ktypecast */ c.value));
+
+        assertEquals(differentKeys.size(), set.size());
+        
+        /*
+         * Verify the map contains all the other keys.
+         */
+        for (IntCursor c : differentKeys)
+            assertTrue(set.contains(/* intrinsic:ktypecast */ c.value));        
+    }
+    
     /* */
     @Test
     public void testInitiallyEmpty()
@@ -262,7 +327,7 @@ public class ObjectOpenHashSetTest<KType>
                     set.add(key);
 
                     assertTrue(set.contains(key));
-                    assertSame(key, set.lget());
+                    assertEquals2(key, set.lget());
                 }
                 else
                 {

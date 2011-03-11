@@ -55,8 +55,7 @@ import com.carrotsearch.hppc.procedures.*;
  * with Java types default {@link #hashCode()}.</p>
  * 
  * @author This code is inspired by the collaboration and implementation in the <a
- *         href="http://fastutil.dsi.unimi.it/">fastutil</a>
- *         project.
+ *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
 public class ObjectObjectOpenHashMap<KType, VType>
     implements ObjectObjectMap<KType, VType>
@@ -277,16 +276,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
         if (assigned >= resizeThreshold)
             expandAndRehash();
 
-        return putNoRehash(key, value);
-    }
-    
-    /**
-     * Put a given key, no rehashing. 
-     */
-    protected VType putNoRehash(KType key, VType value)
-    {
-        assert assigned < resizeThreshold;
-
         final int mask = states.length - 1;
         int slot = keyHashFunction.hash(key) & mask;
         while (states[slot] == ASSIGNED)
@@ -296,7 +285,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
             {
                 final VType oldValue = values[slot];
-                // keys[slot] = key;  // This only matters if we'd like to substitute objects that are equal.                
                 values[slot] = value;
                 return oldValue;
             }
