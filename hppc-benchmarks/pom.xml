@@ -12,12 +12,12 @@
 
   <!-- Project info. -->
   <groupId>com.carrotsearch</groupId>
-  <artifactId>hppc-others</artifactId>
+  <artifactId>hppc-benchmarks</artifactId>
   <version>0.4.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>HPPC Against Others</name>
-  <description>Comparison of HPPC against other primitive collections.</description>
+  <name>HPPC Benchmarks</name>
+  <description>HPPC benchmarks and comparison against other primitive collections.</description>
   <url>http://labs.carrotsearch.com/hppc.html</url>
 
 
