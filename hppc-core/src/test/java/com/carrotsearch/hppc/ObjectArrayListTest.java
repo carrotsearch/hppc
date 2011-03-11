@@ -618,4 +618,27 @@ public class ObjectArrayListTest<KType>
         assertArrayEquals(new Object [] {1, 2, 3}, result); // dummy
     }
     /* end:removeIf */
+
+    /* */
+    @Test
+    public void testClone()
+    {
+        this.list.add(key1, key2, key3);
+        
+        ObjectArrayList<Object> cloned = list.clone();
+        cloned.removeAllOccurrences(key1);
+
+        assertSortedListEquals(list.toArray(), key1, key2, key3);
+        assertSortedListEquals(cloned.toArray(), key2, key3);
+    }
+
+    /* */
+    @Test
+    public void testToString()
+    {
+        assertEquals("[" 
+            + key1 + ", "
+            + key2 + ", "
+            + key3 + "]", ObjectArrayList.from(key1, key2, key3).toString());
+    }    
 }

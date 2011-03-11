@@ -608,12 +608,13 @@ public class ObjectArrayDeque<KType>
      * and array resizing strategy.
      */
     @Override
-    protected ObjectArrayDeque<KType> clone()
+    public ObjectArrayDeque<KType> clone()
     {
         try
         {
             @SuppressWarnings("unchecked")
-            ObjectArrayDeque<KType> cloned = (ObjectArrayDeque<KType>) super.clone();
+            ObjectArrayDeque<KType> cloned = (ObjectArrayDeque<KType>)
+                super.clone();
             cloned.buffer = buffer.clone();
             return cloned;
         }
@@ -621,15 +622,6 @@ public class ObjectArrayDeque<KType>
         {
             throw new RuntimeException(e);
         }
-    }
-    
-    /**
-     * Converts this deque to a string.
-     */
-    @Override
-    public String toString()
-    {
-        return Arrays.toString(this.toArray());
     }
 
     /**

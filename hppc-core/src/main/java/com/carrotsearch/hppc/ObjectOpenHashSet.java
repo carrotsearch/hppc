@@ -53,7 +53,7 @@ import com.carrotsearch.hppc.procedures.*;
  */
 public class ObjectOpenHashSet<KType>
     extends AbstractObjectCollection<KType> 
-    implements ObjectLookupContainer<KType>, ObjectSet<KType>
+    implements ObjectLookupContainer<KType>, ObjectSet<KType>, Cloneable
 {
     /* removeIf:primitive */
     /**
@@ -692,6 +692,26 @@ public class ObjectOpenHashSet<KType>
                 cloned[j++] = keys[i];
 
         return cloned;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ObjectOpenHashSet<KType> clone()
+    {
+        try
+        {
+            @SuppressWarnings("unchecked")
+            ObjectOpenHashSet<KType> cloned = (ObjectOpenHashSet<KType>) super.clone();
+            cloned.keys = keys.clone();
+            cloned.states = states.clone();
+            return cloned;
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

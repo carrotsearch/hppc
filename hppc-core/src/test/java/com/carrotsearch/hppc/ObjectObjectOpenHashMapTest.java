@@ -640,4 +640,38 @@ public class ObjectObjectOpenHashMapTest
         assertEquals(map2.hashCode(), map.hashCode());
     }
     /* end:removeIf */
+    
+    /*
+     * 
+     */
+    @Test
+    public void testClone()
+    {
+        this.map.put(key1, value1);
+        this.map.put(key2, value2);
+        this.map.put(key3, value3);
+        
+        ObjectObjectOpenHashMap<Object, Object> cloned = map.clone();
+        cloned.remove(key1);
+
+        assertSortedListEquals(map.keySet().toArray(), key1, key2, key3);
+        assertSortedListEquals(cloned.keySet().toArray(), key2, key3);
+    }
+
+    /*
+     * 
+     */
+    @Test
+    public void testToString()
+    {
+        this.map.put(key1, value1);
+        this.map.put(key2, value2);
+
+        String asString = map.toString();
+        System.out.println(asString);
+        asString = asString.replaceAll("[^0-9]", "");
+        char [] asCharArray = asString.toCharArray();
+        Arrays.sort(asCharArray);
+        assertEquals("1122", new String(asCharArray));
+    }
 }
