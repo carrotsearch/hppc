@@ -12,8 +12,6 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
-import com.carrotsearch.hppc.hash.MurmurHash3;
-
 /* removeIf:primitive */
 import com.carrotsearch.hppc.hash.*;
 import com.carrotsearch.hppc.hash.MurmurHash3.*;
@@ -84,23 +82,7 @@ public class ObjectObjectOpenHashMapTest
             long[].class.isInstance(map.keys) ||
             Object[].class.isInstance(map.keys));
 
-        /*
-         * Generate a sequence of numbers with the same lower bits of their
-         * hash (MurmurHash3). 
-         */
-        IntArrayList hashChain = new IntArrayList();
-        int mask = 0x1fff;
-        for (int i = 1; i != 0; i++)
-        {
-            int hash = MurmurHash3.hash(i) & mask;
-
-            if (hash == 0x7e)
-            {
-                hashChain.add(i);
-                if (hashChain.size() > mask / 3)
-                    break;
-            }
-        }
+        IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff /3);
 
         /*
          * Add all of the conflicting keys to a map. 
@@ -109,12 +91,36 @@ public class ObjectObjectOpenHashMapTest
             map.put(/* intrinsic:ktypecast */ c.value, this.value1);
 
         assertEquals(hashChain.size(), map.size());
+        
+        /*
+         * Add some more keys (random).
+         */
+        Random rnd = new Random(0xbabebeef);
+        IntSet chainKeys = IntOpenHashSet.from(hashChain);
+        IntSet differentKeys = new IntOpenHashSet();
+        while (differentKeys.size() < 500)
+        {
+            int k = rnd.nextInt();
+            if (!chainKeys.contains(k) && !differentKeys.contains(k))
+                differentKeys.add(k);
+        }
+
+        for (IntCursor c : differentKeys)
+            map.put(/* intrinsic:ktypecast */ c.value, value2);
+
+        assertEquals(hashChain.size() + differentKeys.size(), map.size());
 
         /* 
-         * Verify the map contains all of the keys.
+         * Verify the map contains all of the conflicting keys.
          */
         for (IntCursor c : hashChain)
             assertEquals2(value1, map.get(/* intrinsic:ktypecast */ c.value));
+
+        /*
+         * Verify the map contains all the other keys.
+         */
+        for (IntCursor c : differentKeys)
+            assertEquals2(value2, map.get(/* intrinsic:ktypecast */ c.value));
 
         /*
          * Iteratively remove the keys, from first to last.
@@ -122,7 +128,13 @@ public class ObjectObjectOpenHashMapTest
         for (IntCursor c : hashChain)
             assertEquals2(value1, map.remove(/* intrinsic:ktypecast */ c.value));
 
-        assertEquals(0, map.size());
+        assertEquals(differentKeys.size(), map.size());
+        
+        /*
+         * Verify the map contains all the other keys.
+         */
+        for (IntCursor c : differentKeys)
+            assertEquals2(value2, map.get(/* intrinsic:ktypecast */ c.value));        
     }
     
     /* */

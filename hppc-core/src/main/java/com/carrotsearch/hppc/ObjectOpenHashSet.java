@@ -9,8 +9,8 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 /**
- * A hash set of <code>KType</code>s, implemented using open addressing with 
- * quadratic collision resolution.
+ * A hash set of <code>KType</code>s, implemented using using open
+ * addressing with linear probing for collision resolution.
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}), {@link #states})
@@ -41,6 +41,15 @@ import com.carrotsearch.hppc.procedures.*;
  * </table>
  * 
  * <p>This implementation supports <code>null</code> keys.</p>
+ * 
+ * <p><b>Important node.</b> The implementation uses power-of-two tables and linear
+ * probing, which may cause poor performance (many collisions) if hash values are
+ * not properly distributed. Use a well-mixing hash function. 
+ * This implementation uses {@link ObjectMurmurHash} for keys by 
+ * default (primitive derivatives are provided in HPPC for convenience).</p>
+ * 
+ * @author This code is inspired by the collaboration and implementation in the <a
+ *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
 public class ObjectOpenHashSet<KType>
     extends AbstractObjectCollection<KType> 
@@ -78,11 +87,6 @@ public class ObjectOpenHashSet<KType>
     public final static byte EMPTY = 0;
 
     /** 
-     * A marker for a deleted slot in {@link #keys}, stored in {@link #states}. 
-     */
-    public final static byte DELETED = 1;
-
-    /** 
      * A marker for an assigned slot in {@link #keys}, stored in {@link #states}. 
      */
     public final static byte ASSIGNED = 2;  
@@ -96,17 +100,11 @@ public class ObjectOpenHashSet<KType>
 
     /**
      * Each entry (slot) in the {@link #keys} table has an associated state 
-     * information ({@link #EMPTY}, {@link #ASSIGNED} or {@link #DELETED}).
+     * information ({@link #EMPTY} or {@link #ASSIGNED}.
      * 
-     * @see #deleted
      * @see #assigned
      */
     public byte [] states;
-
-    /**
-     * Cached number of deleted slots in {@link #states}.
-     */
-    public int deleted;
 
     /**
      * Cached number of assigned slots in {@link #states}.
@@ -218,21 +216,27 @@ public class ObjectOpenHashSet<KType>
     @Override
     public boolean add(KType e)
     {
-        if (assigned + deleted >= resizeThreshold)
+        if (assigned >= resizeThreshold)
             expandAndRehash();
 
-        final int slot = slotFor(e);
-        final byte state = states[slot];
+        final int mask = states.length - 1;
+        int slot = hashFunction.hash(e) & mask;
+        while (states[slot] == ASSIGNED)
+        {
+            if (/* replaceIf:primitiveKType 
+               (keys[slot] == e) */ 
+                keyComparator.compare(keys[slot], e) == 0 /* end:replaceIf */ )
+            {
+                return false;
+            }
 
-        // If EMPTY or DELETED, we increase the assigned count.
-        if (state != ASSIGNED) assigned++;
-        // If DELETED, we decrease the deleted count.
-        if (state == DELETED) deleted--;
+            slot = (slot + 1) & mask;
+        }
 
-        keys[slot] = e;
+        assigned++;
         states[slot] = ASSIGNED;
-
-        return state != ASSIGNED;
+        keys[slot] = e;
+        return true;
     }
 
     /**
@@ -275,9 +279,9 @@ public class ObjectOpenHashSet<KType>
         {
             if (add(cursor.value)) count++;
         }
-
         return count;
     }
+
 
     /**
      * Expand the internal storage buffers (capacity) or rehash current
@@ -288,30 +292,36 @@ public class ObjectOpenHashSet<KType>
         final KType [] oldKeys = this.keys;
         final byte [] oldStates = this.states;
 
-        if (assigned >= resizeThreshold)
-        {
-            allocateBuffers(nextCapacity(keys.length));
-        }
-        else
-        {
-            allocateBuffers(this.keys.length);
-        }
+        assert assigned >= resizeThreshold;
+        allocateBuffers(nextCapacity(keys.length));
 
         /*
          * Rehash all assigned slots from the old hash table. Deleted
          * slots are discarded.
          */
+        final int mask = states.length - 1;
         for (int i = 0; i < oldStates.length; i++)
         {
             if (oldStates[i] == ASSIGNED)
             {
-                final int slot = slotFor(oldKeys[i]);
-                keys[slot] = oldKeys[i];
-                states[slot] = ASSIGNED;
+                final KType key = oldKeys[i];
+                
+                /* removeIf:primitiveKType */ oldKeys[i] = null; /* end:removeIf */
 
-                /* removeIf:primitiveKType */
-                oldKeys[i] = null; 
-                /* end:removeIf */
+                int slot = hashFunction.hash(key) & mask;
+                while (states[slot] == ASSIGNED)
+                {
+                    if (/* replaceIf:primitiveKType 
+                       (keys[slot] == key) */ 
+                        keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+                    {
+                        break;
+                    }
+                    slot = (slot + 1) & mask;
+                }
+
+                states[slot] = ASSIGNED;
+                keys[slot] = key;                
             }
         }
 
@@ -319,7 +329,6 @@ public class ObjectOpenHashSet<KType>
          * The number of assigned items does not change, the number of deleted
          * items is zero since we have resized.
          */
-        deleted = 0;
         lastSlot = -1;
     }
 
@@ -332,7 +341,6 @@ public class ObjectOpenHashSet<KType>
     {
         this.keys = Intrinsics.newKTypeArray(capacity);
         this.states = new byte [capacity];
-
         this.resizeThreshold = (int) (capacity * DEFAULT_LOAD_FACTOR);
     }
 
@@ -350,23 +358,70 @@ public class ObjectOpenHashSet<KType>
      */
     public boolean remove(KType key)
     {
-        final int slot = slotFor(key);
+        final int mask = states.length - 1;
+        int slot = hashFunction.hash(key) & mask; 
 
-        boolean hadEntry = false;
-        if (states[slot] == ASSIGNED)
+        while (states[slot] == ASSIGNED)
         {
-            deleted++;
-            assigned--;
-
-            keys[slot] = Intrinsics.<KType>defaultKTypeValue();
-            states[slot] = DELETED;
-
-            hadEntry = true;
+            if (/* replaceIf:primitiveKType 
+                (keys[slot] == key) */ 
+                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+             {
+                assigned--;
+                shiftConflictingKeys(slot);
+                return true;
+             }
+             slot = (slot + 1) & mask;
         }
 
-        return hadEntry;
+        return false;
     }
 
+
+    /**
+     * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>. 
+     */
+    protected final void shiftConflictingKeys(int slotCurr)
+    {
+        // Copied nearly verbatim from fastutil's impl.
+        final int mask = states.length - 1;
+        int slotPrev, slotOther;
+        while (true)
+        {
+            slotCurr = ((slotPrev = slotCurr) + 1) & mask;
+
+            while (states[slotCurr] == ASSIGNED)
+            {
+                slotOther = hashFunction.hash(keys[slotCurr]) & mask;
+                if (slotPrev <= slotCurr)
+                {
+                    // we're on the right of the original slot.
+                    if (slotPrev >= slotOther || slotOther > slotCurr)
+                        break;
+                }
+                else
+                {
+                    // we've wrapped around.
+                    if (slotPrev >= slotOther && slotOther > slotCurr)
+                        break;
+                }
+                slotCurr = (slotCurr + 1) & mask;
+            }
+
+            if (states[slotCurr] != ASSIGNED) 
+                break;
+
+            // Shift key/value pair.
+            keys[slotPrev] = keys[slotCurr];
+        }
+
+        states[slotPrev] = EMPTY;
+        
+        /* removeIf:primitiveKType */ 
+        keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
+        /* end:removeIf */
+    }
+    
     /**
      * Returns the last value saved in a call to {@link #contains}.
      * 
@@ -393,8 +448,21 @@ public class ObjectOpenHashSet<KType>
     @Override
     public boolean contains(KType key)
     {
-        final int slot = (lastSlot = slotFor(key));
-        return states[slot] == ASSIGNED;
+        final int mask = states.length - 1;
+        int slot = hashFunction.hash(key) & mask;
+        while (states[slot] == ASSIGNED)
+        {
+            if (/* replaceIf:primitiveKType 
+                (keys[slot] == key) */ 
+                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */)
+            {
+                lastSlot = slot;
+                return true; 
+            }
+            slot = (slot + 1) & mask;
+        }
+        lastSlot = -1;
+        return false;
     }
 
     /**
@@ -429,58 +497,6 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Lookup the slot index for <code>key</code> inside
-     * {@link ObjectOpenHashSet#keys}. This method implements quadratic slot
-     * lookup under the assumption that the number of slots (
-     * <code>{@link ObjectOpenHashSet#keys}.length</code>) is a power of two.
-     * Given this, the following formula yields a sequence of numbers with distinct values
-     * between [0, slots - 1]. For a hash <code>h(k)</code> and the <code>i</code>-th
-     * probe, where <code>i</code> is in <code>[0, slots - 1]</code>:
-     * <pre>
-     * h(k, i) = h(k) + (i + i^2) / 2   (mod slots)
-     * </pre>
-     * which can be rewritten recursively as:
-     * <pre>
-     * h(k, 0) = h(k),                (mod slots)
-     * h(k, i + 1) = h(k, i) + i.     (mod slots)
-     * </pre>
-     * 
-     * @see "http://en.wikipedia.org/wiki/Quadratic_probing"
-     */
-    public int slotFor(KType key)
-    {
-        final int slots = states.length;
-        final int bucketMask = (slots - 1);
-
-        // This is already verified when reallocating.
-        // assert slots > 0 && Integer.bitCount(slots) == 1 : "Bucket count must be a power of 2.";
-
-        int slot = hashFunction.hash(key) & bucketMask;
-        int i = 0;
-        int deletedSlot = -1;
-
-        while (true)
-        {
-            final int state = states[slot];
-            
-            if (state == ObjectOpenHashSet.EMPTY)
-                return deletedSlot != -1 ? deletedSlot : slot;
-
-            if (state == ObjectOpenHashSet.ASSIGNED &&
-                /* replaceIf:primitive (keys[slot] == key) */ 
-                                       keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
-            {
-                return slot;
-            }
-
-            if (state == ObjectOpenHashSet.DELETED && deletedSlot < 0)
-                deletedSlot = slot;
-
-            slot = (slot + (++i)) & bucketMask;
-        }
-    }
-
-    /**
      * {@inheritDoc}
      * 
      * <p>Does not release internal buffers.</p>
@@ -488,7 +504,7 @@ public class ObjectOpenHashSet<KType>
     @Override
     public void clear()
     {
-        assigned = deleted = 0;
+        assigned = 0;
 
         Arrays.fill(states, EMPTY);
         Arrays.fill(keys, Intrinsics.<KType>defaultKTypeValue());
@@ -698,28 +714,23 @@ public class ObjectOpenHashSet<KType>
         final KType [] keys = this.keys;
         final byte [] states = this.states;
 
-        int deleted = 0;
-        try
+        int before = assigned;
+        for (int i = 0; i < states.length;)
         {
-            for (int i = 0; i < states.length; i++)
+            if (states[i] == ASSIGNED)
             {
-                if (states[i] == ASSIGNED)
+                if (predicate.apply(keys[i]))
                 {
-                    if (predicate.apply(keys[i]))
-                    {
-                        states[i] = DELETED;
-                        deleted++;
-                    }
+                    assigned--;
+                    shiftConflictingKeys(i);
+                    // Repeat the check for the same i.
+                    continue;
                 }
             }
+            i++;
+        }
 
-            return deleted;
-        }
-        finally
-        {
-            this.assigned -= deleted;
-            this.deleted += deleted;
-        }
+        return before - this.assigned;
     }
 
     /**
