@@ -2,11 +2,16 @@ package com.carrotsearch.hppc.caliper;
 
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
+import com.carrotsearch.hppc.IntIntOpenHashMap;
+
 public class MahoutMap extends MapImplementation<OpenIntIntHashMap>
 {
     public MahoutMap()
     {
-        super(new OpenIntIntHashMap());
+        super(new OpenIntIntHashMap(
+            IntIntOpenHashMap.DEFAULT_CAPACITY,
+            OpenIntIntHashMap.defaultMinLoadFactor,
+            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
     }
 
     public void remove(int k) { instance.removeKey(k); }

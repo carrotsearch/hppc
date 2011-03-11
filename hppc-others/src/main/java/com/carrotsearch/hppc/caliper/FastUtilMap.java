@@ -2,13 +2,17 @@ package com.carrotsearch.hppc.caliper;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
+import com.carrotsearch.hppc.IntIntOpenHashMap;
+
 public class FastUtilMap extends MapImplementation<Int2IntOpenHashMap>
 {
     public FastUtilMap()
     {
-        super(new Int2IntOpenHashMap());
+        super(new Int2IntOpenHashMap(
+            IntIntOpenHashMap.DEFAULT_CAPACITY,
+            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
     }
-    
+
     public void remove(int k) { instance.remove(k); }
     public void put(int k, int v) { instance.put(k, v); }
     public int get(int k) { return instance.get(k); }

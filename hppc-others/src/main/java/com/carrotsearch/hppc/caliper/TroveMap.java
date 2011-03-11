@@ -1,12 +1,16 @@
 package com.carrotsearch.hppc.caliper;
 
+import com.carrotsearch.hppc.IntIntOpenHashMap;
+
 import gnu.trove.map.hash.TIntIntHashMap;
 
 public class TroveMap extends MapImplementation<TIntIntHashMap>
 {
     public TroveMap()
     {
-        super(new TIntIntHashMap());
+        super(new TIntIntHashMap(
+            IntIntOpenHashMap.DEFAULT_CAPACITY,
+            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR));
     }
 
     public void remove(int k) { instance.remove(k); }
