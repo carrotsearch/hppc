@@ -26,6 +26,7 @@ public class ObjectOpenHashSetTest<KType>
 
     /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key1 = 1;
     /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key2 = 2;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key3 = 3;
 
     /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   defaultValue 
         = Intrinsics.<KType>defaultKTypeValue();
@@ -434,5 +435,34 @@ public class ObjectOpenHashSetTest<KType>
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
     }
-    /* end:removeIf */    
+    /* end:removeIf */
+
+    /*
+     * 
+     */
+    @Test
+    public void testClone()
+    {
+        this.set.add(key1, key2, key3);
+        
+        ObjectOpenHashSet<Object> cloned = set.clone();
+        cloned.removeAllOccurrences(key1);
+
+        assertSortedListEquals(set.toArray(), key1, key2, key3);
+        assertSortedListEquals(cloned.toArray(), key2, key3);
+    }
+    
+    /*
+     * 
+     */
+    @Test
+    public void testToString()
+    {
+        this.set.add(key1, key2);
+        String asString = set.toString();
+        asString = asString.replaceAll("[\\[\\],\\ ]", "");
+        char [] asCharArray = asString.toCharArray();
+        Arrays.sort(asCharArray);
+        assertEquals("12", new String(asCharArray));
+    }
 }

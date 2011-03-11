@@ -448,7 +448,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * Clone this object.
      */
     @Override
-    protected IntDoubleLinkedSet clone()
+    public IntDoubleLinkedSet clone()
     {
         try
         {

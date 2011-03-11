@@ -225,4 +225,13 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     {
         return new ObjectStack<KType>(container);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ObjectStack<KType> clone()
+    {
+        return (ObjectStack<KType>) super.clone();
+    }
 }

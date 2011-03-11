@@ -41,7 +41,7 @@ import com.carrotsearch.hppc.procedures.*;
  * </table>
  */
 public class ObjectArrayList<KType>
-    extends AbstractObjectCollection<KType> implements ObjectIndexedContainer<KType>
+    extends AbstractObjectCollection<KType> implements ObjectIndexedContainer<KType>, Cloneable
 {
     /**
      * Default capacity if no other capacity is given in the constructor.
@@ -523,6 +523,26 @@ public class ObjectArrayList<KType>
     /* end:replaceIf */
     {
         return Arrays.copyOf(buffer, elementsCount);
+    }
+
+    /**
+     * Clone this object. The returned clone will reuse the same hash function
+     * and array resizing strategy.
+     */
+    @Override
+    public ObjectArrayList<KType> clone()
+    {
+        try
+        {
+            @SuppressWarnings("unchecked")
+            final ObjectArrayList<KType> cloned = (ObjectArrayList<KType>) super.clone();
+            cloned.buffer = buffer.clone();
+            return cloned;
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

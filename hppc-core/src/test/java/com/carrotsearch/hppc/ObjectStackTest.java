@@ -16,6 +16,10 @@ public class ObjectStackTest
      */
     public ObjectStack<Object> stack;
 
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key1 = 1;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key2 = 2;
+    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key3 = 3;
+
     /**
      * Require assertions for all tests.
      */
@@ -222,4 +226,27 @@ public class ObjectStackTest
         assertArrayEquals(new Object [] {1, 2, 3}, result); // dummy
     }
     /* end:removeIf */
+    
+    /* */
+    @Test
+    public void testClone()
+    {
+        this.stack.push(key1, key2, key3);
+        
+        ObjectStack<Object> cloned = stack.clone();
+        cloned.removeAllOccurrences(key1);
+
+        assertSortedListEquals(stack.toArray(), key1, key2, key3);
+        assertSortedListEquals(cloned.toArray(), key2, key3);
+    }
+
+    /* */
+    @Test
+    public void testToString()
+    {
+        assertEquals("[" 
+            + key1 + ", "
+            + key2 + ", "
+            + key3 + "]", ObjectStack.from(key1, key2, key3).toString());
+    }    
 }

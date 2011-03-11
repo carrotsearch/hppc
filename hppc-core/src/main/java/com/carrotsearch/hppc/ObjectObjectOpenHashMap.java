@@ -58,7 +58,7 @@ import com.carrotsearch.hppc.procedures.*;
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
 public class ObjectObjectOpenHashMap<KType, VType>
-    implements ObjectObjectMap<KType, VType>
+    implements ObjectObjectMap<KType, VType>, Cloneable
 {
     /* removeIf:primitiveKType */
     /**
@@ -1042,6 +1042,30 @@ public class ObjectObjectOpenHashMap<KType, VType>
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ObjectObjectOpenHashMap<KType, VType> clone()
+    {
+        try
+        {
+            @SuppressWarnings("unchecked")
+            ObjectObjectOpenHashMap<KType, VType> cloned = 
+                (ObjectObjectOpenHashMap<KType, VType>) super.clone();
+            
+            cloned.keys = keys.clone();
+            cloned.values = values.clone();
+            cloned.states = states.clone();
+
+            return cloned;
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
     /**
      * Convert the contents of this map to a human-friendly string. 
      */
