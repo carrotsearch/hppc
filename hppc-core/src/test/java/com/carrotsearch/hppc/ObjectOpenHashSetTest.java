@@ -458,6 +458,13 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testToString()
     {
+        Assume.assumeTrue(
+             int[].class.isInstance(set.keys)     ||
+             short[].class.isInstance(set.keys)   ||
+             byte[].class.isInstance(set.keys)    ||
+             long[].class.isInstance(set.keys)    ||
+             Object[].class.isInstance(set.keys));
+
         this.set.add(key1, key2);
         String asString = set.toString();
         asString = asString.replaceAll("[\\[\\],\\ ]", "");

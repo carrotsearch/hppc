@@ -664,11 +664,22 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testToString()
     {
+        Assume.assumeTrue(
+            (int[].class.isInstance(map.keys)     ||
+             short[].class.isInstance(map.keys)   ||
+             byte[].class.isInstance(map.keys)    ||
+             long[].class.isInstance(map.keys)    ||
+             Object[].class.isInstance(map.keys)) &&
+            (int[].class.isInstance(map.values)   ||
+             byte[].class.isInstance(map.values)  ||
+             short[].class.isInstance(map.values) ||
+             long[].class.isInstance(map.values)  ||
+             Object[].class.isInstance(map.values)));
+
         this.map.put(key1, value1);
         this.map.put(key2, value2);
 
         String asString = map.toString();
-        System.out.println(asString);
         asString = asString.replaceAll("[^0-9]", "");
         char [] asCharArray = asString.toCharArray();
         Arrays.sort(asCharArray);
