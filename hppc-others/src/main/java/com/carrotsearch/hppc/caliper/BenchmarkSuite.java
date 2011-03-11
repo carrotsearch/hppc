@@ -22,11 +22,21 @@ import com.google.common.collect.ObjectArrays;
 public class BenchmarkSuite
 {
     @SuppressWarnings("unchecked")
+    private final static Class<? extends Benchmark> [] ALL_BENCHMARKS = new Class []
+    {
+        BenchmarkBigramCounting.class, BenchmarkGetWithRemoved.class, BenchmarkPut.class
+    };
+
     public static void main(String [] args) throws Exception
     {
         if (args.length == 0)
         {
-            System.out.println("Args: [all | class-name, class-name, ...]");
+            System.out.println("Args: [all | class-name, class-name, ...] [-- <benchmark args>]");
+            System.out.println("Known benchmark classes: ");
+            for (Class<?> clz : ALL_BENCHMARKS)
+            {
+                System.out.println("\t" + clz.getName());
+            }
             return;
         }
 
@@ -42,30 +52,27 @@ public class BenchmarkSuite
             else if ("all".equals(argsList.peekFirst()))
             {
                 argsList.removeFirst();
-
-                Class<? extends Benchmark> [] benchmarkClasses = new Class []
-                {
-                    BenchmarkBigramCounting.class, 
-                    BenchmarkGetWithRemoved.class,
-                    BenchmarkPut.class
-                };
-
-                classes.addAll(Arrays.asList(benchmarkClasses));
+                classes.addAll(Arrays.asList(ALL_BENCHMARKS));
             }
             else
             {
-                final ClassLoader clLoader = Thread.currentThread().getContextClassLoader();
+                final ClassLoader clLoader = Thread.currentThread()
+                    .getContextClassLoader();
 
                 String clz = argsList.removeFirst();
                 try
                 {
-                    Class<?> clzInstance = Class.forName(clz, true, clLoader);
+                    @SuppressWarnings("unchecked")
+                    Class<? extends Benchmark> clzInstance = 
+                        (Class<? extends Benchmark>) Class.forName(clz, true, clLoader);
+
                     if (!Benchmark.class.isAssignableFrom(clzInstance))
                     {
                         System.out.println("Not a benchmark class: " + clz);
                         System.exit(-1);
                     }
-                    classes.add((Class<? extends Benchmark>) clzInstance);
+
+                    classes.add(clzInstance);
                 }
                 catch (ClassNotFoundException e)
                 {
@@ -82,7 +89,8 @@ public class BenchmarkSuite
     /**
      * 
      */
-    private static void runBenchmarks(List<Class<? extends Benchmark>> classes, String [] args) throws Exception
+    private static void runBenchmarks(List<Class<? extends Benchmark>> classes,
+        String [] args) throws Exception
     {
         int i = 0;
         for (Class<? extends Benchmark> clz : classes)
@@ -115,10 +123,10 @@ public class BenchmarkSuite
         task.setVMLauncher(true);
         task.setOutputproperty("stdout");
         task.setErrorProperty("stderr");
-        
+
         task.setFailIfExecutionFails(true);
         task.setFailonerror(true);
-        
+
         Project project = new Project();
         task.setProject(project);
 
@@ -161,7 +169,8 @@ public class BenchmarkSuite
         }
         catch (Throwable e)
         {
-            System.out.println("WARN: CPU information could not be extracted: " + e.getMessage());
+            System.out.println("WARN: CPU information could not be extracted: "
+                + e.getMessage());
         }
     }
 
