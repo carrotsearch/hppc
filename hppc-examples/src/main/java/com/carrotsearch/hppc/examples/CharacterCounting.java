@@ -28,57 +28,6 @@ public class CharacterCounting extends AbstractBenchmark
     }
 
     @Test
-    public void characterCountingWithHppcExtreme()
-    {
-        // Some characters to count
-        final char [] CHARS = DATA;
-
-        /*
-         * We know several things about the keys:
-         * - their range is limited to [0-65535] (char type),
-         * - their default hash code in HPPC is identity
-         * 
-         * We can use this information and allocate internal buffers big enough
-         * to hold all our values.
-         */
-        final CharIntOpenHashMap counts = new CharIntOpenHashMap(
-            (int) (65536 * (1 + CharIntOpenHashMap.DEFAULT_LOAD_FACTOR)));
-
-        /*
-         * We know there will be no resizes, because the hash map's array is big enough.
-         * Keeping local references to these speeds things a lot.
-         */
-        final byte [] states = counts.states;
-        final int [] values = counts.values;
-
-        // Loop over the characters and increase their corresponding entries in the map
-        for (int i = 0; i < CHARS.length; i++)
-        {
-            final char key = CHARS[i];
-
-            /*
-             * char type's default hash code function is identity and we don't REMOVE
-             * things from the hash map, so this is safe.
-             */
-            final int slot = key;
-            if (states[slot] == CharIntOpenHashMap.ASSIGNED)
-            {
-                values[slot]++;
-            }
-            else
-            {
-                states[slot] = CharIntOpenHashMap.ASSIGNED;
-                values[slot] = 1;
-                counts.assigned++;
-            }
-        }
-
-        final TotalCounter counter = new TotalCounter();
-        counts.forEach(counter);
-        Assert.assertEquals(counter.total, DATA.length);
-    }
-
-    @Test
     public void characterCountingWithHppc()
     {
         // [[[start:character-counting]]]

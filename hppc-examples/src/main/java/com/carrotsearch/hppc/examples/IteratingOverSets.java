@@ -62,14 +62,14 @@ public class IteratingOverSets
         
         // For the fastest iteration, you can access the sets's data buffers directly.
         final int [] keys = set.keys;
-        final byte [] states = set.states;
+        final boolean [] allocated = set.allocated;
         
         // Note that the loop is bounded by states.length, not keys.length. This
         // can make the code faster due to range check elimination
         // (http://wikis.sun.com/display/HotSpotInternals/RangeCheckElimination).
-        for (int i = 0; i < states.length; i++)
+        for (int i = 0; i < allocated.length; i++)
         {
-            if (states[i] == IntOpenHashSet.ASSIGNED) {
+            if (allocated[i]) {
                 System.out.println(keys[i]);
             }
         }

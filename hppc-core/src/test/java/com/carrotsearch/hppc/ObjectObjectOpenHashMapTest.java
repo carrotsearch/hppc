@@ -57,7 +57,7 @@ public class ObjectObjectOpenHashMapTest
             int occupied = 0;
             for (int i = 0; i < map.keys.length; i++)
             {
-                if (map.states[i] == ObjectObjectOpenHashMap.EMPTY)
+                if (map.allocated[i] == false)
                 {
                     /* removeIf:primitive */
                     assertEquals2(Intrinsics.defaultKTypeValue(), map.keys[i]);
@@ -428,7 +428,6 @@ public class ObjectObjectOpenHashMapTest
 
     /* */
     @Test
-    @SuppressWarnings("static-access")
     public void testIterable()
     {
         map.put(key1, value1);
@@ -445,7 +444,7 @@ public class ObjectObjectOpenHashMapTest
 
             assertEquals2(cursor.value, map.values[cursor.index]);
             assertEquals2(cursor.key, map.keys[cursor.index]);
-            assertEquals2(map.ASSIGNED, map.states[cursor.index]);
+            assertEquals2(true, map.allocated[cursor.index]);
         }
         assertEquals(count, map.size());
 
