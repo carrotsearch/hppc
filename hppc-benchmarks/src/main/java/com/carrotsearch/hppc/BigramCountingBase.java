@@ -10,8 +10,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.carrotsearch.hppc.hash.MurmurHash3.IntMurmurHash;
-
 public class BigramCountingBase
 {
     /* Prepare some test data */
@@ -38,16 +36,9 @@ public class BigramCountingBase
         // We'll use a int -> int map for counting. A bigram can be encoded
         // as an int by shifting one of the bigram's characters by 16 bits
         // and then ORing the other character to form a 32-bit int.
-    
-        /* 
-         * The input data is specific; it has low variance on lower bits and
-         * high variance overall. We need to use a better hashing function
-         * than simple identity. MurmurHash is good enough.
-         */ 
         final IntIntOpenHashMap map = new IntIntOpenHashMap(
             IntIntOpenHashMap.DEFAULT_CAPACITY, 
-            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR, 
-            new IntMurmurHash());
+            IntIntOpenHashMap.DEFAULT_LOAD_FACTOR);
     
         for (int i = 0; i < CHARS.length - 1; i++)
         {

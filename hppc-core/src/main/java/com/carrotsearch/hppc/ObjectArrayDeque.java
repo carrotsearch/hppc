@@ -3,9 +3,10 @@ package com.carrotsearch.hppc;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.carrotsearch.hppc.hash.ObjectHashFunction;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
 import com.carrotsearch.hppc.procedures.ObjectProcedure;
+
+import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
  * An array-backed deque (doubly linked queue) of KTypes. A single array is used to store and 
@@ -83,12 +84,6 @@ public class ObjectArrayDeque<KType>
     protected final ArraySizingStrategy resizer;
 
     /**
-     * Hash function for entries, required for {@link #hashCode()}. The default is
-     * {@link ObjectHashFunction} (weak hash for primitive types).
-     */
-    public final ObjectHashFunction<? super KType> hashFunction;
-
-    /**
      * Create with default sizing strategy and initial capacity for storing 
      * {@value #DEFAULT_CAPACITY} elements.
      * 
@@ -114,20 +109,9 @@ public class ObjectArrayDeque<KType>
      */
     public ObjectArrayDeque(int initialCapacity, ArraySizingStrategy resizer)
     {
-        this(initialCapacity, resizer, new ObjectHashFunction<KType>());
-    }
-
-    /**
-     * Create with a custom buffer resizing strategy.
-     */
-    public ObjectArrayDeque(int initialCapacity, ArraySizingStrategy resizer, 
-        ObjectHashFunction<? super KType> hashFunction)
-    {
         assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
-        assert hashFunction != null;
 
-        this.hashFunction = hashFunction;
         this.resizer = resizer;
         initialCapacity = resizer.round(initialCapacity);
         buffer = Intrinsics.newKTypeArray(initialCapacity);
@@ -952,7 +936,7 @@ public class ObjectArrayDeque<KType>
         final KType [] buffer = this.buffer;
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
-            h = 31 * h + hashFunction.hash(this.buffer[i]);
+            h = 31 * h + rehash(this.buffer[i]);
         }
         return h;
     }

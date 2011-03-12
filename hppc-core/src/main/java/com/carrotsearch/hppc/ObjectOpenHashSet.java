@@ -2,11 +2,12 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
-import com.carrotsearch.hppc.hash.MurmurHash3.*;
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.hash.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
+
+import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
  * A hash set of <code>KType</code>s, implemented using using open
@@ -44,9 +45,8 @@ import com.carrotsearch.hppc.procedures.*;
  * 
  * <p><b>Important node.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
- * not properly distributed. Use a well-mixing hash function. 
- * This implementation uses {@link ObjectMurmurHash} for keys by 
- * default (primitive derivatives are provided in HPPC for convenience).</p>
+ * not properly distributed. 
+ * This implementation uses {@link MurmurHash3} for rehashing keys.</p>
  * 
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
@@ -55,17 +55,6 @@ public class ObjectOpenHashSet<KType>
     extends AbstractObjectCollection<KType> 
     implements ObjectLookupContainer<KType>, ObjectSet<KType>, Cloneable
 {
-    /* removeIf:primitive */
-    /**
-     * Static key comparator for generic key sets.
-     */
-    private final static Comparator<Object> EQUALS_COMPARATOR = new Comparator<Object>() {
-        public int compare(Object o1, Object o2) {
-            return Intrinsics.equals(o1, o2) ? 0 : 1;
-        }
-    };
-    /* end:removeIf */
-
     /**
      * Default capacity.
      */
@@ -122,22 +111,8 @@ public class ObjectOpenHashSet<KType>
     private int lastSlot;
 
     /**
-     * Hash function for entries.
-     */
-    public final ObjectHashFunction<? super KType> hashFunction;
-    
-    /* removeIf:primitive */
-    /**
-     * Key comparator function. We're only interested in comparator returning 0 (equals) or
-     * non zero (not equals).
-     */
-    public final Comparator<? super KType> keyComparator;
-    /* end:removeIf */
-
-    /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link ObjectMurmurHash}.
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
 `     */
     public ObjectOpenHashSet()
     {
@@ -146,8 +121,7 @@ public class ObjectOpenHashSet<KType>
 
     /**
      * Creates a hash set with the given capacity,
-     * load factor of {@value #DEFAULT_LOAD_FACTOR} and hash function
-     * from {@link ObjectMurmurHash}.
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      */
     public ObjectOpenHashSet(int initialCapacity)
     {
@@ -155,14 +129,19 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Creates a hash set with the given capacity,
-     * load factor and hash function
-     * from {@link ObjectMurmurHash}.
+     * Creates a hash set with the given capacity and load factor.
      */
     public ObjectOpenHashSet(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, new ObjectMurmurHash() 
-            /* removeIf:primitive */, EQUALS_COMPARATOR /* end:removeIf */);
+        initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
+
+        assert initialCapacity > 0
+            : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
+        assert loadFactor > 0 && loadFactor < 1
+            : "Load factor must be between (0, 1).";
+
+        this.loadFactor = loadFactor;
+        allocateBuffers(roundCapacity(initialCapacity));
     }
 
     /**
@@ -175,32 +154,6 @@ public class ObjectOpenHashSet<KType>
     }
 
     /**
-     * Creates a hash set with the given predefined capacity. The actual allocated
-     * capacity is always rounded to the next power of two.
-     */
-    public ObjectOpenHashSet(
-        int initialCapacity, float loadFactor, ObjectHashFunction<? super KType> hashFunction
-        /* removeIf:primitive */, Comparator<? super KType> keyComparator /* end:removeIf */)
-    {
-        initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
-
-        assert initialCapacity > 0
-            : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
-        assert loadFactor > 0 && loadFactor < 1
-            : "Load factor must be between (0, 1).";
-        assert hashFunction != null : "Hash function must not be null.";
-
-        /* removeIf:primitive */
-        assert keyComparator != null : "Key comparator must not be null.";
-        this.keyComparator = keyComparator;
-        /* end:removeIf */
-
-        this.hashFunction = hashFunction;
-        this.loadFactor = loadFactor;
-        allocateBuffers(roundCapacity(initialCapacity));
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -210,12 +163,12 @@ public class ObjectOpenHashSet<KType>
             expandAndRehash();
 
         final int mask = allocated.length - 1;
-        int slot = hashFunction.hash(e) & mask;
+        int slot = rehash(e) & mask;
         while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                (keys[slot] == e) */ 
-                keyComparator.compare(keys[slot], e) == 0 /* end:replaceIf */ )
+                e == null ? keys[slot] == null : e.equals(keys[slot]) /* end:replaceIf */ )
             {
                 return false;
             }
@@ -308,12 +261,12 @@ public class ObjectOpenHashSet<KType>
                 
                 /* removeIf:primitiveKType */ oldKeys[i] = null; /* end:removeIf */
 
-                int slot = hashFunction.hash(key) & mask;
+                int slot = rehash(key) & mask;
                 while (allocated[slot])
                 {
                     if (/* replaceIf:primitiveKType 
                        (keys[slot] == key) */ 
-                        keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+                        key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
                     {
                         break;
                     }
@@ -359,13 +312,13 @@ public class ObjectOpenHashSet<KType>
     public boolean remove(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = hashFunction.hash(key) & mask; 
+        int slot = rehash(key) & mask; 
 
         while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
-                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
              {
                 assigned--;
                 shiftConflictingKeys(slot);
@@ -392,7 +345,7 @@ public class ObjectOpenHashSet<KType>
 
             while (allocated[slotCurr])
             {
-                slotOther = hashFunction.hash(keys[slotCurr]) & mask;
+                slotOther = rehash(keys[slotCurr]) & mask;
                 if (slotPrev <= slotCurr)
                 {
                     // we're on the right of the original slot.
@@ -448,12 +401,12 @@ public class ObjectOpenHashSet<KType>
     public boolean contains(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = hashFunction.hash(key) & mask;
+        int slot = rehash(key) & mask;
         while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
-                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */)
+                 key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */)
             {
                 lastSlot = slot;
                 return true; 
@@ -541,7 +494,7 @@ public class ObjectOpenHashSet<KType>
         {
             if (states[i])
             {
-                h += hashFunction.hash(keys[i]);
+                h += rehash(keys[i]);
             }
         }
 

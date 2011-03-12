@@ -3,9 +3,10 @@ package com.carrotsearch.hppc;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.hash.ObjectHashFunction;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
 import com.carrotsearch.hppc.procedures.*;
+
+import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
  * An array-backed list of KTypes. A single array is used to store and manipulate
@@ -83,12 +84,6 @@ public class ObjectArrayList<KType>
     protected final ArraySizingStrategy resizer;
 
     /**
-     * Hash function for entries, required for {@link #hashCode()}. The default is
-     * {@link ObjectHashFunction} (weak hash for primitive types).
-     */
-    public final ObjectHashFunction<? super KType> hashFunction;
-
-    /**
      * Create with default sizing strategy and initial capacity for storing 
      * {@value #DEFAULT_CAPACITY} elements.
      * 
@@ -114,20 +109,9 @@ public class ObjectArrayList<KType>
      */
     public ObjectArrayList(int initialCapacity, ArraySizingStrategy resizer)
     {
-        this(initialCapacity, resizer, new ObjectHashFunction<KType>());
-    }
-
-    /**
-     * Create with a custom buffer resizing strategy and hash function.
-     */
-    public ObjectArrayList(int initialCapacity, ArraySizingStrategy resizer, 
-        ObjectHashFunction<? super KType> hashFunction)
-    {
         assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
-        assert hashFunction != null;
 
-        this.hashFunction = hashFunction;
         this.resizer = resizer;
         ensureBufferSpace(resizer.round(initialCapacity));
     }
@@ -554,7 +538,7 @@ public class ObjectArrayList<KType>
         int h = 1, max = elementsCount;
         for (int i = 0; i < max; i++)
         {
-            h = 31 * h + hashFunction.hash(this.buffer[i]);
+            h = 31 * h + rehash(this.buffer[i]);
         }
         return h;
     }

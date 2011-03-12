@@ -12,11 +12,6 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
-/* removeIf:primitive */
-import com.carrotsearch.hppc.hash.*;
-import com.carrotsearch.hppc.hash.MurmurHash3.*;
-/* end:removeIf */
-
 /**
  * Tests for {@link ObjectObjectOpenHashMap}.
  */
@@ -589,54 +584,6 @@ public class ObjectObjectOpenHashMapTest
                 assertEquals(other.size(), map.size());
             }
         }
-    }
-    /* end:removeIf */
-    
-    /* removeIf:primitive */
-    @Test
-    public void testCustomKeyEquality()
-    {
-        ObjectHashFunction<int[]> intArrayHash = new ObjectHashFunction<int[]>() {
-            @Override
-            public int hash(int[] arg)
-            {
-                int hash = 0;
-                for (int v : arg) 
-                    hash += 31 * hash + v;
-                return hash;
-            }
-        };
-
-        Comparator<int[]> intArrayComparator = new Comparator<int[]>() {
-            @Override
-            public int compare(int [] o1, int [] o2)
-            {
-                return Arrays.equals(o1, o2) ? 0 : 1;
-            }
-        };
-        
-        ObjectObjectOpenHashMap<int[], Integer> map = new ObjectObjectOpenHashMap<int[], Integer>(
-            ObjectObjectOpenHashMap.DEFAULT_CAPACITY,
-            ObjectObjectOpenHashMap.DEFAULT_LOAD_FACTOR,
-            intArrayHash, new ObjectMurmurHash(),
-            intArrayComparator);
-
-        map.put(new int [] {1, 2, 3}, 1);
-        map.put(new int [] {1, 2, 3}, 2);
-        assertEquals(1, map.size());
-        assertTrue(map.containsKey(new int [] {1, 2, 3}));
-
-        map.put(new int [] {3, 2, 1}, 3);
-
-        ObjectObjectOpenHashMap<int[], Integer> map2 = new ObjectObjectOpenHashMap<int[], Integer>(
-            ObjectObjectOpenHashMap.DEFAULT_CAPACITY,
-            ObjectObjectOpenHashMap.DEFAULT_LOAD_FACTOR,
-            intArrayHash, new ObjectMurmurHash(),
-            intArrayComparator);
-        map2.putAll(map);
-        
-        assertTrue(map2.equals(map));
-        assertEquals(map2.hashCode(), map.hashCode());
     }
     /* end:removeIf */
     
