@@ -596,7 +596,9 @@ public class ObjectArrayDeque<KType>
     {
         try
         {
+            /* removeIf:primitive */
             @SuppressWarnings("unchecked")
+            /* end:removeIf */
             ObjectArrayDeque<KType> cloned = (ObjectArrayDeque<KType>)
                 super.clone();
             cloned.buffer = buffer.clone();

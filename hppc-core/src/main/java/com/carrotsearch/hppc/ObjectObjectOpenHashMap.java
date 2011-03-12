@@ -957,7 +957,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         try
         {
+            /* replaceIf:allprimitives */
             @SuppressWarnings("unchecked")
+            /* end:replaceIf */
             ObjectObjectOpenHashMap<KType, VType> cloned = 
                 (ObjectObjectOpenHashMap<KType, VType>) super.clone();
             
