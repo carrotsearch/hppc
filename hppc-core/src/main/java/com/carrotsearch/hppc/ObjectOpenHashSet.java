@@ -643,7 +643,9 @@ public class ObjectOpenHashSet<KType>
     {
         try
         {
+            /* removeIf:primitive */
             @SuppressWarnings("unchecked")
+            /* end:removeIf */
             ObjectOpenHashSet<KType> cloned = (ObjectOpenHashSet<KType>) super.clone();
             cloned.keys = keys.clone();
             cloned.allocated = allocated.clone();

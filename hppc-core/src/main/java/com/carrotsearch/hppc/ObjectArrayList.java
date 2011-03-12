@@ -518,7 +518,9 @@ public class ObjectArrayList<KType>
     {
         try
         {
+            /* removeIf:primitive */
             @SuppressWarnings("unchecked")
+            /* end:removeIf */
             final ObjectArrayList<KType> cloned = (ObjectArrayList<KType>) super.clone();
             cloned.buffer = buffer.clone();
             return cloned;
