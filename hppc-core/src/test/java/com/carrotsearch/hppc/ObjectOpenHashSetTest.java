@@ -10,10 +10,6 @@ import java.util.*;
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.ObjectPredicate;
 
-/* removeIf:primitive */
-import com.carrotsearch.hppc.hash.*;
-/* end:removeIf */
-
 /**
  * Unit tests for {@link ObjectOpenHashSet}.
  */
@@ -376,61 +372,6 @@ public class ObjectOpenHashSetTest<KType>
             /* intrinsic:ktypecast */ 1, 
             /* intrinsic:ktypecast */ null, 
             /* intrinsic:ktypecast */ 3);
-
-        assertEquals(l1.hashCode(), l2.hashCode());
-        assertEquals(l1, l2);
-    }
-    /* end:removeIf */
-    
-
-    /* removeIf:primitive */
-    @Test
-    public void testWithCustomKeyComparator()
-    {
-        ObjectHashFunction<int[]> intArrayHash = new ObjectHashFunction<int[]>() {
-            @Override
-            public int hash(int[] arg)
-            {
-                int hash = 0;
-                for (int v : arg) 
-                    hash += 31 * hash + v;
-                return hash;
-            }
-        };
-
-        Comparator<int[]> intArrayComparator = new Comparator<int[]>() {
-            @Override
-            public int compare(int [] o1, int [] o2)
-            {
-                return Arrays.equals(o1, o2) ? 0 : 1;
-            }
-        };
-
-        ObjectOpenHashSet<int[]> l1 = new ObjectOpenHashSet<int[]>(
-            ObjectOpenHashSet.DEFAULT_CAPACITY, ObjectOpenHashSet.DEFAULT_LOAD_FACTOR,
-            intArrayHash, intArrayComparator);
-        l1.add(
-            new int [] {1, 2, 3},
-            new int [] {1, 2, 3},
-            new int [] {1, 4}, 
-            new int [] {1, 8});
-
-        assertEquals(3, l1.size());
-        assertTrue(l1.contains(new int [] {1, 2, 3}));
-        assertTrue(l1.contains(new int [] {1, 4}));
-        assertTrue(l1.contains(new int [] {1, 8}));
-
-        assertEquals(1, l1.removeAllOccurrences(new int [] {1, 4}));
-        assertEquals(2, l1.size());
-        assertTrue(l1.contains(new int [] {1, 2, 3}));
-        assertTrue(l1.contains(new int [] {1, 8}));
-
-        ObjectOpenHashSet<int[]> l2 = new ObjectOpenHashSet<int[]>(
-            ObjectOpenHashSet.DEFAULT_CAPACITY, ObjectOpenHashSet.DEFAULT_LOAD_FACTOR,
-            intArrayHash, intArrayComparator);
-        l2.add(
-            new int [] {1, 2, 3},
-            new int [] {1, 8});
 
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);

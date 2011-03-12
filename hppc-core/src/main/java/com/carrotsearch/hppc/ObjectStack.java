@@ -1,8 +1,6 @@
 package com.carrotsearch.hppc;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.carrotsearch.hppc.hash.ObjectHashFunction;
-
 
 /**
  * An extension to {@link ObjectArrayList} adding stack-related utility methods. The top of
@@ -57,15 +55,6 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     public ObjectStack(int initialCapacity, ArraySizingStrategy resizer)
     {
         super(initialCapacity, resizer);
-    }
-
-    /**
-     * Create with a custom buffer resizing strategy and hash function.
-     */
-    public ObjectStack(int initialCapacity, ArraySizingStrategy resizer, 
-        ObjectHashFunction<? super KType> hashFunction)
-    {
-        super(initialCapacity, resizer, hashFunction);
     }
 
     /**

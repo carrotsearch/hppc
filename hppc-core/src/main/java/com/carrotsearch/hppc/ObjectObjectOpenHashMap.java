@@ -2,11 +2,12 @@ package com.carrotsearch.hppc;
 
 import java.util.*;
 
-import com.carrotsearch.hppc.hash.MurmurHash3.*;
 import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.hash.*;
+import com.carrotsearch.hppc.hash.MurmurHash3;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
+
+import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
@@ -47,12 +48,8 @@ import com.carrotsearch.hppc.procedures.*;
  * 
  * <p><b>Important node.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
- * not properly distributed. Use a well-mixing hash function. 
- * This implementation uses {@link ObjectMurmurHash} for keys by 
- * default (primitive derivatives are provided in HPPC for convenience). For the needs
- * of {@link #hashCode()} and {@link #equals}, a separate hash function for values is provided.
- * The default hash function for values is {@link ObjectHashFunction}, which is consistent
- * with Java types default {@link #hashCode()}.</p>
+ * not properly distributed. This implementation uses rehashing 
+ * using {@link MurmurHash3}.</p>
  * 
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
@@ -60,17 +57,6 @@ import com.carrotsearch.hppc.procedures.*;
 public class ObjectObjectOpenHashMap<KType, VType>
     implements ObjectObjectMap<KType, VType>, Cloneable
 {
-    /* removeIf:primitiveKType */
-    /**
-     * Static key comparator for generic key sets.
-     */
-    private final static Comparator<Object> EQUALS_COMPARATOR = new Comparator<Object>() {
-        public int compare(Object o1, Object o2) {
-            return Intrinsics.equals(o1, o2) ? 0 : 1;
-        }
-    };
-    /* end:removeIf */
-
     /**
      * Default capacity.
      */
@@ -135,32 +121,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     private int lastSlot;
 
     /**
-     * Hash function for keys.
-     */
-    public final /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction;
-
-    /**
-     * Hash function for values.
-     */
-    public final /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction;
-
-    /* removeIf:primitiveKType */
-    /**
-     * Key comparator function. We're only interested in comparator returning 0 (equals) or
-     * non zero (not equals).
-     */
-    public final Comparator<? super KType> keyComparator;
-    /* end:removeIf */
-
-    /**
-     * Lazily initialized view of the keys.
-     */
-    private KeySet keySetView;
-
-    /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR} and the default hash function
-     * {@link ObjectMurmurHash}.
+     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
@@ -171,7 +133,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
 
     /**
      * Creates a hash map with the given initial capacity, default load factor of
-     * {@value #DEFAULT_LOAD_FACTOR} and hash function from {@link ObjectMurmurHash}.
+     * {@value #DEFAULT_LOAD_FACTOR}.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 
@@ -185,7 +147,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
 
     /**
      * Creates a hash map with the given initial capacity,
-     * load factor and hash function {@link ObjectMurmurHash}.
+     * load factor.
      * 
      * <p>See class notes about hash distribution importance.</p>
      * 
@@ -196,38 +158,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
      */
     public ObjectObjectOpenHashMap(int initialCapacity, float loadFactor)
     {
-        this(initialCapacity, loadFactor, 
-            /* replaceIf:primitiveKType new UKTypeMurmurHash() */ new ObjectMurmurHash() /* end:replaceIf */);
-    }
-
-    /**
-     * Creates a hash map with the given predefined capacity. The actual allocated
-     * capacity is always rounded to the next power of two.
-     * 
-     * <p>See class notes about hash distribution importance.</p>
-     */
-    public ObjectObjectOpenHashMap(
-        int initialCapacity, float loadFactor, 
-        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction)
-    {
-        this(initialCapacity, loadFactor, keyHashFunction, 
-            /* replaceIf:primitiveVType new UVTypeHashFunction() */ new ObjectHashFunction<VType>() /* end:replaceIf */
-            /* removeIf:primitiveKType */, EQUALS_COMPARATOR /* end:removeIf */);
-    }
-
-    /**
-     * Creates a hash map with the given predefined capacity. The actual allocated
-     * capacity is always rounded to the next power of two.
-     * 
-     * <p>See class notes about hash distribution importance.</p>
-     */
-    public ObjectObjectOpenHashMap(
-        int initialCapacity, float loadFactor,
-        /* replaceIf:primitiveKType UKTypeHashFunction */ ObjectHashFunction<? super KType> /* end:replaceIf */ keyHashFunction,
-        /* replaceIf:primitiveVType UVTypeHashFunction */ ObjectHashFunction<? super VType> /* end:replaceIf */ valueHashFunction
-        /* removeIf:primitiveKType */, Comparator<? super KType> keyComparator /* end:removeIf */
-        )
-    {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
         assert initialCapacity > 0
@@ -235,13 +165,6 @@ public class ObjectObjectOpenHashMap<KType, VType>
         assert loadFactor > 0 && loadFactor <= 1
             : "Load factor must be between (0, 1].";
 
-        /* removeIf:primitiveKType */
-        assert keyComparator != null : "Key comparator must not be null.";
-        this.keyComparator = keyComparator;
-        /* end:removeIf */
-
-        this.valueHashFunction = valueHashFunction;
-        this.keyHashFunction = keyHashFunction;
         this.loadFactor = loadFactor;
         allocateBuffers(roundCapacity(initialCapacity));
     }
@@ -265,12 +188,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
             expandAndRehash();
 
         final int mask = allocated.length - 1;
-        int slot = keyHashFunction.hash(key) & mask;
+        int slot = rehash(key) & mask;
         while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                (keys[slot] == key) */ 
-                keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
             {
                 final VType oldValue = values[slot];
                 values[slot] = value;
@@ -361,7 +284,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
             expandAndRehash();
 
         final int mask = allocated.length - 1;
-        int slot = keyHashFunction.hash(key) & mask;
+        int slot = rehash(key) & mask;
         while (allocated[slot])
         {
             if (keys[slot] == key)
@@ -408,12 +331,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 /* removeIf:primitiveKType */ oldKeys[i] = null; /* end:removeIf */
                 /* removeIf:primitiveVType */ oldValues[i] = null; /* end:removeIf */
 
-                int slot = keyHashFunction.hash(key) & mask;
+                int slot = rehash(key) & mask;
                 while (allocated[slot])
                 {
                     if (/* replaceIf:primitiveKType 
                        (keys[slot] == key) */ 
-                        keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+                        key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
                     {
                         break;
                     }
@@ -454,13 +377,13 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public VType remove(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = keyHashFunction.hash(key) & mask; 
+        int slot = rehash(key) & mask; 
 
         while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
-                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */ )
+                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
              {
                 assigned--;
                 VType v = values[slot];
@@ -487,7 +410,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
 
             while (allocated[slotCurr])
             {
-                slotOther = keyHashFunction.hash(keys[slotCurr]) & mask;
+                slotOther = rehash(keys[slotCurr]) & mask;
                 if (slotPrev <= slotCurr)
                 {
                     // we're on the right of the original slot.
@@ -579,12 +502,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public VType get(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = keyHashFunction.hash(key) & mask;
+        int slot = rehash(key) & mask;
         while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
-                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */)
+                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */)
             {
                 return values[slot]; 
             }
@@ -645,12 +568,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public boolean containsKey(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = keyHashFunction.hash(key) & mask;
+        int slot = rehash(key) & mask;
         while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
-                 keyComparator.compare(keys[slot], key) == 0 /* end:replaceIf */)
+                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */)
             {
                 lastSlot = slot;
                 return true; 
@@ -739,7 +662,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         int h = 0;
         for (ObjectObjectCursor<KType, VType> c : this)
         {
-            h += keyHashFunction.hash(c.key) + valueHashFunction.hash(c.value);
+            h += rehash(c.key) + rehash(c.value);
         }
         return h;
     }
@@ -870,14 +793,12 @@ public class ObjectObjectOpenHashMap<KType, VType>
     }
 
     /**
-     * Returns a specialized view of the keys of this associated container. The view additionally
-     * implements {@link ObjectLookupContainer}.
+     * Returns a specialized view of the keys of this associated container. 
+     * The view additionally implements {@link ObjectLookupContainer}.
      */
     public KeySet keySet()
     {
-        if (keySetView == null)
-            keySetView = new KeySet();
-        return keySetView;
+        return new KeySet();
     }
 
     /**
