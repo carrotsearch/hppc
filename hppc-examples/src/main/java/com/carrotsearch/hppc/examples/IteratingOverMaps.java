@@ -3,7 +3,6 @@ package com.carrotsearch.hppc.examples;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.IntCharOpenHashMap;
-import com.carrotsearch.hppc.IntOpenHashSet;
 import com.carrotsearch.hppc.cursors.IntCharCursor;
 import com.carrotsearch.hppc.procedures.IntCharProcedure;
 
@@ -64,14 +63,14 @@ public class IteratingOverMaps
         // For the fastest iteration, you can access the sets's data buffers directly.
         final int [] keys = map.keys;
         final char [] values = map.values;
-        final byte [] states = map.states;
+        final boolean [] states = map.allocated;
         
         // Note that the loop is bounded by states.length, not keys.length. This
         // can make the code faster due to range check elimination
         // (http://wikis.sun.com/display/HotSpotInternals/RangeCheckElimination).
         for (int i = 0; i < states.length; i++)
         {
-            if (states[i] == IntOpenHashSet.ASSIGNED) {
+            if (states[i]) {
                 System.out.println(keys[i] + " -> " + values[i]);
             }
         }

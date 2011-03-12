@@ -14,7 +14,7 @@ import com.carrotsearch.hppc.procedures.*;
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, {@link #values},
- * {@link #states}) are always allocated to the nearest size that is a power of two. When
+ * {@link #allocated}) are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
  *
@@ -87,19 +87,8 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public final static float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
-     * A marker for an empty slot in {@link #keys}, stored in {@link #states}. 
-     */
-    public final static byte EMPTY = 0;
-
-    /** 
-     * A marker for an assigned slot in {@link #keys}, stored in {@link #states}. 
-     */
-    public final static byte ASSIGNED = 2;  
-
-    /**
      * Hash-indexed array holding all keys.
      * 
-     * @see #states
      * @see #values
      */
     public KType [] keys;
@@ -108,21 +97,20 @@ public class ObjectObjectOpenHashMap<KType, VType>
      * Hash-indexed array holding all values associated to the keys
      * stored in {@link #keys}.
      * 
-     * @see #states
      * @see #keys
      */
     public VType [] values;
 
     /**
-     * Each entry (slot) in the {@link #values} table has an associated state 
-     * information ({@link #EMPTY} or {@link #ASSIGNED}.
+     * Information if an entry (slot) in the {@link #values} table is allocated
+     * or empty.
      * 
      * @see #assigned
      */
-    public byte [] states;
+    public boolean [] allocated;
 
     /**
-     * Cached number of assigned slots in {@link #states}.
+     * Cached number of assigned slots in {@link #allocated}.
      */
     public int assigned;
 
@@ -276,9 +264,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
         if (assigned >= resizeThreshold)
             expandAndRehash();
 
-        final int mask = states.length - 1;
+        final int mask = allocated.length - 1;
         int slot = keyHashFunction.hash(key) & mask;
-        while (states[slot] == ASSIGNED)
+        while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                (keys[slot] == key) */ 
@@ -293,11 +281,10 @@ public class ObjectObjectOpenHashMap<KType, VType>
         }
 
         assigned++;
-        states[slot] = ASSIGNED;
+        allocated[slot] = true;
         keys[slot] = key;                
         values[slot] = value;
-
-        return Intrinsics.<VType> defaultVTypeValue();        
+        return Intrinsics.<VType> defaultVTypeValue();
     }
 
     /**
@@ -373,9 +360,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
         if (assigned >= resizeThreshold)
             expandAndRehash();
 
-        final int mask = states.length - 1;
+        final int mask = allocated.length - 1;
         int slot = keyHashFunction.hash(key) & mask;
-        while (states[slot] == ASSIGNED)
+        while (allocated[slot])
         {
             if (keys[slot] == key)
             {
@@ -385,9 +372,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
         }
 
         assigned++;
-        states[slot] = ASSIGNED;
+        allocated[slot] = true;
         keys[slot] = key;
-        return values[slot] = putValue;
+        VType v = values[slot] = putValue; 
+
+        return v;
     }
     *//* end:replaceIf */
 
@@ -399,7 +388,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         final KType [] oldKeys = this.keys;
         final VType [] oldValues = this.values;
-        final byte [] oldStates = this.states;
+        final boolean [] oldStates = this.allocated;
 
         assert assigned >= resizeThreshold;
         allocateBuffers(nextCapacity(keys.length));
@@ -408,10 +397,10 @@ public class ObjectObjectOpenHashMap<KType, VType>
          * Rehash all assigned slots from the old hash table. Deleted
          * slots are discarded.
          */
-        final int mask = states.length - 1;
+        final int mask = allocated.length - 1;
         for (int i = 0; i < oldStates.length; i++)
         {
-            if (oldStates[i] == ASSIGNED)
+            if (oldStates[i])
             {
                 final KType key = oldKeys[i];
                 final VType value = oldValues[i];
@@ -420,7 +409,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 /* removeIf:primitiveVType */ oldValues[i] = null; /* end:removeIf */
 
                 int slot = keyHashFunction.hash(key) & mask;
-                while (states[slot] == ASSIGNED)
+                while (allocated[slot])
                 {
                     if (/* replaceIf:primitiveKType 
                        (keys[slot] == key) */ 
@@ -431,7 +420,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
                     slot = (slot + 1) & mask;
                 }
 
-                states[slot] = ASSIGNED;
+                allocated[slot] = true;
                 keys[slot] = key;                
                 values[slot] = value;
             }
@@ -453,7 +442,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         this.keys = Intrinsics.newKTypeArray(capacity);
         this.values = Intrinsics.newVTypeArray(capacity);
-        this.states = new byte [capacity];
+        this.allocated = new boolean [capacity];
 
         this.resizeThreshold = (int) (capacity * loadFactor);
     }
@@ -464,10 +453,10 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public VType remove(KType key)
     {
-        final int mask = states.length - 1;
+        final int mask = allocated.length - 1;
         int slot = keyHashFunction.hash(key) & mask; 
 
-        while (states[slot] == ASSIGNED)
+        while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
@@ -490,13 +479,13 @@ public class ObjectObjectOpenHashMap<KType, VType>
     protected final void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
-        final int mask = states.length - 1;
+        final int mask = allocated.length - 1;
         int slotPrev, slotOther;
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
-            while (states[slotCurr] == ASSIGNED)
+            while (allocated[slotCurr])
             {
                 slotOther = keyHashFunction.hash(keys[slotCurr]) & mask;
                 if (slotPrev <= slotCurr)
@@ -514,7 +503,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 slotCurr = (slotCurr + 1) & mask;
             }
 
-            if (states[slotCurr] != ASSIGNED) 
+            if (!allocated[slotCurr]) 
                 break;
 
             // Shift key/value pair.
@@ -522,7 +511,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
             values[slotPrev] = values[slotCurr];           
         }
 
-        states[slotPrev] = EMPTY;
+        allocated[slotPrev] = false;
         
         /* removeIf:primitiveKType */ 
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
@@ -557,11 +546,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
         final int before = this.assigned;
 
         final KType [] keys = this.keys;
-        final byte [] states = this.states;
+        final boolean [] states = this.allocated;
 
         for (int i = 0; i < states.length;)
         {
-            if (states[i] == ASSIGNED)
+            if (states[i])
             {
                 if (predicate.apply(keys[i]))
                 {
@@ -589,9 +578,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public VType get(KType key)
     {
-        final int mask = states.length - 1;
+        final int mask = allocated.length - 1;
         int slot = keyHashFunction.hash(key) & mask;
-        while (states[slot] == ASSIGNED)
+        while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
@@ -613,8 +602,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public VType lget()
     {
         assert lastSlot >= 0 : "Call containsKey() first.";
-        assert states[lastSlot] == ASSIGNED 
-            : "Last call to exists did not have any associated value.";
+        assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
     
         return values[lastSlot];
     }
@@ -630,8 +618,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
     public VType lset(VType key)
     {
         assert lastSlot >= 0 : "Call containsKey() first.";
-        assert states[lastSlot] == ASSIGNED 
-            : "Last call to exists did not have any associated value.";
+        assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
 
         final VType previous = values[lastSlot];
         values[lastSlot] = key;
@@ -657,9 +644,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
     @Override
     public boolean containsKey(KType key)
     {
-        final int mask = states.length - 1;
+        final int mask = allocated.length - 1;
         int slot = keyHashFunction.hash(key) & mask;
-        while (states[slot] == ASSIGNED)
+        while (allocated[slot])
         {
             if (/* replaceIf:primitiveKType 
                 (keys[slot] == key) */ 
@@ -712,7 +699,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
         assigned = 0;
 
         // States are always cleared.
-        Arrays.fill(states, EMPTY);
+        Arrays.fill(allocated, false);
 
         /* removeIf:primitiveVType */
         Arrays.fill(values, null); // Help the GC.
@@ -821,7 +808,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
                 int i = cursor.index + 1;
                 for (; i < keys.length; i++)
                 {
-                    if (states[i] == ASSIGNED)
+                    if (allocated[i])
                         break;
                 }
                 nextIndex = (i != keys.length ? i : AT_END);
@@ -871,11 +858,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
     {
         final KType [] keys = this.keys;
         final VType [] values = this.values;
-        final byte [] states = this.states;
+        final boolean [] states = this.allocated;
 
         for (int i = 0; i < states.length; i++)
         {
-            if (states[i] == ASSIGNED)
+            if (states[i])
                 procedure.apply(keys[i], values[i]);
         }
         
@@ -912,11 +899,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
         public <T extends ObjectProcedure<? super KType>> T forEach(T procedure)
         {
             final KType [] localKeys = owner.keys;
-            final byte [] localStates = owner.states;
+            final boolean [] localStates = owner.allocated;
 
             for (int i = 0; i < localStates.length; i++)
             {
-                if (localStates[i] == ASSIGNED)
+                if (localStates[i])
                     procedure.apply(localKeys[i]);
             }
 
@@ -927,11 +914,11 @@ public class ObjectObjectOpenHashMap<KType, VType>
         public <T extends ObjectPredicate<? super KType>> T forEach(T predicate)
         {
             final KType [] localKeys = owner.keys;
-            final byte [] localStates = owner.states;
+            final boolean [] localStates = owner.allocated;
 
             for (int i = 0; i < localStates.length; i++)
             {
-                if (localStates[i] == ASSIGNED)
+                if (localStates[i])
                 {
                     if (!predicate.apply(localKeys[i]))
                         break;
@@ -1010,10 +997,9 @@ public class ObjectObjectOpenHashMap<KType, VType>
             {
                 // Advance from current cursor's position.
                 int i = cursor.index + 1;
-                for (; i < keys.length; i++)
+                while (i < keys.length && !allocated[i])
                 {
-                    if (states[i] == ASSIGNED)
-                        break;
+                    i++;
                 }
                 nextIndex = (i != keys.length ? i : AT_END);
             }
@@ -1056,7 +1042,7 @@ public class ObjectObjectOpenHashMap<KType, VType>
             
             cloned.keys = keys.clone();
             cloned.values = values.clone();
-            cloned.states = states.clone();
+            cloned.allocated = allocated.clone();
 
             return cloned;
         }

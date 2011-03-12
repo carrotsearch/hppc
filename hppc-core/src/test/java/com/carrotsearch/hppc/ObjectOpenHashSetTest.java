@@ -52,7 +52,7 @@ public class ObjectOpenHashSetTest<KType>
             int occupied = 0;
             for (int i = 0; i < set.keys.length; i++)
             {
-                if (set.states[i] == ObjectOpenHashSet.EMPTY)
+                if (!set.allocated[i])
                 {
                     /* removeIf:primitive */
                     assertEquals2(Intrinsics.defaultKTypeValue(), set.keys[i]);
