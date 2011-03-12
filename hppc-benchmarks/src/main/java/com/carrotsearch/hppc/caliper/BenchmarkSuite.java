@@ -24,7 +24,7 @@ public class BenchmarkSuite
     @SuppressWarnings("unchecked")
     private final static Class<? extends Benchmark> [] ALL_BENCHMARKS = new Class []
     {
-        BenchmarkBigramCounting.class, BenchmarkGetWithRemoved.class, BenchmarkPut.class
+        BenchmarkBigramCounting.class, BenchmarkContainsWithRemoved.class, BenchmarkPut.class
     };
 
     public static void main(String [] args) throws Exception

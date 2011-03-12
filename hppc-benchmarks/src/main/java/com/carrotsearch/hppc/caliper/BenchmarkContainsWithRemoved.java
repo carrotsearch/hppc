@@ -10,10 +10,10 @@ import org.apache.mahout.math.Arrays;
 import com.google.caliper.*;
 
 /**
- * Create a large map of int keys, remove a fraction of the keys and qury with half/half keys
+ * Create a large map of int keys, remove a fraction of the keys and query with half/half keys
  * and a some random values.
  */
-public class BenchmarkGetWithRemoved extends SimpleBenchmark
+public class BenchmarkContainsWithRemoved extends SimpleBenchmark
 {
     /* Prepare some test data */
     public int [] keys;
@@ -66,7 +66,7 @@ public class BenchmarkGetWithRemoved extends SimpleBenchmark
         }
     }
 
-    public int timeGet(int reps)
+    public int timeContains(int reps)
     {
         int count = 0;
         for (int i = 0; i < reps; i++)
@@ -84,6 +84,6 @@ public class BenchmarkGetWithRemoved extends SimpleBenchmark
 
     public static void main(String [] args)
     {
-        Runner.main(BenchmarkGetWithRemoved.class, args);
+        Runner.main(BenchmarkContainsWithRemoved.class, args);
     }
 }
