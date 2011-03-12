@@ -2,8 +2,7 @@ package com.carrotsearch.hppc.caliper;
 
 import static com.carrotsearch.hppc.caliper.Util.prepareData;
 
-import java.util.Random;
-
+import com.carrotsearch.hppc.XorShiftRandom;
 import com.google.caliper.*;
 
 /**
@@ -40,7 +39,7 @@ public class BenchmarkPut extends SimpleBenchmark
         switch (distribution)
         {
             case RANDOM:
-                keys = prepareData(size, new Random(0x11223344));
+                keys = prepareData(size, new XorShiftRandom(0x11223344));
                 break;
             case LINEAR:
                 keys = prepareLinear(size);
