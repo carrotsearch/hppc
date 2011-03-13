@@ -1,24 +1,24 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.jub;
 
 import java.util.HashMap;
 import java.util.Random;
 
 import org.junit.*;
 
+import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 /**
  * A micro-benchmark test case for comparing {@link HashMap} against
  * {@link ObjectObjectOpenHashMap}.
  */
-public class ObjectObjectOpenHashMapBenchmark extends AbstractBenchmark
+public class HashMapBenchmark extends AbstractBenchmark
 {
-    private static ObjectObjectOpenHashMap<Integer, Integer> hppc = 
-        new ObjectObjectOpenHashMap<Integer, Integer>();
+    private static HashMap<Integer, Integer> jre = new HashMap<Integer, Integer>();
 
-    public static final int COUNT = 1000000;
-    static Integer [] numbers = new Integer [COUNT];
-
+    private static int COUNT = 1000000;
+    private static Integer [] numbers = new Integer [COUNT];
+    
     /* */
     @BeforeClass
     public static void createTestSequence()
@@ -27,18 +27,12 @@ public class ObjectObjectOpenHashMapBenchmark extends AbstractBenchmark
         for (int i = 0; i < COUNT; i++)
             numbers[i] = rnd.nextInt();
     }
-    
-    @AfterClass
-    public static void cleanup()
-    {
-        numbers = null;
-    }
 
     /* */
     @Before
     public void before()
     {
-        hppc.clear();
+        jre.clear();
     }
 
     /* */
@@ -50,11 +44,11 @@ public class ObjectObjectOpenHashMapBenchmark extends AbstractBenchmark
             for (int i = 0; i < numbers.length - r; i++)
             {
                 if ((numbers[i] & 0x1) == 0)
-                    hppc.remove(numbers[i + r]);
+                    jre.remove(numbers[i + r]);
                 else
-                    hppc.put(numbers[i], numbers[i]);
+                    jre.put(numbers[i], numbers[i]);
             }
         }
-        hppc.clear();
+        jre.clear();
     }
 }

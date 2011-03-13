@@ -1,10 +1,12 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.jub;
 
 import java.util.Random;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.carrotsearch.hppc.BitSet;
+import com.carrotsearch.hppc.BitSetIterator;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.annotation.*;

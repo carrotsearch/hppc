@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 public class IndirectSortTest
 {
     /**
-     * Data length for certain tests.
+     * Limit data length if running with Clover.
      */
     static final int DATA_LENGTH = 
         CloverSupport.isClover() ? 10000 : 1000000;
@@ -48,7 +48,7 @@ public class IndirectSortTest
 
     enum DataDistribution
     {
-        ordered, sawtooth, rand, stagger, plateau, shuffle
+        ORDERED, SAWTOOTH, RANDOM, STAGGER, PLATEAU, SHUFFLE
     }
 
     enum Algorithm
@@ -118,22 +118,22 @@ public class IndirectSortTest
         {
             switch (dist)
             {
-                case ordered:
+                case ORDERED:
                     x[i] = i;
                     break;
-                case sawtooth:
+                case SAWTOOTH:
                     x[i] = i % m;
                     break;
-                case rand:
+                case RANDOM:
                     x[i] = rand.nextInt() % m;
                     break;
-                case stagger:
+                case STAGGER:
                     x[i] = (i * m + i) % n;
                     break;
-                case plateau:
+                case PLATEAU:
                     x[i] = Math.min(i, m);
                     break;
-                case shuffle:
+                case SHUFFLE:
                     x[i] = (rand.nextInt() % m) != 0 ? (j += 2) : (k += 2);
                     break;
                 default:

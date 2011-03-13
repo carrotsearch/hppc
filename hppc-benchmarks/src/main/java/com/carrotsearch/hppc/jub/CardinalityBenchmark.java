@@ -1,9 +1,12 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.jub;
 
 import java.util.Random;
 
 import org.junit.*;
 
+import com.carrotsearch.hppc.BitSet;
+import com.carrotsearch.hppc.IntDoubleLinkedSet;
+import com.carrotsearch.hppc.IntOpenHashSet;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.annotation.*;
