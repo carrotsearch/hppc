@@ -340,7 +340,7 @@
       <id>clover</id>
 
       <build>
-        <defaultGoal>test-compile</defaultGoal>
+        <defaultGoal>integration-test</defaultGoal>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -348,7 +348,7 @@
             <executions>
               <execution>
                 <id>clover</id>
-                <phase>test-compile<!-- test-compile, validate --></phase>
+                <phase>integration-test</phase>
                 <configuration>
                   <target>
                     <!-- This must be declared here because clover attempts to redefine 
