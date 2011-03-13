@@ -1,8 +1,9 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.jub;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import com.carrotsearch.hppc.ObjectStack;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 
 /**

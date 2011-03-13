@@ -1,7 +1,8 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.jub;
 
 import org.junit.*;
 
+import com.carrotsearch.hppc.ByteArrayList;
 import com.carrotsearch.hppc.cursors.ByteCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.procedures.ByteProcedure;
