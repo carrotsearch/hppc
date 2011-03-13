@@ -6,6 +6,9 @@ import java.util.Random;
 import org.junit.*;
 
 import com.carrotsearch.hppc.CloverSupport;
+import com.carrotsearch.hppc.XorShiftRandom;
+
+import static org.junit.Assert.*;
 
 /**
  * Test cases for {@link IndirectSort}.
@@ -361,6 +364,36 @@ public class IndirectSortTest
         }
     }
 
+    /**
+     * Sort random integers from the range 0..0xff based on their 4 upper bits. The relative
+     * order of 0xf0-masked integers should be preserved from the input. 
+     */
+    @Test
+    public void testMergeSortIsStable()
+    {
+        final Random rnd = new XorShiftRandom(0xdeadbeef);
+        final int [] data = new int [10000];
+
+        for (int i = 0; i < data.length; i++)
+            data[i] = rnd.nextInt(0x100);
+
+        int [] order = IndirectSort.mergesort(0, data.length, new IndirectComparator()
+        {
+            public int compare(int indexA, int indexB)
+            {
+                return (data[indexA] & 0xf0) - (data[indexB] & 0xf0);
+            }
+        });
+
+        for (int i = 1; i < order.length; i++)
+        {
+            if ((data[order[i - 1]] & 0xf0) == (data[order[i]] & 0xf0))
+            {
+                assertTrue(order[i - 1] < order[i]);
+            }
+        }
+    }
+    
     /*
      * 
      */
