@@ -42,7 +42,7 @@ public final class IndirectSort
      * Returns the order of elements between indices <code>start</code> and
      * <code>length</code>, as indicated by the given <code>comparator</code>.
      * <p>
-     * This routine uses recursive quicksort.
+     * This routine uses recursive quicksort. It is not guaranteed to be stable.
      * </p>
      */
     public static int [] sort(int start, int length, IndirectComparator comparator)
@@ -58,7 +58,7 @@ public final class IndirectSort
      * is equivalent to calling {@link #sort(int, int, IndirectComparator)} with
      * {@link IndirectComparator.DelegatingComparator}.
      * <p>
-     * This routine uses recursive quicksort.
+     * This routine uses recursive quicksort. It is not guaranteed to be stable.
      * </p>
      */
     public static <T> int [] sort(T [] input, int start, int length,
@@ -72,7 +72,7 @@ public final class IndirectSort
      * Returns the order of elements between indices <code>start</code> and
      * <code>length</code>, as indicated by the given <code>comparator</code>.
      * <p>
-     * This routine uses merge sort.
+     * This routine uses merge sort. It is guaranteed to be stable.
      * </p>
      */
     public static int [] mergesort(int start, int length, IndirectComparator comparator)
@@ -95,7 +95,7 @@ public final class IndirectSort
      * is equivalent to calling {@link #mergesort(int, int, IndirectComparator)} with
      * {@link IndirectComparator.DelegatingComparator}.
      * <p>
-     * This routine uses merge sort.
+     * This routine uses merge sort. It is guaranteed to be stable.
      * </p>
      */
     public static <T> int [] mergesort(T [] input, int start, int length,
