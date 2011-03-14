@@ -81,25 +81,10 @@
 
   <!-- Dependencies. -->
   <dependencies>
-    <!-- Required for tests only. -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.7</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.carrotsearch</groupId>
-      <artifactId>junit-benchmarks</artifactId>
-      <version>0.2.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.2.147</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -237,22 +222,14 @@
         </executions>
       </plugin>
 
-      <!-- Include benchmarks in the test set. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
             <include>**/*Test.*</include>
-            <include>**/*Benchmark.*</include>
           </includes>
           <argLine>-ea -Xmx1024m</argLine>
-          <systemPropertyVariables>
-            <jub.rounds.warmup>0</jub.rounds.warmup>
-            <jub.rounds.benchmark>1</jub.rounds.benchmark>
-            <jub.ignore.callgc>true</jub.ignore.callgc>
-            <jub.ignore.annotations>true</jub.ignore.annotations>
-          </systemPropertyVariables>
         </configuration>
       </plugin>
 
@@ -351,8 +328,7 @@
                 <phase>integration-test</phase>
                 <configuration>
                   <target>
-                    <!-- This must be declared here because clover attempts to redefine 
-                      it. -->
+                    <!-- This must be declared here because clover attempts to redefine it. -->
                     <property name="build.compiler"
                       value="org.eclipse.jdt.core.JDTCompilerAdapter" />
                     <ant antfile="${basedir}/src/ant/clover.xml"
@@ -386,77 +362,6 @@
                 <version>1.6.0</version> <scope>system</scope> <systemPath>${java.home}/../lib/tools.jar</systemPath> 
                 </dependency> -->
             </dependencies>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- Execute benchmarks and produce benchmark reports via ANT. -->
-    <profile>
-      <id>benchmark</id>
-
-      <build>
-        <defaultGoal>verify</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>compile</id>
-                <phase>verify</phase>
-                <configuration>
-                  <target>
-                    <property name="benchmarks.report.dir"
-                      location="${project.build.directory}/benchmarks" />
-                    <mkdir dir="${benchmarks.report.dir}" />
-
-                    <junit fork="true" forkmode="once" printsummary="on"
-                      errorproperty="benchmarks.error" failureproperty="benchmarks.error">
-                      <jvmarg value="-Xmx1024m" />
-                      <jvmarg value="-server" />
-                      <jvmarg value="-da" />
-
-                      <jvmarg value="-Djub.consumers=h2,console" />
-                      <jvmarg value="-Djub.db.file=.benchmark.db" />
-                      <jvmarg value="-Djub.charts.dir=${benchmarks.report.dir}" />
-                      <jvmarg value="-Dcustom.key=${build.number}" />
-
-                      <formatter type="xml" />
-
-                      <classpath refid="maven.test.classpath" />
-
-                      <batchtest todir="${benchmarks.report.dir}">
-                        <fileset dir="${project.build.directory}/test-classes">
-                          <include name="**/*Benchmark.class" />
-                          <exclude name="**/Abstract*" />
-                        </fileset>
-                      </batchtest>
-                    </junit>
-
-                    <fail
-                      message="Benchmarks failed. See ${benchmarks.report.dir} for report."
-                      if="benchmarks.error" />
-
-                    <sql userid="sa" driver="org.h2.Driver" password=""
-                      url="jdbc:h2:.benchmark.db;IFEXISTS=TRUE" classpathref="maven.test.classpath"
-                      print="true" showheaders="false" showtrailers="false"
-                      output="${benchmarks.report.dir}/results.txt"
-                      src="${basedir}/src/main/benchmarks/benchmark-report.sql" />
-
-                    <concat>
-                      <path>
-                        <pathelement location="${benchmarks.report.dir}/results.txt" />
-                      </path>
-                    </concat>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

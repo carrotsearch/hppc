@@ -1,10 +1,11 @@
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.jub;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.carrotsearch.hppc.ObjectArrayList;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.procedures.ObjectProcedure;
@@ -18,37 +19,32 @@ import com.carrotsearch.junitbenchmarks.annotation.*;
 @BenchmarkHistoryChart(filePrefix="CLASSNAME.history", maxRuns=50)
 @BenchmarkMethodChart(filePrefix="CLASSNAME.methods")
 @BenchmarkOptions(callgc = false, warmupRounds = 5, benchmarkRounds = 10)
-/* removeIf:primitive */ 
-@SuppressWarnings("unchecked")
-/* end:removeIf */
-public class ObjectArrayListBenchmark<KType> extends AbstractBenchmark
+public class ObjectArrayListBenchmark extends AbstractBenchmark
 {
     public static final int CELLS = (1024 * 1024) * 50;
-    private static ObjectArrayList<Object> singleton;
-    private ObjectArrayList<KType> list = (ObjectArrayList<KType>) singleton; 
+    private static ObjectArrayList<Object> list;
 
-    private static final /* replaceIf:primitiveKType KType */ 
-        Object /* end:replaceIf */ defValue = Intrinsics.defaultKTypeValue();
+    private static final Object defValue = null;
 
     /* */
     @BeforeClass
     public static void before()
     {
-        singleton = new ObjectArrayList<Object>();
-        singleton.resize(CELLS);
+        list = new ObjectArrayList<Object>();
+        list.resize(CELLS);
     }
     
     @AfterClass
     public static void cleanup()
     {
-        singleton = null;
+        list = null;
     }
 
     /* */
     @Test
     public void testSimpleGetLoop() throws Exception
     {
-        final ObjectArrayList<KType> list = this.list;
+        final ObjectArrayList<Object> list = ObjectArrayListBenchmark.list;
         final int max = list.size();
         int count = 0;
         for (int i = 0; i < max; i++)
@@ -64,7 +60,7 @@ public class ObjectArrayListBenchmark<KType> extends AbstractBenchmark
     public void testDirectBufferLoop() throws Exception
     {
         final int size = list.size();
-        final KType [] buffer = list.buffer;
+        final Object [] buffer = list.buffer;
         int count = 0;
         for (int i = 0; i < size; i++)
         {
@@ -79,7 +75,7 @@ public class ObjectArrayListBenchmark<KType> extends AbstractBenchmark
     public void testIterableCursor() throws Exception
     {
         int count = 0;
-        for (ObjectCursor<KType> c : list)
+        for (ObjectCursor<Object> c : list)
         {
             if (c.value != defValue)
                 count++;
@@ -92,8 +88,8 @@ public class ObjectArrayListBenchmark<KType> extends AbstractBenchmark
     public void testWithProcedureClosure()
     {
         final IntHolder count = new IntHolder();
-        list.forEach(new ObjectProcedure<KType>() {
-            public void apply(KType v)
+        list.forEach(new ObjectProcedure<Object>() {
+            public void apply(Object v)
             {
                 if (v != defValue)
                     count.value++;
@@ -107,9 +103,9 @@ public class ObjectArrayListBenchmark<KType> extends AbstractBenchmark
     public void testDirectBufferWithNewFor() throws Exception
     {
         int count = 0;
-        for (KType c : (KType[]) list.buffer)
+        for (Object c : list.buffer)
         {
-            if (defValue != (KType) c)
+            if (defValue != c)
                 count++;
         }
         Assert.assertEquals(0, count);
