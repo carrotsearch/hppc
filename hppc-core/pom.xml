@@ -81,7 +81,6 @@
 
   <!-- Dependencies. -->
   <dependencies>
-    <!-- Required for tests only. -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -329,8 +328,7 @@
                 <phase>integration-test</phase>
                 <configuration>
                   <target>
-                    <!-- This must be declared here because clover attempts to redefine 
-                      it. -->
+                    <!-- This must be declared here because clover attempts to redefine it. -->
                     <property name="build.compiler"
                       value="org.eclipse.jdt.core.JDTCompilerAdapter" />
                     <ant antfile="${basedir}/src/ant/clover.xml"
