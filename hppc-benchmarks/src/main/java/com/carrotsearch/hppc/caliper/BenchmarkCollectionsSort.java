@@ -67,30 +67,6 @@ public class BenchmarkCollectionsSort extends SimpleBenchmark
     /*
      * 
      */
-    public int timeIndirectQuickSort(int reps)
-    {
-        int count = 0;
-        for (int i = 0; i < reps; i++)
-        {
-            final Object [] input = data.toArray();
-            int [] ordered = IndirectSort.sort(input, 0, input.length, new Comparator<Object>()
-            {
-                @SuppressWarnings({"unchecked", "rawtypes"})
-                public int compare(Object o1, Object o2)
-                {
-                    return ((Comparable) o1).compareTo(o2);
-                }
-            });
-
-            count += ordered[0];
-        }
-
-        return count;
-    }
-
-    /*
-     * 
-     */
     public int timeLegacySort(int reps)
     {
         System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");

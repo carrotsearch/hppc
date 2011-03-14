@@ -53,7 +53,7 @@ public class IndirectSortTest
 
     enum Algorithm
     {
-        QUICKSORT, MERGESORT
+        MERGESORT
     }
 
     /**
@@ -63,15 +63,6 @@ public class IndirectSortTest
     public void testSortCertificationMergeSort()
     {
         sortCertification(Algorithm.MERGESORT);
-    }
-
-    /**
-     * Test "certification" program as in Bentley and McIlroy's paper.
-     */
-    @Test
-    public void testSortCertificationQuickSort()
-    {
-        sortCertification(Algorithm.QUICKSORT);
     }
 
     /**
@@ -186,9 +177,6 @@ public class IndirectSortTest
         final int [] order;
         switch (algo)
         {
-            case QUICKSORT:
-                order = IndirectSort.sort(0, x.length, c);
-                break;
             case MERGESORT:
                 order = IndirectSort.mergesort(0, x.length, c);
                 break;
@@ -207,30 +195,14 @@ public class IndirectSortTest
     public void testEmptyAndSingle()
     {
         final IndirectComparator comparator = new OrderedInputComparator();
-        int [] qSortOrder = IndirectSort.sort(0, 0, comparator);
         int [] mSortOrder = IndirectSort.mergesort(0, 0, comparator);
-        Assert.assertEquals(qSortOrder.length, 0);
         Assert.assertEquals(mSortOrder.length, 0);
 
         for (int i = 0; i < 1000; i++)
         {
-            qSortOrder = IndirectSort.sort(0, i, comparator);
             mSortOrder = IndirectSort.mergesort(0, i, comparator);
-            Assert.assertEquals(qSortOrder.length, i);
             Assert.assertEquals(mSortOrder.length, i);
-            Assert.assertArrayEquals(qSortOrder, mSortOrder);
         }
-    }
-
-    /**
-     * Large ordered input.
-     */
-    @Test
-    public void testOrderedQuickSort()
-    {
-        final IndirectComparator comparator = new OrderedInputComparator();
-        int [] order = IndirectSort.sort(0, DATA_LENGTH, comparator);
-        assertOrder(order, DATA_LENGTH, comparator);
     }
 
     /**
@@ -241,17 +213,6 @@ public class IndirectSortTest
     {
         final IndirectComparator comparator = new OrderedInputComparator();
         int [] order = IndirectSort.mergesort(0, DATA_LENGTH, comparator);
-        assertOrder(order, DATA_LENGTH, comparator);
-    }
-
-    /**
-     * Large reversed input.
-     */
-    @Test
-    public void testReversedQuickSort()
-    {
-        final IndirectComparator comparator = new ReverseOrderedInputComparator();
-        final int [] order = IndirectSort.sort(0, DATA_LENGTH, comparator);
         assertOrder(order, DATA_LENGTH, comparator);
     }
 
@@ -299,10 +260,7 @@ public class IndirectSortTest
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
 
-            int [] order = IndirectSort.sort(start, length, comparator);
-            assertOrder(order, length, comparator);
-
-            order = IndirectSort.mergesort(start, length, comparator);
+            int [] order = IndirectSort.mergesort(start, length, comparator);
             assertOrder(order, length, comparator);
         }
     }
@@ -328,10 +286,7 @@ public class IndirectSortTest
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
 
-            int [] order = IndirectSort.sort(start, length, comparator);
-            assertOrder(order, length, comparator);
-
-            order = IndirectSort.mergesort(start, length, comparator);
+            int [] order = IndirectSort.mergesort(start, length, comparator);
             assertOrder(order, length, comparator);
         }
     }
@@ -356,10 +311,7 @@ public class IndirectSortTest
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
 
-            int [] order = IndirectSort.sort(start, length, comparator);
-            assertOrder(order, length, comparator);
-
-            order = IndirectSort.mergesort(start, length, comparator);
+            int [] order = IndirectSort.mergesort(start, length, comparator);
             assertOrder(order, length, comparator);
         }
     }
