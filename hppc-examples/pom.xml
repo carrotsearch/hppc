@@ -126,6 +126,7 @@
       <plugin>
         <groupId>org.bsc.maven</groupId>
         <artifactId>maven-processor-plugin</artifactId>
+        <version>2.0.1</version>
         <executions>
           <execution>
             <id>process</id>
@@ -137,6 +138,9 @@
         </executions>
         <configuration>
           <defaultOutputDirectory>target/generated-sources/apt/main/java</defaultOutputDirectory>
+          <processors>
+            <processor>com.carrotsearch.hppc.structs.StructProcessor</processor>
+          </processors>
         </configuration>
         <dependencies>
           <dependency>
