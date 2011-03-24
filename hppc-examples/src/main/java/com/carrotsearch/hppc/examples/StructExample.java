@@ -11,5 +11,6 @@ public class StructExample
      */
     public void testSorted()
     {
+        System.out.println(PersonVector.class);
     }
 }
