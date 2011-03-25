@@ -3,14 +3,21 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <!-- We use SonaType for publishing artefacts. Parent POM makes things easier here. -->
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
   <!-- Project info. -->
   <groupId>com.carrotsearch</groupId>
-  <artifactId>hppc-parent</artifactId>
+  <artifactId>hppc-structs</artifactId>
   <version>0.4.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
-  <name>High Performance Primitive Collections (parent POM)</name>
-  <description>Parent POM for HPPC projects</description>
+  <name>High Performance Primitive Collections, Structure Generator</name>
+  <description>APT preprocessor for generating utility code for structure-like classes.</description>
   <url>http://labs.carrotsearch.com/hppc.html</url>
 
 
@@ -69,11 +76,58 @@
     <maven.compiler.target>1.6</maven.compiler.target>
   </properties>
 
-  <modules>
-    <module>hppc-core</module>
-    <module>hppc-structs</module>
-    <module>hppc-examples</module>
-    <module>hppc-benchmarks</module>
-  </modules>
-</project>
+  <dependencies>
+    <dependency>
+      <groupId>com.carrotsearch</groupId>
+      <artifactId>hppc</artifactId>
+      <version>0.4.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+    	<groupId>com.google.guava</groupId>
+    	<artifactId>guava</artifactId>
+    	<version>r08</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.velocity</groupId>
+    	<artifactId>velocity</artifactId>
+    	<version>1.7</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
+    <dependency>
+    	<groupId>net.java.dev.inflector</groupId>
+    	<artifactId>inflector</artifactId>
+    	<version>0.7.0</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
+  </dependencies>
 
+  <!-- Build tuning. -->
+  <build>
+    <defaultGoal>install</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <configuration>
+              <compilerArgument>-proc:none</compilerArgument>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <compilerArgument>-proc:none</compilerArgument>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
