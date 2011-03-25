@@ -1,0 +1,165 @@
+
+#macro (stringOrEmpty $str)"${esc.escapeJava($stringutils.defaultIfEmpty($str, ""))}"#end
+#macro (stringOrNull $str)#if ($str)"$esc.escapeJava($str)"#else#* *#null#end#end
+
+// hppc-struct annotation processor-generated file.
+
+package ${packageName};
+
+import javax.annotation.*;
+
+/**
+ * Generated for {@link ${sourceType.qualifiedName}}.
+ */
+@Generated("Generated from ${sourceType.qualifiedName}")
+public final class ${outputTypeName}
+{
+    /**
+     * The component class for which this descriptor was generated. 
+     */
+    public final static String STRUCT_CLASS = "${esc.escapeJava($sourceType.qualifiedName.toString())}";
+
+    /*
+     * Parallel arrays generated for the structure's fields. The same index in each array
+     * indicates a corresponding field of the same (pseudo) object.
+     */ 
+#foreach ($field in $fieldHelper.fields)#**#
+    /** Parallel array for {@link ${esc.escapeJava($sourceType.qualifiedName.toString())}#$field.simpleName} */
+    public $field.asType() [] $fieldHelper.pluralize($field.simpleName.toString());
+#end
+
+    /*
+     * Consecutive dimensions, for multi-dimensional arrays.
+     */ 
+#foreach ($dimension in $dimensions)
+    public final int dim${foreach.count};
+#end
+
+    /**
+     * Dimensions of this object. Do not change values inside this array.  
+     */
+    public final int [] dimensions;
+
+    /*
+     * Consecutive strides, for multi-dimensional arrays.
+     */ 
+#foreach ($dimension in $dimensions)
+#if ($dimension > 1)
+    public final int stride${foreach.count};
+#end
+#end
+
+    /**
+     * Create an array of {@link ${esc.escapeJava($sourceType.qualifiedName.toString())}} 
+     * structures, providing the dimensions as needed. 
+     */
+    public ${outputTypeName}(#foreach ($dimension in $dimensions)int dim${foreach.count}#if ($foreach.hasNext), #end#end)
+    {
+        #foreach ($dimension in $dimensions)#*
+        *#assert dim$dimension > 0 : 
+                "dim$dimension must be > 0:" + dim$dimension;
+        #end
+
+#foreach ($dimension in $dimensions)
+        this.dim${foreach.count} = dim${foreach.count}; 
+#end
+
+        this.dimensions = new int [] {#foreach ($dimension in $dimensions)dim$dimension#if ($foreach.hasNext), #end#end};
+
+#foreach ($d1 in $dimensions)#if ($d1 > 1)
+        this.stride${foreach.count} = #*
+            *##foreach ($d2 in $dimensions)#*
+                *##if ($d2 < $d1)#*
+                    *##if ($foreach.count > 1) * #end dim$d2#*
+                *##end#*
+            *##end;
+#end#end
+
+        final int totalSize = #foreach ($dimension in $dimensions)dim$dimension#if ($foreach.hasNext) * #end#end; 
+
+#foreach ($field in $fieldHelper.fields)
+        $fieldHelper.pluralize($field.simpleName.toString()) =
+        #if ($fieldHelper.isOfArrayType($field))
+        (${field.asType()}[]) java.lang.reflect.Array.newInstance(${field.asType()}.class, totalSize);
+        #else
+        new $field.asType() [totalSize]; 
+        #end
+#end
+    }
+
+    /*
+     * Getters and setters with no intermediate structure.
+     */ 
+#foreach ($field in $fieldHelper.fields)#**#
+    public $field.asType() ${fieldHelper.getterName($field)}(#foreach ($dimension in $dimensions)int i$dimension#if ($foreach.hasNext), #end#end) {
+        #foreach ($dimension in $dimensions)#*
+        *#assert i$dimension >= 0 && i$dimension <= dim$dimension : 
+                "i$dimension must be within [0," + dim$dimension + "]: " + i$dimension;
+        #end
+
+        return ${fieldHelper.pluralize($field.simpleName.toString())}[#*
+        *##foreach ($dimension in $dimensions)#*
+            *#i$dimension#if($dimension > 1) * stride$dimension#end#if($foreach.hasNext) + #end#*
+        *##end]; 
+    }
+    
+    public void ${fieldHelper.setterName($field)}($field.asType() value, #foreach ($dimension in $dimensions)int i$dimension#if ($foreach.hasNext), #end#end) {
+        #foreach ($dimension in $dimensions)#*
+        *#assert i$dimension >= 0 && i$dimension <= dim$dimension : 
+                "i$dimension must be within [0," + dim$dimension + "]: " + i$dimension;
+        #end
+
+        ${fieldHelper.pluralize($field.simpleName.toString())}[#*
+        *##foreach ($dimension in $dimensions)#*
+            *#i$dimension#if($dimension > 1) * stride$dimension#end#if($foreach.hasNext) + #end#*
+        *##end] = value;
+    }
+#end
+
+    /**
+     * Copies this structure's data to the fields of <code>inout</code> object and returns it. 
+     */ 
+    public ${sourceType.qualifiedName} get(${sourceType.qualifiedName} inout, #foreach ($dimension in $dimensions)int i$dimension#if ($foreach.hasNext), #end#end) {
+        #foreach ($dimension in $dimensions)#*
+        *#assert i$dimension >= 0 && i$dimension <= dim$dimension : 
+                "i$dimension must be within [0," + dim$dimension + "]: " + i$dimension;
+        #end
+
+        final int offset = #foreach ($dimension in $dimensions)#*
+            *#i$dimension#if($dimension > 1) * stride$dimension#end#if($foreach.hasNext) + #end#*
+        *##end;
+
+#foreach ($field in $fieldHelper.fields)
+        inout.$field.simpleName = ${fieldHelper.pluralize($field.simpleName.toString())}[offset];
+#end
+
+        return inout;
+    }
+    
+    /**
+     * Creates a new object of type ${outputTypeName} and fills it with values from this structure's
+     * data.
+     */
+    public ${sourceType.qualifiedName} get(#foreach ($dimension in $dimensions)int i$dimension#if ($foreach.hasNext), #end#end) {
+        return get(new ${sourceType.qualifiedName}(), #foreach ($dimension in $dimensions)i$dimension#if ($foreach.hasNext), #end#end);
+    }
+
+    /**
+     * Sets this structure's data to the fields of <code>in</code> object.
+     */ 
+    public void set(${sourceType.qualifiedName} in, #foreach ($dimension in $dimensions)int i$dimension#if ($foreach.hasNext), #end#end) {
+        #foreach ($dimension in $dimensions)#*
+        *#assert i$dimension >= 0 && i$dimension <= dim$dimension : 
+                "i$dimension must be within [0," + dim$dimension + "]: " + i$dimension;
+        #end
+        assert in != null : "In object must not be null.";
+
+        final int offset = #foreach ($dimension in $dimensions)#*
+            *#i$dimension#if($dimension > 1) * stride$dimension#end#if($foreach.hasNext) + #end#*
+        *##end;
+
+#foreach ($field in $fieldHelper.fields)
+        ${fieldHelper.pluralize($field.simpleName.toString())}[offset] = in.$field.simpleName;
+#end
+    }
+}
