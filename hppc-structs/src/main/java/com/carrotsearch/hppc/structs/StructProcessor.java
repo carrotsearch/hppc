@@ -6,20 +6,25 @@ import java.util.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.*;
 import javax.tools.Diagnostic.Kind;
 
 import org.apache.commons.collections.ExtendedProperties;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.log.NullLogChute;
-import org.apache.velocity.tools.generic.EscapeTool;
 
 import com.carrotsearch.hppc.annotations.Struct;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 
 /**
@@ -46,6 +51,11 @@ public class StructProcessor extends AbstractProcessor
     private Filer filer;
 
     /**
+     * Apt types utilities.
+     */
+    private Types types;
+
+    /**
      * Round number.
      */
     private int round;
@@ -66,6 +76,7 @@ public class StructProcessor extends AbstractProcessor
         elements = this.processingEnv.getElementUtils();
         filer = this.processingEnv.getFiler();
         messager = this.processingEnv.getMessager();
+        types = this.processingEnv.getTypeUtils();
 
         round = 0;
     }
@@ -103,9 +114,10 @@ public class StructProcessor extends AbstractProcessor
             if (e == null) continue;
             try
             {
+                validateType(e);
                 processType(e);
             }
-            catch (IOException e1)
+            catch (Exception e1)
             {
                 messager.printMessage(
                     Kind.ERROR,
@@ -126,6 +138,105 @@ public class StructProcessor extends AbstractProcessor
         return false;
     }
 
+    /**
+     * Validate if the structure type has all the required properties.
+     */
+    private void validateType(TypeElement e) throws IOException
+    {
+        @SuppressWarnings("unchecked")
+        List<Predicate<TypeElement>> predicates = Lists.newArrayList(
+            validateTypePublic, 
+            validateTypeFinal,
+            validateTypeExtendsObject,
+            validateTypeHasArgLessPublicConstructor);
+
+        Predicate<TypeElement> combined = Predicates.and(predicates);
+        if (!combined.apply(e))
+        {
+            final StringBuilder b = new StringBuilder("Type " + e.getQualifiedName()
+                + " does not validate as a structure:\n");
+            for (Predicate<TypeElement> p : predicates)
+            {
+                if (!p.apply(e))
+                {
+                    b.append(p.toString());
+                    b.append("\n");
+                }
+            }
+            
+            throw new IOException(b.toString());
+        }
+    }
+
+    /* */
+    private Predicate<TypeElement> validateTypeHasArgLessPublicConstructor = new Predicate<TypeElement>()
+    {
+        public boolean apply(TypeElement type)
+        {
+            for (ExecutableElement constructor : ElementFilter.constructorsIn(type.getEnclosedElements()))
+            {
+                if (constructor.getModifiers().contains(Modifier.PUBLIC)
+                    && constructor.getParameters().isEmpty())
+                    return true;
+            }
+            return false;
+        }
+
+        public String toString()
+        {
+            return "Structure class must have a parameterless constructor."; 
+        }
+    };
+
+    /* */
+    private Predicate<TypeElement> validateTypeExtendsObject = new Predicate<TypeElement>()
+    {
+        public boolean apply(TypeElement type)
+        {
+            List<? extends TypeMirror> directSupertypes = types.directSupertypes(type.asType());
+            if (directSupertypes.size() == 1)
+            {
+                TypeMirror typeMirror = directSupertypes.get(0);
+                return "java.lang.Object".equals(typeMirror.toString());
+            }
+
+            return false;
+        }
+
+        public String toString()
+        {
+            return "Structure class must extend java.lang.Object directly."; 
+        }
+    };
+
+    /* */
+    private Predicate<TypeElement> validateTypePublic = new Predicate<TypeElement>()
+    {
+        public boolean apply(TypeElement type)
+        {
+            return type.getModifiers().contains(Modifier.PUBLIC);
+        }
+
+        public String toString()
+        {
+            return "Structure class must be public."; 
+        }
+    };
+
+    /* */
+    private Predicate<TypeElement> validateTypeFinal = new Predicate<TypeElement>()
+    {
+        public boolean apply(TypeElement type)
+        {
+            return type.getModifiers().contains(Modifier.FINAL);
+        }
+
+        public String toString()
+        {
+            return "Structure class must be final."; 
+        }
+    };
+
     /*
      * 
      */
@@ -133,37 +244,126 @@ public class StructProcessor extends AbstractProcessor
     {
         String fullTypeName = elements.getBinaryName(type).toString();
         String packageName = elements.getPackageOf(type).getQualifiedName().toString();
-        String outputTypeName = type.getSimpleName().toString() + "Vector";
 
         PrintWriter w = null;
         ClassLoader ccl = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         try
         {
-            w = new PrintWriter(filer.createSourceFile(
-                packageName + "." + outputTypeName, type).openWriter());
+            final Struct struct = type.getAnnotation(Struct.class);
 
             final RuntimeInstance velocity = createInstance(messager);
             final VelocityContext context = createContext();
             context.put("packageName", packageName);
             context.put("fullTypeName", fullTypeName);
             context.put("sourceType", type);
-            context.put("outputTypeName", outputTypeName);
-            final Template template = velocity.getTemplate("TypeVector.template", "UTF-8");
-            template.merge(context, w);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Could not serialize metadata for: "
-                + type.toString(), e);
+            switch (struct.storage())
+            {
+                case PARALLEL_ARRAYS:
+                    for (int dimension : struct.dimensions())
+                    {
+                        generateParallelArraysArray(type, dimension, velocity, context);
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Not supported by the generator: "
+                        + struct.storage());
+            }
         }
         finally
         {
             Thread.currentThread().setContextClassLoader(ccl);
             if (w != null) Closeables.closeQuietly(w);
-        }        
+        }
     }
-    
+
+    /**
+     * Field helper class for template generator.
+     */
+    public class FieldHelper
+    {
+        private List<VariableElement> fields;
+
+        public FieldHelper(TypeElement type)
+        {
+            fields = Lists.newArrayList();
+            for (VariableElement field : ElementFilter.fieldsIn(type
+                .getEnclosedElements()))
+            {
+                Set<Modifier> modifiers = field.getModifiers();
+                if (modifiers.contains(Modifier.PUBLIC)
+                    && !modifiers.contains(Modifier.FINAL)
+                    && !modifiers.contains(Modifier.STATIC)
+                    && !modifiers.contains(Modifier.TRANSIENT))
+                {
+                    fields.add(field);
+                }
+            }
+        }
+
+        public boolean isOfArrayType(VariableElement field)
+        {
+            return field.asType().getKind() == TypeKind.ARRAY;
+        }
+
+        public List<VariableElement> getFields()
+        {
+            return fields;
+        }
+
+        public String getterName(VariableElement field)
+        {
+            // Ignore Bean spec. and use getX instead of isX.
+            return "get" + StringUtils.capitalize(field.getSimpleName().toString());
+        }
+
+        public String setterName(VariableElement field)
+        {
+            return "set" + StringUtils.capitalize(field.getSimpleName().toString());
+        }
+
+        public String pluralize(String fieldName)
+        {
+            return new org.jvnet.inflector.lang.en.NounPluralizer().pluralize(fieldName);
+        }
+    }
+
+    /**
+     * Generate a parallel-array array type with a given dimension.
+     */
+    private void generateParallelArraysArray(TypeElement type, int dimension,
+        RuntimeInstance velocity, VelocityContext context) throws IOException
+    {
+        if (dimension < 1) throw new IOException("Invalid dimension: " + dimension);
+
+        String packageName = elements.getPackageOf(type).getQualifiedName().toString();
+        String outputTypeName = type.getSimpleName().toString() + "Array"
+            + (dimension > 1 ? dimension + "D" : "");
+
+        context.put("outputTypeName", outputTypeName);
+        context.put("fieldHelper", new FieldHelper(type));
+        context.put("dimensions", generateDimensions(dimension));
+
+        PrintWriter w = new PrintWriter(filer.createSourceFile(
+            packageName + "." + outputTypeName, type).openWriter());
+
+        final Template template = velocity.getTemplate("StructArray.template", "UTF-8");
+        template.merge(context, w);
+
+        w.close();
+    }
+
+    /**
+     * (1..dimension).to_s
+     */
+    private List<Integer> generateDimensions(int dimension)
+    {
+        ArrayList<Integer> newArrayList = Lists.newArrayList();
+        for (int i = 1; i <= dimension; i++)
+            newArrayList.add(i);
+        return newArrayList;
+    }
+
     /**
      * Initialize Velocity engine instance, disables logging, sets bundle-relative
      * resource loader.
@@ -196,7 +396,7 @@ public class StructProcessor extends AbstractProcessor
     private VelocityContext createContext()
     {
         final VelocityContext context = new VelocityContext();
-        context.put("esc", new EscapeTool());
+        context.put("esc", StringEscapeUtils.class);
         context.put("stringutils", new StringUtils());
         return context;
     }
