@@ -71,7 +71,6 @@
 
   <modules>
     <module>hppc-core</module>
-    <module>hppc-structs</module>
     <module>hppc-examples</module>
     <module>hppc-benchmarks</module>
   </modules>
