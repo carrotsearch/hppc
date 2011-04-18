@@ -90,17 +90,86 @@
       <artifactId>junit-benchmarks</artifactId>
       <version>0.2.1</version>
     </dependency>
-    
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.7</version>
-    </dependency>    
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.lucene</groupId>
+    	<artifactId>lucene-core</artifactId>
+    	<version>3.0.3</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
   </dependencies>
 
 
   <!-- Build tuning. -->
   <build>
     <defaultGoal>install</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <configuration>
+              <compilerArgument>-proc:none</compilerArgument>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <compilerArgument>-proc:none</compilerArgument>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.bsc.maven</groupId>
+        <artifactId>maven-processor-plugin</artifactId>
+        <version>2.0.1</version>
+        <executions>
+          <execution>
+            <id>process</id>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <defaultOutputDirectory>target/generated-sources/apt/main/java</defaultOutputDirectory>
+          <processors>
+            <processor>com.carrotsearch.hppc.structs.StructProcessor</processor>
+          </processors>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>hppc-structs</artifactId>
+            <version>0.4.0-SNAPSHOT</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
   </build>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>maven-annotation-plugin</id>
+      <url>http://maven-annotation-plugin.googlecode.com/svn/trunk/mavenrepo</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 </project>
