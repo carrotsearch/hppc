@@ -3,7 +3,7 @@ package com.carrotsearch.hppc.cursors;
 /**
  * A cursor over a collection of <code>KTypes</code>.
  */
-public final class ObjectCursor<KType>
+public final class KTypeCursor<KType>
 {
     /**
      * The current value's index in the container this cursor belongs to. The meaning of

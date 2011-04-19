@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * A set of <code>KType</code>s.
  */
-public interface ObjectSet<KType> extends ObjectCollection<KType>
+public interface KTypeSet<KType> extends KTypeCollection<KType>
 {
     /**
      * Adds <code>k</code> to the set.

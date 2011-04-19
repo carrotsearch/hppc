@@ -5,7 +5,7 @@ package com.carrotsearch.hppc;
  * at least time <code>O(log n)</code> and ideally in amortized 
  * constant time <code>O(1)</code>.
  */
-public interface ObjectLookupContainer<KType> extends ObjectContainer<KType>
+public interface KTypeLookupContainer<KType> extends KTypeContainer<KType>
 {
     public boolean contains(KType e);
 }

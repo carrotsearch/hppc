@@ -1,12 +1,12 @@
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.hppc.predicates.ObjectPredicate;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
 
 /**
  * A collection allows basic, efficient operations on sets of elements 
  * (difference and intersection).
  */
-public interface ObjectCollection<KType> extends ObjectContainer<KType>
+public interface KTypeCollection<KType> extends KTypeContainer<KType>
 {
     /**
      * Removes all occurrences of <code>e</code> from this collection.
@@ -23,13 +23,13 @@ public interface ObjectCollection<KType> extends ObjectContainer<KType>
      * 
      * @return Returns the number of removed elements.
      */
-    public int removeAll(ObjectLookupContainer<? extends KType> c);
+    public int removeAll(KTypeLookupContainer<? extends KType> c);
 
     /**
      * Removes all elements in this collection for which the
      * given predicate returns <code>true</code>.
      */
-    public int removeAll(ObjectPredicate<? super KType> predicate);
+    public int removeAll(KTypePredicate<? super KType> predicate);
 
     /**
      * Keeps all elements in this collection that are present
@@ -38,13 +38,13 @@ public interface ObjectCollection<KType> extends ObjectContainer<KType>
      * 
      * @return Returns the number of removed elements.
      */
-    public int retainAll(ObjectLookupContainer<? extends KType> c);
+    public int retainAll(KTypeLookupContainer<? extends KType> c);
 
     /**
      * Keeps all elements in this collection for which the
      * given predicate returns <code>true</code>.
      */
-    public int retainAll(ObjectPredicate<? super KType> predicate);
+    public int retainAll(KTypePredicate<? super KType> predicate);
 
     /**
      * Removes all elements from this collection.

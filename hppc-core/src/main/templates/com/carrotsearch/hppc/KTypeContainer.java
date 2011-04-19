@@ -2,9 +2,9 @@ package com.carrotsearch.hppc;
 
 import java.util.Iterator;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.carrotsearch.hppc.predicates.ObjectPredicate;
-import com.carrotsearch.hppc.procedures.ObjectProcedure;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
 /**
  * A generic container holding <code>KType</code>s. An overview of interface relationships
@@ -13,7 +13,7 @@ import com.carrotsearch.hppc.procedures.ObjectProcedure;
  * <p><img src="doc-files/interfaces.png"
  *      alt="HPPC interfaces" /></p>
  */
-public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
+public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>
 {
     /**
      * Returns an iterator to a cursor traversing the collection. The order of traversal
@@ -27,12 +27,12 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
      * shown below.</p>
      * 
      * <pre>
-     * for (IntCursor c : intList) {
+     * for (KTypeCursor&lt;KType&gt; c : container) {
      *   System.out.println("index=" + c.index + " value=" + c.value);
      * }
-     * </pre> 
+     * </pre>
      */
-    public Iterator<ObjectCursor<KType>> iterator();
+    public Iterator<KTypeCursor<KType>> iterator();
 
     /**
      * Lookup a given element in the container. This operation has no speed
@@ -59,13 +59,13 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
      * Copies all elements from this container to an array of this container's component
      * type. The returned array is always a copy, regardless of the storage used by the container.
      */
-    /* replaceIf:primitive 
+    /*!#if ($TemplateOptions.KTypePrimitive)   
     public KType [] toArray();
-     */
+       #else !*/
     public KType [] toArray(Class<? super KType> clazz);
-    /* end:replaceIf */
+    /*! #end !*/
 
-    /* removeIf:primitive */
+    /* #if ($TemplateOptions.KTypeGeneric) */
     /**
      * Copies all elements from this container to an Object array. If you need an array
      * of the type identical with this container's generic type, use {@link #toArray(Class)}.
@@ -73,25 +73,24 @@ public interface ObjectContainer<KType> extends Iterable<ObjectCursor<KType>>
      * @see #toArray(Class) 
      */
     public Object[] toArray();    
-    /* end:removeIf */
+    /* #end */
 
     /**
      * Applies a <code>procedure</code> to all container elements. Returns the argument (any
-     * subclass of {@link ObjectProcedure}. This lets the caller to call methods of the argument
+     * subclass of {@link KTypeProcedure}. This lets the caller to call methods of the argument
      * by chaining the call (even if the argument is an anonymous type) to retrieve computed values,
-     * for example. 
-     *
+     * for example (IntContainer):
      * <pre>
      * int count = container.forEach(new IntProcedure() {
-     *      int count; // field!
+     *      int count; // this is a field declaration in an anonymous class.
      *      public void apply(int value) { count++; }}).count;
      * </pre>
      */
-    public <T extends ObjectProcedure<? super KType>> T forEach(T procedure);
+    public <T extends KTypeProcedure<? super KType>> T forEach(T procedure);
 
     /**
      * Applies a <code>predicate</code> to container elements as long, as the predicate
      * returns <code>true</code>. The iteration is interrupted otherwise. 
      */
-    public <T extends ObjectPredicate<? super KType>> T forEach(T predicate);
+    public <T extends KTypePredicate<? super KType>> T forEach(T predicate);
 }
