@@ -7,7 +7,7 @@ import java.util.RandomAccess;
  * An indexed container provides random access to elements based on an
  * <code>index</code>. Indexes are zero-based.
  */
-public interface ObjectIndexedContainer<KType> extends ObjectCollection<KType>, RandomAccess
+public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, RandomAccess 
 {
     /**
      * Removes the first element that equals <code>e1</code>, returning its 
@@ -63,10 +63,9 @@ public interface ObjectIndexedContainer<KType> extends ObjectCollection<KType>, 
      * Removes the element at the specified position in this list and returns it.
      * 
      * <p><b>Careful.</b> Do not confuse this method with the overridden signature in
-     * Java Collections ({@link List#remove(Object)}). Use various overloads
-     * of {@link #removeAll},
-     * {@link #removeFirstOccurrence} or 
-     * {@link #removeLastOccurrence} for this purpose.</p> 
+     * Java Collections ({@link List#remove(Object)}). Use: {@link #removeAll},
+     * {@link #removeFirstOccurrence} or {@link #removeLastOccurrence} depending 
+     * on the actual need.</p> 
      */
     public KType remove(int index);
 
@@ -79,7 +78,7 @@ public interface ObjectIndexedContainer<KType> extends ObjectCollection<KType>, 
     /**
      * Compares the specified object with this container for equality. Returns
      * <tt>true</tt> if and only if the specified object is also a
-     * {@link ObjectIndexedContainer}, both have the same size, and all corresponding
+     * {@link KTypeIndexedContainer}, both have the same size, and all corresponding
      * pairs of elements at the same index are <i>equal</i>. In other words, two indexed
      * containers are defined to be equal if they contain the same elements in the same
      * order.

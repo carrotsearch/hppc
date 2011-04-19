@@ -95,6 +95,14 @@
     	<scope>compile</scope>
     	<optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.7</version>
+      <type>jar</type>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 
 
@@ -156,15 +164,6 @@
     </pluginManagement>
 
     <plugins>
-      <!-- Eclipse project generation. -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <configuration>
-          <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
-        </configuration>
-      </plugin>
-
       <!-- Generate sources for primitives from template. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -178,7 +177,6 @@
               <target>
                 <ant antfile="${basedir}/build.xml">
                   <target name="generate.sources" />
-                  <target name="generate.test.sources" />
                 </ant>
               </target>
             </configuration>
@@ -193,6 +191,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.5</version>
 
         <executions>
           <execution>
@@ -203,6 +202,8 @@
             </goals>
             <configuration>
               <sources>
+                <source>${project.basedir}/src/generator/java</source>
+                <source>${project.basedir}/src/main/templates</source>
                 <source>${project.build.directory}/generated-sources/main/java</source>
               </sources>
             </configuration>
@@ -210,24 +211,13 @@
         </executions>
       </plugin>
 
+      <!-- Eclipse project generation. -->
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-
-        <executions>
-          <execution>
-            <id>add-test-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${project.build.directory}/generated-sources/test/java</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
+        </configuration>
       </plugin>
 
       <plugin>
