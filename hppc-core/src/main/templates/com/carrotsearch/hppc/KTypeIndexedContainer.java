@@ -7,6 +7,7 @@ import java.util.RandomAccess;
  * An indexed container provides random access to elements based on an
  * <code>index</code>. Indexes are zero-based.
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, RandomAccess 
 {
     /**

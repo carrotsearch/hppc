@@ -85,7 +85,21 @@ public final class TemplateProcessor
             {
                 for (Type t : Type.values())
                 {
-                    generate(f, outputs, new TemplateOptions(t));
+                    TemplateOptions options = new TemplateOptions(t);
+                    options.sourceFile = f.file;
+                    generate(f, outputs, options);
+                }
+            }
+            if (fileName.contains("KTypeVType"))
+            {
+                for (Type ktype : Type.values())
+                {
+                    for (Type vtype : Type.values())
+                    {
+                        TemplateOptions options = new TemplateOptions(ktype, vtype);
+                        options.sourceFile = f.file;
+                        generate(f, outputs, options);
+                    }
                 }
             }
         }
@@ -101,16 +115,15 @@ public final class TemplateProcessor
             templateOptions);
         OutputFile output = findOrCreate(targetFileName, outputs);
 
-        String input = readFile(f.file);
-        input = filterVelocity(f, input, templateOptions);
-        input = filterIntrinsics(f, input, templateOptions);
-        input = filterKTypeGenericSignatures(f, input, templateOptions);
-        input = filterKTypeClassRefs(f, input, templateOptions);
-        input = filterComments(f, input, templateOptions);
-
         if (!incremental || !output.file.exists()
             || output.file.lastModified() <= f.file.lastModified())
         {
+            String input = readFile(f.file);
+            input = filterVelocity(f, input, templateOptions);
+            input = filterIntrinsics(f, input, templateOptions);
+            input = filterTypeClassRefs(f, input, templateOptions);
+            input = filterComments(f, input, templateOptions);
+            
             output.updated = true;
             saveFile(output.file, input);
         }
@@ -168,12 +181,25 @@ public final class TemplateProcessor
                         ? "null" 
                         : "((" + templateOptions.getKType().getType() + ") 0)");
                 }
+                else if ("defaultVTypeValue".equals(method))
+                {
+                    sb.append(templateOptions.isVTypeGeneric() 
+                        ? "null" 
+                        : "((" + templateOptions.getVType().getType() + ") 0)");
+                }
                 else if ("newKTypeArray".equals(method))
                 {
                     sb.append(
                         templateOptions.isKTypeGeneric() 
-                        ? "((KType[]) new Object [" + params.get(0) + "])"
+                        ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
                         : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
+                }
+                else if ("newVTypeArray".equals(method))
+                {
+                    sb.append(
+                        templateOptions.isVTypeGeneric() 
+                        ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
+                        : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equals".equals(method))
                 {
@@ -213,62 +239,124 @@ public final class TemplateProcessor
         return p.matcher(input).replaceAll("");
     }
 
-    private String filterKTypeGenericSignatures(TemplateFile f, String input,
-        TemplateOptions templateOptions)
+    private String filterTypeClassRefs(TemplateFile f, String input, TemplateOptions options)
     {
-        if (templateOptions.isKTypePrimitive())
-            return input.replaceAll("<KType>", "");
-        else
-            return input;
-    }
-
-    private String filterKTypeClassRefs(TemplateFile f, String input,
-        TemplateOptions templateOptions)
-    {
-        Pattern p = Pattern.compile("(KType)([A-Z][A-Za-z]*)?(<[^/][^>]*>)?",
-            Pattern.MULTILINE | Pattern.DOTALL);
-        Matcher m = p.matcher(input);
-        m.reset();
-
-        boolean result = m.find();
-        if (result)
-        {
-            StringBuffer sb = new StringBuffer();
-            do
-            {
-                String replacement;
-                if (m.group(2) == null)
-                {
-                    if (templateOptions.isKTypeGeneric()) replacement = "KType";
-                    else replacement = templateOptions.getKType().getType();
-                }
-                else
-                {
-                    if (templateOptions.isKTypeGeneric())
-                    {
-                        replacement = templateOptions.getKType().getBoxedType()
-                            + strOrEmpty(m.group(2)) + strOrEmpty(m.group(3));
-                    }
-                    else
-                    {
-                        replacement = templateOptions.getKType().getBoxedType()
-                            + strOrEmpty(m.group(2));
-                    }
-                }
-                m.appendReplacement(sb, replacement);
-                result = m.find();
-            }
-            while (result);
-            m.appendTail(sb);
-            return sb.toString();
-        }
+        input = rewriteSignatures(f, input, options);
+        input = rewriteLiterals(f, input, options);
         return input;
     }
 
-    private String strOrEmpty(String str)
+    private String rewriteSignatures(TemplateFile f, String input, TemplateOptions options)
     {
-        if (str != null) return str;
-        else return "";
+        Pattern p = Pattern.compile("<[\\?A-Z]");
+        Matcher m = p.matcher(input);
+        
+        StringBuilder sb = new StringBuilder();
+        int fromIndex = 0;
+        while (m.find(fromIndex))
+        {
+            int next = m.start();
+            int end = next + 1;
+            int bracketCount = 1;
+            while (bracketCount > 0 && end < input.length())
+            {
+                switch (input.charAt(end++)) {
+                    case '<': bracketCount++; break;
+                    case '>': bracketCount--; break;
+                }
+            }
+            sb.append(input.substring(fromIndex, next));
+            sb.append(rewriteSignature(input.substring(next, end), options));
+            fromIndex = end;
+        }
+        sb.append(input.substring(fromIndex, input.length()));
+        return sb.toString();
+    }
+
+    private String rewriteSignature(String signature, TemplateOptions options)
+    {
+        if (!signature.contains("KType") && !signature.contains("VType"))
+            return signature;
+
+        Pattern p = Pattern.compile("<[^<>]*>", Pattern.MULTILINE | Pattern.DOTALL);
+
+        StringBuilder sb = new StringBuilder(signature);
+        Matcher m = p.matcher(sb);
+        while (m.find())
+        {
+            String group = m.group();
+            group = group.substring(1, group.length() - 1);
+            List<String> args = new ArrayList<String>(Arrays.asList(group.split(",")));
+            StringBuilder b = new StringBuilder();
+            for (Iterator<String> i = args.iterator(); i.hasNext();)
+            {
+                String arg = i.next().trim();
+
+                if (options.isKTypePrimitive())
+                {
+                    if (isGenericOnly(arg, "KType"))
+                        arg = "";
+                    else
+                        arg = arg.replace("KType", options.getKType().getBoxedType());
+                }
+
+                if ((options.isKTypePrimitive() && arg.contains("KType")) ||
+                    (options.hasVType() && options.isVTypePrimitive() && arg.contains("VType")))
+                {
+                    // skip.
+                }
+                else
+                {
+                    if (b.length() > 0) b.append(", ");
+                    b.append(arg.trim());
+                }
+            }
+            
+            if (b.length() > 0)
+            {
+                b.insert(0, '{');
+                b.append('}');
+            }
+            
+            sb.replace(m.start(), m.end(), b.toString());
+            m = p.matcher(sb);
+        }
+        return sb.toString().replace('{', '<').replace('}', '>');
+    }
+
+    private boolean isGenericOnly(String arg, String type)
+    {
+        return arg.equals(type) || arg.equals("? super " + type) || arg.equals("? extends " + type);
+    }
+
+    private String rewriteLiterals(TemplateFile f, String input, TemplateOptions options)
+    {
+        Type k = options.getKType();
+
+        if (options.hasVType())
+        {
+            Type v = options.getVType();
+            
+            input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
+                (k.isGeneric() ? "Object" : k.getBoxedType()) +
+                (v.isGeneric() ? "Object" : v.getBoxedType()) +
+                "$2" +
+                (options.isAnyGeneric() ? "$3" : ""));
+            
+            input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
+                (v.isGeneric() ? "Object" : v.getBoxedType()) +  "$2");
+
+            if (!v.isGeneric())
+                input = input.replaceAll("VType", v.getType());
+        }
+        
+        input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<.+?>)?",
+            k.isGeneric() ? "Object" + "$2$3": k.getBoxedType() + "$2");
+
+        if (!k.isGeneric())
+            input = input.replaceAll("KType", k.getType());
+
+        return input;
     }
 
     private void saveFile(File file, String input)

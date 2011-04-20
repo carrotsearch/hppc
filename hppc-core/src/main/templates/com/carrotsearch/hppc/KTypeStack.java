@@ -27,6 +27,7 @@ import com.carrotsearch.hppc.cursors.KTypeCursor;
  * </tbody>
  * </table>
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeStack<KType> extends KTypeArrayList<KType>
 {
     /**

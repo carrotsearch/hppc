@@ -7,7 +7,7 @@ import com.carrotsearch.hppc.hash.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
-import static com.carrotsearch.hppc.HashContainerUtils.*;
+import static com.carrotsearch.hppc.Internals.*;
 
 /**
  * A hash set of <code>KType</code>s, implemented using using open
@@ -55,6 +55,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
     extends AbstractKTypeCollection<KType> 
     implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
@@ -510,7 +511,7 @@ public class KTypeOpenHashSet<KType>
         {
             if (obj == this) return true;
 
-            if (obj instanceof ObjectSet<?>)
+            if (obj instanceof KTypeSet<?>)
             {
                 KTypeSet<Object> other = (KTypeSet<Object>) obj;
                 if (other.size() == this.size())
@@ -706,8 +707,7 @@ public class KTypeOpenHashSet<KType>
      * Create a set from a variable number of arguments or an array of <code>KType</code>.
      * The elements are copied from the argument to the internal buffer.
      */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */ 
-        KTypeOpenHashSet<KType> from(KType... elements)
+    public static <KType> KTypeOpenHashSet<KType> from(KType... elements)
     {
         final KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(
             (int) (elements.length * (1 + DEFAULT_LOAD_FACTOR)));
@@ -718,9 +718,26 @@ public class KTypeOpenHashSet<KType>
     /**
      * Create a set from elements of another container.
      */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */ 
-        KTypeOpenHashSet<KType> from(KTypeContainer<KType> container)
+    public static <KType> KTypeOpenHashSet<KType> from(KTypeContainer<KType> container)
     {
         return new KTypeOpenHashSet<KType>(container);
+    }
+    
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static <KType> KTypeOpenHashSet<KType> newInstance()
+    {
+        return new KTypeOpenHashSet<KType>();
+    }
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static <KType> KTypeOpenHashSet<KType> newInstanceWithCapacity(int initialCapacity, float loadFactor)
+    {
+        return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
     }
 }

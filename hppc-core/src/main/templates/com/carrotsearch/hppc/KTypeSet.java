@@ -6,6 +6,7 @@ import java.util.Set;
 /**
  * A set of <code>KType</code>s.
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeSet<KType> extends KTypeCollection<KType>
 {
     /**

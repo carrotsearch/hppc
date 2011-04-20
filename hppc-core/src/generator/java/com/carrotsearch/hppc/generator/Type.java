@@ -18,4 +18,9 @@ public enum Type
 
         return name().toLowerCase();
     }
+
+    public boolean isGeneric()
+    {
+        return this == GENERIC;
+    }
 }

@@ -3,15 +3,16 @@ package com.carrotsearch.hppc;
 import java.util.Iterator;
 import java.util.List;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.carrotsearch.hppc.predicates.ObjectPredicate;
-import com.carrotsearch.hppc.procedures.ObjectProcedure;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
 
 /**
  * A double-linked queue of <code>KType</code>s.
  */
-public interface ObjectDeque<KType> extends ObjectCollection<KType>
+/*! ${TemplateOptions.generatedAnnotation} !*/
+public interface KTypeDeque<KType> extends KTypeCollection<KType>
 {
     /**
      * Removes the first element that equals <code>e1</code>, returning its 
@@ -74,18 +75,18 @@ public interface ObjectDeque<KType> extends ObjectCollection<KType>
     /**
      * @return An iterator over elements in this deque in tail-to-head order. 
      */
-    public Iterator<ObjectCursor<KType>> descendingIterator();
+    public Iterator<KTypeCursor<KType>> descendingIterator();
     
     /**
      * Applies a <code>procedure</code> to all container elements.
      */
-    public <T extends ObjectProcedure<? super KType>> T descendingForEach(T procedure);
+    public <T extends KTypeProcedure<? super KType>> T descendingForEach(T procedure);
 
     /**
      * Applies a <code>predicate</code> to container elements as long, as the predicate
      * returns <code>true</code>. The iteration is interrupted otherwise. 
      */
-    public <T extends ObjectPredicate<? super KType>> T descendingForEach(T predicate);
+    public <T extends KTypePredicate<? super KType>> T descendingForEach(T predicate);
 
     /**
      * Compares the specified object with this deque for equality. Returns
