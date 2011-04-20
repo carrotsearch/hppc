@@ -16,7 +16,7 @@ import org.apache.velocity.runtime.RuntimeInstance;
 public final class TemplateProcessor
 {
     public boolean verbose = false;
-    public boolean incremental = false;
+    public boolean incremental = true;
     public File templatesDir;
     public File outputDir;
 
@@ -201,9 +201,24 @@ public final class TemplateProcessor
                         ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
                         : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
                 }
-                else if ("equals".equals(method))
+                else if ("equalsKType".equals(method))
                 {
                     if (templateOptions.isKTypeGeneric())
+                    {
+                        sb.append(
+                            String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
+                                params.toArray()));
+                    }
+                    else
+                    {
+                        sb.append(
+                            String.format("((%1$s) == (%2$s))",
+                                params.toArray()));
+                    }
+                }
+                else if ("equalsVType".equals(method))
+                {
+                    if (templateOptions.isVTypeGeneric())
                     {
                         sb.append(
                             String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",

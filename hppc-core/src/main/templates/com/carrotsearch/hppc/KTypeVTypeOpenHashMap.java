@@ -7,7 +7,7 @@ import com.carrotsearch.hppc.hash.MurmurHash3;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
-import static com.carrotsearch.hppc.HashContainerUtils.*;
+import static com.carrotsearch.hppc.Internals.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
@@ -136,7 +136,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
-    public ObjectObjectOpenHashMap()
+    public KTypeVTypeOpenHashMap()
     {
         this(DEFAULT_CAPACITY);
     }
@@ -150,7 +150,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
      */
-    public ObjectObjectOpenHashMap(int initialCapacity)
+    public KTypeVTypeOpenHashMap(int initialCapacity)
     {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
@@ -166,7 +166,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      *
      * @param loadFactor The load factor (greater than zero and smaller than 1).
      */
-    public ObjectObjectOpenHashMap(int initialCapacity, float loadFactor)
+    public KTypeVTypeOpenHashMap(int initialCapacity, float loadFactor)
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
@@ -182,7 +182,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Create a hash map from all key-value pairs of another container.
      */
-    public ObjectObjectOpenHashMap(ObjectObjectAssociativeContainer<KType, VType> container)
+    public KTypeVTypeOpenHashMap(KTypeVTypeAssociativeContainer<KType, VType> container)
     {
         this((int)(container.size() * (1 + DEFAULT_LOAD_FACTOR)));
         putAll(container);
@@ -201,9 +201,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int slot = rehash(key) & mask;
         while (allocated[slot])
         {
-            if (/* replaceIf:primitiveKType 
-               (keys[slot] == key) */ 
-                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
+            if (Intrinsics.equalsKType(key, keys[slot]))
             {
                 final VType oldValue = values[slot];
                 values[slot] = value;
@@ -225,10 +223,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     @Override
     public final int putAll(
-        ObjectObjectAssociativeContainer<? extends KType, ? extends VType> container)
+        KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container)
     {
         final int count = this.assigned;
-        for (ObjectObjectCursor<? extends KType, ? extends VType> c : container)
+        for (KTypeVTypeCursor<? extends KType, ? extends VType> c : container)
         {
             put(c.key, c.value);
         }
@@ -240,10 +238,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     @Override
     public final int putAll(
-        Iterable<? extends ObjectObjectCursor<? extends KType, ? extends VType>> iterable)
+        Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable)
     {
         final int count = this.assigned;
-        for (ObjectObjectCursor<? extends KType, ? extends VType> c : iterable)
+        for (KTypeVTypeCursor<? extends KType, ? extends VType> c : iterable)
         {
             put(c.key, c.value);
         }
@@ -287,7 +285,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @param additionValue The value to add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
-    /* replaceIf:primitiveVType
+    /*! #if ($TemplateOptions.VTypePrimitive) 
     public final VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
         if (assigned >= resizeThreshold)
@@ -311,7 +309,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         return v;
     }
-    *//* end:replaceIf */
+    #end !*/
 
     /**
      * Expand the internal storage buffers (capacity) or rehash current
@@ -338,15 +336,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 final KType key = oldKeys[i];
                 final VType value = oldValues[i];
                 
-                /* removeIf:primitiveKType */ oldKeys[i] = null; /* end:removeIf */
-                /* removeIf:primitiveVType */ oldValues[i] = null; /* end:removeIf */
+                /* #if ($TemplateOptions.GenericKType) */ oldKeys[i] = null; /* #end */
+                /* #if ($TemplateOptions.GenericVType) */ oldValues[i] = null; /* #end */
 
                 int slot = rehash(key) & mask;
                 while (allocated[slot])
                 {
-                    if (/* replaceIf:primitiveKType 
-                       (keys[slot] == key) */ 
-                        key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
+                    if (Intrinsics.equalsKType(key, keys[slot]))
                     {
                         break;
                     }
@@ -391,9 +387,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         while (allocated[slot])
         {
-            if (/* replaceIf:primitiveKType 
-                (keys[slot] == key) */ 
-                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
+            if (Intrinsics.equalsKType(key, keys[slot]))
              {
                 assigned--;
                 VType v = values[slot];
@@ -446,23 +440,23 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         allocated[slotPrev] = false;
         
-        /* removeIf:primitiveKType */ 
+        /* #if ($TemplateOptions.GenericKType) */ 
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
-        /* end:removeIf */
-        /* removeIf:primitiveVType */ 
+        /* #end */
+        /* #if ($TemplateOptions.GenericVType) */
         values[slotPrev] = Intrinsics.<VType> defaultVTypeValue(); 
-        /* end:removeIf */
+        /* #end */
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public final int removeAll(ObjectContainer<? extends KType> container)
+    public final int removeAll(KTypeContainer<? extends KType> container)
     {
         final int before = this.assigned;
 
-        for (ObjectCursor<? extends KType> cursor : container)
+        for (KTypeCursor<? extends KType> cursor : container)
         {
             remove(cursor.value);
         }
@@ -474,7 +468,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public final int removeAll(ObjectPredicate<? super KType> predicate)
+    public final int removeAll(KTypePredicate<? super KType> predicate)
     {
         final int before = this.assigned;
 
@@ -515,9 +509,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int slot = rehash(key) & mask;
         while (allocated[slot])
         {
-            if (/* replaceIf:primitiveKType 
-                (keys[slot] == key) */ 
-                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */)
+            if (Intrinsics.equalsKType(key, keys[slot]))
             {
                 return values[slot]; 
             }
@@ -581,9 +573,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int slot = rehash(key) & mask;
         while (allocated[slot])
         {
-            if (/* replaceIf:primitiveKType 
-                (keys[slot] == key) */ 
-                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */)
+            if (Intrinsics.equalsKType(key, keys[slot]))
             {
                 lastSlot = slot;
                 return true; 
@@ -634,13 +624,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         // States are always cleared.
         Arrays.fill(allocated, false);
 
-        /* removeIf:primitiveVType */
-        Arrays.fill(values, null); // Help the GC.
-        /* end:removeIf */
-
-        /* removeIf:primitiveKType */
+        /* #if ($TemplateOptions.GenericKType) */
         Arrays.fill(keys, null); // Help the GC.
-        /* end:removeIf */
+        /* #end */
+
+        /* #if ($TemplateOptions.GenericVType) */
+        Arrays.fill(values, null); // Help the GC.
+        /* #end */
     }
 
     /**
@@ -670,7 +660,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public int hashCode()
     {
         int h = 0;
-        for (ObjectObjectCursor<KType, VType> c : this)
+        for (KTypeVTypeCursor<KType, VType> c : this)
         {
             h += rehash(c.key) + rehash(c.value);
         }
@@ -681,26 +671,26 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc} 
      */
     @Override
-    /* replaceIf:allprimitives */
-    @SuppressWarnings("unchecked")
-    /* end:replaceIf */
     public boolean equals(Object obj)
     {
         if (obj != null)
         {
             if (obj == this) return true;
 
-            if (obj instanceof ObjectObjectMap)
+            if (obj instanceof KTypeVTypeMap)
             {
-                ObjectObjectMap<KType, VType> other = (ObjectObjectMap<KType, VType>) obj;
+                /* #if ($TemplateOptions.AnyGeneric) */
+                @SuppressWarnings("unchecked")
+                /* #end */
+                KTypeVTypeMap<KType, VType> other = (KTypeVTypeMap<KType, VType>) obj;
                 if (other.size() == this.size())
                 {
-                    for (ObjectObjectCursor<KType, VType> c : this)
+                    for (KTypeVTypeCursor<KType, VType> c : this)
                     {
                         if (other.containsKey(c.key))
                         {
                             VType v = other.get(c.key);
-                            if (Intrinsics.equals(c.value, v))
+                            if (Intrinsics.equalsVType(c.value, v))
                             {
                                 continue;
                             }
@@ -717,19 +707,19 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * An iterator implementation for {@link #iterator}.
      */
-    private final class EntryIterator implements Iterator<ObjectObjectCursor<KType, VType>>
+    private final class EntryIterator implements Iterator<KTypeVTypeCursor<KType, VType>>
     {
         private final static int NOT_CACHED = -1;
         private final static int AT_END = -2;
 
-        private final ObjectObjectCursor<KType, VType> cursor;
+        private final KTypeVTypeCursor<KType, VType> cursor;
 
         /** The next valid index or {@link #NOT_CACHED} if not available. */
         private int nextIndex = NOT_CACHED;
 
         public EntryIterator()
         {
-            cursor = new ObjectObjectCursor<KType, VType>();
+            cursor = new KTypeVTypeCursor<KType, VType>();
             cursor.index = -1;
         }
 
@@ -750,7 +740,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return nextIndex != AT_END;
         }
 
-        public ObjectObjectCursor<KType, VType> next()
+        public KTypeVTypeCursor<KType, VType> next()
         {
             if (!hasNext())
                 throw new NoSuchElementException();
@@ -778,7 +768,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public Iterator<ObjectObjectCursor<KType, VType>> iterator()
+    public Iterator<KTypeVTypeCursor<KType, VType>> iterator()
     {
         return new EntryIterator();
     }
@@ -787,7 +777,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public <T extends ObjectObjectProcedure<? super KType, ? super VType>> T forEach(T procedure)
+    public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(T procedure)
     {
         final KType [] keys = this.keys;
         final VType [] values = this.values;
@@ -815,10 +805,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * A view of the keys inside this hash map.
      */
     public final class KeySet 
-        extends AbstractObjectCollection<KType> implements ObjectLookupContainer<KType>
+        extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
-        private final ObjectObjectOpenHashMap<KType, VType> owner = 
-            ObjectObjectOpenHashMap.this;
+        private final KTypeVTypeOpenHashMap<KType, VType> owner = 
+            KTypeVTypeOpenHashMap.this;
         
         @Override
         public boolean contains(KType e)
@@ -827,7 +817,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
         
         @Override
-        public <T extends ObjectProcedure<? super KType>> T forEach(T procedure)
+        public <T extends KTypeProcedure<? super KType>> T forEach(T procedure)
         {
             final KType [] localKeys = owner.keys;
             final boolean [] localStates = owner.allocated;
@@ -842,7 +832,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
 
         @Override
-        public <T extends ObjectPredicate<? super KType>> T forEach(T predicate)
+        public <T extends KTypePredicate<? super KType>> T forEach(T predicate)
         {
             final KType [] localKeys = owner.keys;
             final boolean [] localStates = owner.allocated;
@@ -866,7 +856,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
 
         @Override
-        public Iterator<ObjectCursor<KType>> iterator()
+        public Iterator<KTypeCursor<KType>> iterator()
         {
             return new KeySetIterator();
         }
@@ -884,7 +874,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
 
         @Override
-        public int removeAll(ObjectPredicate<? super KType> predicate)
+        public int removeAll(KTypePredicate<? super KType> predicate)
         {
             return owner.removeAll(predicate);
         }
@@ -906,19 +896,19 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * An iterator over the set of assigned keys.
      */
-    private final class KeySetIterator implements Iterator<ObjectCursor<KType>>
+    private final class KeySetIterator implements Iterator<KTypeCursor<KType>>
     {
         private final static int NOT_CACHED = -1;
         private final static int AT_END = -2;
 
-        private final ObjectCursor<KType> cursor;
+        private final KTypeCursor<KType> cursor;
 
         /** The next valid index or {@link #NOT_CACHED} if not available. */
         private int nextIndex = NOT_CACHED;
 
         public KeySetIterator()
         {
-            cursor = new ObjectCursor<KType>();
+            cursor = new KTypeCursor<KType>();
             cursor.index = NOT_CACHED;
         }
 
@@ -938,7 +928,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             return nextIndex != AT_END;
         }
 
-        public ObjectCursor<KType> next()
+        public KTypeCursor<KType> next()
         {
             if (!hasNext())
                 throw new NoSuchElementException();
@@ -963,15 +953,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public ObjectObjectOpenHashMap<KType, VType> clone()
+    public KTypeVTypeOpenHashMap<KType, VType> clone()
     {
         try
         {
-            /* replaceIf:allprimitives */
+            /* #if ($TemplateOptions.AnyGeneric) */
             @SuppressWarnings("unchecked")
-            /* end:replaceIf */
-            ObjectObjectOpenHashMap<KType, VType> cloned = 
-                (ObjectObjectOpenHashMap<KType, VType>) super.clone();
+            /* #end */
+            KTypeVTypeOpenHashMap<KType, VType> cloned = 
+                (KTypeVTypeOpenHashMap<KType, VType>) super.clone();
             
             cloned.keys = keys.clone();
             cloned.values = values.clone();
@@ -995,7 +985,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         buffer.append("[");
 
         boolean first = true;
-        for (ObjectObjectCursor<KType, VType> cursor : this)
+        for (KTypeVTypeCursor<KType, VType> cursor : this)
         {
             if (!first) buffer.append(", ");
             buffer.append(cursor.key);
@@ -1010,14 +1000,12 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Creates a hash map from two index-aligned arrays of key-value pairs. 
      */
-    public static
-        /* replaceWith:genericSignature */ <KType, VType> /* end:replaceWith */
-        ObjectObjectOpenHashMap<KType, VType> from(KType [] keys, VType [] values)
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(KType [] keys, VType [] values)
     {
         if (keys.length != values.length) 
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length."); 
 
-        ObjectObjectOpenHashMap<KType, VType> map = new ObjectObjectOpenHashMap<KType, VType>();
+        KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<KType, VType>();
         for (int i = 0; i < keys.length; i++)
         {
             map.put(keys[i], values[i]);
@@ -1028,11 +1016,26 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Create a hash map from another associative container.
      */
-    public static 
-        /* replaceWith:genericSignature */ <KType, VType> /* end:replaceWith */
-        ObjectObjectOpenHashMap<KType, VType> from(
-            ObjectObjectAssociativeContainer<KType, VType> container)
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(KTypeVTypeAssociativeContainer<KType, VType> container)
     {
-        return new ObjectObjectOpenHashMap<KType, VType>(container);
+        return new KTypeVTypeOpenHashMap<KType, VType>(container);
+    }
+    
+    /**
+     * Create a new hash map without providing the full generic signature (constructor
+     * shortcut). 
+     */
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance()
+    {
+        return new KTypeVTypeOpenHashMap<KType, VType>();
+    }
+    
+    /**
+     * Create a new hash map without providing the full generic signature (constructor
+     * shortcut). 
+     */
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance(int initialCapacity, float loadFactor)
+    {
+        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor);
     }
 }

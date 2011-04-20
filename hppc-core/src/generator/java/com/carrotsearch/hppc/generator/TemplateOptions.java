@@ -51,6 +51,16 @@ public class TemplateOptions
         return isKTypeGeneric() && isVTypeGeneric();
     }
 
+    public boolean isAnyPrimitive()
+    {
+        return isKTypePrimitive() || isVTypePrimitive();
+    }
+
+    public boolean isAnyGeneric()
+    {
+        return isKTypeGeneric() || (hasVType() && isVTypeGeneric());
+    }
+
     public boolean hasVType()
     {
         return vtype != null;
@@ -86,10 +96,5 @@ public class TemplateOptions
         return "@javax.annotation.Generated(date = \"" + 
             getTimeNow() + "\", value = \"HPPC generated from: " +
             sourceFile.getName() + "\")";
-    }
-
-    public boolean isAnyGeneric()
-    {
-        return isKTypeGeneric() || (hasVType() && isVTypeGeneric());
     }
 }
