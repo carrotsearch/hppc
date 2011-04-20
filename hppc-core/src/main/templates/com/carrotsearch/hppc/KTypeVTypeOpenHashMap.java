@@ -336,8 +336,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 final KType key = oldKeys[i];
                 final VType value = oldValues[i];
                 
-                /* #if ($TemplateOptions.GenericKType) */ oldKeys[i] = null; /* #end */
-                /* #if ($TemplateOptions.GenericVType) */ oldValues[i] = null; /* #end */
+                /* #if ($TemplateOptions.KTypeGeneric) */ oldKeys[i] = null; /* #end */
+                /* #if ($TemplateOptions.VTypeGeneric) */ oldValues[i] = null; /* #end */
 
                 int slot = rehash(key) & mask;
                 while (allocated[slot])
@@ -440,10 +440,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         allocated[slotPrev] = false;
         
-        /* #if ($TemplateOptions.GenericKType) */ 
+        /* #if ($TemplateOptions.KTypeGeneric) */ 
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
         /* #end */
-        /* #if ($TemplateOptions.GenericVType) */
+        /* #if ($TemplateOptions.VTypeGeneric) */
         values[slotPrev] = Intrinsics.<VType> defaultVTypeValue(); 
         /* #end */
     }
@@ -624,11 +624,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         // States are always cleared.
         Arrays.fill(allocated, false);
 
-        /* #if ($TemplateOptions.GenericKType) */
+        /* #if ($TemplateOptions.KTypeGeneric) */
         Arrays.fill(keys, null); // Help the GC.
         /* #end */
 
-        /* #if ($TemplateOptions.GenericVType) */
+        /* #if ($TemplateOptions.VTypeGeneric) */
         Arrays.fill(values, null); // Help the GC.
         /* #end */
     }
