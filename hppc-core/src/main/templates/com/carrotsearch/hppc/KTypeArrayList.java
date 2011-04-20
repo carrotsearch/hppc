@@ -6,7 +6,7 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.*;
 
-import static com.carrotsearch.hppc.HashContainerUtils.*;
+import static com.carrotsearch.hppc.Internals.*;
 
 /**
  * An array-backed list of KTypes. A single array is used to store and manipulate
@@ -46,6 +46,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * Collections.  
 #end
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
     extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
@@ -396,9 +397,6 @@ public class KTypeArrayList<KType>
      * Ensures the internal buffer has enough free slots to store
      * <code>expectedAdditions</code>. Increases internal buffer size if needed.
      */
-    /*! #if ($TemplateOptions.KTypeGeneric)
-    @SuppressWarnings("unchecked")
-        #end !*/
     protected final void ensureBufferSpace(int expectedAdditions)
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);

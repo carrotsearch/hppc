@@ -6,6 +6,7 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
  * A collection allows basic, efficient operations on sets of elements 
  * (difference and intersection).
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeCollection<KType> extends KTypeContainer<KType>
 {
     /**

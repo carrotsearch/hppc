@@ -13,6 +13,7 @@ import com.carrotsearch.hppc.procedures.KTypeProcedure;
  * <p><img src="doc-files/interfaces.png"
  *      alt="HPPC interfaces" /></p>
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>
 {
     /**
@@ -47,7 +48,7 @@ public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>
      * Return the current number of elements in this container. The time for calculating
      * the container's size may take <code>O(n)</code> time, although implementing classes
      * should try to maintain the current size and return in constant time.
-     */
+     */ 
     public int size();
 
     /**

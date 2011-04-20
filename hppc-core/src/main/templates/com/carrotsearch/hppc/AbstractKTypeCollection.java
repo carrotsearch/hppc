@@ -8,6 +8,7 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
 /**
  * Common superclass for collections. 
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
 {
     /**

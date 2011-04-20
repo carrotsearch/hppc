@@ -3,6 +3,7 @@ package com.carrotsearch.hppc.cursors;
 /**
  * A cursor over a collection of <code>KTypes</code>.
  */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public final class KTypeCursor<KType>
 {
     /**

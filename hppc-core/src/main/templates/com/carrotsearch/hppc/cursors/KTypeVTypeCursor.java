@@ -4,7 +4,8 @@ package com.carrotsearch.hppc.cursors;
 /**
  * A cursor over entries of an associative container (KType keys and VType values).
  */
-public final class ObjectObjectCursor<KType, VType>
+/*! ${TemplateOptions.generatedAnnotation} !*/
+public final class KTypeVTypeCursor<KType, VType>
 {
     /**
      * The current key and value's index in the container this cursor belongs to. The meaning of
