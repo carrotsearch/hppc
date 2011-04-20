@@ -4,9 +4,9 @@ package com.carrotsearch.hppc;
  * Intrinsic methods that are fully functional for the generic ({@link Object}) versions
  * of collection classes, but are replaced with low-level corresponding structures for
  * primitive types.
- * <p>
- * These methods are static and package-private, the JIT should inline them nicely at
- * runtime.</p>
+ * 
+ * <p><b>This class should not appear in the final distribution (all methods are replaced
+ * in templates.</b></p>
  */
 final class Intrinsics
 {

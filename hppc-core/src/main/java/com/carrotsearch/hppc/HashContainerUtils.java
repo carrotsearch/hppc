@@ -5,7 +5,7 @@ import com.carrotsearch.hppc.hash.MurmurHash3;
 /**
  * Utilities and constants for hash containers.
  */
-public final class HashContainerUtils
+final class HashContainerUtils
 {
     public static int rehash(Object o) { return o == null ? 0 : MurmurHash3.hash(o.hashCode()); }
     public static int rehash(byte v) { return MurmurHash3.hash(v); }

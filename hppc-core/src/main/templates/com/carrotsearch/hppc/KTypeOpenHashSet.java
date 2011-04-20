@@ -18,7 +18,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
- *
+#if ($TemplateOptions.KTypeGeneric)
  * <p>
  * A brief comparison of the API against the Java Collections framework:
  * </p>
@@ -42,6 +42,10 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * </table>
  * 
  * <p>This implementation supports <code>null</code> keys.</p>
+#else
+ * <p>See {@link ObjectOpenHashSet} class for API similarities and differences against Java
+ * Collections.  
+#end
  * 
  * <p><b>Important node.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
@@ -51,9 +55,9 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
-public class ObjectOpenHashSet<KType>
-    extends AbstractObjectCollection<KType> 
-    implements ObjectLookupContainer<KType>, ObjectSet<KType>, Cloneable
+public class KTypeOpenHashSet<KType>
+    extends AbstractKTypeCollection<KType> 
+    implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
      * Default capacity.
@@ -114,7 +118,7 @@ public class ObjectOpenHashSet<KType>
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
 `     */
-    public ObjectOpenHashSet()
+    public KTypeOpenHashSet()
     {
         this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
@@ -123,7 +127,7 @@ public class ObjectOpenHashSet<KType>
      * Creates a hash set with the given capacity,
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
      */
-    public ObjectOpenHashSet(int initialCapacity)
+    public KTypeOpenHashSet(int initialCapacity)
     {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
@@ -131,7 +135,7 @@ public class ObjectOpenHashSet<KType>
     /**
      * Creates a hash set with the given capacity and load factor.
      */
-    public ObjectOpenHashSet(int initialCapacity, float loadFactor)
+    public KTypeOpenHashSet(int initialCapacity, float loadFactor)
     {
         initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
 
@@ -147,7 +151,7 @@ public class ObjectOpenHashSet<KType>
     /**
      * Creates a hash set from elements of another container. Default load factor is used.
      */
-    public ObjectOpenHashSet(ObjectContainer<KType> container)
+    public KTypeOpenHashSet(KTypeContainer<KType> container)
     {
         this((int) (container.size() * (1 + DEFAULT_LOAD_FACTOR)));
         addAll(container);
@@ -166,9 +170,7 @@ public class ObjectOpenHashSet<KType>
         int slot = rehash(e) & mask;
         while (allocated[slot])
         {
-            if (/* replaceIf:primitiveKType 
-               (keys[slot] == e) */ 
-                e == null ? keys[slot] == null : e.equals(keys[slot]) /* end:replaceIf */ )
+            if (Intrinsics.equals(e, keys[slot]))
             {
                 return false;
             }
@@ -215,9 +217,9 @@ public class ObjectOpenHashSet<KType>
      * @return Returns the number of elements actually added as a result of this
      * call (not previously present in the set).
      */
-    public final int addAll(ObjectContainer<? extends KType> container)
+    public final int addAll(KTypeContainer<? extends KType> container)
     {
-        return addAll((Iterable<? extends ObjectCursor<? extends KType>>) container);
+        return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
 
     /**
@@ -226,10 +228,10 @@ public class ObjectOpenHashSet<KType>
      * @return Returns the number of elements actually added as a result of this
      * call (not previously present in the set).
      */
-    public final int addAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    public final int addAll(Iterable<? extends KTypeCursor<? extends KType>> iterable)
     {
         int count = 0;
-        for (ObjectCursor<? extends KType> cursor : iterable)
+        for (KTypeCursor<? extends KType> cursor : iterable)
         {
             if (add(cursor.value)) count++;
         }
@@ -258,15 +260,14 @@ public class ObjectOpenHashSet<KType>
             if (oldStates[i])
             {
                 final KType key = oldKeys[i];
-                
-                /* removeIf:primitiveKType */ oldKeys[i] = null; /* end:removeIf */
+                /* #if ($TemplateOptions.KTypeGeneric) */
+                oldKeys[i] = null;
+                /* #end */
 
                 int slot = rehash(key) & mask;
                 while (allocated[slot])
                 {
-                    if (/* replaceIf:primitiveKType 
-                       (keys[slot] == key) */ 
-                        key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
+                    if (Intrinsics.equals(key, keys[slot]))
                     {
                         break;
                     }
@@ -316,9 +317,7 @@ public class ObjectOpenHashSet<KType>
 
         while (allocated[slot])
         {
-            if (/* replaceIf:primitiveKType 
-                (keys[slot] == key) */ 
-                key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */ )
+            if (Intrinsics.equals(key, keys[slot]))
              {
                 assigned--;
                 shiftConflictingKeys(slot);
@@ -329,7 +328,6 @@ public class ObjectOpenHashSet<KType>
 
         return false;
     }
-
 
     /**
      * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>. 
@@ -348,13 +346,13 @@ public class ObjectOpenHashSet<KType>
                 slotOther = rehash(keys[slotCurr]) & mask;
                 if (slotPrev <= slotCurr)
                 {
-                    // we're on the right of the original slot.
+                    // We are on the right of the original slot.
                     if (slotPrev >= slotOther || slotOther > slotCurr)
                         break;
                 }
                 else
                 {
-                    // we've wrapped around.
+                    // We have wrapped around.
                     if (slotPrev >= slotOther && slotOther > slotCurr)
                         break;
                 }
@@ -369,10 +367,10 @@ public class ObjectOpenHashSet<KType>
         }
 
         allocated[slotPrev] = false;
-        
-        /* removeIf:primitiveKType */ 
+
+        /* #if ($TemplateOptions.KTypeGeneric) */ 
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
-        /* end:removeIf */
+        /* #end */
     }
     
     /**
@@ -404,9 +402,7 @@ public class ObjectOpenHashSet<KType>
         int slot = rehash(key) & mask;
         while (allocated[slot])
         {
-            if (/* replaceIf:primitiveKType 
-                (keys[slot] == key) */ 
-                 key == null ? keys[slot] == null : key.equals(keys[slot]) /* end:replaceIf */)
+            if (Intrinsics.equals(key, keys[slot]))
             {
                 lastSlot = slot;
                 return true; 
@@ -505,9 +501,9 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc} 
      */
     @Override
-    /* removeIf:primitive */ 
+    /* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked") 
-    /* end:removeIf */
+    /* #end */
     public boolean equals(Object obj)
     {
         if (obj != null)
@@ -516,10 +512,10 @@ public class ObjectOpenHashSet<KType>
 
             if (obj instanceof ObjectSet<?>)
             {
-                ObjectSet<Object> other = (ObjectSet<Object>) obj;
+                KTypeSet<Object> other = (KTypeSet<Object>) obj;
                 if (other.size() == this.size())
                 {
-                    for (ObjectCursor<KType> c : this)
+                    for (KTypeCursor<KType> c : this)
                     {
                         if (!other.contains(c.value))
                         {
@@ -536,19 +532,19 @@ public class ObjectOpenHashSet<KType>
     /**
      * An iterator implementation for {@link #iterator}.
      */
-    private final class EntryIterator implements Iterator<ObjectCursor<KType>>
+    private final class EntryIterator implements Iterator<KTypeCursor<KType>>
     {
         private final static int NOT_CACHED = -1;
         private final static int AT_END = -2;
 
-        private final ObjectCursor<KType> cursor;
+        private final KTypeCursor<KType> cursor;
 
         /** The next valid index or {@link #NOT_CACHED} if not available. */
         private int nextIndex = NOT_CACHED;
 
         public EntryIterator()
         {
-            cursor = new ObjectCursor<KType>();
+            cursor = new KTypeCursor<KType>();
             cursor.index = NOT_CACHED;
         }
 
@@ -568,7 +564,7 @@ public class ObjectOpenHashSet<KType>
             return nextIndex != AT_END;
         }
 
-        public ObjectCursor<KType> next()
+        public KTypeCursor<KType> next()
         {
             if (!hasNext())
                 throw new NoSuchElementException();
@@ -595,7 +591,7 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public Iterator<ObjectCursor<KType>> iterator()
+    public Iterator<KTypeCursor<KType>> iterator()
     {
         return new EntryIterator();
     }
@@ -604,7 +600,7 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public <T extends ObjectProcedure<? super KType>> T forEach(T procedure)
+    public <T extends KTypeProcedure<? super KType>> T forEach(T procedure)
     {
         final KType [] keys = this.keys;
         final boolean [] states = this.allocated;
@@ -622,16 +618,16 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    /* replaceIf:primitive 
-    public final KType [] toArray() */
+    /*! #if ($TemplateOptions.KTypePrimitive) 
+    public final KType [] toArray()
+        #else !*/
     public final Object [] toArray()
-    /* end:replaceIf */
+    /*! #end !*/
     {
         final KType [] cloned = Intrinsics.newKTypeArray(assigned);
         for (int i = 0, j = 0; i < keys.length; i++)
             if (allocated[i])
                 cloned[j++] = keys[i];
-
         return cloned;
     }
 
@@ -639,14 +635,14 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public ObjectOpenHashSet<KType> clone()
+    public KTypeOpenHashSet<KType> clone()
     {
         try
         {
-            /* removeIf:primitive */
+            /* #if ($TemplateOptions.KTypeGeneric) */
             @SuppressWarnings("unchecked")
-            /* end:removeIf */
-            ObjectOpenHashSet<KType> cloned = (ObjectOpenHashSet<KType>) super.clone();
+            /* #end */
+            KTypeOpenHashSet<KType> cloned = (KTypeOpenHashSet<KType>) super.clone();
             cloned.keys = keys.clone();
             cloned.allocated = allocated.clone();
             return cloned;
@@ -661,7 +657,7 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public <T extends ObjectPredicate<? super KType>> T forEach(T predicate)
+    public <T extends KTypePredicate<? super KType>> T forEach(T predicate)
     {
         final KType [] keys = this.keys;
         final boolean [] states = this.allocated;
@@ -682,7 +678,7 @@ public class ObjectOpenHashSet<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAll(ObjectPredicate<? super KType> predicate)
+    public int removeAll(KTypePredicate<? super KType> predicate)
     {
         final KType [] keys = this.keys;
         final boolean [] allocated = this.allocated;
@@ -710,10 +706,10 @@ public class ObjectOpenHashSet<KType>
      * Create a set from a variable number of arguments or an array of <code>KType</code>.
      * The elements are copied from the argument to the internal buffer.
      */
-    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
-      ObjectOpenHashSet<KType> from(KType... elements)
+    public static /* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */ 
+        KTypeOpenHashSet<KType> from(KType... elements)
     {
-        final ObjectOpenHashSet<KType> set = new ObjectOpenHashSet<KType>(
+        final KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(
             (int) (elements.length * (1 + DEFAULT_LOAD_FACTOR)));
         set.add(elements);
         return set;
@@ -722,9 +718,9 @@ public class ObjectOpenHashSet<KType>
     /**
      * Create a set from elements of another container.
      */
-    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
-        ObjectOpenHashSet<KType> from(ObjectContainer<KType> container)
+    public static /* #if ($TemplateOptions.KTypeGeneric) */<KType> /* #end */ 
+        KTypeOpenHashSet<KType> from(KTypeContainer<KType> container)
     {
-        return new ObjectOpenHashSet<KType>(container);
+        return new KTypeOpenHashSet<KType>(container);
     }
 }
