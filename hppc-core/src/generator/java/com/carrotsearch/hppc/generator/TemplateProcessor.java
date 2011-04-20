@@ -300,12 +300,15 @@ public final class TemplateProcessor
                         arg = arg.replace("KType", options.getKType().getBoxedType());
                 }
 
-                if ((options.isKTypePrimitive() && arg.contains("KType")) ||
-                    (options.hasVType() && options.isVTypePrimitive() && arg.contains("VType")))
+                if (options.hasVType() && options.isVTypePrimitive())
                 {
-                    // skip.
+                    if (isGenericOnly(arg, "VType"))
+                        arg = "";
+                    else
+                        arg = arg.replace("VType", options.getVType().getBoxedType());
                 }
-                else
+
+                if (arg.length() > 0)
                 {
                     if (b.length() > 0) b.append(", ");
                     b.append(arg.trim());
