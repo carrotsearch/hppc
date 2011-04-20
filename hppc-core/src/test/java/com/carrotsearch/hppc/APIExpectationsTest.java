@@ -24,6 +24,7 @@ public class APIExpectationsTest
     }
 
     @Test
+    @SuppressWarnings("unused")
     public void testNewInstance()
     {
         IntArrayList v1 = IntArrayList.newInstance();
@@ -41,6 +42,10 @@ public class APIExpectationsTest
         IntArrayDeque v10 = IntArrayDeque.newInstance();
         ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();
         ObjectArrayDeque<Long> v12 = ObjectArrayDeque.newInstance();
+
+        IntIntOpenHashMap v13 = IntIntOpenHashMap.newInstance();
+        ObjectIntOpenHashMap<Integer> v14 = ObjectIntOpenHashMap.newInstance();
+        IntObjectOpenHashMap<Integer> v15 = IntObjectOpenHashMap.newInstance();
     }
 
     @Test

@@ -62,10 +62,19 @@ final class Intrinsics
     }
 
     /**
-     * Compare two objects for equivalence. Null references return <code>true</code>.
+     * Compare two keys for equivalence. Null references return <code>true</code>.
      * Primitive types are compared using <code>==</code>.
      */
-    public static boolean equals(Object e1, Object e2)
+    public static boolean equalsKType(Object e1, Object e2)
+    {
+        return e1 == null ? e2 == null : e1.equals(e2);
+    }
+    
+    /**
+     * Compare two keys for equivalence. Null references return <code>true</code>.
+     * Primitive types are compared using <code>==</code>.
+     */
+    public static boolean equalsVType(Object e1, Object e2)
     {
         return e1 == null ? e2 == null : e1.equals(e2);
     }

@@ -319,7 +319,7 @@ public class KTypeArrayList<KType>
         int to = 0;
         for (int from = 0; from < elementsCount; from++)
         {
-            if (Intrinsics.equals(e1, buffer[from]))
+            if (Intrinsics.equalsKType(e1, buffer[from]))
             {
                 buffer[from] = Intrinsics.<KType>defaultKTypeValue();
                 continue;
@@ -354,7 +354,7 @@ public class KTypeArrayList<KType>
     public final int indexOf(KType e1)
     {
         for (int i = 0; i < elementsCount; i++)
-            if (Intrinsics.equals(e1, buffer[i]))
+            if (Intrinsics.equalsKType(e1, buffer[i]))
                 return i;
 
         return -1;
@@ -367,7 +367,7 @@ public class KTypeArrayList<KType>
     public final int lastIndexOf(KType e1)
     {
         for (int i = elementsCount - 1; i >= 0; i--)
-            if (Intrinsics.equals(e1, buffer[i]))
+            if (Intrinsics.equalsKType(e1, buffer[i]))
                 return i;
 
         return -1;
@@ -580,7 +580,7 @@ public class KTypeArrayList<KType>
     {
         for (int i = 0; i < length; i++)
         {
-            if (!Intrinsics.equals(b1[i], b2[i]))
+            if (!Intrinsics.equalsKType(b1[i], b2[i]))
             {
                 return false;
             }
@@ -601,7 +601,7 @@ public class KTypeArrayList<KType>
             KType o1 = b1.get(i); 
             KType o2 = b2.get(i);
 
-            if (!Intrinsics.equals(o1, o2))
+            if (!Intrinsics.equalsKType(o1, o2))
             {
                 return false;
             }

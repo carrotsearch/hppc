@@ -171,7 +171,7 @@ public class KTypeOpenHashSet<KType>
         int slot = rehash(e) & mask;
         while (allocated[slot])
         {
-            if (Intrinsics.equals(e, keys[slot]))
+            if (Intrinsics.equalsKType(e, keys[slot]))
             {
                 return false;
             }
@@ -268,7 +268,7 @@ public class KTypeOpenHashSet<KType>
                 int slot = rehash(key) & mask;
                 while (allocated[slot])
                 {
-                    if (Intrinsics.equals(key, keys[slot]))
+                    if (Intrinsics.equalsKType(key, keys[slot]))
                     {
                         break;
                     }
@@ -318,7 +318,7 @@ public class KTypeOpenHashSet<KType>
 
         while (allocated[slot])
         {
-            if (Intrinsics.equals(key, keys[slot]))
+            if (Intrinsics.equalsKType(key, keys[slot]))
              {
                 assigned--;
                 shiftConflictingKeys(slot);
@@ -403,7 +403,7 @@ public class KTypeOpenHashSet<KType>
         int slot = rehash(key) & mask;
         while (allocated[slot])
         {
-            if (Intrinsics.equals(key, keys[slot]))
+            if (Intrinsics.equalsKType(key, keys[slot]))
             {
                 lastSlot = slot;
                 return true; 

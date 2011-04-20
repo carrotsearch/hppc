@@ -336,7 +336,7 @@ public class KTypeArrayDeque<KType>
         final int bufLen = buffer.length;
         for (int i = head; i != last; i = oneRight(i, bufLen))
         {
-            if (Intrinsics.equals(e1, buffer[i]))
+            if (Intrinsics.equalsKType(e1, buffer[i]))
                 return i;
         }
 
@@ -368,7 +368,7 @@ public class KTypeArrayDeque<KType>
         final int last = oneLeft(head, bufLen);
         for (int i = oneLeft(tail, bufLen); i != last; i = oneLeft(i, bufLen))
         {
-            if (Intrinsics.equals(e1, buffer[i]))
+            if (Intrinsics.equalsKType(e1, buffer[i]))
                 return i;
         }
 
@@ -387,7 +387,7 @@ public class KTypeArrayDeque<KType>
         int from, to;
         for (from = to = head; from != last; from = oneRight(from, bufLen))
         {
-            if (Intrinsics.equals(e1, buffer[from]))
+            if (Intrinsics.equalsKType(e1, buffer[from]))
             {
                 buffer[from] = Intrinsics.<KType>defaultKTypeValue();
                 removed++;
@@ -916,7 +916,7 @@ public class KTypeArrayDeque<KType>
         final KType [] buffer = this.buffer;
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
-            if (Intrinsics.equals(e, buffer[i]))
+            if (Intrinsics.equalsKType(e, buffer[i]))
                 return true;
         }
 
@@ -962,7 +962,7 @@ public class KTypeArrayDeque<KType>
                     int i = fromIndex;
                     for (KTypeCursor<Object> c : other)
                     {
-                        if (!Intrinsics.equals(c.value, buffer[i]))
+                        if (!Intrinsics.equalsKType(c.value, buffer[i]))
                             return false;
                         i = oneRight(i, buffer.length);                        
                     }
