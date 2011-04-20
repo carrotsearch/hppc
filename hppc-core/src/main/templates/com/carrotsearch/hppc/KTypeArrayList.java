@@ -474,8 +474,8 @@ public class KTypeArrayList<KType>
     @Override
     public final void clear()
     {
-        this.elementsCount = 0;
         Arrays.fill(buffer, 0, elementsCount, Intrinsics.<KType> defaultKTypeValue()); 
+        this.elementsCount = 0;
     }
 
     /**
