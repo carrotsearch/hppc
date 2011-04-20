@@ -24,6 +24,18 @@ public class APIExpectationsTest
     }
 
     @Test
+    public void testNewInstance()
+    {
+        IntArrayList v1 = IntArrayList.newInstance();
+        ObjectArrayList<Integer> v2 = ObjectArrayList.newInstance();
+        ObjectArrayList<Long> v3 = ObjectArrayList.newInstance();
+        
+        IntStack v4 = IntStack.newInstance();
+        ObjectStack<Integer> v5 = ObjectStack.newInstance();
+        ObjectStack<Long> v6 = ObjectStack.newInstance();
+    }
+
+    @Test
     public void testObjectToArray()
     {
         isObjectArray(ObjectArrayList.from(1, 2, 3).toArray());

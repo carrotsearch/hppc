@@ -396,6 +396,9 @@ public class KTypeArrayList<KType>
      * Ensures the internal buffer has enough free slots to store
      * <code>expectedAdditions</code>. Increases internal buffer size if needed.
      */
+    /*! #if ($TemplateOptions.KTypeGeneric)
+    @SuppressWarnings("unchecked")
+        #end !*/
     protected final void ensureBufferSpace(int expectedAdditions)
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);
@@ -410,9 +413,6 @@ public class KTypeArrayList<KType>
             if (bufferLen > 0)
             {
                 System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
-                /* removeIf:primitiveKType */
-                Arrays.fill(buffer, null); // Help the GC.
-                /* end:removeIf */
             }
             this.buffer = newBuffer;
         }
@@ -459,9 +459,9 @@ public class KTypeArrayList<KType>
     /**
      * Trim the internal buffer to the current size.
      */
-    /* removeIf:primitive */
+    /* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked")
-    /* end:removeIf */
+    /* #end */
     public final void trimToSize()
     {
         if (size() != this.buffer.length)
@@ -470,35 +470,26 @@ public class KTypeArrayList<KType>
 
     /**
      * Sets the number of stored elements to zero. Releases and initializes the
-     * internal storage array to default values for object lists
-     * to allow garbage collection. For primitive lists, the buffer is not cleared, use
-     * <pre>
-     * resize(0);
-     * </pre>  
-     * to clean the buffer and the array at the same time.
+     * internal storage array to default values. To clear the list without cleaning
+     * the buffer, simply set the {@link #elementsCount} field to zero.
      */
     @Override
     public final void clear()
     {
-        /* removeIf:primitiveKType */
-        Arrays.fill(buffer, 0, elementsCount, null); 
-        /* end:removeIf */
         this.elementsCount = 0;
+        Arrays.fill(buffer, 0, elementsCount, Intrinsics.<KType> defaultKTypeValue()); 
     }
 
     /**
      * Sets the number of stored elements to zero and releases the internal storage array.
      */
-    /* removeIf:primitive */ 
+    /* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked") 
-    /* end:removeIf */
+    /* #end */
     public final void release()
     {
-        clear();
-        /* removeIf:primitiveKType */
-        Arrays.fill(buffer, null); // Help the GC.
-        /* end:removeIf */
         this.buffer = (KType []) EMPTY;
+        this.elementsCount = 0;
     }
 
     /**
@@ -508,10 +499,11 @@ public class KTypeArrayList<KType>
      * the number of elements of the stack.</p>
      */
     @Override
-    /* replaceIf:primitive 
-    public final KType [] toArray() */
+    /*! #if ($TemplateOptions.KTypePrimitive)
+    public final KType [] toArray()
+        #else !*/
     public final Object [] toArray()
-    /* end:replaceIf */
+    /*! #end !*/
     {
         return Arrays.copyOf(buffer, elementsCount);
     }
@@ -521,14 +513,14 @@ public class KTypeArrayList<KType>
      * and array resizing strategy.
      */
     @Override
-    public ObjectArrayList<KType> clone()
+    public KTypeArrayList<KType> clone()
     {
         try
         {
-            /* removeIf:primitive */
+            /* #if ($TemplateOptions.KTypeGeneric) */
             @SuppressWarnings("unchecked")
-            /* end:removeIf */
-            final ObjectArrayList<KType> cloned = (ObjectArrayList<KType>) super.clone();
+            /* #end */
+            final KTypeArrayList<KType> cloned = (KTypeArrayList<KType>) super.clone();
             cloned.buffer = buffer.clone();
             return cloned;
         }
@@ -556,21 +548,18 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    /* removeIf:primitive */ 
+    /* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked") 
-    /* end:removeIf */
+    /* #end */
     public boolean equals(Object obj)
     {
         if (obj != null)
         {
-            if (obj instanceof ObjectArrayList<?>)
+            if (obj instanceof KTypeArrayList<?>)
             {
-                ObjectArrayList<?> other = (ObjectArrayList<?>) obj;
+                KTypeArrayList<?> other = (KTypeArrayList<?>) obj;
                 return other.size() == this.size() &&
-                    rangeEquals(
-                        /* removeIf:primitive v */ (KType[]) /* end:removeIf */ other.buffer, 
-                        /* removeIf:primitive v */ (KType[]) /* end:removeIf */ this.buffer, 
-                        size());
+                    rangeEquals(other.buffer, this.buffer, size());
             }
             else if (obj instanceof KTypeIndexedContainer<?>)
             {
@@ -585,7 +574,11 @@ public class KTypeArrayList<KType>
     /**
      * Compare a range of values in two arrays. 
      */
+    /*! #if ($TemplateOptions.KTypePrimitive) 
     private boolean rangeEquals(KType [] b1, KType [] b2, int length)
+        #else !*/
+    private boolean rangeEquals(Object [] b1, Object [] b2, int length)
+    /*! #end !*/
     {
         for (int i = 0; i < length; i++)
         {
@@ -790,13 +783,33 @@ public class KTypeArrayList<KType>
     }
 
     /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
+      KTypeArrayList<KType> newInstance()
+    {
+        return new KTypeArrayList<KType>();
+    }
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
+      KTypeArrayList<KType> newInstanceWithCapacity(int initialCapacity)
+    {
+        return new KTypeArrayList<KType>(initialCapacity);
+    }
+
+    /**
      * Create a list from a variable number of arguments or an array of <code>KType</code>.
      * The elements are copied from the argument to the internal buffer.
      */
-    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
-      ObjectArrayList<KType> from(KType... elements)
+    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
+      KTypeArrayList<KType> from(KType... elements)
     {
-        final ObjectArrayList<KType> list = new ObjectArrayList<KType>(elements.length);
+        final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
         return list;
     }
@@ -804,9 +817,9 @@ public class KTypeArrayList<KType>
     /**
      * Create a list from elements of another container.
      */
-    public static /* removeIf:primitive */<KType> /* end:removeIf */ 
-      ObjectArrayList<KType> from(ObjectContainer<KType> container)
+    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
+    KTypeArrayList<KType> from(KTypeContainer<KType> container)
     {
-        return new ObjectArrayList<KType>(container);
+        return new KTypeArrayList<KType>(container);
     }
 }

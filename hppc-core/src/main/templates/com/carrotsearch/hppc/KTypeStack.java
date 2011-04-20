@@ -1,6 +1,6 @@
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
 
 /**
  * An extension to {@link ObjectArrayList} adding stack-related utility methods. The top of
@@ -27,14 +27,14 @@ import com.carrotsearch.hppc.cursors.ObjectCursor;
  * </tbody>
  * </table>
  */
-public class ObjectStack<KType> extends ObjectArrayList<KType>
+public class KTypeStack<KType> extends KTypeArrayList<KType>
 {
     /**
      * Create with default sizing strategy and initial capacity.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public ObjectStack()
+    public KTypeStack()
     {
         super();
     }
@@ -44,7 +44,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public ObjectStack(int initialCapacity)
+    public KTypeStack(int initialCapacity)
     {
         super(initialCapacity);
     }
@@ -52,7 +52,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     /**
      * Create with a custom buffer resizing strategy.
      */
-    public ObjectStack(int initialCapacity, ArraySizingStrategy resizer)
+    public KTypeStack(int initialCapacity, ArraySizingStrategy resizer)
     {
         super(initialCapacity, resizer);
     }
@@ -60,7 +60,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     /**
      * Create a stack by pushing all elements of another container to it.
      */
-    public ObjectStack(ObjectContainer<KType> container)
+    public KTypeStack(KTypeContainer<KType> container)
     {
         super(container);
     }
@@ -132,7 +132,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     /**
      * Pushes all elements from another container to the top of the stack.
      */
-    public final int pushAll(ObjectContainer<? extends KType> container)
+    public final int pushAll(KTypeContainer<? extends KType> container)
     {
         return addAll(container);
     }
@@ -140,7 +140,7 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
     /**
      * Pushes all elements from another iterable to the top of the stack.
      */
-    public final int pushAll(Iterable<? extends ObjectCursor<? extends KType>> iterable)
+    public final int pushAll(Iterable<? extends KTypeCursor<? extends KType>> iterable)
     {
         return addAll(iterable);
     }
@@ -153,9 +153,9 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
         assert elementsCount >= count;
 
         elementsCount -= count;
-        /* removeIf:primitiveKType */
-        java.util.Arrays.fill(buffer, elementsCount, elementsCount + count, null); 
-        /* end:removeIf */
+        /* #if ($TemplateOptions.KTypeGeneric) */
+        java.util.Arrays.fill(buffer, elementsCount, elementsCount + count, null);
+        /* #end */
     }
 
     /**
@@ -166,9 +166,9 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
         assert elementsCount > 0;
 
         elementsCount--;
-        /* removeIf:primitiveKType */
+        /* #if ($TemplateOptions.KTypeGeneric) */
         buffer[elementsCount] = null; 
-        /* end:removeIf */
+        /* #end */
     }
 
     /**
@@ -179,9 +179,9 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
         assert elementsCount > 0;
 
         final KType v = buffer[--elementsCount];
-        /* removeIf:primitiveKType */
+        /* #if ($TemplateOptions.KTypeGeneric) */
         buffer[elementsCount] = null; 
-        /* end:removeIf */
+        /* #end */
         return v;
     }
 
@@ -194,14 +194,34 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
 
         return buffer[elementsCount - 1];
     }
-    
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
+      KTypeStack<KType> newInstance()
+    {
+        return new KTypeStack<KType>();
+    }
+
+    /**
+     * Returns a new object of this list with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
+      KTypeStack<KType> newInstanceWithCapacity(int initialCapacity)
+    {
+        return new KTypeStack<KType>(initialCapacity);
+    }
+
     /**
      * Create a stack by pushing a variable number of arguments to it.
      */
-    public static /* removeIf:primitive */ <KType> /* end:removeIf */ 
-        ObjectStack<KType> from(KType... elements)
+    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
+        KTypeStack<KType> from(KType... elements)
     {
-        final ObjectStack<KType> stack = new ObjectStack<KType>(elements.length);
+        final KTypeStack<KType> stack = new KTypeStack<KType>(elements.length);
         stack.push(elements);
         return stack;
     }
@@ -210,17 +230,17 @@ public class ObjectStack<KType> extends ObjectArrayList<KType>
      * Create a stack by pushing all elements of another container to it.
      */
     public static /* removeIf:primitive */ <KType> /* end:removeIf */ 
-        ObjectStack<KType> from(ObjectContainer<KType> container)
+        KTypeStack<KType> from(KTypeContainer<KType> container)
     {
-        return new ObjectStack<KType>(container);
+        return new KTypeStack<KType>(container);
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public ObjectStack<KType> clone()
+    public KTypeStack<KType> clone()
     {
-        return (ObjectStack<KType>) super.clone();
+        return (KTypeStack<KType>) super.clone();
     }
 }

@@ -80,7 +80,8 @@ public final class TemplateProcessor
     {
         for (TemplateFile f : inputs)
         {
-            if (!f.file.getName().contains("VType"))
+            String fileName = f.file.getName();
+            if (!fileName.contains("VType") && fileName.contains("KType"))
             {
                 for (Type t : Type.values())
                 {
@@ -103,7 +104,8 @@ public final class TemplateProcessor
         String input = readFile(f.file);
         input = filterVelocity(f, input, templateOptions);
         input = filterIntrinsics(f, input, templateOptions);
-        input = filterKType(f, input, templateOptions);
+        input = filterKTypeGenericSignatures(f, input, templateOptions);
+        input = filterKTypeClassRefs(f, input, templateOptions);
         input = filterComments(f, input, templateOptions);
 
         if (!incremental || !output.file.exists()
@@ -145,7 +147,7 @@ public final class TemplateProcessor
                             bracketCount--;
                             if (bracketCount == 0)
                             {
-                                params.add(input.substring(last, i));
+                                params.add(input.substring(last, i).trim());
                                 input = input.substring(i + 1);
                                 break outer;
                             }
@@ -162,13 +164,15 @@ public final class TemplateProcessor
 
                 if ("defaultKTypeValue".equals(method))
                 {
-                    sb.append(templateOptions.isKTypeGeneric() ? "null" : "0");
+                    sb.append(templateOptions.isKTypeGeneric() 
+                        ? "null" 
+                        : "((" + templateOptions.getKType().getType() + ") 0)");
                 }
                 else if ("newKTypeArray".equals(method))
                 {
                     sb.append(
                         templateOptions.isKTypeGeneric() 
-                        ? "new Object [" + params.get(0) + "]"
+                        ? "((KType[]) new Object [" + params.get(0) + "])"
                         : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
                 }
                 else if ("equals".equals(method))
@@ -209,10 +213,19 @@ public final class TemplateProcessor
         return p.matcher(input).replaceAll("");
     }
 
-    private String filterKType(TemplateFile f, String input,
+    private String filterKTypeGenericSignatures(TemplateFile f, String input,
         TemplateOptions templateOptions)
     {
-        Pattern p = Pattern.compile("(KType)([A-Z][A-Za-z]*)?(<[^/][^>]+>)?",
+        if (templateOptions.isKTypePrimitive())
+            return input.replaceAll("<KType>", "");
+        else
+            return input;
+    }
+
+    private String filterKTypeClassRefs(TemplateFile f, String input,
+        TemplateOptions templateOptions)
+    {
+        Pattern p = Pattern.compile("(KType)([A-Z][A-Za-z]*)?(<[^/][^>]*>)?",
             Pattern.MULTILINE | Pattern.DOTALL);
         Matcher m = p.matcher(input);
         m.reset();
