@@ -311,11 +311,11 @@ public abstract class TestUtils
         Arrays.sort(array);
         assertArrayEquals(newArray(array, elements), array);
     }
-    
+
     /**
      * Create a new array of a given type and copy the arguments to this array.
      */
-    public static Object [] newArray(Object [] arrayType, Object... elements)
+    public static <T> T [] newArray(T [] arrayType, T... elements)
     {
         return elements;
     }

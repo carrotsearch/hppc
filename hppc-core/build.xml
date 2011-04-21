@@ -1,28 +1,32 @@
 
 <!-- Source code generation phase is handled by an ANT script, it's simply much easier to do it from ANT. -->
 
-<project name="hppc" default="-dummy">
+<project name="hppc" default="generate.sources">
     <property name="project.build.directory" location="target" />
 
     <!-- Generate code from templates. -->
     <target name="generate.sources" description="Generate main sources from templates">
+        <loadfile property="builder.classpath" srcfile="${basedir}/.builder.classpath" />
         <path id="libs">
-            <pathelement location="target/eclipse" />
-            <pathelement location="${user.home}/.m2/repository/org/apache/velocity/velocity/1.7/velocity-1.7.jar" />
-            <pathelement location="${user.home}/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" />
-            <pathelement location="${user.home}/.m2/repository/commons-lang/commons-lang/2.4/commons-lang-2.4.jar" />
+            <pathelement path="${builder.classpath}" />
+            <pathelement location="target/builder" />
         </path>
 
-        <javac destdir="target/eclipse" srcdir="src/generator/java" classpathref="libs" />
+        <mkdir dir="target/builder" />
+        <javac destdir="target/builder" includeantruntime="false" srcdir="src/generator/java" classpathref="libs" />
 
-        <java failonerror="true" classname="com.carrotsearch.hppc.generator.TemplateProcessor" 
-            classpathref="libs">
-            <arg file="${basedir}/src/main/templates" />
-            <arg file="${basedir}/target/generated-sources/main/java" />
-        </java>
-    </target>
+        <taskdef classname="com.carrotsearch.hppc.generator.TemplateProcessor" name="generate">
+            <classpath refid="libs" />
+        </taskdef>
 
-    <target name="-dummy">
-        <echo>Use Maven to generate/compile sources.</echo>
+        <generate
+            templatesDir="${basedir}/src/main/templates" 
+            destDir="${basedir}/target/generated-sources/main/java" 
+            incremental="true" verbose="false" />
+
+        <generate
+            templatesDir="${basedir}/src/test/templates" 
+            destDir="${basedir}/target/generated-sources/test/java" 
+            incremental="true" verbose="false" />
     </target>
 </project>
