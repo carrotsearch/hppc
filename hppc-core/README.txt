@@ -8,6 +8,7 @@ See JavaDoc and http://labs.carrotsearch.com/hppc.html for more info
 Development
 -----------
 
+mvn -Peclipse            Generate Eclipse files, including optional dependencies and source folders.
 mvn clean                Clean the working copy.
 mvn install -DskipTests  Quick compile, no tests.
 mvn site                 Generate reports: pmd, cpd, findbugs.

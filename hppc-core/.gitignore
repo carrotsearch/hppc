@@ -3,5 +3,6 @@
 .settings
 .benchmark.*.db
 .clover
+.builder.classpath
 target
 

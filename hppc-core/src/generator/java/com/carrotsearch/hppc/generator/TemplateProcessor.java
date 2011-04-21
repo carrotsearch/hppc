@@ -22,6 +22,9 @@ public final class TemplateProcessor
 
     private final RuntimeInstance velocity;
 
+    /**
+     * 
+     */
     public TemplateProcessor()
     {
         final ExtendedProperties p = new ExtendedProperties();
@@ -31,6 +34,41 @@ public final class TemplateProcessor
         this.velocity = velocity;
     }
 
+    /**
+     * 
+     */
+    public void setVerbose(boolean verbose)
+    {
+        this.verbose = verbose;
+    }
+    
+    /**
+     * 
+     */
+    public void setIncremental(boolean incremental)
+    {
+        this.incremental = incremental;
+    }
+    
+    /**
+     * 
+     */
+    public void setDestDir(File dir)
+    {
+        this.outputDir = dir;
+    }
+
+    /**
+     * 
+     */
+    public void setTemplatesDir(File dir)
+    {
+        this.templatesDir = dir;
+    }
+
+    /**
+     * 
+     */
     public void execute()
     {
         // Collect files/ checksums from the output folder.
@@ -41,10 +79,12 @@ public final class TemplateProcessor
         List<TemplateFile> inputs = collectTemplateFiles(new ArrayList<TemplateFile>(),
             templatesDir);
 
-        // Apply KType templates
-        applyKType(inputs, outputs);
-
-        // Apply KTypeVType templates
+        // Process templates
+        System.out.println("Processing " + inputs.size() + " templates to: " + outputDir.getPath());
+        long start = System.currentTimeMillis();
+        processTemplates(inputs, outputs);
+        long end = System.currentTimeMillis();
+        System.out.println(String.format(Locale.ENGLISH, "Processed in %.2f sec.", (end - start) / 1000.0));
 
         // Remove non-marked files.
         int generated = 0;
@@ -76,7 +116,7 @@ public final class TemplateProcessor
     /**
      * Apply templates to <code>.ktype</code> files (single-argument).
      */
-    private void applyKType(List<TemplateFile> inputs, List<OutputFile> outputs)
+    private void processTemplates(List<TemplateFile> inputs, List<OutputFile> outputs)
     {
         for (TemplateFile f : inputs)
         {
@@ -541,8 +581,8 @@ public final class TemplateProcessor
     public static void main(String [] args)
     {
         final TemplateProcessor processor = new TemplateProcessor();
-        processor.templatesDir = new File(args[0]);
-        processor.outputDir = new File(args[1]);
+        processor.setTemplatesDir(new File(args[0]));
+        processor.setDestDir(new File(args[1]));
         processor.execute();
     }
 }
