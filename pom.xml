@@ -74,5 +74,15 @@
     <module>hppc-examples</module>
     <module>hppc-benchmarks</module>
   </modules>
+  
+  <profiles>
+    <profile>
+      <id>eclipse</id>
+
+      <build>
+        <defaultGoal>eclipse:eclipse</defaultGoal>
+      </build>
+    </profile>
+  </profiles>
 </project>
 

@@ -291,7 +291,20 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-eclipse-plugin</artifactId>
             <configuration>
-              <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
+                <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
+
+                <additionalBuildcommands>
+                   <buildCommand>
+                     <name>org.ui.externaltools.ExternalToolBuilder</name>
+                     <triggers>auto,full,</triggers>
+                     <arguments>
+                       <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/HPPC Generate Sources.launch</LaunchConfigHandle>
+                     </arguments>
+                   </buildCommand>
+                </additionalBuildcommands>
+
+                <buildcommands>
+                </buildcommands>  
             </configuration>
           </plugin>
         </plugins>

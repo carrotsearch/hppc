@@ -16,11 +16,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
      */
     public KTypeStack<KType> stack;
 
-    private KType key1 = cast(1);
-    private KType key2 = cast(2);
-    private KType key3 = cast(3);
-    private KType key4 = cast(4);
-
     /* */
     @Before
     public void initialize()
