@@ -6,47 +6,38 @@ import static org.junit.Assert.*;
 import java.util.*;
 
 import org.junit.*;
-import org.junit.rules.MethodRule;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
-import com.carrotsearch.hppc.predicates.ObjectPredicate;
-import com.carrotsearch.hppc.procedures.ObjectProcedure;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
+
 
 /**
- * Unit tests for {@link ObjectArrayDeque}.
+ * Unit tests for {@link KTypeArrayDeque}.
  */
-public class ObjectArrayDequeTest<KType>
+/*! ${TemplateOptions.generatedAnnotation} !*/
+public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType> 
 {
     /**
      * Per-test fresh initialized instance.
      */
-    public ObjectArrayDeque<Object> deque;
-
-    /**
-     * Require assertions for all tests.
-     */
-    @Rule
-    public MethodRule requireAssertions = new RequireAssertionsRule();
+    public KTypeArrayDeque<KType> deque;
 
     /**
      * Some sequence values for tests.
      */
-    private ObjectArrayList<Object> sequence = new ObjectArrayList<Object>();
-
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key1 = 1;
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key2 = 2;
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key3 = 3;
+    private KTypeArrayList<KType> sequence;
 
     /* */
     @Before
     public void initialize()
     {
-        deque = new ObjectArrayDeque<Object>();
+        deque = KTypeArrayDeque.newInstance();
+        sequence = KTypeArrayList.newInstance();
 
-        sequence.clear();
         for (int i = 0; i < 10000; i++)
-            sequence.add(/* intrinsic:ktypecast */ i);
+            sequence.add(cast(i));
     }
 
     @After
@@ -54,7 +45,7 @@ public class ObjectArrayDequeTest<KType>
     {
         if (deque != null)
         {
-            for (int i = deque.tail; i < deque.head; i = ObjectArrayDeque.oneRight(i, deque.buffer.length))
+            for (int i = deque.tail; i < deque.head; i = KTypeArrayDeque.oneRight(i, deque.buffer.length))
                 assertTrue(Intrinsics.<KType>defaultKTypeValue() == deque.buffer[i]);
         }
     }
@@ -70,9 +61,9 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testAddFirst()
     {
-        deque.addFirst(/* intrinsic:ktypecast */ 1);
-        deque.addFirst(/* intrinsic:ktypecast */ 2);
-        deque.addFirst(/* intrinsic:ktypecast */ 3);
+        deque.addFirst(k1);
+        deque.addFirst(k2);
+        deque.addFirst(k3);
         assertListEquals(deque.toArray(), 3, 2, 1);
         assertEquals(3, deque.size());
     }
@@ -81,9 +72,9 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testAddLast()
     {
-        deque.addLast(/* intrinsic:ktypecast */ 1);
-        deque.addLast(/* intrinsic:ktypecast */ 2);
-        deque.addLast(/* intrinsic:ktypecast */ 3);
+        deque.addLast(k1);
+        deque.addLast(k2);
+        deque.addLast(k3);
         assertListEquals(deque.toArray(), 1, 2, 3);
         assertEquals(3, deque.size());
     }
@@ -114,8 +105,8 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testAddAllFirst()
     {
-        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.add(newArray(list2.buffer, 0, 1, 2));
+        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        list2.add(asArray(0, 1, 2));
 
         deque.addFirst(list2);
         assertListEquals(deque.toArray(), 2, 1, 0);
@@ -123,8 +114,8 @@ public class ObjectArrayDequeTest<KType>
         assertListEquals(deque.toArray(), 2, 1, 0, 2, 1, 0);
 
         deque.clear();
-        ObjectArrayDeque<Object> deque2 = new ObjectArrayDeque<Object>();
-        deque2.addLast(newArray(deque2.buffer, 0, 1, 2));
+        KTypeArrayDeque<KType> deque2 = new KTypeArrayDeque<KType>();
+        deque2.addLast(asArray(0, 1, 2));
         deque.addFirst(deque2);
         assertListEquals(deque.toArray(), 2, 1, 0);
     }
@@ -133,8 +124,8 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testAddAllLast()
     {
-        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        list2.add(newArray(list2.buffer, 0, 1, 2));
+        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        list2.add(asArray(0, 1, 2));
 
         deque.addLast(list2);
         assertListEquals(deque.toArray(), 0, 1, 2);
@@ -142,8 +133,8 @@ public class ObjectArrayDequeTest<KType>
         assertListEquals(deque.toArray(), 0, 1, 2, 0, 1, 2);
 
         deque.clear();
-        ObjectArrayDeque<Object> deque2 = new ObjectArrayDeque<Object>();
-        deque2.addLast(newArray(deque2.buffer, 0, 1, 2));
+        KTypeArrayDeque<KType> deque2 = new KTypeArrayDeque<KType>();
+        deque2.addLast(asArray(0, 1, 2));
         deque.addLast(deque2);
         assertListEquals(deque.toArray(), 0, 1, 2);
     }
@@ -152,15 +143,15 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testRemoveFirst()
     {
-        deque.addLast(/* intrinsic:ktypecast */ 1);
-        deque.addLast(/* intrinsic:ktypecast */ 2);
-        deque.addLast(/* intrinsic:ktypecast */ 3);
+        deque.addLast(k1);
+        deque.addLast(k2);
+        deque.addLast(k3);
 
         deque.removeFirst();
         assertListEquals(deque.toArray(), 2, 3);
         assertEquals(2, deque.size());
 
-        deque.addFirst(/* intrinsic:ktypecast */ 4);
+        deque.addFirst(k4);
         assertListEquals(deque.toArray(), 4, 2, 3);
         assertEquals(3, deque.size());
 
@@ -182,15 +173,15 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testRemoveLast()
     {
-        deque.addLast(/* intrinsic:ktypecast */ 1);
-        deque.addLast(/* intrinsic:ktypecast */ 2);
-        deque.addLast(/* intrinsic:ktypecast */ 3);
+        deque.addLast(k1);
+        deque.addLast(k2);
+        deque.addLast(k3);
 
         deque.removeLast();
         assertListEquals(deque.toArray(), 1, 2);
         assertEquals(2, deque.size());
 
-        deque.addLast(/* intrinsic:ktypecast */ 4);
+        deque.addLast(k4);
         assertListEquals(deque.toArray(), 1, 2, 4);
         assertEquals(3, deque.size());
         
@@ -212,11 +203,11 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testGetFirst()
     {
-        deque.addLast(/* intrinsic:ktypecast */ 1);
-        deque.addLast(/* intrinsic:ktypecast */ 2);
-        assertEquals2(/* intrinsic:ktypecast */ 1, deque.getFirst());
-        deque.addFirst(/* intrinsic:ktypecast */ 3);
-        assertEquals2(/* intrinsic:ktypecast */ 3, deque.getFirst());
+        deque.addLast(k1);
+        deque.addLast(k2);
+        assertEquals2(k1, deque.getFirst());
+        deque.addFirst(k3);
+        assertEquals2(k3, deque.getFirst());
     }
 
     /* */
@@ -230,11 +221,11 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testGetLast()
     {
-        deque.addLast(/* intrinsic:ktypecast */ 1);
-        deque.addLast(/* intrinsic:ktypecast */ 2);
-        assertEquals2(/* intrinsic:ktypecast */ 2, deque.getLast());
-        deque.addLast(/* intrinsic:ktypecast */ 3);
-        assertEquals2(/* intrinsic:ktypecast */ 3, deque.getLast());
+        deque.addLast(k1);
+        deque.addLast(k2);
+        assertEquals2(k2, deque.getLast());
+        deque.addLast(k3);
+        assertEquals2(k3, deque.getLast());
     }
 
     /* */
@@ -253,15 +244,14 @@ public class ObjectArrayDequeTest<KType>
         sequence.clear();
         for (int i = 0; i < count; i++)
         {
-            deque.addLast(/* intrinsic:ktypecast */ (i % modulo));
-            sequence.add( /* intrinsic:ktypecast */ (i % modulo));
+            deque.addLast(cast(i % modulo));
+            sequence.add(cast(i % modulo));
         }
 
-        Random rnd = new Random(0x11223344);
+        Random rnd = new Random(0xdeadbeef);
         for (int i = 0; i < 500; i++)
         {
-            /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ k = 
-                /* intrinsic:ktypecast */ rnd.nextInt(modulo);
+            KType k = cast(rnd.nextInt(modulo));
             assertEquals(
                 deque.removeFirstOccurrence(k) >= 0, 
                 sequence.removeFirstOccurrence(k) >= 0);
@@ -269,9 +259,9 @@ public class ObjectArrayDequeTest<KType>
 
         assertListEquals(deque.toArray(), sequence.toArray());
 
-        assertTrue(0 > deque.removeFirstOccurrence(/* intrinsic:ktypecast */ (modulo + 1)));
-        deque.addLast(/* intrinsic:ktypecast */ (modulo + 1));
-        assertTrue(0 <= deque.removeFirstOccurrence(/* intrinsic:ktypecast */ (modulo + 1)));
+        assertTrue(0 > deque.removeFirstOccurrence(cast(modulo + 1)));
+        deque.addLast(cast(modulo + 1));
+        assertTrue(0 <= deque.removeFirstOccurrence(cast(modulo + 1)));
     }
 
     /* */
@@ -283,15 +273,14 @@ public class ObjectArrayDequeTest<KType>
         sequence.clear();
         for (int i = 0; i < count; i++)
         {
-            deque.addLast(/* intrinsic:ktypecast */ (i % modulo));
-            sequence.add( /* intrinsic:ktypecast */ (i % modulo));
+            deque.addLast(cast(i % modulo));
+            sequence.add(cast(i % modulo));
         }
 
         Random rnd = new Random(0x11223344);
         for (int i = 0; i < 500; i++)
         {
-            /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ k = 
-                /* intrinsic:ktypecast */ rnd.nextInt(modulo);
+            KType k = cast(rnd.nextInt(modulo));
             assertEquals(
                 deque.removeLastOccurrence(k) >= 0, 
                 sequence.removeLastOccurrence(k) >= 0);
@@ -299,25 +288,25 @@ public class ObjectArrayDequeTest<KType>
 
         assertListEquals(deque.toArray(), sequence.toArray());
 
-        assertTrue(0 > deque.removeLastOccurrence(/* intrinsic:ktypecast */ (modulo + 1)));
-        deque.addFirst(/* intrinsic:ktypecast */ (modulo + 1));
-        assertTrue(0 <= deque.removeLastOccurrence(/* intrinsic:ktypecast */ (modulo + 1)));
+        assertTrue(0 > deque.removeLastOccurrence(cast(modulo + 1)));
+        deque.addFirst(cast(modulo + 1));
+        assertTrue(0 <= deque.removeLastOccurrence(cast(modulo + 1)));
     }
     
     /* */
     @Test
     public void testRemoveAllOccurrences()
     {
-        deque.addLast(newArray(deque.buffer, 0, 1, 2, 1, 0, 3, 0));
+        deque.addLast(asArray(0, 1, 2, 1, 0, 3, 0));
         
-        assertEquals(0, deque.removeAllOccurrences(/* intrinsic:ktypecast */ 4));
-        assertEquals(3, deque.removeAllOccurrences(/* intrinsic:ktypecast */ 0));
+        assertEquals(0, deque.removeAllOccurrences(k4));
+        assertEquals(3, deque.removeAllOccurrences(k0));
         assertListEquals(deque.toArray(), 1, 2, 1, 3);
-        assertEquals(1, deque.removeAllOccurrences(/* intrinsic:ktypecast */ 3));
+        assertEquals(1, deque.removeAllOccurrences(k3));
         assertListEquals(deque.toArray(), 1, 2, 1);
-        assertEquals(2, deque.removeAllOccurrences(/* intrinsic:ktypecast */ 1));
+        assertEquals(2, deque.removeAllOccurrences(k1));
         assertListEquals(deque.toArray(), 2);
-        assertEquals(1, deque.removeAllOccurrences(/* intrinsic:ktypecast */ 2));
+        assertEquals(1, deque.removeAllOccurrences(k2));
         assertEquals(0, deque.size());
     }
 
@@ -325,10 +314,10 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testRemoveAllInLookupContainer()
     {
-        deque.addLast(newArray(deque.buffer, 0, 1, 2, 1, 0));
+        deque.addLast(asArray(0, 1, 2, 1, 0));
 
-        ObjectOpenHashSet<Object> set = new ObjectOpenHashSet<Object>();
-        set.add(newArray(set.keys, 0, 2));
+        KTypeOpenHashSet<KType> set = KTypeOpenHashSet.newInstance();
+        set.add(asArray(0, 2));
 
         assertEquals(3, deque.removeAll(set));
         assertEquals(0, deque.removeAll(set));
@@ -340,11 +329,11 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testRemoveAllWithPredicate()
     {
-        deque.addLast(newArray(deque.buffer, 0, key1, key2, key1, 4));
+        deque.addLast(newArray(k0, k1, k2, k1, k4));
 
-        assertEquals(3, deque.removeAll(new ObjectPredicate<Object>()
+        assertEquals(3, deque.removeAll(new KTypePredicate<KType>()
         {
-            public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+            public boolean apply(KType v)
             {
                 return v == key1 || v == key2;
             };
@@ -357,15 +346,15 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testRemoveAllWithPredicateInterrupted()
     {
-        deque.addLast(newArray(deque.buffer, 0, key1, key2, key1, 4));
+        deque.addLast(newArray(k0, k1, k2, k1, k4));
 
         final RuntimeException t = new RuntimeException(); 
 
         try
         {
-            assertEquals(3, deque.removeAll(new ObjectPredicate<Object>()
+            assertEquals(3, deque.removeAll(new KTypePredicate<KType>()
             {
-                public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+                public boolean apply(KType v)
                 {
                     if (v == key2) throw t;
                     return v == key1;
@@ -388,31 +377,31 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testClear()
     {
-        deque.addLast(/* intrinsic:ktypecast */ 1);
-        deque.addLast(/* intrinsic:ktypecast */ 2);
-        deque.addFirst(/* intrinsic:ktypecast */ 3);
+        deque.addLast(k1);
+        deque.addLast(k2);
+        deque.addFirst(k3);
         deque.clear();
         assertEquals(0, deque.size());
         assertEquals(0, deque.head);
         assertEquals(0, deque.tail);
 
-        deque.addLast(/* intrinsic:ktypecast */ 1);
+        deque.addLast(k1);
         assertListEquals(deque.toArray(), 1);
     }
-    
+
     /* */
     @Test
     public void testRelease()
     {
-        deque.addLast(/* intrinsic:ktypecast */ 1);
-        deque.addLast(/* intrinsic:ktypecast */ 2);
-        deque.addFirst(/* intrinsic:ktypecast */ 3);
+        deque.addLast(k1);
+        deque.addLast(k2);
+        deque.addFirst(k3);
         deque.release();
         assertEquals(0, deque.size());
         assertEquals(0, deque.head);
         assertEquals(0, deque.tail);
 
-        deque.addLast(/* intrinsic:ktypecast */ 1);
+        deque.addLast(k1);
         assertListEquals(deque.toArray(), 1);
     }
 
@@ -423,7 +412,7 @@ public class ObjectArrayDequeTest<KType>
         deque.addLast(sequence);
 
         int count = 0;
-        for (ObjectCursor<Object> cursor : deque)
+        for (KTypeCursor<KType> cursor : deque)
         {
             assertEquals2(sequence.buffer[count], cursor.value);
             assertEquals2(deque.buffer[cursor.index], cursor.value);
@@ -434,7 +423,7 @@ public class ObjectArrayDequeTest<KType>
 
         count = 0;
         deque.clear();
-        for (@SuppressWarnings("unused") ObjectCursor<Object> cursor : deque)
+        for (@SuppressWarnings("unused") KTypeCursor<KType> cursor : deque)
         {
             count++;
         }
@@ -445,9 +434,9 @@ public class ObjectArrayDequeTest<KType>
     @Test
     public void testIterator()
     {
-        deque.addLast(newArray(deque.buffer, 0, 1, 2, 3));
+        deque.addLast(asArray(0, 1, 2, 3));
         
-        Iterator<ObjectCursor<Object>> iterator = deque.iterator();
+        Iterator<KTypeCursor<KType>> iterator = deque.iterator();
         int count = 0;
         while (iterator.hasNext())
         {
@@ -470,9 +459,9 @@ public class ObjectArrayDequeTest<KType>
         deque.addLast(sequence);
 
         int index = sequence.size() - 1;
-        for (Iterator<ObjectCursor<Object>> i = deque.descendingIterator(); i.hasNext(); )
+        for (Iterator<KTypeCursor<KType>> i = deque.descendingIterator(); i.hasNext(); )
         {
-            ObjectCursor<Object> cursor = i.next();
+            KTypeCursor<KType> cursor = i.next();
             assertEquals2(sequence.buffer[index], cursor.value);
             assertEquals2(deque.buffer[cursor.index], cursor.value);
             index--;
@@ -485,15 +474,12 @@ public class ObjectArrayDequeTest<KType>
 
     /* */
     @Test
-    /* removeIf:primitive */
-    @SuppressWarnings({"unchecked"})
-    /* end:removeIf */
     public void testForEachWithProcedure()
     {
         deque.addLast(sequence);
 
         final IntHolder count = new IntHolder();
-        ((ObjectArrayDeque<KType>) deque).forEach(new ObjectProcedure<KType>() {
+        deque.forEach(new KTypeProcedure<KType>() {
             int index = 0;
             public void apply(KType v)
             {
@@ -506,15 +492,12 @@ public class ObjectArrayDequeTest<KType>
 
     /* */
     @Test
-    /* removeIf:primitive */
-    @SuppressWarnings({"unchecked"})
-    /* end:removeIf */
     public void testDescendingForEachWithProcedure()
     {
         deque.addLast(sequence);
 
         final IntHolder count = new IntHolder();
-        ((ObjectArrayDeque<KType>) deque).descendingForEach(new ObjectProcedure<KType>() {
+        deque.descendingForEach(new KTypeProcedure<KType>() {
             int index = sequence.size();
             public void apply(KType v)
             {
@@ -525,20 +508,18 @@ public class ObjectArrayDequeTest<KType>
         assertEquals(count.value, deque.size());
     }
 
-    /* removeIf:primitive */
-    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
     public void testAgainstArrayDeque()
     {
-        final Random rnd = new Random(0x11223344);
+        final Random rnd = new Random();
         final int rounds = 10000;
         final int modulo = 100;
 
-        final ArrayDeque<Object> ad = new ArrayDeque<Object>();
+        final ArrayDeque<KType> ad = new ArrayDeque<KType>();
         for (int i = 0; i < rounds; i++)
         {
-            /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ k = 
-                /* intrinsic:ktypecast */ rnd.nextInt(modulo);
+            KType k = cast(rnd.nextInt(modulo));
 
             final int op = rnd.nextInt(8); 
             if (op < 2)
@@ -578,7 +559,9 @@ public class ObjectArrayDequeTest<KType>
 
         assertArrayEquals(ad.toArray(), deque.toArray());
     }
+    /*! #end !*/
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
     public void testAgainstArrayDequeVariousTailHeadPositions()
     {
@@ -594,79 +577,83 @@ public class ObjectArrayDequeTest<KType>
         this.deque.head = this.deque.tail = this.deque.buffer.length / 2;
         testAgainstArrayDeque();
     }
-    /* end:removeIf */
+    /*! #end !*/
     
-    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     @Test
     public void testHashCodeEquals()
     {
-        ObjectArrayDeque<Integer> l0 = ObjectArrayDeque.from();
+        KTypeArrayDeque<KType> l0 = KTypeArrayDeque.newInstance();
         assertEquals(1, l0.hashCode());
-        assertEquals(l0, ObjectArrayDeque.from());
+        assertEquals(l0, KTypeArrayDeque.from());
 
-        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(
-            /* intrinsic:ktypecast */ 1, 
-            /* intrinsic:ktypecast */ 2, 
-            /* intrinsic:ktypecast */ 3);
-
-        ObjectArrayDeque<Integer> l2 = ObjectArrayDeque.from(
-            /* intrinsic:ktypecast */ 1, 
-            /* intrinsic:ktypecast */ 2, 
-            /* intrinsic:ktypecast */ 3);
+        KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(k1, k2, k3);
+        KTypeArrayDeque<KType> l2 = KTypeArrayDeque.from(k1, k2);
+        l2.addLast(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
     }
     
-    /* removeIf:primitive */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
     @Test
     public void testHashCodeWithNulls()
     {
-        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, null, 3);
-        ObjectArrayDeque<Integer> l2 = ObjectArrayDeque.from(1, null, 3);
+        KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(k1, null, k3);
+        KTypeArrayDeque<KType> l2 = KTypeArrayDeque.from(k1, null, k3);
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
     }
-    /* end:removeIf */
+    /*! #end !*/
     
-    /* removeIf:primitive */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
     public void testToArrayWithClass()
     {
-        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
+        KTypeArrayDeque<Integer> l1 = KTypeArrayDeque.from(1, 2, 3);
         Integer[] result = l1.toArray(Integer.class);
         assertArrayEquals(new Integer [] {1, 2, 3}, result); // dummy
     }
+    /*! #end !*/
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
     @Test
     public void testToArray()
     {
-        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
+        KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(k1, k2, k3);
         Object[] result = l1.toArray();
-        assertArrayEquals(new Object [] {1, 2, 3}, result); // dummy
+        assertArrayEquals(new Object [] {k1, k2, k3}, result); // dummy
     }
-    /* end:removeIf */
+    /*! #end !*/
     
-    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     @Test
     public void testClone()
     {
         this.deque.addLast(key1, key2, key3);
-        
-        ObjectArrayDeque<Object> cloned = deque.clone();
+
+        KTypeArrayDeque<KType> cloned = deque.clone();
         cloned.removeAllOccurrences(key1);
 
         assertSortedListEquals(deque.toArray(), key1, key2, key3);
         assertSortedListEquals(cloned.toArray(), key2, key3);
     }
 
-    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     @Test
     public void testToString()
     {
         assertEquals("[" 
             + key1 + ", "
             + key2 + ", "
-            + key3 + "]", ObjectArrayDeque.from(key1, key2, key3).toString());
+            + key3 + "]", KTypeArrayDeque.from(key1, key2, key3).toString());
     }    
 }
