@@ -40,7 +40,7 @@ public abstract class AbstractKTypeTest<KType>
         /*! #if ($TemplateOptions.KTypePrimitive)
             return (KType) v;
             #else !*/ 
-            @SuppressWarnings("unchecked")        
+            // @SuppressWarnings("unchecked")        
             KType k = (KType)(Object) v;
             return k;
         /*! #end !*/

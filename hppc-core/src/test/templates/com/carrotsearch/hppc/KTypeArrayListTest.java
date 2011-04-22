@@ -3,9 +3,15 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import org.junit.*;
 
+import com.carrotsearch.hppc.cursors.KTypeCursor;
+import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
 /**
  * Unit tests for {@link KTypeArrayList}.
@@ -296,5 +302,305 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         // And check if the list is in consistent state.
         assertListEquals(list.toArray(), 0, key2, key1, 4);
         assertEquals(4, list.size());
+    }
+    
+    /* */
+    @Test
+    public void testIndexOf()
+    {
+        list.add(asArray(0, 1, 2, 1, 0));
+
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        list.add((KType) null);
+        assertEquals(5, list.indexOf(null));
+        /*! #end !*/
+
+        assertEquals(0, list.indexOf(k0));
+        assertEquals(-1, list.indexOf(k3));
+        assertEquals(2, list.indexOf(k2));
+    }
+    
+    /* */
+    @Test
+    public void testLastIndexOf()
+    {
+        list.add(asArray(0, 1, 2, 1, 0));
+
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        list.add((KType) null);
+        assertEquals(5, list.lastIndexOf(null));
+        /*! #end !*/
+
+        assertEquals2(4, list.lastIndexOf(k0));
+        assertEquals2(-1, list.lastIndexOf(k3));
+        assertEquals2(2, list.lastIndexOf(k2));
+    }
+
+    /* */
+    @Test
+    public void testEnsureCapacity()
+    {
+        list.ensureCapacity(100);
+        assertTrue(list.buffer.length >= 100);
+
+        list.ensureCapacity(1000);
+        list.ensureCapacity(1000);
+        assertTrue(list.buffer.length >= 1000);
+    }
+
+    @Test
+    public void testResizeAndCleanBuffer()
+    {
+        list.ensureCapacity(20);
+        Arrays.fill(list.buffer, k1);
+
+        list.resize(10);
+        assertEquals(10, list.size());
+        for (int i = 0; i < list.size(); i++) 
+            assertEquals2(Intrinsics.<KType>defaultKTypeValue(), list.get(i));
+
+        Arrays.fill(list.buffer, Intrinsics.<KType>defaultKTypeValue());
+        for (int i = 5; i < list.size(); i++)
+            list.set(i, k1);
+        list.resize(5);
+        assertEquals(5, list.size());
+        for (int i = list.size(); i < list.buffer.length; i++) 
+            assertEquals2(Intrinsics.<KType>defaultKTypeValue(), list.buffer[i]);
+    }
+
+    /* */
+    @Test
+    public void testTrimToSize()
+    {
+        list.add(asArray(1, 2));
+        list.trimToSize();
+        assertEquals(2, list.buffer.length);
+    }
+
+    /* */
+    @Test
+    public void testRelease()
+    {
+        list.add(asArray(1, 2));
+        list.release();
+        assertEquals(0, list.size());
+        list.add(asArray(1, 2));
+        assertEquals(2, list.size());
+    }
+
+    /* */
+    @Test
+    public void testGrowth()
+    {
+        final int maxGrowth = 10;
+        final int count = 500;
+
+        list = new KTypeArrayList<KType>(0, 
+            new BoundedProportionalArraySizingStrategy(5, maxGrowth, 2));
+
+        for (int i = 0; i < count; i++)
+            list.add(cast(i));
+
+        assertEquals(count, list.size());
+
+        for (int i = 0; i < count; i++)
+            assertEquals2(cast(i), list.get(i));
+
+        assertTrue("Buffer size: 510 <= " + list.buffer.length,
+            list.buffer.length <= count + maxGrowth);
+    }
+
+    /* */
+    @Test
+    public void testIterable()
+    {
+        list.add(asArray( 0, 1, 2, 3));
+        int count = 0;
+        for (KTypeCursor<KType> cursor : list)
+        {
+            count++;
+            assertEquals2(list.get(cursor.index), cursor.value);
+            assertEquals2(list.buffer[cursor.index], cursor.value);
+        }
+        assertEquals(count, list.size());
+
+        count = 0;
+        list.resize(0);
+        for (@SuppressWarnings("unused") KTypeCursor<KType> cursor : list)
+        {
+            count++;
+        }
+        assertEquals(0, count);
+    }
+    
+    /* */
+    @Test
+    public void testIterator()
+    {
+        list.add(asArray( 0, 1, 2, 3));
+        Iterator<KTypeCursor<KType>> iterator = list.iterator();
+        int count = 0;
+        while (iterator.hasNext())
+        {
+            iterator.hasNext();
+            iterator.hasNext();
+            iterator.hasNext();
+            iterator.next();
+            count++;
+        }
+        assertEquals(count, list.size());
+
+        list.resize(0);
+        assertFalse(list.iterator().hasNext());
+    }
+
+    /* */
+    @Test
+    public void testForEachWithProcedure()
+    {
+        list.add(asArray( 1, 2, 3));
+        final IntHolder holder = new IntHolder();
+        list.forEach(new KTypeProcedure<KType>() {
+            int index = 0;
+            public void apply(KType v)
+            {
+                assertEquals2(v, list.get(index++));
+                holder.value = index;
+            }
+        });
+        assertEquals(holder.value, list.size());
+    }
+
+    /* */
+    @Test
+    public void testForEachReturnValueFromAnonymousClass()
+    {
+        list.add(asArray( 1, 2, 3));
+        int result = list.forEach(new KTypeProcedure<KType>() {
+            int index = 0;
+            public void apply(KType v)
+            {
+                assertEquals2(v, list.get(index++));
+            }
+        }).index;
+        assertEquals(result, list.size());
+    }
+
+    /* */
+    @Test
+    public void testClear()
+    {
+        list.add(asArray( 1, 2, 3));
+        list.clear();
+        checkTrailingSpaceUninitialized();
+    }
+
+    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    @Test
+    public void testFrom()
+    {
+        KTypeArrayList<KType> variable = KTypeArrayList.from(k1, k2, k3);
+        assertEquals(3, variable.size());
+        assertListEquals(variable.toArray(), 1, 2, 3);
+    }
+
+    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    @Test
+    public void testHashCodeEquals()
+    {
+        ObjectArrayList<Integer> l0 = ObjectArrayList.from();
+        assertEquals(1, l0.hashCode());
+        assertEquals(l0, ObjectArrayList.from());
+
+        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, k2, k3);
+        KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, k2);
+        l2.add(k3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+
+    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    @Test
+    public void testHashCodeEqualsWithOtherContainer()
+    {
+        KTypeStack<KType> l1 = KTypeStack.from(k1, k2, k3);
+        KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, k2);
+        l2.add(k3);
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testHashCodeWithNulls()
+    {
+        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, null, k3); 
+        KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, null, k3); 
+
+        assertEquals(l1.hashCode(), l2.hashCode());
+        assertEquals(l1, l2);
+    }
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Test
+    public void testToArrayWithClass()
+    {
+        KTypeArrayList<Integer> l1 = KTypeArrayList.from(1, 2, 3);
+        Integer[] result = l1.toArray(Integer.class);
+        assertArrayEquals(new Integer [] {1, 2, 3}, result); // dummy
+    }
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testToArray()
+    {
+        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, k2, k3);
+        Object[] result = l1.toArray();
+        assertArrayEquals(new Object [] {k1, k2, k3}, result);
+    }
+    /*! #end !*/
+
+    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    @Test
+    public void testClone()
+    {
+        list.add(k1, k2, k3);
+
+        KTypeArrayList<KType> cloned = list.clone();
+        cloned.removeAllOccurrences(key1);
+
+        assertSortedListEquals(list.toArray(), key1, key2, key3);
+        assertSortedListEquals(cloned.toArray(), key2, key3);
+    }
+
+    /* */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    @Test
+    public void testToString()
+    {
+        assertEquals("[" 
+            + key1 + ", "
+            + key2 + ", "
+            + key3 + "]", KTypeArrayList.from(k1, k2, k3).toString());
     }    
 }
