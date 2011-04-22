@@ -3,46 +3,32 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
 
-import org.junit.*;
-import org.junit.rules.MethodRule;
-
+import com.carrotsearch.hppc.procedures.KTypeVTypeProcedure;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Test;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.predicates.*;
-import com.carrotsearch.hppc.procedures.*;
 
 /**
- * Tests for {@link ObjectObjectOpenHashMap}.
+ * Tests for {@link KTypeVTypeOpenHashMap}.
  */
-public class ObjectObjectOpenHashMapTest
+/* ! ${TemplateOptions.generatedAnnotation} ! */
+public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<KType>
 {
+    protected VType value0 = vcast(0);
+    protected VType value1 = vcast(1);
+    protected VType value2 = vcast(2);
+    protected VType value3 = vcast(3);
+
     /**
      * Per-test fresh initialized instance.
      */
-    public ObjectObjectOpenHashMap<Object, Object> map;
-
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key1 = 1;
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key2 = 2;
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key3 = 3;
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key4 = 4;
-
-    /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value1 = 1;
-    /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value2 = 2;
-    /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value3 = 3;
-
-    /**
-     * Require assertions for all tests.
-     */
-    @Rule
-    public MethodRule requireAssertions = new RequireAssertionsRule();
-    
-    /* */
-    @Before
-    public void initialize()
-    {
-        map = new ObjectObjectOpenHashMap<Object, Object>();
-    }
+    public KTypeVTypeOpenHashMap<KType, VType> map = KTypeVTypeOpenHashMap.newInstance();
 
     @After
     public void checkEmptySlotsUninitialized()
@@ -54,10 +40,12 @@ public class ObjectObjectOpenHashMapTest
             {
                 if (map.allocated[i] == false)
                 {
-                    /* removeIf:primitive */
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
                     assertEquals2(Intrinsics.defaultKTypeValue(), map.keys[i]);
+                    /*! #end !*/
+                    /*! #if ($TemplateOptions.VTypeGeneric) !*/
                     assertEquals2(Intrinsics.defaultVTypeValue(), map.values[i]);
-                    /* end:removeIf */
+                    /*! #end !*/
                 }
                 else
                 {
@@ -68,68 +56,42 @@ public class ObjectObjectOpenHashMapTest
         }
     }
 
-    @Test
-    public void testAddRemoveSameHashCollision()
+    /**
+     * Convert to target type from an integer used to test stuff. 
+     */
+    protected VType vcast(int value)
     {
-        // This test is only applicable to selected key types.
-        Assume.assumeTrue(
-            int[].class.isInstance(map.keys) ||
-            long[].class.isInstance(map.keys) ||
-            Object[].class.isInstance(map.keys));
+        /*! #if ($TemplateOptions.VTypePrimitive)
+            return (VType) value;
+            #else !*/ 
+            @SuppressWarnings("unchecked")        
+            VType v = (VType)(Object) value;
+            return v;
+        /*! #end !*/
+    }
 
-        IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff /3);
+    /**
+     * Create a new array of a given type and copy the arguments to this array.
+     */
+    protected VType [] newvArray(VType... elements)
+    {
+        return elements;
+    }
 
-        /*
-         * Add all of the conflicting keys to a map. 
-         */
-        for (IntCursor c : hashChain)
-            map.put(/* intrinsic:ktypecast */ c.value, this.value1);
+    private void assertSameMap(
+        final KTypeVTypeMap<KType, VType> c1,
+        final KTypeVTypeMap<KType, VType> c2)
+    {
+        assertEquals(c1.size(), c2.size());
 
-        assertEquals(hashChain.size(), map.size());
-        
-        /*
-         * Add some more keys (random).
-         */
-        Random rnd = new Random(0xbabebeef);
-        IntSet chainKeys = IntOpenHashSet.from(hashChain);
-        IntSet differentKeys = new IntOpenHashSet();
-        while (differentKeys.size() < 500)
+        c1.forEach(new KTypeVTypeProcedure<KType, VType>()
         {
-            int k = rnd.nextInt();
-            if (!chainKeys.contains(k) && !differentKeys.contains(k))
-                differentKeys.add(k);
-        }
-
-        for (IntCursor c : differentKeys)
-            map.put(/* intrinsic:ktypecast */ c.value, value2);
-
-        assertEquals(hashChain.size() + differentKeys.size(), map.size());
-
-        /* 
-         * Verify the map contains all of the conflicting keys.
-         */
-        for (IntCursor c : hashChain)
-            assertEquals2(value1, map.get(/* intrinsic:ktypecast */ c.value));
-
-        /*
-         * Verify the map contains all the other keys.
-         */
-        for (IntCursor c : differentKeys)
-            assertEquals2(value2, map.get(/* intrinsic:ktypecast */ c.value));
-
-        /*
-         * Iteratively remove the keys, from first to last.
-         */
-        for (IntCursor c : hashChain)
-            assertEquals2(value1, map.remove(/* intrinsic:ktypecast */ c.value));
-
-        assertEquals(differentKeys.size(), map.size());
-        
-        /*
-         * Verify the map contains all the other keys.
-         */
-        for (IntCursor c : differentKeys)
-            assertEquals2(value2, map.get(/* intrinsic:ktypecast */ c.value));        
+            public void apply(KType key, VType value)
+            {
+                assertTrue(c2.containsKey(key));
+                assertEquals2(value, c2.get(key));
+            }
+        });
     }
     
     /* */
@@ -140,11 +102,14 @@ public class ObjectObjectOpenHashMapTest
         map.put(key2, value2);
         map.put(key3, value3);
 
-        assertSameMap(map, ObjectObjectOpenHashMap.from(map));
-        assertSameMap(map, new ObjectObjectOpenHashMap<Object, Object>(map));
+        assertSameMap(map, KTypeVTypeOpenHashMap.from(map));
+        assertSameMap(map, new KTypeVTypeOpenHashMap<KType, VType>(map));
     }
 
     /* */
+    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     @Test
     public void testFromArrays()
     {
@@ -152,30 +117,13 @@ public class ObjectObjectOpenHashMapTest
         map.put(key2, value2);
         map.put(key3, value3);
 
-        ObjectObjectOpenHashMap<Object, Object> map2 = ObjectObjectOpenHashMap.from(
-            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1, key2, key3},
-            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1, value2, value3});
+        KTypeVTypeOpenHashMap<KType, VType> map2 = KTypeVTypeOpenHashMap.from(
+            newArray(key1, key2, key3),
+            newvArray(value1, value2, value3));
 
         assertSameMap(map, map2);
     }
-
-    private void assertSameMap(
-        final ObjectObjectMap<Object, Object> c1,
-        final ObjectObjectMap<Object, Object> c2)
-    {
-        assertEquals(c1.size(), c2.size());
-
-        c1.forEach(new ObjectObjectProcedure<Object, Object>()
-        {
-            public void apply(
-                /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ key,
-                /* replaceIf:primitiveVType VType */ Object /* end:replaceIf */ value)
-            {
-                assertTrue(c2.containsKey(key));
-                assertEquals2(value, c2.get(key));
-            }
-        });
-    }
+    
 
     /* */
     @Test
@@ -215,19 +163,17 @@ public class ObjectObjectOpenHashMapTest
     public void testPutWithExpansions()
     {
         final int COUNT = 10000;
-        final Random rnd = new Random(0x11223344);
+        final Random rnd = new Random();
         final HashSet<Object> values = new HashSet<Object>();
 
         for (int i = 0; i < COUNT; i++)
         {
             final int v = rnd.nextInt();
-            final boolean hadKey = values.contains(/* intrinsic:ktypecast */ v);
-            values.add(/* intrinsic:ktypecast */ v);
+            final boolean hadKey = values.contains(cast(v));
+            values.add(cast(v));
 
-            assertEquals(hadKey, map.containsKey(/* intrinsic:ktypecast */ v));
-            map.put(
-                /* intrinsic:ktypecast */ v, 
-                /* intrinsic:vtypecast */ v);
+            assertEquals(hadKey, map.containsKey(cast(v)));
+            map.put(cast(v), vcast(v));
             assertEquals(values.size(), map.size());
         }
         assertEquals(values.size(), map.size());
@@ -240,8 +186,8 @@ public class ObjectObjectOpenHashMapTest
         map.put(key1, value1);
         map.put(key2, value1);
 
-        ObjectObjectOpenHashMap<Object, Object> map2 = 
-            new ObjectObjectOpenHashMap<Object, Object>();
+        KTypeVTypeOpenHashMap<KType, VType> map2 = 
+            new KTypeVTypeOpenHashMap<KType, VType>();
 
         map2.put(key2, value2);
         map2.put(key3, value1);
@@ -266,14 +212,14 @@ public class ObjectObjectOpenHashMapTest
         assertEquals2(value1, map.get(key1));
     }
 
-    /* replaceIf:primitiveVType
+    /*! #if ($TemplateOptions.VTypePrimitive)
     @Test
     public void testPutOrAdd()
     {
         assertEquals2(value1, map.putOrAdd(key1, value1, value2));
         assertEquals2(value1 + value2, map.putOrAdd(key1, value1, value2));
     }
-    *//* end:replaceIf */
+    #end !*/
 
     /* */
     @Test
@@ -296,12 +242,8 @@ public class ObjectObjectOpenHashMapTest
         map.put(key2, value1);
         map.put(key3, value1);
 
-        /* replaceIf:primitiveKType
-        UKTypeArrayList list2 = new UKTypeArrayList();
-         */
-        ObjectArrayList<Object> list2 = new ObjectArrayList<Object>();
-        /* end:replaceIf */
-        list2.add(newArray(list2.buffer, key2, key3, key4));
+        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        list2.add(newArray(key2, key3, key4));
 
         map.removeAll(list2);
         assertEquals(1, map.size());
@@ -316,9 +258,9 @@ public class ObjectObjectOpenHashMapTest
         map.put(key2, value1);
         map.put(key3, value1);
 
-        map.removeAll(new ObjectPredicate<Object>()
+        map.removeAll(new KTypePredicate<KType>()
         {
-            public boolean apply(/* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ value)
+            public boolean apply(KType value)
             {
                 return value == key2 || value == key3;
             }
@@ -335,9 +277,9 @@ public class ObjectObjectOpenHashMapTest
         map.put(key2, value1);
         map.put(key3, value1);
 
-        map.keySet().removeAll(new ObjectPredicate<Object>()
+        map.keySet().removeAll(new KTypePredicate<KType>()
         {
-            public boolean apply(/* replaceIf:primitiveKType KType */ Object /* end:replaceIf */ value)
+            public boolean apply(KType value)
             {
                 return value == key2 || value == key3;
             }
@@ -350,8 +292,8 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testMapsIntersection()
     {
-        ObjectObjectOpenHashMap<Object, Object> map2 = 
-            new ObjectObjectOpenHashMap<Object, Object>(); 
+        KTypeVTypeOpenHashMap<KType, VType> map2 = 
+            KTypeVTypeOpenHashMap.newInstance(); 
 
         map.put(key1, value1);
         map.put(key2, value1);
@@ -386,7 +328,7 @@ public class ObjectObjectOpenHashMapTest
         map.put(key3, value1);
 
         int counted = 0;
-        for (ObjectCursor<Object> c : map.keySet())
+        for (KTypeCursor<KType> c : map.keySet())
         {
             assertEquals2(map.keys[c.index], c.value);
             counted++;
@@ -417,8 +359,8 @@ public class ObjectObjectOpenHashMapTest
         assertEquals(0x40000000, map.roundCapacity(Integer.MAX_VALUE));
         assertEquals(0x40000000, map.roundCapacity(Integer.MAX_VALUE / 2 + 1));
         assertEquals(0x40000000, map.roundCapacity(Integer.MAX_VALUE / 2));
-        assertEquals(ObjectObjectOpenHashMap.MIN_CAPACITY, map.roundCapacity(0));
-        assertEquals(Math.max(4, ObjectObjectOpenHashMap.MIN_CAPACITY), map.roundCapacity(3));
+        assertEquals(KTypeVTypeOpenHashMap.MIN_CAPACITY, map.roundCapacity(0));
+        assertEquals(Math.max(4, KTypeVTypeOpenHashMap.MIN_CAPACITY), map.roundCapacity(3));
     }
 
     /* */
@@ -431,7 +373,7 @@ public class ObjectObjectOpenHashMapTest
         map.remove(key2);
 
         int count = 0;
-        for (ObjectObjectCursor<Object,Object> cursor : map)
+        for (KTypeVTypeCursor<KType, VType> cursor : map)
         {
             count++;
             assertTrue(map.containsKey(cursor.key));
@@ -451,11 +393,11 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testFullLoadFactor()
     {
-        map = new ObjectObjectOpenHashMap<Object, Object>(1, 1f);
+        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
 
         for (int i = 0; i < 0x100; i++)
         {
-            map.put(/* intrinsic:ktypecast */ i, value1);
+            map.put(cast(i), value1);
         }
 
         assertEquals(0x100, map.size());
@@ -466,37 +408,39 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testHalfLoadFactor()
     {
-        map = new ObjectObjectOpenHashMap<Object, Object>(1, 0.5f);
+        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 0.5f);
 
         for (int i = 0; i < 0x100; i++)
         {
-            map.put(/* intrinsic:ktypecast */ i, value1);
+            map.put(cast(i), value1);
         }
 
         assertEquals(0x100, map.size());
         assertEquals(0x100 * 2, map.keys.length);
     }
 
-    /* */
+    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     @Test
     public void testHashCodeEquals()
     {
-        ObjectObjectOpenHashMap<Object, Object> l0 = 
-            new ObjectObjectOpenHashMap<Object, Object>();
+        KTypeVTypeOpenHashMap<KType, VType> l0 = 
+            new KTypeVTypeOpenHashMap<KType, VType>();
         assertEquals(0, l0.hashCode());
-        assertEquals(l0, new ObjectObjectOpenHashMap<Object, Object>());
+        assertEquals(l0, new KTypeVTypeOpenHashMap<KType, VType>());
 
-        ObjectObjectOpenHashMap<Object, Object> l1 = ObjectObjectOpenHashMap.from(
-            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1, key2, key3},
-            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1, value2, value3});
+        KTypeVTypeOpenHashMap<KType, VType> l1 = KTypeVTypeOpenHashMap.from(
+            newArray(key1, key2, key3),
+            newvArray(value1, value2, value3));
 
-        ObjectObjectOpenHashMap<Object, Object> l2 = ObjectObjectOpenHashMap.from(
-            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key2, key1, key3},
-            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value2, value1, value3});        
+        KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
+            newArray(key2, key1, key3),
+            newvArray(value2, value1, value3));
 
-        ObjectObjectOpenHashMap<Object, Object> l3 = ObjectObjectOpenHashMap.from(
-            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1, key2},
-            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value2, value1});        
+        KTypeVTypeOpenHashMap<KType, VType> l3 = KTypeVTypeOpenHashMap.from(
+            newArray(key1, key2),
+            newvArray(value2, value1));
 
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
@@ -505,34 +449,36 @@ public class ObjectObjectOpenHashMapTest
         assertFalse(l2.equals(l3));
     }
 
-    /* */
+    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     @Test
     public void testBug_HPPC37()
     {
-        ObjectObjectOpenHashMap<Object, Object> l1 = ObjectObjectOpenHashMap.from(
-            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key1},
-            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1});
+        KTypeVTypeOpenHashMap<KType, VType> l1 = KTypeVTypeOpenHashMap.from(
+            newArray(key1),
+            newvArray(value1));
 
-        ObjectObjectOpenHashMap<Object, Object> l2 = ObjectObjectOpenHashMap.from(
-            new /* replaceIf:primitiveKType KType [] */ Object [] /* end:replaceIf */ {key2},
-            new /* replaceIf:primitiveVType VType [] */ Object [] /* end:replaceIf */ {value1});        
+        KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
+            newArray(key2),
+            newvArray(value1));
 
         assertFalse(l1.equals(l2));
         assertFalse(l2.equals(l1));
     }    
 
-    /* removeIf:primitiveKType */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
     public void testNullKey()
     {
-        map.put(null, /* intrinsic:vtypecast */ 10);
-        assertEquals2(/* intrinsic:vtypecast */ 10, map.get(null));
+        map.put(null, vcast(10));
+        assertEquals2(vcast(10), map.get(null));
         map.remove(null);
         assertEquals(0, map.size());
     }
-    /* end:removeIf */
+    /*! #end !*/
 
-    /* removeIf:primitiveVType */
+    /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @Test
     public void testNullValue()
     {
@@ -543,9 +489,9 @@ public class ObjectObjectOpenHashMapTest
         assertFalse(map.containsKey(key1));
         assertEquals(0, map.size());
     }
-    /* end:removeIf */
+    /*! #end !*/
 
-    /* removeIf:primitive */
+    /*! #if ($TemplateOptions.AllGeneric) !*/
     /**
      * Run some random insertions/ deletions and compare the results
      * against <code>java.util.HashMap</code>.
@@ -553,9 +499,9 @@ public class ObjectObjectOpenHashMapTest
     @Test
     public void testAgainstHashMap()
     {
-        final Random rnd = new Random(0x11223344);
-        final java.util.HashMap<Integer, Integer> other = 
-            new java.util.HashMap<Integer, Integer>();
+        final Random rnd = new Random();
+        final java.util.HashMap<KType, VType> other = 
+            new java.util.HashMap<KType, VType>();
 
         for (int size = 1000; size < 20000; size += 4000)
         {
@@ -564,8 +510,8 @@ public class ObjectObjectOpenHashMapTest
 
             for (int round = 0; round < size * 20; round++)
             {
-                Integer key = rnd.nextInt(size);
-                Integer value = rnd.nextInt();
+                KType key = cast(rnd.nextInt(size));
+                VType value = vcast(rnd.nextInt());
 
                 if (rnd.nextBoolean())
                 {
@@ -585,7 +531,7 @@ public class ObjectObjectOpenHashMapTest
             }
         }
     }
-    /* end:removeIf */
+    /*! #end !*/
     
     /*
      * 
@@ -596,8 +542,8 @@ public class ObjectObjectOpenHashMapTest
         this.map.put(key1, value1);
         this.map.put(key2, value2);
         this.map.put(key3, value3);
-        
-        ObjectObjectOpenHashMap<Object, Object> cloned = map.clone();
+
+        KTypeVTypeOpenHashMap<KType, VType> cloned = map.clone();
         cloned.remove(key1);
 
         assertSortedListEquals(map.keySet().toArray(), key1, key2, key3);
@@ -630,5 +576,69 @@ public class ObjectObjectOpenHashMapTest
         char [] asCharArray = asString.toCharArray();
         Arrays.sort(asCharArray);
         assertEquals("1122", new String(asCharArray));
+    }
+
+    @Test
+    public void testAddRemoveSameHashCollision()
+    {
+        // This test is only applicable to selected key types.
+        Assume.assumeTrue(
+            int[].class.isInstance(map.keys) ||
+            long[].class.isInstance(map.keys) ||
+            Object[].class.isInstance(map.keys));
+
+        IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff /3);
+
+        /*
+         * Add all of the conflicting keys to a map. 
+         */
+        for (IntCursor c : hashChain)
+            map.put(cast(c.value), this.value1);
+
+        assertEquals(hashChain.size(), map.size());
+        
+        /*
+         * Add some more keys (random).
+         */
+        Random rnd = new Random(0xbabebeef);
+        IntSet chainKeys = IntOpenHashSet.from(hashChain);
+        IntSet differentKeys = new IntOpenHashSet();
+        while (differentKeys.size() < 500)
+        {
+            int k = rnd.nextInt();
+            if (!chainKeys.contains(k) && !differentKeys.contains(k))
+                differentKeys.add(k);
+        }
+
+        for (IntCursor c : differentKeys)
+            map.put(cast(c.value), value2);
+
+        assertEquals(hashChain.size() + differentKeys.size(), map.size());
+
+        /* 
+         * Verify the map contains all of the conflicting keys.
+         */
+        for (IntCursor c : hashChain)
+            assertEquals2(value1, map.get(cast(c.value)));
+
+        /*
+         * Verify the map contains all the other keys.
+         */
+        for (IntCursor c : differentKeys)
+            assertEquals2(value2, map.get(cast(c.value)));
+
+        /*
+         * Iteratively remove the keys, from first to last.
+         */
+        for (IntCursor c : hashChain)
+            assertEquals2(value1, map.remove(cast(c.value)));
+
+        assertEquals(differentKeys.size(), map.size());
+        
+        /*
+         * Verify the map contains all the other keys.
+         */
+        for (IntCursor c : differentKeys)
+            assertEquals2(value2, map.get(cast(c.value)));        
     }
 }

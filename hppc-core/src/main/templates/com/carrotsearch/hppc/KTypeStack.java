@@ -200,8 +200,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * Returns a new object of this class with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
-      KTypeStack<KType> newInstance()
+    public static <KType> KTypeStack<KType> newInstance()
     {
         return new KTypeStack<KType>();
     }
@@ -210,8 +209,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * Returns a new object of this list with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
-      KTypeStack<KType> newInstanceWithCapacity(int initialCapacity)
+    public static <KType> KTypeStack<KType> newInstanceWithCapacity(int initialCapacity)
     {
         return new KTypeStack<KType>(initialCapacity);
     }
@@ -219,8 +217,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     /**
      * Create a stack by pushing a variable number of arguments to it.
      */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
-        KTypeStack<KType> from(KType... elements)
+    public static <KType> KTypeStack<KType> from(KType... elements)
     {
         final KTypeStack<KType> stack = new KTypeStack<KType>(elements.length);
         stack.push(elements);
@@ -230,8 +227,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     /**
      * Create a stack by pushing all elements of another container to it.
      */
-    public static /* removeIf:primitive */ <KType> /* end:removeIf */ 
-        KTypeStack<KType> from(KTypeContainer<KType> container)
+    public static <KType> KTypeStack<KType> from(KTypeContainer<KType> container)
     {
         return new KTypeStack<KType>(container);
     }
