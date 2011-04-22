@@ -4,40 +4,27 @@ import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
 
 import org.junit.*;
-import org.junit.rules.MethodRule;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.predicates.ObjectPredicate;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
 
 /**
- * Unit tests for {@link ObjectOpenHashSet}.
+ * Unit tests for {@link KTypeOpenHashSet}.
  */
-public class ObjectOpenHashSetTest<KType>
+/*! ${TemplateOptions.generatedAnnotation} !*/
+public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
     /**
      * Per-test fresh initialized instance.
      */
-    public ObjectOpenHashSet<Object> set;
-
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key1 = 1;
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key2 = 2;
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   key3 = 3;
-
-    /* replaceIf:primitiveKType KType */ Object /* end:replaceIf */   defaultValue 
-        = Intrinsics.<KType>defaultKTypeValue();
-
-    /**
-     * Require assertions for all tests.
-     */
-    @Rule
-    public MethodRule requireAssertions = new RequireAssertionsRule();
+    public KTypeOpenHashSet<KType> set;
 
     /* */
     @Before
     public void initialize()
     {
-        set = new ObjectOpenHashSet<Object>();
+        set = KTypeOpenHashSet.newInstance();
     }
 
     @After
@@ -50,9 +37,9 @@ public class ObjectOpenHashSetTest<KType>
             {
                 if (!set.allocated[i])
                 {
-                    /* removeIf:primitive */
+                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
                     assertEquals2(Intrinsics.defaultKTypeValue(), set.keys[i]);
-                    /* end:removeIf */
+                    /*! #end !*/
                 }
                 else
                 {
@@ -78,7 +65,7 @@ public class ObjectOpenHashSetTest<KType>
          * Add all of the conflicting keys to a map. 
          */
         for (IntCursor c : hashChain)
-            set.add(/* intrinsic:ktypecast */ c.value);
+            set.add(cast(c.value));
 
         assertEquals(hashChain.size(), set.size());
         
@@ -96,7 +83,7 @@ public class ObjectOpenHashSetTest<KType>
         }
 
         for (IntCursor c : differentKeys)
-            set.add(/* intrinsic:ktypecast */ c.value);
+            set.add(cast(c.value));
 
         assertEquals(hashChain.size() + differentKeys.size(), set.size());
 
@@ -104,29 +91,29 @@ public class ObjectOpenHashSetTest<KType>
          * Verify the map contains all of the conflicting keys.
          */
         for (IntCursor c : hashChain)
-            assertTrue(set.contains(/* intrinsic:ktypecast */ c.value));
+            assertTrue(set.contains(cast(c.value)));
 
         /*
          * Verify the map contains all the other keys.
          */
         for (IntCursor c : differentKeys)
-            assertTrue(set.contains(/* intrinsic:ktypecast */ c.value));
+            assertTrue(set.contains(cast(c.value)));
 
         /*
          * Iteratively remove the keys, from first to last.
          */
         for (IntCursor c : hashChain)
-            assertTrue(set.remove(/* intrinsic:ktypecast */ c.value));
+            assertTrue(set.remove(cast(c.value)));
 
         assertEquals(differentKeys.size(), set.size());
-        
+
         /*
          * Verify the map contains all the other keys.
          */
         for (IntCursor c : differentKeys)
-            assertTrue(set.contains(/* intrinsic:ktypecast */ c.value));        
+            assertTrue(set.contains(cast(c.value)));        
     }
-    
+
     /* */
     @Test
     public void testInitiallyEmpty()
@@ -157,7 +144,7 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testAddVarArgs()
     {
-        set.add(newArray(set.keys, 0, 1, 2, 1, 0));
+        set.add(asArray(0, 1, 2, 1, 0));
         assertEquals(3, set.size());
         assertSortedListEquals(set.toArray(), 0, 1, 2);
     }
@@ -166,9 +153,9 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testAddAll()
     {
-        ObjectOpenHashSet<Object> set2 = new ObjectOpenHashSet<Object>();
-        set2.add(newArray(set2.keys, 1, 2));
-        set.add(newArray(set2.keys, 0, 1));
+        KTypeOpenHashSet<KType> set2 = new KTypeOpenHashSet<KType>();
+        set2.add(asArray(1, 2));
+        set.add(asArray(0, 1));
 
         assertEquals(1, set.addAll(set2));
         assertEquals(0, set.addAll(set2));
@@ -181,10 +168,10 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testRemove()
     {
-        set.add(newArray(set.keys, 0, 1, 2, 3, 4));
+        set.add(asArray(0, 1, 2, 3, 4));
 
-        assertTrue(set.remove(/* intrinsic:ktypecast */ 2));
-        assertFalse(set.remove(/* intrinsic:ktypecast */ 2));
+        assertTrue(set.remove(k2));
+        assertFalse(set.remove(k2));
         assertEquals(4, set.size());
         assertSortedListEquals(set.toArray(), 0, 1, 3, 4);
     }
@@ -195,11 +182,11 @@ public class ObjectOpenHashSetTest<KType>
     {
         for (int i = 0; i < 256; i++)
         {
-            ObjectOpenHashSet<Object> set = new ObjectOpenHashSet<Object>(i);
+            KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(i);
             
             for (int j = 0; j < i; j++)
             {
-                set.add(/* intrinsic:ktypecast */ j);
+                set.add(cast(j));
             }
 
             assertEquals(i, set.size());
@@ -210,10 +197,10 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testRemoveAllFromLookupContainer()
     {
-        set.add(newArray(set.keys, 0, 1, 2, 3, 4));
+        set.add(asArray(0, 1, 2, 3, 4));
 
-        ObjectOpenHashSet<Object> list2 = new ObjectOpenHashSet<Object>();
-        list2.add(newArray(list2.keys, 1, 3, 5));
+        KTypeOpenHashSet<KType> list2 = new KTypeOpenHashSet<KType>();
+        list2.add(asArray(1, 3, 5));
 
         assertEquals(2, set.removeAll(list2));
         assertEquals(3, set.size());
@@ -224,11 +211,11 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testRemoveAllWithPredicate()
     {
-        set.add(newArray(set.keys, 0, key1, key2));
+        set.add(newArray(k0, k1, k2));
 
-        assertEquals(1, set.removeAll(new ObjectPredicate<Object>()
+        assertEquals(1, set.removeAll(new KTypePredicate<KType>()
         {
-            public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+            public boolean apply(KType v)
             {
                 return v == key1;
             };
@@ -241,11 +228,11 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testRetainAllWithPredicate()
     {
-        set.add(newArray(set.keys, 0, key1, key2, 3, 4, 5));
+        set.add(newArray(k0, k1, k2, k3, k4, k5));
 
-        assertEquals(4, set.retainAll(new ObjectPredicate<Object>()
+        assertEquals(4, set.retainAll(new KTypePredicate<KType>()
         {
-            public boolean apply(/* replaceIf:primitive KType */ Object /* end:replaceIf */ v)
+            public boolean apply(KType v)
             {
                 return v == key1 || v == key2;
             };
@@ -258,7 +245,7 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testClear()
     {
-        set.add(newArray(set.keys, 1, 2, 3));
+        set.add(asArray(1, 2, 3));
         set.clear();
         checkTrailingSpaceUninitialized();
         assertEquals(0, set.size());
@@ -268,12 +255,12 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testIterable()
     {
-        set.add(newArray(set.keys, 1, 2, 2, 3, 4));
-        set.remove(/* intrinsic:ktypecast */ 2);
+        set.add(asArray(1, 2, 2, 3, 4));
+        set.remove(k2);
         assertEquals(3, set.size());
 
         int count = 0;
-        for (ObjectCursor<Object> cursor : set)
+        for (KTypeCursor<KType> cursor : set)
         {
             count++;
             assertTrue(set.contains(cursor.value));
@@ -285,20 +272,20 @@ public class ObjectOpenHashSetTest<KType>
         assertFalse(set.iterator().hasNext());
     }
 
-    /* removeIf:primitiveKType */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
     public void testNullKey()
     {
-        set.add((Object) null);
+        set.add((KType) null);
         assertEquals(1, set.size());
         assertTrue(set.contains(null));
         assertTrue(set.remove(null));
         assertEquals(0, set.size());
         assertFalse(set.contains(null));
     }
-    /* end:removeIf */
+    /*! #end !*/
     
-    /* removeIf:primitive */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
      * Run some random insertions/ deletions and compare the results
      * against <code>java.util.HashSet</code>.
@@ -306,8 +293,8 @@ public class ObjectOpenHashSetTest<KType>
     @Test
     public void testAgainstHashMap()
     {
-        final java.util.Random rnd = new java.util.Random(0x11223344);
-        final java.util.HashSet<Integer> other = new java.util.HashSet<Integer>();
+        final java.util.Random rnd = new java.util.Random();
+        final java.util.HashSet<KType> other = new java.util.HashSet<KType>();
 
         for (int size = 1000; size < 20000; size += 4000)
         {
@@ -320,73 +307,65 @@ public class ObjectOpenHashSetTest<KType>
 
                 if (rnd.nextBoolean())
                 {
-                    other.add(key);
-                    set.add(key);
+                    other.add(cast(key));
+                    set.add(cast(key));
 
-                    assertTrue(set.contains(key));
+                    assertTrue(set.contains(cast(key)));
                     assertEquals2(key, set.lget());
                 }
                 else
                 {
-                    assertEquals(other.remove(key), set.remove(key));
+                    assertEquals(other.remove(key), set.remove(cast(key)));
                 }
 
                 assertEquals(other.size(), set.size());
             }
         }
     }
-    /* end:removeIf */
-    
+    /*! #end !*/
+
     /* */
     @Test
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     public void testHashCodeEquals()
     {
-        ObjectOpenHashSet<Integer> l0 = ObjectOpenHashSet.from();
+        KTypeOpenHashSet<Integer> l0 = KTypeOpenHashSet.from();
         assertEquals(0, l0.hashCode());
-        assertEquals(l0, ObjectOpenHashSet.from());
+        assertEquals(l0, KTypeOpenHashSet.newInstance());
 
-        ObjectOpenHashSet<Integer> l1 = ObjectOpenHashSet.from(
-            /* intrinsic:ktypecast */ 1, 
-            /* intrinsic:ktypecast */ 2, 
-            /* intrinsic:ktypecast */ 3);
-
-        ObjectOpenHashSet<Integer> l2 = ObjectOpenHashSet.from(
-            /* intrinsic:ktypecast */ 1, 
-            /* intrinsic:ktypecast */ 2, 
-            /* intrinsic:ktypecast */ 3);
+        KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, k2, k3);
+        KTypeOpenHashSet<KType> l2 = KTypeOpenHashSet.from(k1, k2);
+        l2.add(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
     }
 
-    /* removeIf:primitive */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
     @Test
     public void testHashCodeWithNulls()
     {
-        ObjectOpenHashSet<Integer> l1 = ObjectOpenHashSet.from(
-            /* intrinsic:ktypecast */ 1, 
-            /* intrinsic:ktypecast */ null, 
-            /* intrinsic:ktypecast */ 3);
-
-        ObjectOpenHashSet<Integer> l2 = ObjectOpenHashSet.from(
-            /* intrinsic:ktypecast */ 1, 
-            /* intrinsic:ktypecast */ null, 
-            /* intrinsic:ktypecast */ 3);
+        KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, null, k3);
+        KTypeOpenHashSet<KType> l2 = KTypeOpenHashSet.from(k1, null);
+        l2.add(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
     }
-    /* end:removeIf */
+    /*! #end !*/
 
-    /*
-     * 
-     */
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
     @Test
     public void testClone()
     {
         this.set.add(key1, key2, key3);
-        
-        ObjectOpenHashSet<Object> cloned = set.clone();
+
+        KTypeOpenHashSet<KType> cloned = set.clone();
         cloned.removeAllOccurrences(key1);
 
         assertSortedListEquals(set.toArray(), key1, key2, key3);
