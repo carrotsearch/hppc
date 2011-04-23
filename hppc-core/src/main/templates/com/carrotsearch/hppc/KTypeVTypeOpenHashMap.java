@@ -796,15 +796,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * Returns a specialized view of the keys of this associated container. 
      * The view additionally implements {@link ObjectLookupContainer}.
      */
-    public KeySet keySet()
+    public KeysContainer keys()
     {
-        return new KeySet();
+        return new KeysContainer();
     }
 
     /**
      * A view of the keys inside this hash map.
      */
-    public final class KeySet 
+    public final class KeysContainer 
         extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
         private final KTypeVTypeOpenHashMap<KType, VType> owner = 
@@ -858,7 +858,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         @Override
         public Iterator<KTypeCursor<KType>> iterator()
         {
-            return new KeySetIterator();
+            return new KeysIterator();
         }
 
         @Override
@@ -896,7 +896,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * An iterator over the set of assigned keys.
      */
-    private final class KeySetIterator implements Iterator<KTypeCursor<KType>>
+    private final class KeysIterator implements Iterator<KTypeCursor<KType>>
     {
         private final static int NOT_CACHED = -1;
         private final static int AT_END = -2;
@@ -906,7 +906,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         /** The next valid index or {@link #NOT_CACHED} if not available. */
         private int nextIndex = NOT_CACHED;
 
-        public KeySetIterator()
+        public KeysIterator()
         {
             cursor = new KTypeCursor<KType>();
             cursor.index = NOT_CACHED;
@@ -957,7 +957,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {                                                                                                                                         
         return new ValuesContainer();                                                                                                         
     }                                                                                                                                         
-                                                                                                                                              
+
     /**                                                                                                                                       
      * A view over the set of values of this map.                                                                                                         
      */                                                                                                                                       

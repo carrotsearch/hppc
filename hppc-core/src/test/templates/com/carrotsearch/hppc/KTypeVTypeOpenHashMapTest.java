@@ -278,7 +278,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map.put(key2, value1);
         map.put(key3, value1);
 
-        map.keySet().removeAll(new KTypePredicate<KType>()
+        map.keys().removeAll(new KTypePredicate<KType>()
         {
             public boolean apply(KType value)
             {
@@ -303,7 +303,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map2.put(key2, value1);
         map2.put(key4, value1);
 
-        assertEquals(2, map.keySet().retainAll(map2.keySet()));
+        assertEquals(2, map.keys().retainAll(map2.keys()));
 
         assertEquals(1, map.size());
         assertTrue(map.containsKey(key2));
@@ -317,7 +317,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map.put(key2, value2);
         map.put(key3, value1);
 
-        assertSortedListEquals(map.keySet().toArray(), key1, key2, key3);
+        assertSortedListEquals(map.keys().toArray(), key1, key2, key3);
     }
 
     /* */
@@ -329,7 +329,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map.put(key3, value1);
 
         int counted = 0;
-        for (KTypeCursor<KType> c : map.keySet())
+        for (KTypeCursor<KType> c : map.keys())
         {
             assertEquals2(map.keys[c.index], c.value);
             counted++;
@@ -547,8 +547,8 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         KTypeVTypeOpenHashMap<KType, VType> cloned = map.clone();
         cloned.remove(key1);
 
-        assertSortedListEquals(map.keySet().toArray(), key1, key2, key3);
-        assertSortedListEquals(cloned.keySet().toArray(), key2, key3);
+        assertSortedListEquals(map.keys().toArray(), key1, key2, key3);
+        assertSortedListEquals(cloned.keys().toArray(), key2, key3);
     }
 
     /*

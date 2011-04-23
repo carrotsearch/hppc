@@ -4,6 +4,13 @@
 <project name="hppc" default="generate.sources">
     <property name="project.build.directory" location="target" />
 
+	<target name="clean">
+		<delete dir="${basedir}/target/generated-sources/main/java" />
+		<delete dir="${basedir}/target/generated-sources/test/java" />
+		<mkdir  dir="${basedir}/target/generated-sources/main/java" />
+		<mkdir  dir="${basedir}/target/generated-sources/test/java" />
+	</target>
+
     <!-- Generate code from templates. -->
     <target name="generate.sources" description="Generate main sources from templates">
         <loadfile property="builder.classpath" srcfile="${basedir}/.builder.classpath" />

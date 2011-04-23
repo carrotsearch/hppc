@@ -59,7 +59,7 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
     /**
      * Removes all keys (and associated values) present in a given container. An alias to:
      * <pre>
-     * keySet().removeAll(container)
+     * keys().removeAll(container)
      * </pre>
      * but with no additional overhead.
      * 
@@ -71,7 +71,7 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
      * Removes all keys (and associated values) for which the predicate returns <code>true</code>.
      * An alias to:
      * <pre>
-     * keySet().removeAll(container)
+     * keys().removeAll(container)
      * </pre>
      * but with no additional overhead. 
      * 
@@ -91,19 +91,18 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
      * Clear all keys and values in the container.
      */
     public void clear();
-    
+
     /**
      * Returns a collection of keys of this container. The returned collection is a view
-     * over the key set, any modifications introduced to the collection will propagate to the
-     * map immediately.
-     * 
-     * TODO: deprecate keySet() and replace it with keys()
+     * over the key set and any modifications (if allowed) introduced to the collection will 
+     * propagate to the associative container immediately.
      */
-    public KTypeCollection<KType> keySet();
-    
+    public KTypeCollection<KType> keys();
+
     /**                                                                                       
-     * Returns a container view of all values present in this container. The returned object  
-     * is a view over the values.                                                             
+     * Returns a container view of all values present in this container. The returned collection is a view
+     * over the key set and any modifications (if allowed) introduced to the collection will 
+     * propagate to the associative container immediately.                     
      */                                                                                       
     public KTypeContainer<VType> values();                                                       
 }
