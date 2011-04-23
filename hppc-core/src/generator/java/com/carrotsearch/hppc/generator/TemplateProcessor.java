@@ -143,6 +143,13 @@ public final class TemplateProcessor
                 }
             }
         }
+        
+        if (verbose)
+            System.out.println(
+                "Velocity: " + timeVelocity + "\n" +
+                "Intrinsics: " + timeIntrinsics + "\n" +
+                "TypeClassRefs: " + timeTypeClassRefs + "\n" +
+                "Comments: " + timeComments + "\n");
     }
 
     /**
@@ -159,15 +166,22 @@ public final class TemplateProcessor
             || output.file.lastModified() <= f.file.lastModified())
         {
             String input = readFile(f.file);
+            long t1, t0 = System.currentTimeMillis();
             input = filterVelocity(f, input, templateOptions);
+            timeVelocity += (t1 = System.currentTimeMillis()) - t0;
             input = filterIntrinsics(f, input, templateOptions);
+            timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
             input = filterTypeClassRefs(f, input, templateOptions);
+            timeTypeClassRefs += (t1 = System.currentTimeMillis()) - t0;
             input = filterComments(f, input, templateOptions);
-            
+            timeComments += (t0 = System.currentTimeMillis()) - t1;
+
             output.updated = true;
             saveFile(output.file, input);
         }
     }
+    
+    long timeVelocity, timeIntrinsics, timeTypeClassRefs, timeComments;
 
     private String filterIntrinsics(TemplateFile f, String input,
         TemplateOptions templateOptions)
@@ -289,16 +303,27 @@ public final class TemplateProcessor
     private String filterComments(TemplateFile f, String input,
         TemplateOptions templateOptions)
     {
-        Pattern p = Pattern.compile("(/\\*!\\s*)|(\\s*!\\*/)", Pattern.MULTILINE
+        Pattern p = Pattern.compile("(/\\*!)|(!\\*/)", Pattern.MULTILINE
             | Pattern.DOTALL);
         return p.matcher(input).replaceAll("");
     }
 
     private String filterTypeClassRefs(TemplateFile f, String input, TemplateOptions options)
     {
+        input = unifyTypeWithSignature(f, input, options);
         input = rewriteSignatures(f, input, options);
         input = rewriteLiterals(f, input, options);
         return input;
+    }
+
+    private String unifyTypeWithSignature(TemplateFile f, String input,
+        TemplateOptions options)
+    {
+        // This is a hack. A better way would be a full source AST and
+        // rewrite at the actual typeDecl level.
+        // KTypePredicate<? super VType> => VTypePredicate<? super VType>
+        return input.replaceAll(
+            "(KType)(?!VType)([A-Za-z]+)(<(?:(\\? super ))?VType>)", "VType$2$3");
     }
 
     private String rewriteSignatures(TemplateFile f, String input, TemplateOptions options)

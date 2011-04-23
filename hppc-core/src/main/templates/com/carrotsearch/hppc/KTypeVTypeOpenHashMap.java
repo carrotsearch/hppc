@@ -950,6 +950,163 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
+     * @return Returns a container with all values stored in this map.
+     */
+    @Override
+    public KTypeContainer<VType> values()                                                                                                    
+    {                                                                                                                                         
+        return new ValuesContainer();                                                                                                         
+    }                                                                                                                                         
+                                                                                                                                              
+    /**                                                                                                                                       
+     * A view over the set of values of this map.                                                                                                         
+     */                                                                                                                                       
+    private final class ValuesContainer extends AbstractKTypeCollection<VType>                                                               
+    {                                                                                                                                         
+        @Override                                                                                                                             
+        public int size()                                                                                                                     
+        {                                                                                                                                     
+            return KTypeVTypeOpenHashMap.this.size();                                                                                       
+        }                                                                                                                                     
+                                                                                                                                              
+        @Override                                                                                                                             
+        public boolean isEmpty()                                                                                                              
+        {                                                                                                                                     
+            return KTypeVTypeOpenHashMap.this.isEmpty();                                                                                    
+        }                                                                                                                                     
+                                                                                                                                              
+        @Override                                                                                                                             
+        public boolean contains(VType value)                                                                                                  
+        {                                                                                                                                     
+            // This is a linear scan over the values, but it's in the contract, so be it.                                                     
+            final boolean [] allocated = KTypeVTypeOpenHashMap.this.allocated;                                                              
+            final VType [] values = KTypeVTypeOpenHashMap.this.values;                                                                      
+                                                                                                                                              
+            for (int slot = 0; slot < allocated.length; slot++)                                                                               
+            {                                                                                                                                 
+                if (allocated[slot] && Intrinsics.equalsVType(value, values[slot]))                                    
+                {                                                                                                                             
+                    return true;                                                                                                              
+                }                                                                                                                             
+            }
+            return false;                                                                                                                     
+        }                                                                                                                                     
+                                                                                                                                              
+        @Override                                                                                                                             
+        public <T extends KTypeProcedure<? super VType>> T forEach(T procedure)                                                              
+        {                                                                                                                                     
+            final boolean [] allocated = KTypeVTypeOpenHashMap.this.allocated;                                                              
+            final VType [] values = KTypeVTypeOpenHashMap.this.values;                                                                      
+                                                                                                                                              
+            for (int i = 0; i < allocated.length; i++)                                                                                        
+            {                                                                                                                                 
+                if (allocated[i])                                                                                                             
+                    procedure.apply(values[i]);                                                                                               
+            }                                                                                                                                 
+                                                                                                                                              
+            return procedure;                                                                                                                 
+        }                                                                                                                                     
+                                                                                                                                              
+        @Override                                                                                                                             
+        public <T extends KTypePredicate<? super VType>> T forEach(T predicate)                                                              
+        {                                                                                                                                     
+            final boolean [] allocated = KTypeVTypeOpenHashMap.this.allocated;                                                              
+            final VType [] values = KTypeVTypeOpenHashMap.this.values;                                                                      
+                                                                                                                                              
+            for (int i = 0; i < allocated.length; i++)                                                                                        
+            {                                                                                                                                 
+                if (allocated[i])                                                                                                             
+                {                                                                                                                             
+                    if (!predicate.apply(values[i]))                                                                                          
+                        break;                                                                                                                
+                }                                                                                                                             
+            }                                                                                                                                 
+                                                                                                                                              
+            return predicate;                                                                                                                 
+        }                                                                                                                                     
+                                                                                                                                              
+        @Override                                                                                                                             
+        public Iterator<KTypeCursor<VType>> iterator()                                                                                       
+        {                                                                                                                                     
+            return new ValuesIterator();                                                                                                      
+        }                                                                                                                                     
+                                                                                                                                              
+        @Override                                                                                                                             
+        public int removeAllOccurrences(VType e)                                                                                              
+        {                                                                                                                                     
+            throw new UnsupportedOperationException();                                                                                        
+        }                                                                                                                                     
+                                                                                                                                              
+        @Override                                                                                                                             
+        public int removeAll(KTypePredicate<? super VType> predicate)                                                                        
+        {                                                                                                                                     
+            throw new UnsupportedOperationException();                                                                                        
+        }                                                                                                                                     
+
+        @Override                                                                                                                             
+        public void clear()                                                                                                                   
+        {                                                                                                                                     
+            throw new UnsupportedOperationException();                                                                                        
+        }                                                                                                                                     
+    }                                                                                                                                         
+                                                                                                                                              
+    /**                                                                                                                                       
+     * An iterator over the set of assigned values.                                                                                           
+     */                                                                                                                                       
+    private final class ValuesIterator implements Iterator<KTypeCursor<VType>>                                                               
+    {                                                                                                                                         
+        private final static int NOT_CACHED = -1;                                                                                             
+        private final static int AT_END = -2;                                                                                                 
+                                                                                                                                              
+        private final KTypeCursor<VType> cursor;                                                                                             
+                                                                                                                                              
+        /** The next valid index or {@link #NOT_CACHED} if not available. */                                                                  
+        private int nextIndex = NOT_CACHED;                                                                                                   
+                                                                                                                                              
+        public ValuesIterator()                                                                                                               
+        {                                                                                                                                     
+            cursor = new KTypeCursor<VType>();                                                                                               
+            cursor.index = NOT_CACHED;                                                                                                        
+        }                                                                                                                                     
+                                                                                                                                              
+        public boolean hasNext()                                                                                                              
+        {                                                                                                                                     
+            if (nextIndex == NOT_CACHED)                                                                                                      
+            {                                                                                                                                 
+                // Advance from current cursor's position.                                                                                    
+                int i = cursor.index + 1;                                                                                                     
+                while (i < keys.length && !allocated[i])                                                                                      
+                {                                                                                                                             
+                    i++;                                                                                                                      
+                }                                                                                                                             
+                nextIndex = (i != keys.length ? i : AT_END);                                                                                  
+            }                                                                                                                                 
+                                                                                                                                              
+            return nextIndex != AT_END;                                                                                                       
+        }                                                                                                                                     
+                                                                                                                                              
+        public KTypeCursor<VType> next()                                                                                                     
+        {                                                                                                                                     
+            if (!hasNext())                                                                                                                   
+                throw new NoSuchElementException();                                                                                           
+                                                                                                                                              
+            cursor.index = nextIndex;                                                                                                         
+            cursor.value = values[nextIndex];                                                                                                 
+                                                                                                                                              
+            nextIndex = NOT_CACHED;                                                                                                           
+            return cursor;                                                                                                                    
+        }                                                                                                                                     
+                                                                                                                                              
+        public void remove()                                                                                                                  
+        {                                                                                                                                     
+            /*                                                                                                                                
+             * Use closures and other more efficient alternatives.                                                                            
+             */                                                                                                                               
+            throw new UnsupportedOperationException();                                                                                        
+        }                                                                                                                                     
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

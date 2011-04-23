@@ -7,12 +7,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 
-import com.carrotsearch.hppc.procedures.KTypeVTypeProcedure;
+import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.predicates.*;
+import com.carrotsearch.hppc.cursors.*;
+
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Test;
-import com.carrotsearch.hppc.predicates.KTypePredicate;
-import com.carrotsearch.hppc.cursors.*;
 
 /**
  * Tests for {@link KTypeVTypeOpenHashMap}.
@@ -640,5 +641,76 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
          */
         for (IntCursor c : differentKeys)
             assertEquals2(value2, map.get(cast(c.value)));        
+    }
+    
+    /* */
+    @Test
+    public void testMapValues()
+    {
+        map.put(key1, value3);
+        map.put(key2, value2);
+        map.put(key3, value1);
+        assertSortedListEquals(map.values().toArray(), value1, value2, value3);
+
+        map.clear();
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value2);
+        assertSortedListEquals(map.values().toArray(), value1, value2, value2);        
+    }
+
+    /* */
+    @Test
+    public void testMapValuesIterator()
+    {
+        map.put(key1, value3);
+        map.put(key2, value2);
+        map.put(key3, value1);
+
+        int counted = 0;
+        for (KTypeCursor<VType> c : map.values())
+        {
+            assertEquals2(map.values[c.index], c.value);
+            counted++;
+        }
+        assertEquals(counted, map.size());
+    }
+
+    /* */
+    @Test
+    public void testMapValuesContainer()
+    {
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value2);
+
+        // contains()
+        for (KTypeVTypeCursor<KType, VType> c : map)
+            assertTrue(map.values().contains(c.value));
+        assertFalse(map.values().contains(value3));
+        
+        assertEquals(map.isEmpty(), map.values().isEmpty());
+        assertEquals(map.size(), map.values().size());
+
+        final KTypeArrayList<VType> values = new KTypeArrayList<VType>();
+        map.values().forEach(new KTypeProcedure<VType>()
+            {
+                public void apply(VType value)
+                {
+                    values.add(value);
+                }
+            });
+        assertSortedListEquals(map.values().toArray(), value1, value2, value2);
+
+        values.clear();
+        map.values().forEach(new KTypePredicate<VType>()
+            {
+                public boolean apply(VType value)
+                {
+                    values.add(value);
+                    return true;
+                }
+            });
+        assertSortedListEquals(map.values().toArray(), value1, value2, value2);
     }
 }
