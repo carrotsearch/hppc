@@ -7,8 +7,11 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 /**
- * An associative container (alias: map, dictionary) from keys to values. Object keys must
- * fulfill the contract of {@link Object#hashCode()} and {@link Object#equals(Object)}.
+ * An associative container (alias: map, dictionary) from keys to (one or possibly more) values. 
+ * Object keys must fulfill the contract of {@link Object#hashCode()} and {@link Object#equals(Object)}.
+ * 
+ * <p>Note that certain associative containers (like multimaps) may return the same key-value pair
+ * multiple times from iterators.</p> 
  * 
  * @see KTypeContainer
  */
@@ -93,6 +96,14 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
      * Returns a collection of keys of this container. The returned collection is a view
      * over the key set, any modifications introduced to the collection will propagate to the
      * map immediately.
+     * 
+     * TODO: deprecate keySet() and replace it with keys()
      */
     public KTypeCollection<KType> keySet();
+    
+    /**                                                                                       
+     * Returns a container view of all values present in this container. The returned object  
+     * is a view over the values.                                                             
+     */                                                                                       
+    public KTypeContainer<VType> values();                                                       
 }
