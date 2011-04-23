@@ -20,7 +20,7 @@ public class APIExpectationsTest
         t1 = IntOpenHashSet.from(1, 2, 3).toArray();
 
         t1 = IntObjectOpenHashMap.from(
-            new int [] {1, 2}, new Long [] {1L, 2L}).keySet().toArray();
+            new int [] {1, 2}, new Long [] {1L, 2L}).keys().toArray();
     }
 
     @Test
@@ -57,7 +57,7 @@ public class APIExpectationsTest
         isObjectArray(ObjectOpenHashSet.from(1, 2, 3).toArray());
 
         isObjectArray(ObjectObjectOpenHashMap.from(
-            new Integer [] {1, 2}, new Long [] {1L, 2L}).keySet().toArray());
+            new Integer [] {1, 2}, new Long [] {1L, 2L}).keys().toArray());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class APIExpectationsTest
         isIntegerArray(ObjectOpenHashSet.from(1, 2, 3).toArray(Integer.class));
 
         isIntegerArray(ObjectObjectOpenHashMap.from(
-            new Integer [] {1, 2}, new Long [] {1L, 2L}).keySet().toArray(Integer.class));
+            new Integer [] {1, 2}, new Long [] {1L, 2L}).keys().toArray(Integer.class));
     }
     
     @Test
