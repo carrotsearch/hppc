@@ -707,15 +707,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * An iterator implementation for {@link #iterator}.
      */
-    private final class EntryIterator implements Iterator<KTypeVTypeCursor<KType, VType>>
+    private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>>
     {
-        private final static int NOT_CACHED = -1;
-        private final static int AT_END = -2;
-
         private final KTypeVTypeCursor<KType, VType> cursor;
-
-        /** The next valid index or {@link #NOT_CACHED} if not available. */
-        private int nextIndex = NOT_CACHED;
 
         public EntryIterator()
         {
@@ -723,44 +717,24 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             cursor.index = -1;
         }
 
-        public boolean hasNext()
+        @Override
+        protected KTypeVTypeCursor<KType, VType> fetch()
         {
-            if (nextIndex == NOT_CACHED)
+            int i = cursor.index + 1;
+            final int max = keys.length;
+            while (i < max && !allocated[i])
             {
-                // Advance from current cursor's position.
-                int i = cursor.index + 1;
-                for (; i < keys.length; i++)
-                {
-                    if (allocated[i])
-                        break;
-                }
-                nextIndex = (i != keys.length ? i : AT_END);
+                i++;
             }
+            
+            if (i == max)
+                return done();
 
-            return nextIndex != AT_END;
-        }
+            cursor.index = i;
+            cursor.key = keys[i];
+            cursor.value = values[i];
 
-        public KTypeVTypeCursor<KType, VType> next()
-        {
-            if (!hasNext())
-                throw new NoSuchElementException();
-
-            cursor.index = nextIndex;
-            cursor.key = keys[nextIndex];
-            cursor.value = values[nextIndex];
-
-            nextIndex = NOT_CACHED;
             return cursor;
-        }
-
-        public void remove()
-        {
-            /* 
-             * It will be much more efficient to have a removal using a closure-like 
-             * structure (then we can simply move elements to proper slots as we iterate
-             * over the array as in #removeAll). 
-             */
-            throw new UnsupportedOperationException();
         }
     }
 
@@ -896,56 +870,33 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * An iterator over the set of assigned keys.
      */
-    private final class KeysIterator implements Iterator<KTypeCursor<KType>>
+    private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>>
     {
-        private final static int NOT_CACHED = -1;
-        private final static int AT_END = -2;
-
         private final KTypeCursor<KType> cursor;
-
-        /** The next valid index or {@link #NOT_CACHED} if not available. */
-        private int nextIndex = NOT_CACHED;
 
         public KeysIterator()
         {
             cursor = new KTypeCursor<KType>();
-            cursor.index = NOT_CACHED;
+            cursor.index = -1;
         }
 
-        public boolean hasNext()
+        @Override
+        protected KTypeCursor<KType> fetch()
         {
-            if (nextIndex == NOT_CACHED)
+            int i = cursor.index + 1;
+            final int max = keys.length;
+            while (i < max && !allocated[i])
             {
-                // Advance from current cursor's position.
-                int i = cursor.index + 1;
-                while (i < keys.length && !allocated[i])
-                {
-                    i++;
-                }
-                nextIndex = (i != keys.length ? i : AT_END);
+                i++;
             }
+            
+            if (i == max)
+                return done();
 
-            return nextIndex != AT_END;
-        }
+            cursor.index = i;
+            cursor.value = keys[i];
 
-        public KTypeCursor<KType> next()
-        {
-            if (!hasNext())
-                throw new NoSuchElementException();
-
-            cursor.index = nextIndex;
-            cursor.value = keys[nextIndex];
-
-            nextIndex = NOT_CACHED;
             return cursor;
-        }
-
-        public void remove()
-        {
-            /* 
-             * Use closures and other more efficient alternatives.
-             */
-            throw new UnsupportedOperationException();
         }
     }
 
@@ -1030,7 +981,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {                                                                                                                                     
             return new ValuesIterator();                                                                                                      
         }                                                                                                                                     
-                                                                                                                                              
+
         @Override                                                                                                                             
         public int removeAllOccurrences(VType e)                                                                                              
         {                                                                                                                                     
@@ -1053,57 +1004,34 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**                                                                                                                                       
      * An iterator over the set of assigned values.                                                                                           
      */                                                                                                                                       
-    private final class ValuesIterator implements Iterator<KTypeCursor<VType>>                                                               
+    private final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>>                                                               
     {                                                                                                                                         
-        private final static int NOT_CACHED = -1;                                                                                             
-        private final static int AT_END = -2;                                                                                                 
-                                                                                                                                              
         private final KTypeCursor<VType> cursor;                                                                                             
-                                                                                                                                              
-        /** The next valid index or {@link #NOT_CACHED} if not available. */                                                                  
-        private int nextIndex = NOT_CACHED;                                                                                                   
                                                                                                                                               
         public ValuesIterator()                                                                                                               
         {                                                                                                                                     
             cursor = new KTypeCursor<VType>();                                                                                               
-            cursor.index = NOT_CACHED;                                                                                                        
+            cursor.index = -1;                                                                                                        
         }                                                                                                                                     
-                                                                                                                                              
-        public boolean hasNext()                                                                                                              
-        {                                                                                                                                     
-            if (nextIndex == NOT_CACHED)                                                                                                      
-            {                                                                                                                                 
-                // Advance from current cursor's position.                                                                                    
-                int i = cursor.index + 1;                                                                                                     
-                while (i < keys.length && !allocated[i])                                                                                      
-                {                                                                                                                             
-                    i++;                                                                                                                      
-                }                                                                                                                             
-                nextIndex = (i != keys.length ? i : AT_END);                                                                                  
-            }                                                                                                                                 
-                                                                                                                                              
-            return nextIndex != AT_END;                                                                                                       
-        }                                                                                                                                     
-                                                                                                                                              
-        public KTypeCursor<VType> next()                                                                                                     
-        {                                                                                                                                     
-            if (!hasNext())                                                                                                                   
-                throw new NoSuchElementException();                                                                                           
-                                                                                                                                              
-            cursor.index = nextIndex;                                                                                                         
-            cursor.value = values[nextIndex];                                                                                                 
-                                                                                                                                              
-            nextIndex = NOT_CACHED;                                                                                                           
-            return cursor;                                                                                                                    
-        }                                                                                                                                     
-                                                                                                                                              
-        public void remove()                                                                                                                  
-        {                                                                                                                                     
-            /*                                                                                                                                
-             * Use closures and other more efficient alternatives.                                                                            
-             */                                                                                                                               
-            throw new UnsupportedOperationException();                                                                                        
-        }                                                                                                                                     
+        
+        @Override
+        protected KTypeCursor<VType> fetch()
+        {
+            int i = cursor.index + 1;
+            final int max = keys.length;
+            while (i < max && !allocated[i])
+            {
+                i++;
+            }
+            
+            if (i == max)
+                return done();
+
+            cursor.index = i;
+            cursor.value = values[i];
+
+            return cursor;
+        }
     }
 
     /**

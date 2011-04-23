@@ -292,11 +292,11 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
     {
         return removeAllOccurrences(key) == 1;
     }
-    
+
     @Override
     public Iterator<IntCursor> iterator()
     {
-        return new IntArrayList.ValueIterator(dense, 0, size() - 1);
+        return new IntArrayList.ValueIterator(dense, size());
     }
 
     @Override

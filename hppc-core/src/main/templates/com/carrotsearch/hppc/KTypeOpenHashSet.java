@@ -533,58 +533,33 @@ public class KTypeOpenHashSet<KType>
     /**
      * An iterator implementation for {@link #iterator}.
      */
-    private final class EntryIterator implements Iterator<KTypeCursor<KType>>
+    private final class EntryIterator extends AbstractIterator<KTypeCursor<KType>>
     {
-        private final static int NOT_CACHED = -1;
-        private final static int AT_END = -2;
-
         private final KTypeCursor<KType> cursor;
-
-        /** The next valid index or {@link #NOT_CACHED} if not available. */
-        private int nextIndex = NOT_CACHED;
 
         public EntryIterator()
         {
             cursor = new KTypeCursor<KType>();
-            cursor.index = NOT_CACHED;
+            cursor.index = -1;
         }
 
-        public boolean hasNext()
+        @Override
+        protected KTypeCursor<KType> fetch()
         {
-            if (nextIndex == NOT_CACHED)
+            final int max = keys.length;
+
+            int i = cursor.index + 1;
+            while (i < keys.length && !allocated[i])
             {
-                // Advance from current cursor's position.
-                int i = cursor.index + 1;
-                while (i < keys.length && !allocated[i])
-                {
-                    i++;
-                }
-                nextIndex = (i != keys.length ? i : AT_END);
+                i++;
             }
 
-            return nextIndex != AT_END;
-        }
+            if (i == max)
+                return done();
 
-        public KTypeCursor<KType> next()
-        {
-            if (!hasNext())
-                throw new NoSuchElementException();
-
-            cursor.index = nextIndex;
-            cursor.value = keys[nextIndex];
-
-            nextIndex = NOT_CACHED;
+            cursor.index = i;
+            cursor.value = keys[i];
             return cursor;
-        }
-
-        public void remove()
-        {
-            /* 
-             * It will be much more efficient to have a removal using a closure-like 
-             * structure (then we can simply move elements to proper slots as we iterate
-             * over the array as in #removeAll). 
-             */
-            throw new UnsupportedOperationException();
         }
     }
 
