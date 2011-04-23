@@ -2,7 +2,18 @@
 [0.4.0-SNAPSHOT]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10210
 
+** API-breaking changes:
+
+HPPC-59: keySet() renamed to keys() on associative containers. 
+
 HPPC-46: toArray() on object types must return actual T[], not Object[]
+
+HPPC-52: Dropped custom hash functions and comparators from associative containers
+         for speed reasons.
+
+** New features
+
+HPPC-57: Added a view of values to associative containers (values() method).
 
 HPPC-49: Added support for XorShift random.
 
@@ -11,8 +22,13 @@ HPPC-34: Added support for Cloneable.
 HPPC-51: Replace double hashing in open hash map/set to linear probing and a good 
          hashing function to ensure random distribution of elements
 
-HPPC-52: Dropped custom hash functions and comparators from associative containers
-         for speed reasons.
-
 HPPC-47: Changed the implementation of MurmurHash to MurmurHash3, impl.
          borrowed from Sebastiano Vigna's fastutil library. [ASL]
+
+** Bug fixes
+
+HPPC-46: toArray() on object types must return actual T[], not Object[]
+
+** Other
+
+HPPC-58: Better integration with Eclipse, new template->code generation.
