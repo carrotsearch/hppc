@@ -4,6 +4,9 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10210
 
 ** API-breaking changes:
 
+HPPC-60: Cleaned up the code of all iterators (including some name/scope changes
+         of iterator classes, so if you relied on these, things may break).
+
 HPPC-59: keySet() renamed to keys() on associative containers. 
 
 HPPC-46: toArray() on object types must return actual T[], not Object[]
