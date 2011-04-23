@@ -629,7 +629,7 @@ public class KTypeArrayDeque<KType>
     /**
      * An iterator implementation for {@link ObjectArrayDeque#iterator}.
      */
-    private final class ValueIterator implements Iterator<KTypeCursor<KType>>
+    private final class ValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {
         private final KTypeCursor<KType> cursor;
         private int remaining;
@@ -641,72 +641,42 @@ public class KTypeArrayDeque<KType>
             this.remaining = size();
         }
 
-        public boolean hasNext()
-        {
-            return remaining > 0;
-        }
-
-        public KTypeCursor<KType> next()
+        @Override
+        protected KTypeCursor<KType> fetch()
         {
             if (remaining == 0)
-                throw new NoSuchElementException();
+                return done();
 
             remaining--;
-            cursor.index = oneRight(cursor.index, buffer.length);
-            cursor.value = buffer[cursor.index];
+            cursor.value = buffer[cursor.index = oneRight(cursor.index, buffer.length)];
             return cursor;
-        }
-
-        public void remove()
-        {
-            /* 
-             * It will be much more efficient to have a removal using a closure-like 
-             * structure (then we can simply move elements to proper slots as we iterate
-             * over the array as in #removeAll). 
-             */
-            throw new UnsupportedOperationException();
         }
     }
 
     /**
      * An iterator implementation for {@link ObjectArrayDeque#descendingIterator()}.
      */
-    private final class DescendingIterator implements Iterator<KTypeCursor<KType>>
+    private final class DescendingValueIterator extends AbstractIterator<KTypeCursor<KType>>
     {
         private final KTypeCursor<KType> cursor;
         private int remaining;
 
-        public DescendingIterator()
+        public DescendingValueIterator()
         {
             cursor = new KTypeCursor<KType>();
             cursor.index = tail;
             this.remaining = size();
         }
 
-        public boolean hasNext()
-        {
-            return remaining > 0;
-        }
-
-        public KTypeCursor<KType> next()
+        @Override
+        protected KTypeCursor<KType> fetch()
         {
             if (remaining == 0)
-                throw new NoSuchElementException();
+                return done();
 
             remaining--;
-            cursor.index = oneLeft(cursor.index, buffer.length);
-            cursor.value = buffer[cursor.index];
+            cursor.value = buffer[cursor.index = oneLeft(cursor.index, buffer.length)];
             return cursor;
-        }
-
-        public void remove()
-        {
-            /* 
-             * It will be much more efficient to have a removal using a closure-like 
-             * structure (then we can simply move elements to proper slots as we iterate
-             * over the array as in #removeAll). 
-             */
-            throw new UnsupportedOperationException();
         }
     }
 
@@ -748,7 +718,7 @@ public class KTypeArrayDeque<KType>
      */
     public Iterator<KTypeCursor<KType>> descendingIterator()
     {
-        return new DescendingIterator();
+        return new DescendingValueIterator();
     }
 
     /**

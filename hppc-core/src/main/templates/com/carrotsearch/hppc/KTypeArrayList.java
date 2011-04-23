@@ -613,44 +613,29 @@ public class KTypeArrayList<KType>
     /**
      * An iterator implementation for {@link ObjectArrayList#iterator}.
      */
-    final static class ValueIterator<KType> implements Iterator<KTypeCursor<KType>>
+    final static class ValueIterator<KType> extends AbstractIterator<KTypeCursor<KType>>
     {
         private final KTypeCursor<KType> cursor;
 
-        /** The last index at which {@link #hasNext()} will return <code>true</code>. */
-        private final int lastIndex;
         private final KType [] buffer;
-
-        public ValueIterator(KType [] buffer, int startIndex, int endIndex)
+        private final int size;
+        
+        public ValueIterator(KType [] buffer, int size)
         {
+            this.cursor = new KTypeCursor<KType>();
+            this.cursor.index = -1;
+            this.size = size;
             this.buffer = buffer;
-            cursor = new KTypeCursor<KType>();
-            cursor.index = startIndex - 1;
-            lastIndex = endIndex;
         }
 
-        public boolean hasNext()
+        @Override
+        protected KTypeCursor<KType> fetch()
         {
-            return cursor.index < lastIndex;
-        }
+            if (cursor.index + 1 == size)
+                return done();
 
-        public KTypeCursor<KType> next()
-        {
-            assert cursor.index <= lastIndex;
-
-            cursor.index++;
-            cursor.value = buffer[cursor.index];
+            cursor.value = buffer[++cursor.index];
             return cursor;
-        }
-
-        public void remove()
-        {
-            /* 
-             * It will be much more efficient to have a removal using a closure-like 
-             * structure (then we can simply move elements to proper slots as we iterate
-             * over the array as in #removeAll). 
-             */
-            throw new UnsupportedOperationException();
         }
     }
 
@@ -660,7 +645,7 @@ public class KTypeArrayList<KType>
     @Override
     public Iterator<KTypeCursor<KType>> iterator()
     {
-        return new ValueIterator<KType>(buffer, 0, size() - 1);
+        return new ValueIterator<KType>(buffer, size());
     }
 
     /**
