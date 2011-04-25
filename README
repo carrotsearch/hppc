@@ -1,11 +1,11 @@
 
-HPPC, high performance primitive collections
+HPPC: High Performance Primitive Collections
 --------------------------------------------
 
-See JavaDoc and http://labs.carrotsearch.com/hppc.html for more info
+See JavaDoc and documentation at: http://labs.carrotsearch.com/hppc.html for more info.
 
 
-Development
------------
+Maven shortcuts
+---------------
 
-mvn -Peclipse            Generate Eclipse files, including optional dependencies and source folders.
+mvn -Peclipse            # Generate Eclipse project files (the setup is a bit complex, so use this!)
