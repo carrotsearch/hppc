@@ -1,1 +1,17 @@
+# Mac specific
 .DS_Store
+
+# Maven
+target
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# External tools.
+.clover
+
+# Locally generated
+.builder.classpath
+.benchmark.*.db
