@@ -337,7 +337,7 @@
 
                 <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
 
-                <additionalBuildcommands>
+                <buildcommands>
                    <buildCommand>
                      <name>org.ui.externaltools.ExternalToolBuilder</name>
                      <triggers>auto,full,</triggers>
@@ -345,10 +345,10 @@
                        <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/HPPC Generate Sources.launch</LaunchConfigHandle>
                      </arguments>
                    </buildCommand>
-                </additionalBuildcommands>
-
-                <buildcommands>
-                </buildcommands>  
+                   <buildCommand>
+                     <name>org.eclipse.jdt.core.javabuilder</name>
+                   </buildCommand>
+                </buildcommands>
             </configuration>
           </plugin>
         </plugins>
