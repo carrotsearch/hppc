@@ -260,7 +260,7 @@
             </configuration>
             <executions>
               <execution>
-                <id>make-assembly</id>
+                <id>make-labs-assembly</id>
                 <phase>package</phase>
                 <goals>
                   <goal>single</goal>
@@ -277,14 +277,13 @@
       <id>release</id>
 
       <build>
-        <defaultGoal>install</defaultGoal>
+        <defaultGoal>package</defaultGoal>
 
         <plugins>
           <!-- Attach and modify JavaDocs. -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.6.1</version>
             <configuration>
               <encoding>${project.build.sourceEncoding}</encoding>
               <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
@@ -316,7 +315,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.1.2</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -341,30 +339,10 @@
             </configuration>
             <executions>
               <execution>
-                <id>make-assembly</id>
+                <id>make-release-assembly</id>
                 <phase>package</phase>
                 <goals>
                   <goal>single</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- GPG sign artefacts. -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.1</version>
-            <configuration>
-              <excludes>
-                <exclude>**/*.gz</exclude>
-                <exclude>**/*.zip</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>sign</goal>
                 </goals>
               </execution>
             </executions>

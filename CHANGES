@@ -16,6 +16,8 @@ HPPC-52: Dropped custom hash functions and comparators from associative containe
 
 ** New features
 
+HPPC-61: Cleaned up Maven structure: parent aggregator and submodules.
+
 HPPC-57: Added a view of values to associative containers (values() method).
 
 HPPC-49: Added support for XorShift random.

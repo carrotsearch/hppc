@@ -12,12 +12,15 @@
 
   <fileSets>
     <fileSet>
-      <directory></directory>
+      <directory>../</directory>
       <outputDirectory />
       <includes>
-        <include>*.LICENSE</include>
+        <include>LICENSE</include>
+        <include>README</include>
+        <include>CHANGES</include>
       </includes>
     </fileSet>
+
     <fileSet>
       <directory>${project.build.directory}</directory>
       <outputDirectory />
