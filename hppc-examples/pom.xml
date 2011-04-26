@@ -19,11 +19,6 @@
   <name>HPPC Examples</name>
   <description>Examples and use patterns of High Performance Primitive Collections (HPPC).</description>
 
-  <!-- Local properties. -->
-  <properties>
-    <deployed>false</deployed>
-  </properties>
-
   <!-- Dependencies. -->
   <dependencies>
     <dependency>

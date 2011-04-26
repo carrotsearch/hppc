@@ -19,11 +19,6 @@
   <name>HPPC Template Processor</name>
   <description>Template Processor and Code Generation for HPPC.</description>
 
-  <!-- Local properties. -->
-  <properties>
-    <deployed>false</deployed>
-  </properties>
-
   <!-- Dependencies. -->
   <dependencies>
     <dependency>
