@@ -8,4 +8,10 @@ See JavaDoc and documentation at: http://labs.carrotsearch.com/hppc.html for mor
 Maven shortcuts
 ---------------
 
-mvn -Peclipse            # Generate Eclipse project files (the setup is a bit complex, so use this!)
+# Clean everything
+mvn clean
+
+# Generate Eclipse project files (the setup is a bit complex, so use this!)
+mvn compile eclipse:eclipse -Peclipse
+
+
