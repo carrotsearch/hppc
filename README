@@ -12,6 +12,6 @@ Maven shortcuts
 mvn clean
 
 # Generate Eclipse project files (the setup is a bit complex, so use this!)
-mvn compile eclipse:eclipse -Peclipse
+mvn compile eclipse:eclipse
 
 
