@@ -57,8 +57,7 @@
                 <name>org.ui.externaltools.ExternalToolBuilder</name>
                 <triggers>auto,full,</triggers>
                 <arguments>
-                  <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/HPPC
-                    Generate Sources.launch</LaunchConfigHandle>
+                  <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/HPPC-generate-sources.launch</LaunchConfigHandle>
                 </arguments>
               </buildCommand>
               <buildCommand>
