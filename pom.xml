@@ -75,7 +75,7 @@
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
 
-    <deployed>true</deployed>
+    <skip.deployment>true</skip.deployment>
   </properties>
 
   <modules>
@@ -204,6 +204,15 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>${skip.deployment}</skip>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <profiles>

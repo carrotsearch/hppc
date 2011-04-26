@@ -19,11 +19,6 @@
   <name>HPPC Benchmarks</name>
   <description>HPPC benchmarks and comparison against other primitive collections.</description>
 
-  <!-- Global properties. -->
-  <properties>
-    <deployed>false</deployed>
-  </properties>
-
   <!-- Dependencies. -->
   <dependencies>
     <dependency>

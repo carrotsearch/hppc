@@ -23,7 +23,7 @@
 
   <!-- Properties. -->
   <properties>
-    <deployed>true</deployed>
+    <skip.deployment>false</skip.deployment>
   </properties>
 
   <!-- Dependencies. -->
