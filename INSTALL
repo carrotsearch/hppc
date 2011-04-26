@@ -1,0 +1,63 @@
+
+Maven shortcuts
+---------------
+
+# Clean everything
+mvn clean
+
+# Generate Eclipse project files (the setup is a bit complex, so use this!)
+mvn compile eclipse:eclipse
+
+# All unit tests
+mvn clean test
+
+# Install packages in a local repository.
+mvn clean install
+
+# Create a distribution package
+mvn clean package -Prelease
+
+
+hppc-core targets
+-----------------
+
+# Run tests with clover
+mvn -Pclover
+
+# Generate code quality reports
+mvn -Pclover site 
+
+# Creates a release directory for rsyncing to labs.carrotsearch.com:
+# rsync -azv -e "ssh -p 2222" --chmod=u=rwX,g=rX,o=rX target/site-labs/ carrot2@hostgator.carrot2.org:./public_html/com.carrotsearch.labs/download/hppc/
+mvn -Prelease,site-labs clean install
+
+
+
+Deployment
+----------
+
+# Deploy a snapshot of artefacts to SonaType's snapshots repo
+mvn clean deploy
+
+
+Clover
+------
+
+A local license is required for Clover support. Edit your ~/.m2/settings.xml and 
+add an active profile definiting these settings:
+
+...
+  <profiles>
+          <profile>
+            <id>clover-license</id>
+            <properties>
+              <clover.license.path>[...]\clover.license</clover.license.path>
+              <maven.clover.licenseLocation>[...]\clover.license</maven.clover.licenseLocation>
+            </properties>
+          </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>clover-license</activeProfile>
+  </activeProfiles>
+...
