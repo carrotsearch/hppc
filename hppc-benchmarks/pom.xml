@@ -66,7 +66,7 @@
       <version>3.0.0rc1</version>
       <type>jar</type>
       <scope>system</scope>
-      <systemPath>${project.basedir}/trove-3.0.0rc1.jar</systemPath>
+      <systemPath>${project.basedir}/lib/trove-3.0.0rc1.jar</systemPath>
     </dependency>
 
     <dependency>
