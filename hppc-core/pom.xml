@@ -250,21 +250,21 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/site-labs.xml</descriptor>
-              </descriptors>
-              <attach>false</attach>
-              <appendAssemblyId>false</appendAssemblyId>
-              <finalName>site-labs</finalName>
-            </configuration>
             <executions>
               <execution>
                 <id>make-labs-assembly</id>
-                <phase>package</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>single</goal>
                 </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/site-labs.xml</descriptor>
+                  </descriptors>
+                  <attach>false</attach>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <finalName>site-labs</finalName>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -329,14 +329,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/bin.xml</descriptor>
-              </descriptors>
-              <tarLongFileMode>gnu</tarLongFileMode>
-              <attach>false</attach>
-              <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
             <executions>
               <execution>
                 <id>make-release-assembly</id>
@@ -344,6 +336,14 @@
                 <goals>
                   <goal>single</goal>
                 </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/bin.xml</descriptor>
+                  </descriptors>
+                  <tarLongFileMode>gnu</tarLongFileMode>
+                  <attach>false</attach>
+                  <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
               </execution>
             </executions>
           </plugin>

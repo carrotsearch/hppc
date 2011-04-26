@@ -24,8 +24,8 @@ mvn clean install
 mvn clean package -Prelease
 
 
-hppc-core only targets
-----------------------
+hppc-core targets
+-----------------
 
 # Run tests with clover
 mvn -Pclover
@@ -35,7 +35,7 @@ mvn -Pclover site
 
 # Creates a release directory for rsyncing to labs.carrotsearch.com:
 # rsync -azv -e "ssh -p 2222" --chmod=u=rwX,g=rX,o=rX target/site-labs/ carrot2@hostgator.carrot2.org:./public_html/com.carrotsearch.labs/download/hppc/
-mvn -Psite-labs
+mvn -Prelease,site-labs clean install
 
 
 
