@@ -19,9 +19,6 @@
             <pathelement location="target/builder" />
         </path>
 
-        <mkdir dir="target/builder" />
-        <javac destdir="target/builder" includeantruntime="false" srcdir="src/generator/java" classpathref="libs" />
-
         <taskdef classname="com.carrotsearch.hppc.generator.TemplateProcessor" name="generate">
             <classpath refid="libs" />
         </taskdef>
