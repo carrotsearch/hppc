@@ -196,6 +196,19 @@
             <buildOutputDirectory>${project.build.directory}/eclipse</buildOutputDirectory>
           </configuration>
         </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.1</version>
+          <configuration>
+            <useReleaseProfile>true</useReleaseProfile>
+            <releaseProfiles>release</releaseProfiles>
+            <goals>deploy</goals>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
+          </configuration>
+        </plugin>        
       </plugins>
     </pluginManagement>
 
