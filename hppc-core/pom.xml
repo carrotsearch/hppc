@@ -13,11 +13,12 @@
   <!-- Project info. -->
   <groupId>com.carrotsearch</groupId>
   <artifactId>hppc</artifactId>
-  <version>${parent.version}</version>
+  <version>0.4.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>High Performance Primitive Collections</name>
-  <description>Fundamental data structures (maps, sets, lists, stacks, queues) generated for
+  <name>HPPC Collections</name>
+  <description>High Performance Primitive Collections. 
+  Fundamental data structures (maps, sets, lists, stacks, queues) generated for
   combinations of object and primitive types to conserve JVM memory and speed
   up execution.</description>
 
@@ -120,14 +121,7 @@
               </sources>
             </configuration>
           </execution>
-        </executions>
-      </plugin>
 
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-
-        <executions>
           <execution>
             <id>add-test-source</id>
             <phase>generate-sources</phase>
@@ -217,7 +211,7 @@
                   <target>
                     <ant antfile="${basedir}/src/ant/clover.xml"
                       inheritRefs="true" inheritAll="true">
-                      <property name="version" value="${version}" />
+                      <property name="version" value="${project.version}" />
                       <target name="test" />
                     </ant>
                   </target>
@@ -288,9 +282,9 @@
               <encoding>${project.build.sourceEncoding}</encoding>
               <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
               <docfilessubdirs>true</docfilessubdirs>
-              <windowtitle>HPPC v${version} API Documentation (JavaDoc)</windowtitle>
-              <doctitle>HPPC v${version} API Documentation</doctitle>
-              <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${version} <br>API Documentation</div>]]></header>
+              <windowtitle>HPPC v${project.version} API Documentation (JavaDoc)</windowtitle>
+              <doctitle>HPPC v${project.version} API Documentation</doctitle>
+              <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
               <overview>${basedir}/src/main/java/com/carrotsearch/hppc/package.html</overview>
               <failonerror>true</failonerror>
               <use>false</use>
