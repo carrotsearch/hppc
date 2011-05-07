@@ -18,6 +18,10 @@
   <name>HPPC Template Processor</name>
   <description>Template Processor and Code Generation for HPPC.</description>
 
+  <properties>
+    <skip.deployment>true</skip.deployment>
+  </properties>
+
   <!-- Dependencies. -->
   <dependencies>
     <dependency>

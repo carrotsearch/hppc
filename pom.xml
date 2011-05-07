@@ -74,7 +74,7 @@
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
 
-    <skip.deployment>true</skip.deployment>
+    <skip.deployment>false</skip.deployment>
   </properties>
 
   <modules>
