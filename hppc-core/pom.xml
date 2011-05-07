@@ -21,11 +21,6 @@
   combinations of object and primitive types to conserve JVM memory and speed
   up execution.</description>
 
-  <!-- Properties. -->
-  <properties>
-    <skip.deployment>false</skip.deployment>
-  </properties>
-
   <!-- Dependencies. -->
   <dependencies>
     <dependency>

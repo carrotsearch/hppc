@@ -18,6 +18,10 @@
   <name>HPPC Benchmarks</name>
   <description>HPPC benchmarks and comparison against other primitive collections.</description>
 
+  <properties>
+    <skip.deployment>true</skip.deployment>
+  </properties>
+
   <!-- Dependencies. -->
   <dependencies>
     <dependency>
