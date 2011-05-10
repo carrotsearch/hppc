@@ -154,7 +154,7 @@
         <executions>
           <execution>
             <id>antrun-retrotranslate-jdk15</id>
-            <phase>prepare-package</phase>
+            <phase>package</phase>
             <configuration>
               <target>
                 <taskdef name="retrotranslator"
