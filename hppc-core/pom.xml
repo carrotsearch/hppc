@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -90,6 +91,42 @@
               <goal>run</goal>
             </goals>
           </execution>
+          
+          <execution>
+            <id>antrun-retrotranslate-jdk15</id>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <taskdef name="retrotranslator"
+                  classname="net.sf.retrotranslator.transformer.RetrotranslatorTask"
+                  classpathref="maven.plugin.classpath" />
+
+                <retrotranslator verbose="true" verify="false"
+                  failonwarning="true" target="1.5" embed="com.carrotsearch.hppc.backport"
+                  destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
+
+                  <jarfileset dir="${project.build.directory}"
+                    includes="${project.build.finalName}.jar" />
+
+                  <classpath>
+                    <pathelement location="${basedir}/src/main/retrotranslator" />
+                  </classpath>
+                  <classpath refid="maven.plugin.classpath" />
+                  <classpath refid="maven.compile.classpath" />
+                  <classpath>
+                    <fileset dir="${java.home}/lib" includes="rt.jar" />
+                  </classpath>
+                </retrotranslator>
+
+                <attachartifact
+                  file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
+                  classifier="jdk15" type="jar" />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
         </executions>
 
         <dependencies>
@@ -97,6 +134,24 @@
             <groupId>com.carrotsearch</groupId>
             <artifactId>hppc-templateprocessor</artifactId>
             <version>${project.version}</version>
+          </dependency>
+          
+          <dependency>
+            <groupId>net.sf.retrotranslator</groupId>
+            <artifactId>retrotranslator-transformer</artifactId>
+            <version>${retrotranslator.version}</version>
+          </dependency>
+
+          <dependency>
+            <groupId>net.sf.retrotranslator</groupId>
+            <artifactId>retrotranslator-runtime</artifactId>
+            <version>${retrotranslator.version}</version>
+          </dependency>
+
+          <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${backport-util-concurrent.version}</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -146,66 +201,6 @@
           </includes>
           <argLine>-ea -Xmx1024m</argLine>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>antrun-retrotranslate-jdk15</id>
-            <phase>package</phase>
-            <configuration>
-              <target>
-                <taskdef name="retrotranslator"
-                  classname="net.sf.retrotranslator.transformer.RetrotranslatorTask"
-                  classpathref="maven.plugin.classpath" />
-
-                <retrotranslator verbose="true" verify="false"
-                  failonwarning="true" target="1.5"
-                  embed="com.carrotsearch.hppc.backport"
-                  destjar="${project.build.directory}/${project.build.finalName}-jdk15.jar">
-
-                  <jarfileset dir="${project.build.directory}"
-                    includes="${project.build.finalName}.jar" />
-
-                  <classpath>
-                    <pathelement location="${basedir}/src/main/retrotranslator" />
-                  </classpath>
-                  <classpath refid="maven.plugin.classpath" />
-                  <classpath refid="maven.compile.classpath" />
-                  <classpath>
-                    <fileset dir="${java.home}/lib" includes="rt.jar" />
-                  </classpath>
-                </retrotranslator>
-
-                <attachartifact
-                  file="${project.build.directory}/${project.build.finalName}-jdk15.jar"
-                  classifier="jdk15" type="jar" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>net.sf.retrotranslator</groupId>
-            <artifactId>retrotranslator-transformer</artifactId>
-            <version>${retrotranslator.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>net.sf.retrotranslator</groupId>
-            <artifactId>retrotranslator-runtime</artifactId>
-            <version>${retrotranslator.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <version>${backport-util-concurrent.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
@@ -266,7 +261,8 @@
                 <phase>integration-test</phase>
                 <configuration>
                   <target>
-                    <ant antfile="${basedir}/src/ant/clover.xml" inheritRefs="true" inheritAll="true">
+                    <ant antfile="${basedir}/src/ant/clover.xml"
+                      inheritRefs="true" inheritAll="true">
                       <property name="version" value="${project.version}" />
                       <target name="test" />
                     </ant>
@@ -334,26 +330,27 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <encoding>${project.build.sourceEncoding}</encoding>
-              <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
-              <docfilessubdirs>true</docfilessubdirs>
-              <windowtitle>HPPC v${project.version} API Documentation (JavaDoc)</windowtitle>
-              <doctitle>HPPC v${project.version} API Documentation</doctitle>
-              <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
-              <overview>${basedir}/src/main/java/com/carrotsearch/hppc/package.html</overview>
-              <failonerror>true</failonerror>
-              <use>false</use>
-              <groups>
-                <group>
-                  <title>HPPC</title>
-                  <packages>com.carrotsearch.hppc*</packages>
-                </group>
-              </groups>
-            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
+                <configuration>
+                  <encoding>${project.build.sourceEncoding}</encoding>
+                  <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
+                  <docfilessubdirs>true</docfilessubdirs>
+                  <windowtitle>HPPC v${project.version} API Documentation
+                    (JavaDoc)</windowtitle>
+                  <doctitle>HPPC v${project.version} API Documentation</doctitle>
+                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
+                  <overview>${basedir}/src/main/java/com/carrotsearch/hppc/package.html</overview>
+                  <failonerror>true</failonerror>
+                  <use>false</use>
+                  <groups>
+                    <group>
+                      <title>HPPC</title>
+                      <packages>com.carrotsearch.hppc*</packages>
+                    </group>
+                  </groups>
+                </configuration>
                 <goals>
                   <goal>jar</goal>
                 </goals>
