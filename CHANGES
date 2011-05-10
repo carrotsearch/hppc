@@ -1,9 +1,20 @@
 
+[0.4.2-SNAPSHOT]
+
+** API-breaking changes:
+** New features
+** Bug fixes
+** Other
+
+
 [0.4.1-SNAPSHOT]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10322
 
 ** API-breaking changes:
 ** New features
+
+HPPC-63: a jdk15-compatible artifact is being published to Maven Central now.
+
 ** Bug fixes
 ** Other
 
