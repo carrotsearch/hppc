@@ -13,7 +13,7 @@
   <!-- Project info. -->
   <groupId>com.carrotsearch</groupId>
   <artifactId>hppc</artifactId>
-  <version>0.3.3</version>
+  <version>0.3.4</version>
   <packaging>jar</packaging>
 
   <name>High Performance Primitive Collections</name>
