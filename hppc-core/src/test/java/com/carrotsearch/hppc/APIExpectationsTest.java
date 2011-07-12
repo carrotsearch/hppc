@@ -1,6 +1,8 @@
 package com.carrotsearch.hppc;
 
+import static com.carrotsearch.hppc.TestUtils.assertEquals2;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -81,6 +83,20 @@ public class APIExpectationsTest
         t = ObjectArrayList.from(1L, 2L, 3L);
         isTypeArray(Number.class, t.toArray(Number.class));
     }
+
+    @Test
+    public void testPutOrAddOnEqualKeys()
+    {
+    	ObjectIntOpenHashMap<Integer> map = ObjectIntOpenHashMap.newInstance();
+
+    	Integer k1  = 1;
+    	Integer k1b = new Integer(k1.intValue()); 
+
+    	assertTrue(k1 != k1b);
+        assertEquals2(1, map.putOrAdd(k1, 1, 2));
+        assertTrue(map.containsKey(k1b));
+        assertEquals2(3, map.putOrAdd(k1b, 1, 2));
+    }    
 
     /**
      * Check if the array is indeed of Object component type.
