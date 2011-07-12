@@ -295,7 +295,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int slot = rehash(key) & mask;
         while (allocated[slot])
         {
-            if (keys[slot] == key)
+            if (Intrinsics.equalsKType(key, keys[slot]))
             {
                 return values[slot] += additionValue;
             }
