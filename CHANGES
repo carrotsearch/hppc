@@ -8,7 +8,22 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10321
 HPPC-63: a jdk15-compatible artifact is being published to Maven Central now.
 
 ** Bug fixes
+
+HPPC-65: putOrAdd uses == for comparing object keys instead of equality
+
 ** Other
+
+
+[0.4.1]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10322
+
+** New features
+
+HPPC-63: a jdk15-compatible artifact is being published to Maven Central now.
+
+** Bug fixes
+
+HPPC-65: putOrAdd uses == for comparing object keys instead of equality
 
 
 [0.4.0] 
