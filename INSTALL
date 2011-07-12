@@ -27,17 +27,18 @@ mvn -Pclover
 # Generate code quality reports
 mvn -Pclover site 
 
-# Creates a release directory for rsyncing to labs.carrotsearch.com:
-# rsync -azv -e "ssh -p 2222" --chmod=u=rwX,g=rX,o=rX target/site-labs/ carrot2@hostgator.carrot2.org:./public_html/com.carrotsearch.labs/download/hppc/
-mvn -Prelease,site-labs clean install
-
-
 
 Deployment
 ----------
 
 # Deploy a snapshot of artefacts to SonaType's snapshots repo
 mvn clean deploy
+
+# Deploy a release
+mvn -Psign,release,site-labs clean package deploy
+
+# rsyncing to labs.carrotsearch.com:
+# rsync -azv -e "ssh -p 2222" --chmod=u=rwX,g=rX,o=rX hppc-core/target/site-labs/ carrot2@hostgator.carrot2.org:./public_html/com.carrotsearch.labs/download/hppc/
 
 
 Clover
