@@ -35,7 +35,7 @@ import static com.carrotsearch.hppc.Internals.*;
  * <tr class="odd"><td>boolean remove(E)    </td><td>int removeAllOccurrences(E)</td></tr>
  * <tr            ><td>size, clear, 
  *                     isEmpty</td><td>size, clear, isEmpty</td></tr>
- * <tr class="odd"><td>contains(E)    </td><td>contains(E), lget()</td></tr>
+ * <tr class="odd"><td>contains(E)    </td><td>contains(E), lkey()</td></tr>
  * <tr            ><td>iterator       </td><td>{@linkplain #iterator() iterator} over set values,
  *                                               pseudo-closures</td></tr>
  * </tbody>
@@ -108,10 +108,10 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * The most recent slot accessed in {@link #contains} (required for
-     * {@link #lget}).
+     * {@link #lkey}).
      * 
      * @see #contains
-     * @see #lget
+     * @see #lkey
      */
     private int lastSlot;
 
@@ -373,27 +373,41 @@ public class KTypeOpenHashSet<KType>
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
         /* #end */
     }
-    
+
+    /* #if ($TemplateOptions.KTypeGeneric) */
     /**
-     * Returns the last value saved in a call to {@link #contains}.
+     * Returns the last key saved in a call to {@link #contains} if it returned <code>true</code>.
      * 
      * @see #contains
      */
-    public KType lget()
+    public KType lkey()
     {
         assert lastSlot >= 0 : "Call contains() first.";
         assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
     
         return keys[lastSlot];
     }
+    /* #end */
+
+    /**
+     * @return Returns the slot of the last key looked up in a call to {@link #contains} if
+     * it returned <code>true</code>.
+     * 
+     * @see #contains
+     */
+    public int lslot()
+    {
+        assert lastSlot >= 0 : "Call contains() first.";
+        return lastSlot;
+    }
 
     /**
      * {@inheritDoc}
      * 
-     * <p>Saves the associated value for fast access using {@link #lget()}.</p>
+     * <p>Saves the associated value for fast access using {@link #lkey()}.</p>
      * <pre>
      * if (map.contains(key))
-     *   value = map.lget(); 
+     *   value = map.lkey(); 
      * </pre>
      */
     @Override

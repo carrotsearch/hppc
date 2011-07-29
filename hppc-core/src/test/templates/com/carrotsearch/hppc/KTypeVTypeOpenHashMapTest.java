@@ -474,8 +474,27 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     {
         map.put(null, vcast(10));
         assertEquals2(vcast(10), map.get(null));
+        assertTrue(map.containsKey(null));
+        assertEquals2(vcast(10), map.lget());
+        assertEquals2(null, map.lkey());
         map.remove(null);
         assertEquals(0, map.size());
+    }
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testLkey()
+    {
+        map.put(key1, vcast(10));
+        assertTrue(map.containsKey(key1));
+        assertSame(key1, map.lkey());
+        KType key1_ = (KType) new Integer(1);
+        assertNotSame(key1, key1_);
+        assertEquals(key1, key1_);
+        assertTrue(map.containsKey(key1_));
+        assertSame(key1, map.lkey());
     }
     /*! #end !*/
 

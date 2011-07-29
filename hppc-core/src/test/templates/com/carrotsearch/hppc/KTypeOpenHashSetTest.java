@@ -264,7 +264,9 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         {
             count++;
             assertTrue(set.contains(cursor.value));
-            assertEquals2(cursor.value, set.lget());
+            /* #if ($TemplateOptions.KTypeGeneric) */
+            assertEquals2(cursor.value, set.lkey());
+            /* #end */
         }
         assertEquals(count, set.size());
 
@@ -311,7 +313,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
                     set.add(cast(key));
 
                     assertTrue(set.contains(cast(key)));
-                    assertEquals2(key, set.lget());
+                    assertEquals2(key, set.lkey());
                 }
                 else
                 {

@@ -519,6 +519,30 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return Intrinsics.<VType> defaultVTypeValue();
     }
 
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    /**
+     * Returns the last key stored in this has map for the corresponding
+     * most recent call to {@link #containsKey}.
+     * 
+     * <p>Use the following snippet of code to check for key existence
+     * first and then retrieve the key value if it exists.</p>
+     * <pre>
+     * if (map.containsKey(key))
+     *   value = map.lkey(); 
+     * </pre>
+     * 
+     * <p>This is equivalent to calling:</p>
+     * <pre>
+     * if (map.containsKey(key))
+     *   key = map.keys[map.lslot()];
+     * </pre>
+     */
+    public KType lkey()
+    {
+        return keys[lslot()];
+    }
+    /* #end */
+
     /**
      * Returns the last value saved in a call to {@link #containsKey}.
      * 
@@ -551,6 +575,18 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
+     * @return Returns the slot of the last key looked up in a call to {@link #containsKey} if
+     * it returned <code>true</code>.
+     * 
+     * @see #containsKey
+     */
+    public int lslot()
+    {
+        assert lastSlot >= 0 : "Call containsKey() first.";
+        return lastSlot;
+    }
+
+    /**
      * {@inheritDoc}
      * 
      * <p>Saves the associated value for fast access using {@link #lget}
@@ -559,11 +595,16 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * if (map.containsKey(key))
      *   value = map.lget();
      * </pre>
-     * or, for example to modify the value at the given key without looking up
+     * or, to modify the value at the given key without looking up
      * its slot twice:
      * <pre>
      * if (map.containsKey(key))
      *   map.lset(map.lget() + 1);
+     * </pre>
+     * or, to retrieve the key-equivalent object from the map:
+     * <pre>
+     * if (map.containsKey(key))
+     *   map.lkey();
      * </pre>
      */
     @Override
