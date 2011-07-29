@@ -3,3 +3,5 @@ HPPC: High Performance Primitive Collections
 --------------------------------------------
 
 See JavaDoc and documentation at: http://labs.carrotsearch.com/hppc.html for more info.
+
+IMPORTANT: Developers - read INSTALL file for proper Eclipse setup!
