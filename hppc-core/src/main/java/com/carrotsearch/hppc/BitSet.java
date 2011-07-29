@@ -104,6 +104,14 @@ public class BitSet implements Cloneable
     }
 
     /**
+     * Static constructor-like method similar to other (generic) collections. 
+     */
+    public static BitSet newInstance()
+    {
+        return new BitSet();
+    }
+
+    /**
      * @return Returns an iterator over all set bits of this bitset. The iterator should
      *         be faster than using a loop around {@link #nextSetBit(int)}.
      */

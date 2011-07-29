@@ -423,6 +423,14 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
     }
 
     /**
+     * Static constructor-like method similar to other (generic) collections. 
+     */
+    public static IntDoubleLinkedSet newInstance()
+    {
+        return new IntDoubleLinkedSet();
+    }
+    
+    /**
      * Return the value of the maximum element (or zero) in a given container. 
      */
     private static int maxElement(IntContainer container)
