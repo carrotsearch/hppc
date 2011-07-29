@@ -3,15 +3,27 @@
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10321
 
 ** API-breaking changes:
+
+HPPC-66: allow retrieving key instances by key-equality from Object*Map versions of 
+         hash maps. Renamed lget in KTypeOpenHashSet to lkey for consistency. 
+         So, the methods accessing last found key in sets and maps are: 
+         lget (maps, accesses last value), lset (maps, accesses last value), 
+         lkey (maps, sets, accesses last key), lslot (both, slot index).
+
 ** New features
 
 HPPC-63: a jdk15-compatible artifact is being published to Maven Central now.
+
+HPPC-66: allow retrieving key instances by key-equality from Object*Map versions of 
+         hash maps and hash sets.
 
 ** Bug fixes
 
 HPPC-65: putOrAdd uses == for comparing object keys instead of equality
 
 ** Other
+
+Added newInstance() to BitSet and IntDoubleLinkedSet for consistency.
 
 
 [0.4.1]
