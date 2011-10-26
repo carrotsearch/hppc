@@ -59,12 +59,9 @@
     </dependency>
 
     <dependency>
-      <groupId>trove</groupId>
-      <artifactId>trove</artifactId>
-      <version>3.0.0rc1</version>
-      <type>jar</type>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/trove-3.0.0rc1.jar</systemPath>
+	<groupId>net.sf.trove4j</groupId>
+	<artifactId>trove4j</artifactId>
+	<version>3.0.1</version>
     </dependency>
 
     <dependency>
