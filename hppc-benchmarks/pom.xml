@@ -101,6 +101,7 @@
           <archive>
             <manifest>
               <mainClass>com.carrotsearch.hppc.caliper.BenchmarkSuite</mainClass>
+	      <useUniqueVersions>false</useUniqueVersions>
               <addClasspath>true</addClasspath>
             </manifest>
           </archive>
