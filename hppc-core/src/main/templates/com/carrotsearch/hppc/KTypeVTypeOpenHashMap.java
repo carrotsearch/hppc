@@ -601,11 +601,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * if (map.containsKey(key))
      *   map.lset(map.lget() + 1);
      * </pre>
-     * or, to retrieve the key-equivalent object from the map:
+     * #if ($TemplateOptions.KTypeGeneric) or, to retrieve the key-equivalent object from the map:
      * <pre>
      * if (map.containsKey(key))
      *   map.lkey();
-     * </pre>
+     * </pre>#end
      */
     @Override
     public boolean containsKey(KType key)

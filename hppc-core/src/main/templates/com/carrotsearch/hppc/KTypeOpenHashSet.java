@@ -107,8 +107,7 @@ public class KTypeOpenHashSet<KType>
     private int resizeThreshold;
 
     /**
-     * The most recent slot accessed in {@link #contains} (required for
-     * {@link #lkey}).
+     * The most recent slot accessed in {@link #contains}.
      * 
      * @see #contains
      * @see #lkey
@@ -404,11 +403,11 @@ public class KTypeOpenHashSet<KType>
     /**
      * {@inheritDoc}
      * 
-     * <p>Saves the associated value for fast access using {@link #lkey()}.</p>
+     * #if ($TemplateOptions.KTypeGeneric) <p>Saves the associated value for fast access using {@link #lkey()}.</p>
      * <pre>
      * if (map.contains(key))
      *   value = map.lkey(); 
-     * </pre>
+     * </pre> #end
      */
     @Override
     public boolean contains(KType key)
