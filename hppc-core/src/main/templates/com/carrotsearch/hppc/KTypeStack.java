@@ -3,9 +3,10 @@ package com.carrotsearch.hppc;
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 
 /**
- * An extension to {@link ObjectArrayList} adding stack-related utility methods. The top of
+ * An extension to {@link KTypeArrayList} adding stack-related utility methods. The top of
  * the stack is at the <code>{@link #size()} - 1</code> element.
  * 
+#if ($TemplateOptions.KTypeGeneric)
  * A brief comparison of the API against the Java Collections framework:
  * <table class="nice" summary="Java Collections Stack and HPPC ObjectStack, related methods.">
  * <caption>Java Collections Stack and HPPC {@link ObjectStack}, related methods.</caption>
@@ -26,6 +27,10 @@ import com.carrotsearch.hppc.cursors.KTypeCursor;
  * <tr            ><td>               </td><td>+ other methods from {@link ObjectArrayList}</td></tr>
  * </tbody>
  * </table>
+#else
+ * <p>See {@link ObjectArrayList} class for API similarities and differences against Java
+ * Collections.
+#end 
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeStack<KType> extends KTypeArrayList<KType>
