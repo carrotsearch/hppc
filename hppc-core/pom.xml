@@ -22,6 +22,19 @@
   combinations of object and primitive types to conserve JVM memory and speed
   up execution.</description>
 
+  <!-- We'll use a snapshot version of junit4 plugin. -->
+  <pluginRepositories>
+    <pluginRepository>
+      <id>sonatype-snapshots</id>
+      <name>SonaType Snapshots Plugin Repository</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+  
   <!-- Dependencies. -->
   <dependencies>
     <dependency>
@@ -65,6 +78,15 @@
                 <name>org.eclipse.jdt.core.javabuilder</name>
               </buildCommand>
             </buildcommands>
+          </configuration>
+        </plugin>
+
+        <!-- We don't want to use surefire to run our tests so we skip it. -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <skipTests>true</skipTests>
           </configuration>
         </plugin>
       </plugins>
@@ -192,57 +214,131 @@
         </executions>
       </plugin>
 
+      <!-- Run tests with JUnit4 instead. A simple configuration here. -->
+      <plugin>
+        <groupId>com.carrotsearch.randomizedtesting</groupId>
+        <artifactId>junit4-maven-plugin</artifactId>
+        <version>0.0.5-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>junit4-tests</id>
+            <goals>
+              <goal>junit4</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/*Test.*</include>
+              </includes>
+              <excludes>
+                <exclude>**/*$*</exclude>
+                <exclude>**/Abstract*</exclude>
+              </excludes>
+
+              <parallelism>auto</parallelism>
+              <maxMemory>750m</maxMemory>
+
+              <!-- Attach a simple listener. -->
+              <listeners>
+                <report-text
+                    showThrowable="false" 
+                    showStackTraces="false" 
+                    showOutputStream="false" 
+                    showErrorStream="false"
+
+                    showStatusOk="false"
+                    showStatusError="false"
+                    showStatusFailure="false"
+                    showStatusIgnored="false"
+
+                    showSuiteSummary="true"
+                />
+
+                <report-json   file="${project.build.directory}/surefire-reports/test-results.jsonp" jsonpMethod="testData" />
+                <report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
+              </listeners>
+
+              <assertions>
+                <enable package="com.carrotsearch"/>
+              </assertions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.0</version>
         <configuration>
-          <includes>
-            <include>**/*Test.*</include>
-          </includes>
-          <argLine>-ea -Xmx1024m</argLine>
+          <reportPlugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-project-info-reports-plugin</artifactId>
+              <version>2.4</version>
+              <configuration>
+                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+              </configuration>
+              <reports>
+                <report>dependencies</report>
+                <report>scm</report>
+              </reports>
+            </plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-pmd-plugin</artifactId>
+              <version>2.5</version>
+              <reportSets>
+                <reportSet>
+                  <id>cpd</id>
+                  <reports>
+                    <report>cpd</report>
+                  </reports>
+                </reportSet>
+              </reportSets>
+              <configuration>
+                <targetJdk>${maven.compiler.target}</targetJdk>
+                <aggregate>true</aggregate>
+                <excludes>
+                  <exclude>**/BitUtil.java</exclude>
+                  <exclude>**/BitSet.java</exclude>
+                </excludes>
+              </configuration>
+            </plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-report-plugin</artifactId>
+              <version>2.10</version>
+              <reportSets>
+                <reportSet>
+                  <id>main</id>
+                  <reports>
+                    <report>report-only</report>
+                  </reports>
+                </reportSet>
+              </reportSets>
+              <configuration>
+                <linkXRef>false</linkXRef>
+              </configuration>
+            </plugin>
+
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>findbugs-maven-plugin</artifactId>
+              <version>2.3.2</version>
+              <configuration>
+                <excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
+                <findbugsXmlOutput>true</findbugsXmlOutput>
+                <includeTests>false</includeTests>
+              </configuration>
+            </plugin>
+          </reportPlugins>
         </configuration>
-      </plugin>
+      </plugin>      
     </plugins>
   </build>
-
-  <!-- Reports -->
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <targetJdk>${maven.compiler.target}</targetJdk>
-          <aggregate>true</aggregate>
-          <excludes>
-            <exclude>**/BitUtil.java</exclude>
-            <exclude>**/BitSet.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.2</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <configuration>
-          <excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
-          <findbugsXmlOutput>true</findbugsXmlOutput>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <profiles>
     <!-- Execute clover code coverage reports via ANT. -->
