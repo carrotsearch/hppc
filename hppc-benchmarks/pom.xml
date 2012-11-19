@@ -74,9 +74,15 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.code.caliper</groupId>
+      <groupId>com.google.caliper</groupId>
       <artifactId>caliper</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>0.5-rc1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.code.gson</groupId>
+          <artifactId>gson</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
