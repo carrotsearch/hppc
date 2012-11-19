@@ -4,6 +4,11 @@
 ** API-breaking changes:
 ** New features
 ** Bug fixes
+
+HPPC-72: XorShiftRandom always returns a zero. [Sergey Peretyatko] 
+         This class was used only in benchmarks and tests so unless
+         you're using it directly you're not affected.
+
 ** Other
 
 
