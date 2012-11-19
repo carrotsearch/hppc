@@ -3,6 +3,7 @@
 
 # Maven
 target
+*.versionsBackup
 
 # Eclipse
 .classpath
