@@ -37,7 +37,7 @@ public class XorShiftRandom extends Random
     @Override
     protected int next(int bits)
     {
-        return ((int) nextLong() >>> (48 - bits));
+        return (int) (nextLong() & ((1L << bits) - 1));
     }
 
     @Override

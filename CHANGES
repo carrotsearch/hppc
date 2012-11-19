@@ -21,6 +21,10 @@ HPPC-66: allow retrieving key instances by key-equality from Object*Map versions
 
 HPPC-65: putOrAdd uses == for comparing object keys instead of equality
 
+HPPC-72: XorShiftRandom always returns a zero. [Sergey Peretyatko] 
+         This class was used only in benchmarks and tests so unless
+         you're using it directly you're not affected.
+
 ** Other
 
 Added newInstance() to BitSet and IntDoubleLinkedSet for consistency.
