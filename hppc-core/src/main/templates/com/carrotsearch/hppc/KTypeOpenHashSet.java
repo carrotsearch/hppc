@@ -8,6 +8,7 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
  * A hash set of <code>KType</code>s, implemented using using open
@@ -61,19 +62,19 @@ public class KTypeOpenHashSet<KType>
     implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
-     * Default capacity.
+     * Minimum capacity for the map.
      */
-    public final static int DEFAULT_CAPACITY = 16;
+    public final static int MIN_CAPACITY = HashContainerUtils.MIN_CAPACITY;
 
     /**
-     * Minimum capacity for the set.
+     * Default capacity.
      */
-    public final static int MIN_CAPACITY = 4;
+    public final static int DEFAULT_CAPACITY = HashContainerUtils.DEFAULT_CAPACITY;
 
     /**
      * Default load factor.
      */
-    public final static float DEFAULT_LOAD_FACTOR = 0.75f;
+    public final static float DEFAULT_LOAD_FACTOR = HashContainerUtils.DEFAULT_LOAD_FACTOR;
 
     /**
      * Hash-indexed array holding all set entries.
@@ -96,15 +97,15 @@ public class KTypeOpenHashSet<KType>
     public int assigned;
 
     /**
-     * The load factor for this set (fraction of allocated or deleted slots
+     * The load factor for this map (fraction of allocated slots
      * before the buffers must be rehashed or reallocated).
      */
     public final float loadFactor;
 
     /**
-     * Cached capacity threshold at which we must resize the buffers. 
+     * Resize buffers when {@link #allocated} hits this value. 
      */
-    private int resizeThreshold;
+    private int resizeAt;
 
     /**
      * The most recent slot accessed in {@link #contains} (required for
@@ -138,12 +139,12 @@ public class KTypeOpenHashSet<KType>
      */
     public KTypeOpenHashSet(int initialCapacity, float loadFactor)
     {
-        initialCapacity = Math.max(MIN_CAPACITY, initialCapacity); 
+        initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
         assert initialCapacity > 0
             : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
-        assert loadFactor > 0 && loadFactor < 1
-            : "Load factor must be between (0, 1).";
+        assert loadFactor > 0 && loadFactor <= 1
+            : "Load factor must be between (0, 1].";
 
         this.loadFactor = loadFactor;
         allocateBuffers(roundCapacity(initialCapacity));
@@ -164,8 +165,7 @@ public class KTypeOpenHashSet<KType>
     @Override
     public boolean add(KType e)
     {
-        if (assigned >= resizeThreshold)
-            expandAndRehash();
+        assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
         int slot = rehash(e) & mask;
@@ -179,9 +179,15 @@ public class KTypeOpenHashSet<KType>
             slot = (slot + 1) & mask;
         }
 
-        assigned++;
-        allocated[slot] = true;
-        keys[slot] = e;
+        // Check if we need to grow. If so, reallocate new data, 
+        // fill in the last element and rehash.
+        if (assigned == resizeAt) {
+            expandAndAdd(e, slot);
+        } else {
+            assigned++;
+            allocated[slot] = true;
+            keys[slot] = e;                
+        }
         return true;
     }
 
@@ -243,49 +249,49 @@ public class KTypeOpenHashSet<KType>
      * Expand the internal storage buffers (capacity) or rehash current
      * keys and values if there are a lot of deleted slots.
      */
-    private void expandAndRehash()
+    private void expandAndAdd(KType pendingKey, int freeSlot)
     {
-        final KType [] oldKeys = this.keys;
-        final boolean [] oldStates = this.allocated;
+        assert assigned == resizeAt;
+        assert !allocated[freeSlot];
 
-        assert assigned >= resizeThreshold;
+        // Try to allocate new buffers first. If we OOM, it'll be now without
+        // leaving the data structure in an inconsistent state.
+        final KType   [] oldKeys      = this.keys;
+        final boolean [] oldAllocated = this.allocated;
+
         allocateBuffers(nextCapacity(keys.length));
 
-        /*
-         * Rehash all assigned slots from the old hash table. Deleted
-         * slots are discarded.
-         */
+        // We have succeeded at allocating new data so insert the pending key/value at
+        // the free slot in the old arrays before rehashing.
+        lastSlot = -1;
+        assigned++;
+        oldAllocated[freeSlot] = true;
+        oldKeys[freeSlot] = pendingKey;
+        
+        // Rehash all stored keys into the new buffers.
+        final KType []   keys = this.keys;
+        final boolean [] allocated = this.allocated;
         final int mask = allocated.length - 1;
-        for (int i = 0; i < oldStates.length; i++)
+        for (int i = oldAllocated.length; --i >= 0;)
         {
-            if (oldStates[i])
+            if (oldAllocated[i])
             {
-                final KType key = oldKeys[i];
-                /* #if ($TemplateOptions.KTypeGeneric) */
-                oldKeys[i] = null;
-                /* #end */
+                final KType k = oldKeys[i];
 
-                int slot = rehash(key) & mask;
+                int slot = rehash(k) & mask;
                 while (allocated[slot])
                 {
-                    if (Intrinsics.equalsKType(key, keys[slot]))
-                    {
-                        break;
-                    }
                     slot = (slot + 1) & mask;
                 }
 
                 allocated[slot] = true;
-                keys[slot] = key;                
+                keys[slot] = k;                
             }
         }
 
-        /*
-         * The number of assigned items does not change, the number of deleted
-         * items is zero since we have resized.
-         */
-        lastSlot = -1;
+        /* #if ($TemplateOptions.KTypeGeneric) */ Arrays.fill(oldKeys,   null); /* #end */
     }
+
 
     /**
      * Allocate internal buffers for a given capacity.
@@ -294,9 +300,13 @@ public class KTypeOpenHashSet<KType>
      */
     private void allocateBuffers(int capacity)
     {
-        this.keys = Intrinsics.newKTypeArray(capacity);
-        this.allocated = new boolean [capacity];
-        this.resizeThreshold = (int) (capacity * DEFAULT_LOAD_FACTOR);
+        KType [] keys = Intrinsics.newKTypeArray(capacity);
+        boolean [] allocated = new boolean [capacity];
+
+        this.keys = keys;
+        this.allocated = allocated;
+
+        this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
     }
 
     /**
@@ -412,37 +422,6 @@ public class KTypeOpenHashSet<KType>
         }
         lastSlot = -1;
         return false;
-    }
-
-    /**
-     * Round the capacity to the next allowed value. 
-     */
-    protected int roundCapacity(int requestedCapacity)
-    {
-        // Maximum positive integer that is a power of two.
-        if (requestedCapacity > (0x80000000 >>> 1))
-            return (0x80000000 >>> 1);
-
-        int capacity = MIN_CAPACITY;
-        while (capacity < requestedCapacity)
-            capacity <<= 1;
-
-        return capacity;
-    }
-
-    /**
-     * Return the next possible capacity, counting from the current buffers'
-     * size.
-     */
-    protected int nextCapacity(int current)
-    {
-        assert current > 0 && Long.bitCount(current) == 1
-            : "Capacity must be a power of two.";
-        assert ((current << 1) > 0) 
-            : "Maximum capacity exceeded (" + (0x80000000 >>> 1) + ").";
-
-        if (current < MIN_CAPACITY / 2) current = MIN_CAPACITY / 2;
-        return current << 1;
     }
 
     /**

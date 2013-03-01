@@ -195,6 +195,37 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
+    public void testBug_HPPC73_FullCapacityGet()
+    {
+        set = new KTypeOpenHashSet<KType>(1, 1f);
+        int capacity = 0x80;
+        int max = capacity - 1;
+        for (int i = 0; i < max; i++)
+        {
+            set.add(cast(i));
+        }
+        
+        assertEquals(max, set.size());
+        assertEquals(capacity, set.keys.length);
+
+        // Non-existent key.
+        set.remove(cast(max + 1));
+        assertFalse(set.contains(cast(max + 1)));
+
+        // Should not expand because we're replacing an existing element.
+        assertFalse(set.add(cast(0)));
+        assertEquals(max, set.size());
+        assertEquals(capacity, set.keys.length);
+
+        // Remove from a full set.
+        set.remove(cast(0));
+        assertEquals(max - 1, set.size());
+        assertEquals(capacity, set.keys.length);
+    }
+
+    
+    /* */
+    @Test
     public void testRemoveAllFromLookupContainer()
     {
         set.add(asArray(0, 1, 2, 3, 4));
