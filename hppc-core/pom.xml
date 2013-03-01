@@ -218,7 +218,7 @@
       <plugin>
         <groupId>com.carrotsearch.randomizedtesting</groupId>
         <artifactId>junit4-maven-plugin</artifactId>
-        <version>0.0.5-SNAPSHOT</version>
+        <version>2.0.8</version>
         <executions>
           <execution>
             <id>junit4-tests</id>
@@ -242,8 +242,7 @@
                 <report-text
                     showThrowable="false" 
                     showStackTraces="false" 
-                    showOutputStream="false" 
-                    showErrorStream="false"
+                    showOutput="onError"
 
                     showStatusOk="false"
                     showStatusError="false"
@@ -253,7 +252,7 @@
                     showSuiteSummary="true"
                 />
 
-                <report-json   file="${project.build.directory}/surefire-reports/test-results.jsonp" jsonpMethod="testData" />
+                <report-json file="${project.build.directory}/surefire-reports/test-results.html" />
                 <report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
               </listeners>
 
