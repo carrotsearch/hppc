@@ -8,6 +8,7 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
@@ -68,19 +69,19 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
-     * Default capacity.
-     */
-    public final static int DEFAULT_CAPACITY = 16;
-
-    /**
      * Minimum capacity for the map.
      */
-    public final static int MIN_CAPACITY = 4;
+    public final static int MIN_CAPACITY = HashContainerUtils.MIN_CAPACITY;
+
+    /**
+     * Default capacity.
+     */
+    public final static int DEFAULT_CAPACITY = HashContainerUtils.DEFAULT_CAPACITY;
 
     /**
      * Default load factor.
      */
-    public final static float DEFAULT_LOAD_FACTOR = 0.75f;
+    public final static float DEFAULT_LOAD_FACTOR = HashContainerUtils.DEFAULT_LOAD_FACTOR;
 
     /**
      * Hash-indexed array holding all keys.
@@ -117,9 +118,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public final float loadFactor;
 
     /**
-     * Cached capacity threshold at which we must resize the buffers. 
+     * Resize buffers when {@link #allocated} hits this value. 
      */
-    private int resizeThreshold;
+    private int resizeAt;
 
     /**
      * The most recent slot accessed in {@link #containsKey} (required for
@@ -194,8 +195,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public VType put(KType key, VType value)
     {
-        if (assigned >= resizeThreshold)
-            expandAndRehash();
+        assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
         int slot = rehash(key) & mask;
@@ -211,10 +211,16 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             slot = (slot + 1) & mask;
         }
 
-        assigned++;
-        allocated[slot] = true;
-        keys[slot] = key;                
-        values[slot] = value;
+        // Check if we need to grow. If so, reallocate new data, fill in the last element 
+        // and rehash.
+        if (assigned == resizeAt) {
+            expandAndPut(key, value, slot);
+        } else {
+            assigned++;
+            allocated[slot] = true;
+            keys[slot] = key;                
+            values[slot] = value;
+        }
         return Intrinsics.<VType> defaultVTypeValue();
     }
 
@@ -274,10 +280,17 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
      * of the following code:
      * <pre>
-     * if (map.containsKey(key)) 
-     *    map.lset(map.lget() + additionValue);
-     * else
-     *    map.put(key, putValue);
+     *  if (containsKey(key))
+     *  {
+     *      VType v = (VType) (lget() + additionValue);
+     *      lset(v);
+     *      return v;
+     *  }
+     *  else
+     *  {
+     *     put(key, putValue);
+     *     return putValue;
+     *  }
      * </pre>
      * 
      * @param key The key of the value to adjust.
@@ -288,8 +301,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /*! #if ($TemplateOptions.VTypePrimitive) 
     public final VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
-        if (assigned >= resizeThreshold)
-            expandAndRehash();
+        assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
         int slot = rehash(key) & mask;
@@ -297,69 +309,74 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
-                return values[slot] += additionValue;
+                return values[slot] = (VType) (values[slot] + additionValue);
             }
+
             slot = (slot + 1) & mask;
         }
 
-        assigned++;
-        allocated[slot] = true;
-        keys[slot] = key;
-        VType v = values[slot] = putValue; 
-
-        return v;
+        if (assigned == resizeAt) {
+            expandAndPut(key, putValue, slot);
+        } else {
+            assigned++;
+            allocated[slot] = true;
+            keys[slot] = key;                
+            values[slot] = putValue;
+        }
+        return putValue;
     }
     #end !*/
 
     /**
-     * Expand the internal storage buffers (capacity) or rehash current
-     * keys and values if there are a lot of deleted slots.
+     * Expand the internal storage buffers (capacity) and rehash.
      */
-    private void expandAndRehash()
+    private void expandAndPut(KType pendingKey, VType pendingValue, int freeSlot)
     {
-        final KType [] oldKeys = this.keys;
-        final VType [] oldValues = this.values;
-        final boolean [] oldStates = this.allocated;
+        assert assigned == resizeAt;
+        assert !allocated[freeSlot];
 
-        assert assigned >= resizeThreshold;
+        // Try to allocate new buffers first. If we OOM, it'll be now without
+        // leaving the data structure in an inconsistent state.
+        final KType   [] oldKeys      = this.keys;
+        final VType   [] oldValues    = this.values;
+        final boolean [] oldAllocated = this.allocated;
+
         allocateBuffers(nextCapacity(keys.length));
 
-        /*
-         * Rehash all assigned slots from the old hash table. Deleted
-         * slots are discarded.
-         */
+        // We have succeeded at allocating new data so insert the pending key/value at
+        // the free slot in the old arrays before rehashing.
+        lastSlot = -1;
+        assigned++;
+        oldAllocated[freeSlot] = true;
+        oldKeys[freeSlot] = pendingKey;
+        oldValues[freeSlot] = pendingValue;
+        
+        // Rehash all stored keys into the new buffers.
+        final KType []   keys = this.keys;
+        final VType []   values = this.values;
+        final boolean [] allocated = this.allocated;
         final int mask = allocated.length - 1;
-        for (int i = 0; i < oldStates.length; i++)
+        for (int i = oldAllocated.length; --i >= 0;)
         {
-            if (oldStates[i])
+            if (oldAllocated[i])
             {
-                final KType key = oldKeys[i];
-                final VType value = oldValues[i];
-                
-                /* #if ($TemplateOptions.KTypeGeneric) */ oldKeys[i] = null; /* #end */
-                /* #if ($TemplateOptions.VTypeGeneric) */ oldValues[i] = null; /* #end */
+                final KType k = oldKeys[i];
+                final VType v = oldValues[i];
 
-                int slot = rehash(key) & mask;
+                int slot = rehash(k) & mask;
                 while (allocated[slot])
                 {
-                    if (Intrinsics.equalsKType(key, keys[slot]))
-                    {
-                        break;
-                    }
                     slot = (slot + 1) & mask;
                 }
 
                 allocated[slot] = true;
-                keys[slot] = key;                
-                values[slot] = value;
+                keys[slot] = k;                
+                values[slot] = v;
             }
         }
 
-        /*
-         * The number of assigned items does not change, the number of deleted
-         * items is zero since we have resized.
-         */
-        lastSlot = -1;
+        /* #if ($TemplateOptions.KTypeGeneric) */ Arrays.fill(oldKeys,   null); /* #end */
+        /* #if ($TemplateOptions.VTypeGeneric) */ Arrays.fill(oldValues, null); /* #end */
     }
 
     /**
@@ -369,11 +386,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     private void allocateBuffers(int capacity)
     {
-        this.keys = Intrinsics.newKTypeArray(capacity);
-        this.values = Intrinsics.newVTypeArray(capacity);
-        this.allocated = new boolean [capacity];
+        KType [] keys = Intrinsics.newKTypeArray(capacity);
+        VType [] values = Intrinsics.newVTypeArray(capacity);
+        boolean [] allocated = new boolean [capacity];
 
-        this.resizeThreshold = (int) (capacity * loadFactor);
+        this.keys = keys;
+        this.values = values;
+        this.allocated = allocated;
+
+        this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
     }
 
     /**
@@ -384,7 +405,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         final int mask = allocated.length - 1;
         int slot = rehash(key) & mask; 
-
+        final int wrappedAround = slot;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -395,6 +416,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return v;
              }
              slot = (slot + 1) & mask;
+             if (slot == wrappedAround) break;
         }
 
         return Intrinsics.<VType> defaultVTypeValue();
@@ -507,6 +529,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         final int mask = allocated.length - 1;
         int slot = rehash(key) & mask;
+        final int wrappedAround = slot;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -515,6 +538,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             }
             
             slot = (slot + 1) & mask;
+            if (slot == wrappedAround) break;
         }
         return Intrinsics.<VType> defaultVTypeValue();
     }
@@ -612,6 +636,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         final int mask = allocated.length - 1;
         int slot = rehash(key) & mask;
+        final int wrappedAround = slot;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -620,36 +645,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return true; 
             }
             slot = (slot + 1) & mask;
+            if (slot == wrappedAround) break;
         }
         lastSlot = -1;
         return false;
-    }
-
-    /**
-     * Round the capacity to the next allowed value. 
-     */
-    protected int roundCapacity(int requestedCapacity)
-    {
-        // Maximum positive integer that is a power of two.
-        if (requestedCapacity > (0x80000000 >>> 1))
-            return (0x80000000 >>> 1);
-
-        return Math.max(MIN_CAPACITY, BitUtil.nextHighestPowerOfTwo(requestedCapacity));
-    }
-
-    /**
-     * Return the next possible capacity, counting from the current buffers'
-     * size.
-     */
-    protected int nextCapacity(int current)
-    {
-        assert current > 0 && Long.bitCount(current) == 1
-            : "Capacity must be a power of two.";
-        assert ((current << 1) > 0) 
-            : "Maximum capacity exceeded (" + (0x80000000 >>> 1) + ").";
-
-        if (current < MIN_CAPACITY / 2) current = MIN_CAPACITY / 2;
-        return current << 1;
     }
 
     /**
