@@ -166,7 +166,7 @@ public class KTypeArrayDeque<KType>
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addFirst(KTypeContainer<? extends KType> container)
+    public int addFirst(KTypeContainer<? extends KType> container)
     {
         int size = container.size();
         ensureBufferSpace(size);
@@ -184,7 +184,7 @@ public class KTypeArrayDeque<KType>
      * 
      * @return Returns the number of elements actually added as a result of this call.
      */
-    public final int addFirst(Iterable<? extends KTypeCursor<? extends KType>> iterable)
+    public int addFirst(Iterable<? extends KTypeCursor<? extends KType>> iterable)
     {
         int size = 0;
         for (KTypeCursor<? extends KType> cursor : iterable)
@@ -232,7 +232,7 @@ public class KTypeArrayDeque<KType>
      * @return Returns the number of elements actually added as a result of this
      * call.
      */
-    public final int addLast(KTypeContainer<? extends KType> container)
+    public int addLast(KTypeContainer<? extends KType> container)
     {
         int size = container.size();
         ensureBufferSpace(size);
@@ -250,7 +250,7 @@ public class KTypeArrayDeque<KType>
      * 
      * @return Returns the number of elements actually added as a result of this call.
      */
-    public final int addLast(Iterable<? extends KTypeCursor<? extends KType>> iterable)
+    public int addLast(Iterable<? extends KTypeCursor<? extends KType>> iterable)
     {
         int size = 0;
         for (KTypeCursor<? extends KType> cursor : iterable)
@@ -519,7 +519,7 @@ public class KTypeArrayDeque<KType>
      * Ensures the internal buffer has enough free slots to store
      * <code>expectedAdditions</code>. Increases internal buffer size if needed.
      */
-    protected final void ensureBufferSpace(int expectedAdditions)
+    protected void ensureBufferSpace(int expectedAdditions)
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);
         final int elementsCount = size();
@@ -548,9 +548,9 @@ public class KTypeArrayDeque<KType>
      */
     @Override
     /*! #if ($TemplateOptions.KTypePrimitive) 
-    public final KType [] toArray()
+    public KType [] toArray()
         #else !*/
-    public final Object [] toArray()
+    public Object [] toArray()
     /*! #end !*/
     {
         final int size = size();
@@ -611,7 +611,7 @@ public class KTypeArrayDeque<KType>
     /**
      * Move one index to the left, wrapping around buffer. 
      */
-    final static int oneLeft(int index, int modulus)
+    protected static int oneLeft(int index, int modulus)
     {
         if (index >= 1) return index - 1;
         return modulus - 1;
@@ -620,7 +620,7 @@ public class KTypeArrayDeque<KType>
     /**
      * Move one index to the right, wrapping around buffer. 
      */
-    final static int oneRight(int index, int modulus)
+    protected static int oneRight(int index, int modulus)
     {
         if (index + 1 == modulus) return 0;
         return index + 1;

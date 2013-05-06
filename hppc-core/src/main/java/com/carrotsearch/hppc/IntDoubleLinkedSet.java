@@ -95,7 +95,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * Ensures the internal dense buffer has enough free slots to store
      * <code>expectedAdditions</code>.
      */
-    protected final void ensureDenseCapacity(int expectedAdditions)
+    protected void ensureDenseCapacity(int expectedAdditions)
     {
         final int bufferLen = (dense == null ? 0 : dense.length);
         final int elementsCount = size();
@@ -119,7 +119,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * Ensures the internal sparse buffer has enough free slots to store
      * index of <code>value</code>.
      */
-    protected final void ensureSparseCapacity(int value)
+    protected void ensureSparseCapacity(int value)
     {
         assert value >= 0 : "value must be >= 0: " + value;
 
@@ -240,7 +240,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * @return Returns the number of elements actually added as a result of this
      * call (not previously present in the set).
      */
-    public final int addAll(IntContainer container)
+    public int addAll(IntContainer container)
     {
         return addAll((Iterable<IntCursor>) container);
     }
@@ -251,7 +251,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * @return Returns the number of elements actually added as a result of this
      * call (not previously present in the set).
      */
-    public final int addAll(Iterable<? extends IntCursor> iterable)
+    public int addAll(Iterable<? extends IntCursor> iterable)
     {
         int count = 0;
         for (IntCursor cursor : iterable)
