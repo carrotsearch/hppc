@@ -1,6 +1,6 @@
 /* 
  * Repackaged from org.apache.lucene.util.OpenBitSet (Lucene).
- * svn rev. 893130, http://svn.apache.org/repos/asf/lucene/java/trunk/
+ * svn rev. 1479633, https://svn.apache.org/repos/asf/lucene/dev/trunk
  * 
  * Minor changes in class hierarchy, removed serialization and several methods. 
  * Added container adapters.
@@ -519,13 +519,13 @@ public class BitSet implements Cloneable
 
         if (word != 0)
         {
-            return (i << 6) + subIndex + BitUtil.ntz(word);
+            return (i << 6) + subIndex + Long.numberOfTrailingZeros(word);
         }
 
         while (++i < wlen)
         {
             word = bits[i];
-            if (word != 0) return (i << 6) + BitUtil.ntz(word);
+            if (word != 0) return (i << 6) + Long.numberOfTrailingZeros(word);
         }
 
         return -1;
@@ -544,13 +544,13 @@ public class BitSet implements Cloneable
 
         if (word != 0)
         {
-            return (((long) i) << 6) + (subIndex + BitUtil.ntz(word));
+            return (((long) i) << 6) + (subIndex + Long.numberOfTrailingZeros(word));
         }
 
         while (++i < wlen)
         {
             word = bits[i];
-            if (word != 0) return (((long) i) << 6) + BitUtil.ntz(word);
+            if (word != 0) return (((long) i) << 6) + Long.numberOfTrailingZeros(word);
         }
 
         return -1;
