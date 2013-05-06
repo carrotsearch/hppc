@@ -10,12 +10,18 @@ HPPC-66: allow retrieving key instances by key-equality from Object*Map versions
          lget (maps, accesses last value), lset (maps, accesses last value), 
          lkey (maps, sets, accesses last key), lslot (both, slot index).
 
+HPPC-68: Lifted final markers on public methods
+
 ** New features
 
 HPPC-63: a jdk15-compatible artifact is being published to Maven Central now.
 
 HPPC-66: allow retrieving key instances by key-equality from Object*Map versions of 
          hash maps and hash sets.
+
+HPPC-69: added toString to cursors.
+
+HPPC-77: BitSet should use hotspot intrinsics (popcnt mostly)
 
 ** Bug fixes
 
@@ -24,6 +30,14 @@ HPPC-65: putOrAdd uses == for comparing object keys instead of equality
 HPPC-72: XorShiftRandom always returns a zero. [Sergey Peretyatko] 
          This class was used only in benchmarks and tests so unless
          you're using it directly you're not affected.
+         
+HPPC-73: get, contains and any other method may block indefinitely with 
+         high load factors and full storage array capacity
+
+HPPC-74: Load factor is not used in KTypeOpenHashSet
+
+HPPC-75: put or add may leave the internal state of the hash containers 
+         inconsistent on OOM conditions
 
 ** Other
 
