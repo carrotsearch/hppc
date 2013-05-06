@@ -223,7 +223,7 @@ public class KTypeOpenHashSet<KType>
      * @return Returns the number of elements actually added as a result of this
      * call (not previously present in the set).
      */
-    public final int addAll(KTypeContainer<? extends KType> container)
+    public int addAll(KTypeContainer<? extends KType> container)
     {
         return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
     }
@@ -234,7 +234,7 @@ public class KTypeOpenHashSet<KType>
      * @return Returns the number of elements actually added as a result of this
      * call (not previously present in the set).
      */
-    public final int addAll(Iterable<? extends KTypeCursor<? extends KType>> iterable)
+    public int addAll(Iterable<? extends KTypeCursor<? extends KType>> iterable)
     {
         int count = 0;
         for (KTypeCursor<? extends KType> cursor : iterable)
@@ -342,7 +342,7 @@ public class KTypeOpenHashSet<KType>
     /**
      * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>. 
      */
-    protected final void shiftConflictingKeys(int slotCurr)
+    protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
         final int mask = allocated.length - 1;
@@ -587,9 +587,9 @@ public class KTypeOpenHashSet<KType>
      */
     @Override
     /*! #if ($TemplateOptions.KTypePrimitive) 
-    public final KType [] toArray()
+    public KType [] toArray()
         #else !*/
-    public final Object [] toArray()
+    public Object [] toArray()
     /*! #end !*/
     {
         final KType [] cloned = Intrinsics.newKTypeArray(assigned);

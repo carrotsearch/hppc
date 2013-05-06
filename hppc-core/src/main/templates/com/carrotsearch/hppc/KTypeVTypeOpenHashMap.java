@@ -228,7 +228,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public final int putAll(
+    public int putAll(
         KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container)
     {
         final int count = this.assigned;
@@ -243,7 +243,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * Puts all key/value pairs from a given iterable into this map.
      */
     @Override
-    public final int putAll(
+    public int putAll(
         Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable)
     {
         final int count = this.assigned;
@@ -266,7 +266,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
      * was placed in the map.
      */
-    public final boolean putIfAbsent(KType key, VType value)
+    public boolean putIfAbsent(KType key, VType value)
     {
         if (!containsKey(key))
         {
@@ -299,7 +299,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
     /*! #if ($TemplateOptions.VTypePrimitive) 
-    public final VType putOrAdd(KType key, VType putValue, VType additionValue)
+    public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
         assert assigned < allocated.length;
 
@@ -425,7 +425,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>. 
      */
-    protected final void shiftConflictingKeys(int slotCurr)
+    protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
         final int mask = allocated.length - 1;
@@ -474,7 +474,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public final int removeAll(KTypeContainer<? extends KType> container)
+    public int removeAll(KTypeContainer<? extends KType> container)
     {
         final int before = this.assigned;
 
@@ -490,7 +490,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public final int removeAll(KTypePredicate<? super KType> predicate)
+    public int removeAll(KTypePredicate<? super KType> predicate)
     {
         final int before = this.assigned;
 

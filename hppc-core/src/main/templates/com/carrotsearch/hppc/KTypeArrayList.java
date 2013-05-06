@@ -148,7 +148,7 @@ public class KTypeArrayList<KType>
      * use <code>add</code> (vararg-version) or access the buffer directly (tight
      * loop).
      */
-    public final void add(KType e1, KType e2)
+    public void add(KType e1, KType e2)
     {
         ensureBufferSpace(2);
         buffer[elementsCount++] = e1;
@@ -158,7 +158,7 @@ public class KTypeArrayList<KType>
     /**
      * Add all elements from a range of given array to the list.
      */
-    public final void add(KType [] elements, int start, int length)
+    public void add(KType [] elements, int start, int length)
     {
         assert length >= 0 : "Length must be >= 0";
 
@@ -172,7 +172,7 @@ public class KTypeArrayList<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public final void add(KType... elements)
+    public void add(KType... elements)
     {
         add(elements, 0, elements.length);
     }
@@ -180,7 +180,7 @@ public class KTypeArrayList<KType>
     /**
      * Adds all elements from another container.
      */
-    public final int addAll(KTypeContainer<? extends KType> container)
+    public int addAll(KTypeContainer<? extends KType> container)
     {
         final int size = container.size();
         ensureBufferSpace(size);
@@ -196,7 +196,7 @@ public class KTypeArrayList<KType>
     /**
      * Adds all elements from another iterable.
      */
-    public final int addAll(Iterable<? extends KTypeCursor<? extends KType>> iterable)
+    public int addAll(Iterable<? extends KTypeCursor<? extends KType>> iterable)
     {
         int size = 0;
         for (KTypeCursor<? extends KType> cursor : iterable)
@@ -211,7 +211,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final void insert(int index, KType e1)
+    public void insert(int index, KType e1)
     {
         assert (index >= 0 && index <= size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + "].";
@@ -226,7 +226,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final KType get(int index)
+    public KType get(int index)
     {
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
@@ -238,7 +238,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final KType set(int index, KType e1)
+    public KType set(int index, KType e1)
     {
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
@@ -252,7 +252,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc} 
      */
     @Override
-    public final KType remove(int index)
+    public KType remove(int index)
     {
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
@@ -269,7 +269,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final void removeRange(int fromIndex, int toIndex)
+    public void removeRange(int fromIndex, int toIndex)
     {
         assert (fromIndex >= 0 && fromIndex <= size()) :
             "Index " + fromIndex + " out of bounds [" + 0 + ", " + size() + ").";
@@ -292,7 +292,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final int removeFirstOccurrence(KType e1)
+    public int removeFirstOccurrence(KType e1)
     {
         final int index = indexOf(e1);
         if (index >= 0) remove(index);
@@ -303,7 +303,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc} 
      */
     @Override
-    public final int removeLastOccurrence(KType e1)
+    public int removeLastOccurrence(KType e1)
     {
         final int index = lastIndexOf(e1);
         if (index >= 0) remove(index);
@@ -314,7 +314,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final int removeAllOccurrences(KType e1)
+    public int removeAllOccurrences(KType e1)
     {
         int to = 0;
         for (int from = 0; from < elementsCount; from++)
@@ -342,7 +342,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final boolean contains(KType e1)
+    public boolean contains(KType e1)
     {
         return indexOf(e1) >= 0;
     }
@@ -351,7 +351,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final int indexOf(KType e1)
+    public int indexOf(KType e1)
     {
         for (int i = 0; i < elementsCount; i++)
             if (Intrinsics.equalsKType(e1, buffer[i]))
@@ -364,7 +364,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final int lastIndexOf(KType e1)
+    public int lastIndexOf(KType e1)
     {
         for (int i = elementsCount - 1; i >= 0; i--)
             if (Intrinsics.equalsKType(e1, buffer[i]))
@@ -377,7 +377,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc} 
      */
     @Override
-    public final boolean isEmpty()
+    public boolean isEmpty()
     {
         return elementsCount == 0;
     }
@@ -387,7 +387,7 @@ public class KTypeArrayList<KType>
      * that it can hold at least the number of elements specified by 
      * the minimum capacity argument.
      */
-    public final void ensureCapacity(int minCapacity) 
+    public void ensureCapacity(int minCapacity) 
     {
         if (minCapacity > this.buffer.length)
             ensureBufferSpace(minCapacity - size());
@@ -397,7 +397,7 @@ public class KTypeArrayList<KType>
      * Ensures the internal buffer has enough free slots to store
      * <code>expectedAdditions</code>. Increases internal buffer size if needed.
      */
-    protected final void ensureBufferSpace(int expectedAdditions)
+    protected void ensureBufferSpace(int expectedAdditions)
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);
         if (elementsCount + expectedAdditions >= bufferLen)
@@ -449,7 +449,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public final int size()
+    public int size()
     {
         return elementsCount;
     }
@@ -460,7 +460,7 @@ public class KTypeArrayList<KType>
     /* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked")
     /* #end */
-    public final void trimToSize()
+    public void trimToSize()
     {
         if (size() != this.buffer.length)
             this.buffer = (KType[]) toArray();
@@ -472,7 +472,7 @@ public class KTypeArrayList<KType>
      * the buffer, simply set the {@link #elementsCount} field to zero.
      */
     @Override
-    public final void clear()
+    public void clear()
     {
         Arrays.fill(buffer, 0, elementsCount, Intrinsics.<KType> defaultKTypeValue()); 
         this.elementsCount = 0;
@@ -484,7 +484,7 @@ public class KTypeArrayList<KType>
     /* #if ($TemplateOptions.KTypeGeneric) */
     @SuppressWarnings("unchecked") 
     /* #end */
-    public final void release()
+    public void release()
     {
         this.buffer = (KType []) EMPTY;
         this.elementsCount = 0;
@@ -498,9 +498,9 @@ public class KTypeArrayList<KType>
      */
     @Override
     /*! #if ($TemplateOptions.KTypePrimitive)
-    public final KType [] toArray()
+    public KType [] toArray()
         #else !*/
-    public final Object [] toArray()
+    public Object [] toArray()
     /*! #end !*/
     {
         return Arrays.copyOf(buffer, elementsCount);
