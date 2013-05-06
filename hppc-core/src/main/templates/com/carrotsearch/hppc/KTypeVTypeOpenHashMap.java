@@ -328,6 +328,33 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     #end !*/
 
     /**
+     * An equivalent of calling
+     * <pre>
+     *  if (containsKey(key))
+     *  {
+     *      VType v = (VType) (lget() + additionValue);
+     *      lset(v);
+     *      return v;
+     *  }
+     *  else
+     *  {
+     *     put(key, additionValue);
+     *     return additionValue;
+     *  }
+     * </pre>
+     * 
+     * @param key The key of the value to adjust.
+     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
+     */
+    /*! #if ($TemplateOptions.VTypePrimitive) 
+    public VType addTo(KType key, VType additionValue)
+    {
+        return putOrAdd(key, additionValue, additionValue);
+    }
+    #end !*/
+
+    /**
      * Expand the internal storage buffers (capacity) and rehash.
      */
     private void expandAndPut(KType pendingKey, VType pendingValue, int freeSlot)
