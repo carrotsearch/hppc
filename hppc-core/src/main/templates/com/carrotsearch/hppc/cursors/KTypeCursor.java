@@ -17,4 +17,10 @@ public final class KTypeCursor<KType>
      * The current value.
      */
     public KType value;
+
+    @Override
+    public String toString()
+    {
+        return "[cursor, index: " + index + ", value: " + value + "]";
+    }
 }

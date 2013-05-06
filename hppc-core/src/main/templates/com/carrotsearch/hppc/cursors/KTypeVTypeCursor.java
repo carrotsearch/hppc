@@ -23,4 +23,10 @@ public final class KTypeVTypeCursor<KType, VType>
      * The current value.
      */
     public VType value;
+    
+    @Override
+    public String toString()
+    {
+        return "[cursor, index: " + index + ", key: " + key + ", value: " + value + "]";
+    }
 }
