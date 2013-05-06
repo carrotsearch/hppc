@@ -218,6 +218,15 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     }
     #end !*/
 
+    /*! #if ($TemplateOptions.VTypePrimitive)
+    @Test
+    public void testAddTo()
+    {
+        assertEquals2(value1, map.addTo(key1, value1));
+        assertEquals2(value1 + value2, map.addTo(key1, value2));
+    }
+    #end !*/
+
     /* */
     @Test
     public void testRemove()
