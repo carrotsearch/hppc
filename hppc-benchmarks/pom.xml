@@ -20,6 +20,7 @@
 
   <properties>
     <skip.deployment>true</skip.deployment>
+    <libs>${basedir}/lib</libs>
   </properties>
 
   <!-- Dependencies. -->
@@ -67,7 +68,7 @@
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
-      <version>6.5.4</version>
+      <version>6.5.5</version>
     </dependency>
 
     <dependency>
@@ -90,8 +91,10 @@
 
     <dependency>
       <groupId>org.apache.mahout</groupId>
-      <artifactId>mahout-collections</artifactId>
-      <version>1.0</version>
+      <artifactId>mahout-math</artifactId>
+      <version>0.8-SNAPSHOT</version>
+      <scope>system</scope>
+      <systemPath>${libs}/mahout-math-0.8-SNAPSHOT.jar</systemPath>
     </dependency>
 
     <dependency>
@@ -113,9 +116,12 @@
           <archive>
             <manifest>
               <mainClass>com.carrotsearch.hppc.caliper.BenchmarkSuite</mainClass>
-	      <useUniqueVersions>false</useUniqueVersions>
+	          <useUniqueVersions>false</useUniqueVersions>
               <addClasspath>true</addClasspath>
             </manifest>
+            <manifestEntries>
+              <Class-Path>mahout-math-0.8-SNAPSHOT.jar</Class-Path>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
