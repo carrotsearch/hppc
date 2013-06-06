@@ -90,7 +90,7 @@ public class BigramCountingBase
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.add(bigram, 1);
+            map.addTo(bigram, 1);
         }
     
         guard = map.size();
@@ -106,7 +106,7 @@ public class BigramCountingBase
         for (int i = 0; i < CHARS.length - 1; i++)
         {
             final int bigram = CHARS[i] << 16 | CHARS[i+1];
-            map.add(bigram, 1);
+            map.addTo(bigram, 1);
         }
     
         guard = map.size();
