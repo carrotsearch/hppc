@@ -3,7 +3,9 @@ package com.carrotsearch.hppc.caliper;
 import static com.carrotsearch.hppc.caliper.Util.prepareData;
 
 import com.carrotsearch.hppc.XorShiftRandom;
-import com.google.caliper.*;
+import com.google.caliper.Param;
+import com.google.caliper.Runner;
+import com.google.caliper.SimpleBenchmark;
 
 /**
  * Benchmark putting a given number of integers into a hashmap.

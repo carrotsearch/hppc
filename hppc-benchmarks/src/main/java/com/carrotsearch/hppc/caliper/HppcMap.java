@@ -4,9 +4,9 @@ import com.carrotsearch.hppc.IntIntOpenHashMap;
 
 public class HppcMap extends MapImplementation<IntIntOpenHashMap>
 {
-    public HppcMap()
+    protected HppcMap(IntIntOpenHashMap instance)
     {
-        super(new IntIntOpenHashMap());
+        super(instance);
     }
 
     public void remove(int k) { instance.remove(k); }
