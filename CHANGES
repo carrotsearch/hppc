@@ -4,6 +4,8 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11820
 
 ** API-breaking changes
 
+HPPC-82: Expose resizeAt and lastSlot to subclasses (sets, maps).
+
 ** New features
 
 ** Changes in functionality
@@ -12,6 +14,8 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11820
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11828
 
 ** API-breaking changes
+
+HPPC-82: Expose resizeAt and lastSlot to subclasses (sets, maps).
 
 ** New features
 
