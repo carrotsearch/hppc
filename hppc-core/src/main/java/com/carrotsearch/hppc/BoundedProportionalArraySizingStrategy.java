@@ -13,12 +13,17 @@ import java.util.ArrayList;
  */
 public final class BoundedProportionalArraySizingStrategy 
     implements ArraySizingStrategy
-{
+{   
+    /** 
+     * Used by {@link ArrayList} internally to account for reference sizes. 
+     */
+    public static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE; 
+
     /** Minimum grow count. */
     public final static int DEFAULT_MIN_GROW_COUNT = 10;
 
     /** Maximum grow count (unbounded). */
-    public final static int DEFAULT_MAX_GROW_COUNT = Integer.MAX_VALUE;
+    public final static int DEFAULT_MAX_GROW_COUNT = MAX_ARRAY_SIZE;
 
     /** Default resize is by half the current buffer's size. */
     public final static float DEFAULT_GROW_RATIO = 1.5f;
@@ -63,17 +68,20 @@ public final class BoundedProportionalArraySizingStrategy
      */
     public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
     {
-        assert ((long) elementsCount + expectedAdditions) <= Integer.MAX_VALUE 
-            : "Cannot resize beyond " + Integer.MAX_VALUE + 
-            " (" + (elementsCount + expectedAdditions) + ")";
+        long growBy = (long) ((long) currentBufferLength * growRatio);
+        growBy = Math.max(growBy, minGrowCount);
+        growBy = Math.min(growBy, maxGrowCount);
+        long growTo = Math.min(MAX_ARRAY_SIZE, growBy + currentBufferLength);
+        
+        long newSize = Math.max((long) elementsCount + expectedAdditions, growTo); 
 
-        int growBy = 
-            (int) Math.min((long) (currentBufferLength * growRatio), Integer.MAX_VALUE);
-        growBy = Math.max(minGrowCount, growBy);
-        growBy = Math.min(maxGrowCount, growBy);
-        growBy = Math.max(elementsCount + expectedAdditions, currentBufferLength + growBy);
+        if (newSize > MAX_ARRAY_SIZE) {
+            throw new AssertionError(
+                "Cannot resize beyond " + MAX_ARRAY_SIZE + 
+                " (" + (elementsCount + expectedAdditions) + ")");
+        }
 
-        return growBy;
+        return (int) newSize;
     }
 
     /**

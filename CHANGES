@@ -11,6 +11,8 @@ HPPC-82: Expose resizeAt and lastSlot to subclasses (sets, maps).
 HPPC-80: Practical deadlock on populating a set/ map with an iterator 
          over another map (storage-size dependent rehash).
 
+HPPC-81: Improvements to near-the-limit collection sizes and resize strategies.
+
 ** New features
 
 ** Changes in functionality
@@ -26,6 +28,8 @@ HPPC-82: Expose resizeAt and lastSlot to subclasses (sets, maps).
 
 HPPC-80: Practical deadlock on populating a set/ map with an iterator 
          over another map (storage-size dependent rehash).
+
+HPPC-81: Improvements to near-the-limit collection sizes and resize strategies.
 
 ** New features
 
