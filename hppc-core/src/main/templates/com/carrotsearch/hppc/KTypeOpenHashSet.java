@@ -114,6 +114,14 @@ public class KTypeOpenHashSet<KType>
      * @see #lkey
      */
     protected int lastSlot;
+    
+    /**
+     * We perturb hashed values with the array size to avoid problems with
+     * nearly-sorted-by-hash values on iterations.
+     * 
+     * @see "http://issues.carrot2.org/browse/HPPC-80"
+     */
+    protected int perturbation;
 
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -167,7 +175,7 @@ public class KTypeOpenHashSet<KType>
         assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
-        int slot = rehash(e) & mask;
+        int slot = rehash(e, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(e, keys[slot]))
@@ -277,7 +285,7 @@ public class KTypeOpenHashSet<KType>
             {
                 final KType k = oldKeys[i];
 
-                int slot = rehash(k) & mask;
+                int slot = rehash(k, perturbation) & mask;
                 while (allocated[slot])
                 {
                     slot = (slot + 1) & mask;
@@ -306,6 +314,25 @@ public class KTypeOpenHashSet<KType>
         this.allocated = allocated;
 
         this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
+        this.perturbation = computePerturbationValue(capacity);
+    }
+
+    /**
+     * <p>Compute the key perturbation value applied before hashing. The returned value
+     * should be non-zero and ideally different for each capacity. This matters because
+     * keys are nearly-ordered by their hashed values so when adding one container's
+     * values to the other, the number of collisions can skyrocket into the worst case
+     * possible.
+     * 
+     * <p>If it is known that hash containers will not be added to each other 
+     * (will be used for counting only, for example) then some speed can be gained by 
+     * not perturbing keys before hashing and returning a value of zero for all possible
+     * capacities. The speed gain is a result of faster rehash operation (keys are mostly
+     * in order).   
+     */
+    protected int computePerturbationValue(int capacity)
+    {
+        return PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
     }
 
     /**
@@ -323,7 +350,7 @@ public class KTypeOpenHashSet<KType>
     public boolean remove(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key) & mask; 
+        int slot = rehash(key, perturbation) & mask; 
 
         while (allocated[slot])
         {
@@ -353,7 +380,7 @@ public class KTypeOpenHashSet<KType>
 
             while (allocated[slotCurr])
             {
-                slotOther = rehash(keys[slotCurr]) & mask;
+                slotOther = rehash(keys[slotCurr], perturbation) & mask;
                 if (slotPrev <= slotCurr)
                 {
                     // We are on the right of the original slot.
@@ -423,7 +450,7 @@ public class KTypeOpenHashSet<KType>
     public boolean contains(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key) & mask;
+        int slot = rehash(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -483,7 +510,7 @@ public class KTypeOpenHashSet<KType>
         {
             if (states[i])
             {
-                h += rehash(keys[i]);
+                h += rehash(keys[i], perturbation);
             }
         }
 
@@ -697,6 +724,19 @@ public class KTypeOpenHashSet<KType>
     public static <KType> KTypeOpenHashSet<KType> newInstance()
     {
         return new KTypeOpenHashSet<KType>();
+    }
+
+    /**
+     * Returns a new object with no key perturbations (see
+     * {@link #computePerturbationValue(int)}). Only use when sure the container will not
+     * be used for direct copying of keys to another hash container.
+     */
+    public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations()
+    {
+        return new KTypeOpenHashSet<KType>() {
+            @Override
+            protected int computePerturbationValue(int capacity) { return 0; }
+        };
     }
 
     /**

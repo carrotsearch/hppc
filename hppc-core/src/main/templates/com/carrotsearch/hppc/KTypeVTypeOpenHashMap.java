@@ -130,6 +130,14 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @see #lget
      */
     protected int lastSlot;
+    
+    /**
+     * We perturb hashed values with the array size to avoid problems with
+     * nearly-sorted-by-hash values on iterations.
+     * 
+     * @see "http://issues.carrot2.org/browse/HPPC-80"
+     */
+    protected int perturbation;
 
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
@@ -198,7 +206,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
-        int slot = rehash(key) & mask;
+        int slot = rehash(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -304,7 +312,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
-        int slot = rehash(key) & mask;
+        int slot = rehash(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -390,7 +398,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 final KType k = oldKeys[i];
                 final VType v = oldValues[i];
 
-                int slot = rehash(k) & mask;
+                int slot = rehash(k, perturbation) & mask;
                 while (allocated[slot])
                 {
                     slot = (slot + 1) & mask;
@@ -422,6 +430,25 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         this.allocated = allocated;
 
         this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
+        this.perturbation = computePerturbationValue(capacity);
+    }
+
+    /**
+     * <p>Compute the key perturbation value applied before hashing. The returned value
+     * should be non-zero and ideally different for each capacity. This matters because
+     * keys are nearly-ordered by their hashed values so when adding one container's
+     * values to the other, the number of collisions can skyrocket into the worst case
+     * possible.
+     * 
+     * <p>If it is known that hash containers will not be added to each other 
+     * (will be used for counting only, for example) then some speed can be gained by 
+     * not perturbing keys before hashing and returning a value of zero for all possible
+     * capacities. The speed gain is a result of faster rehash operation (keys are mostly
+     * in order).   
+     */
+    protected int computePerturbationValue(int capacity)
+    {
+        return PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
     }
 
     /**
@@ -431,7 +458,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public VType remove(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key) & mask; 
+        int slot = rehash(key, perturbation) & mask; 
         final int wrappedAround = slot;
         while (allocated[slot])
         {
@@ -463,7 +490,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             while (allocated[slotCurr])
             {
-                slotOther = rehash(keys[slotCurr]) & mask;
+                slotOther = rehash(keys[slotCurr], perturbation) & mask;
                 if (slotPrev <= slotCurr)
                 {
                     // we're on the right of the original slot.
@@ -555,7 +582,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public VType get(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key) & mask;
+        int slot = rehash(key, perturbation) & mask;
         final int wrappedAround = slot;
         while (allocated[slot])
         {
@@ -662,7 +689,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public boolean containsKey(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key) & mask;
+        int slot = rehash(key, perturbation) & mask;
         final int wrappedAround = slot;
         while (allocated[slot])
         {
@@ -729,7 +756,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int h = 0;
         for (KTypeVTypeCursor<KType, VType> c : this)
         {
-            h += rehash(c.key) + rehash(c.value);
+            h += rehash(c.key, perturbation) + rehash(c.value, perturbation);
         }
         return h;
     }
@@ -1181,7 +1208,20 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         return new KTypeVTypeOpenHashMap<KType, VType>();
     }
-    
+
+    /**
+     * Returns a new object with no key perturbations (see
+     * {@link #computePerturbationValue(int)}). Only use when sure the container will not
+     * be used for direct copying of keys to another hash container.
+     */
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithoutPerturbations()
+    {
+        return new KTypeVTypeOpenHashMap<KType, VType>() {
+            @Override
+            protected int computePerturbationValue(int capacity) { return 0; }
+        };
+    }
+
     /**
      * Create a new hash map without providing the full generic signature (constructor
      * shortcut). 
