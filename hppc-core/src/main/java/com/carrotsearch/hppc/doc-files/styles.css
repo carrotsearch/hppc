@@ -1,3 +1,8 @@
+.header ul li, .footer ul li {
+  list-style: disc;
+  font-size: 1em;
+}
+
 table.nice a,
 table.nice a:link,
 table.nice a:visited {
