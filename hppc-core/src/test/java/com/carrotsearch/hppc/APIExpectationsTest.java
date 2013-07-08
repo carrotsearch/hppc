@@ -1,15 +1,15 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.assertEquals2;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
  * Various API expectations from generated classes.
  */
-public class APIExpectationsTest
+public class APIExpectationsTest extends RandomizedTest
 {
     public volatile int [] t1;
 
@@ -23,6 +23,68 @@ public class APIExpectationsTest
 
         t1 = IntObjectOpenHashMap.from(
             new int [] {1, 2}, new Long [] {1L, 2L}).keys().toArray();
+    }
+
+    @Test
+    @RequiresLargeMemory
+    public void testSizeLimitByteArrayList() {
+        ByteArrayList list = new ByteArrayList(0, new ArraySizingStrategy()
+        {
+            final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
+
+            @Override
+            public int round(int capacity)
+            {
+                return delegate.round(capacity);
+            }
+            
+            @Override
+            public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
+            {
+                int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
+                // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
+                return grow;
+            }
+        });
+
+        try {
+            while (true) {
+                list.add((byte) 0);
+            }
+        } catch (AssertionError e) {
+            assertEquals(0x7fffffff, list.size());
+        }
+    }
+
+    @Test
+    @RequiresLargeMemory
+    public void testSizeLimitByteQueue() {
+        ByteArrayDeque queue = new ByteArrayDeque(1, new ArraySizingStrategy()
+        {
+            final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
+
+            @Override
+            public int round(int capacity)
+            {
+                return delegate.round(capacity);
+            }
+            
+            @Override
+            public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
+            {
+                int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
+                // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
+                return grow;
+            }
+        });
+
+        try {
+            while (true) {
+                queue.addLast((byte) 0);
+            }
+        } catch (AssertionError e) {
+            assertEquals(0x7fffffff /* Account for an empty slot. */ - 1, queue.size());
+        }
     }
 
     @Test

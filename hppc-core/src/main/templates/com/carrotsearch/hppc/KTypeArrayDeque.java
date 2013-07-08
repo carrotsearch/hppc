@@ -524,11 +524,10 @@ public class KTypeArrayDeque<KType>
         final int bufferLen = (buffer == null ? 0 : buffer.length);
         final int elementsCount = size();
         // +1 because there is always one empty slot in a deque.
-        final int requestedMinimum = 1 + elementsCount + expectedAdditions; 
-        if (requestedMinimum >= bufferLen)
+        if (elementsCount >= bufferLen - expectedAdditions - 1)
         {
             final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
-            assert newSize >= requestedMinimum : "Resizer failed to" +
+            assert newSize >= (elementsCount + expectedAdditions + 1) : "Resizer failed to" +
                     " return sensible new size: " + newSize + " <= " 
                     + (elementsCount + expectedAdditions);
 
