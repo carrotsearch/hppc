@@ -36,16 +36,22 @@ public class BoundedProportionalArraySizingStrategyTest
     {
         resizer = new BoundedProportionalArraySizingStrategy();
         resizer.grow(
-            Integer.MAX_VALUE - 10, 
-            Integer.MAX_VALUE - 10, 20);
+            BoundedProportionalArraySizingStrategy.MAX_ARRAY_SIZE, 
+            BoundedProportionalArraySizingStrategy.MAX_ARRAY_SIZE, 1);
     }
-    
+
+    @Test
     public void testExactIntRange()
     {
         resizer = new BoundedProportionalArraySizingStrategy();
-        assertEquals(Integer.MAX_VALUE, 
-            resizer.grow(
-                Integer.MAX_VALUE - 5, 
-                Integer.MAX_VALUE - 5, 1));
+        int size = BoundedProportionalArraySizingStrategy.MAX_ARRAY_SIZE - 2;
+        size = resizer.grow(size, size, 1);
+        assertEquals(BoundedProportionalArraySizingStrategy.MAX_ARRAY_SIZE, size);
+        try {
+            size = resizer.grow(size, size, 1);
+            throw new RuntimeException("Unexpected.");
+        } catch (AssertionError e) {
+            // Expected.
+        }
     }
 }

@@ -400,7 +400,7 @@ public class KTypeArrayList<KType>
     protected void ensureBufferSpace(int expectedAdditions)
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);
-        if (elementsCount + expectedAdditions >= bufferLen)
+        if (elementsCount >= bufferLen - expectedAdditions)
         {
             final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions);
             assert newSize >= elementsCount + expectedAdditions : "Resizer failed to" +
