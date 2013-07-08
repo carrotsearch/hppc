@@ -105,7 +105,7 @@ public class KTypeOpenHashSet<KType>
     /**
      * Resize buffers when {@link #allocated} hits this value. 
      */
-    private int resizeAt;
+    protected int resizeAt;
 
     /**
      * The most recent slot accessed in {@link #contains}.
@@ -113,7 +113,7 @@ public class KTypeOpenHashSet<KType>
      * @see #contains
      * @see #lkey
      */
-    private int lastSlot;
+    protected int lastSlot;
 
     /**
      * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},

@@ -120,7 +120,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Resize buffers when {@link #allocated} hits this value. 
      */
-    private int resizeAt;
+    protected int resizeAt;
 
     /**
      * The most recent slot accessed in {@link #containsKey} (required for
@@ -129,7 +129,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @see #containsKey
      * @see #lget
      */
-    private int lastSlot;
+    protected int lastSlot;
 
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
