@@ -99,7 +99,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
     {
         final int bufferLen = (dense == null ? 0 : dense.length);
         final int elementsCount = size();
-        if (elementsCount + expectedAdditions >= bufferLen)
+        if (elementsCount > bufferLen - expectedAdditions)
         {
             final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions);
             assert newSize >= elementsCount + expectedAdditions : "Resizer failed to" +
