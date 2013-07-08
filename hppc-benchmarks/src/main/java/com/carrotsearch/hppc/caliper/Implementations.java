@@ -1,5 +1,7 @@
 package com.carrotsearch.hppc.caliper;
 
+import com.carrotsearch.hppc.IntIntOpenHashMap;
+
 /**
  * 
  */
@@ -9,7 +11,15 @@ public enum Implementations
     {
         public MapImplementation<?> getInstance()
         {
-            return new HppcMap();
+            return new HppcMap(IntIntOpenHashMap.newInstance());
+        }
+    },
+
+    HPPC_NOPERTURBS
+    {
+        public MapImplementation<?> getInstance()
+        {
+            return new HppcMap(IntIntOpenHashMap.newInstanceWithoutPerturbations());
         }
     },
 

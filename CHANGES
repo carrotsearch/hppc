@@ -6,6 +6,11 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11820
 
 HPPC-82: Expose resizeAt and lastSlot to subclasses (sets, maps).
 
+** Bug fixes
+
+HPPC-80: Practical deadlock on populating a set/ map with an iterator 
+         over another map (storage-size dependent rehash).
+
 ** New features
 
 ** Changes in functionality
@@ -16,6 +21,11 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11828
 ** API-breaking changes
 
 HPPC-82: Expose resizeAt and lastSlot to subclasses (sets, maps).
+
+** Bug fixes
+
+HPPC-80: Practical deadlock on populating a set/ map with an iterator 
+         over another map (storage-size dependent rehash).
 
 ** New features
 
