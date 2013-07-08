@@ -437,13 +437,11 @@
                 <id>attach-javadocs</id>
                 <configuration>
                   <encoding>${project.build.sourceEncoding}</encoding>
-                  <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
                   <docfilessubdirs>true</docfilessubdirs>
-                  <windowtitle>HPPC v${project.version} API Documentation
-                    (JavaDoc)</windowtitle>
+                  <windowtitle>HPPC v${project.version} API Documentation (JavaDoc)</windowtitle>
                   <doctitle>HPPC v${project.version} API Documentation</doctitle>
                   <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
-                  <overview>${basedir}/src/main/java/com/carrotsearch/hppc/package.html</overview>
+                  <overview>${basedir}/src/main/java/com/carrotsearch/hppc/overview.html</overview>
                   <failonerror>true</failonerror>
                   <use>false</use>
                   <groups>
