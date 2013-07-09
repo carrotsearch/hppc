@@ -509,6 +509,46 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertFalse(l2.equals(l3));
     }
 
+    /* */
+    @Test
+    /*! #if ($TemplateOptions.VTypeGeneric) !*/
+    @SuppressWarnings("unchecked")
+    /*! #end !*/
+    public void testHashCodeEqualsDifferentPerturbance()
+    {
+        KTypeVTypeOpenHashMap<KType, VType> l0 = 
+            new KTypeVTypeOpenHashMap<KType, VType>() {
+            @Override
+            protected int computePerturbationValue(int capacity)
+            {
+                return 0xDEADBEEF;
+            }
+        };
+
+        KTypeVTypeOpenHashMap<KType, VType> l1 = 
+            new KTypeVTypeOpenHashMap<KType, VType>() {
+            @Override
+            protected int computePerturbationValue(int capacity)
+            {
+                return 0xCAFEBABE;
+            }
+        };
+        
+        assertEquals(0, l0.hashCode());
+        assertEquals(l0.hashCode(), l1.hashCode());
+        assertEquals(l0, l1);
+
+        KTypeVTypeOpenHashMap<KType, VType> l2 = KTypeVTypeOpenHashMap.from(
+            newArray(key1, key2, key3),
+            newvArray(value1, value2, value3));
+
+        l0.putAll(l2);
+        l1.putAll(l2);
+
+        assertEquals(l0.hashCode(), l1.hashCode());
+        assertEquals(l0, l1);
+    }
+
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @SuppressWarnings("unchecked")
     /*! #end !*/

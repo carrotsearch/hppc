@@ -160,6 +160,35 @@ public class APIExpectationsTest extends RandomizedTest
         assertEquals2(3, map.putOrAdd(k1b, 1, 2));
     }    
 
+    /* */
+    @Test
+    public void testHashCodeOverflowIdentical()
+    {
+        IntOpenHashSet l0 = new IntOpenHashSet() {
+            @Override
+            protected int computePerturbationValue(int capacity)
+            {
+                return 0xDEADBEEF;
+            }
+        };
+
+        IntOpenHashSet l1 = new IntOpenHashSet() {
+            @Override
+            protected int computePerturbationValue(int capacity)
+            {
+                return 0xCAFEBABE;
+            }
+        };
+
+        for (int i = 1000000 + randomIntBetween(0, 1000000); i-- > 0;) {
+            l0.add(i);
+            l1.add(i);
+        }
+
+        assertEquals(l0.hashCode(), l1.hashCode());
+        assertEquals(l0, l1);
+    }
+    
     /**
      * Check if the array is indeed of Object component type.
      */
