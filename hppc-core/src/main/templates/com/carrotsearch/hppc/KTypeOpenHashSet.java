@@ -510,7 +510,7 @@ public class KTypeOpenHashSet<KType>
         {
             if (states[i])
             {
-                h += rehash(keys[i], perturbation);
+                h += rehash(keys[i]);
             }
         }
 

@@ -756,7 +756,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int h = 0;
         for (KTypeVTypeCursor<KType, VType> c : this)
         {
-            h += rehash(c.key, perturbation) + rehash(c.value, perturbation);
+            h += rehash(c.key) + rehash(c.value);
         }
         return h;
     }
