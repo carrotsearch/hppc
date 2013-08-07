@@ -718,13 +718,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         // States are always cleared.
         Arrays.fill(allocated, false);
 
-        /* #if ($TemplateOptions.KTypeGeneric) */
-        Arrays.fill(keys, null); // Help the GC.
-        /* #end */
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        //Slightly faster than Arrays.fill(keys, null); // Help the GC.
+        HashContainerUtils.blankPowerOf2ObjectArray(keys);
+        /*! #end !*/
 
-        /* #if ($TemplateOptions.VTypeGeneric) */
-        Arrays.fill(values, null); // Help the GC.
-        /* #end */
+        /*! #if ($TemplateOptions.VTypeGeneric) !*/
+        //Slightly faster than Arrays.fill(values, null); // Help the GC.
+        HashContainerUtils.blankPowerOf2ObjectArray(values);
+        /*! #end !*/
     }
 
     /**
