@@ -479,8 +479,6 @@ public class KTypeOpenHashSet<KType>
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         //Slightly faster than Arrays.fill(keys, null); // Help the GC.
         HashContainerUtils.blankPowerOf2ObjectArray(keys);
-        /*! #else !*/
-        Arrays.fill(keys, Intrinsics.<KType>defaultKTypeValue());
         /*! #end !*/
     }
 
