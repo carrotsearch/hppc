@@ -174,7 +174,7 @@ public class KTypeOpenHashSet<KType>
     {
         assert assigned < allocated.length;
 
-        final int mask = allocated.length - 1;
+        final int mask = allocated.length - 1;       
         int slot = rehash(e, perturbation) & mask;
         while (allocated[slot])
         {
@@ -265,7 +265,7 @@ public class KTypeOpenHashSet<KType>
         // leaving the data structure in an inconsistent state.
         final KType   [] oldKeys      = this.keys;
         final boolean [] oldAllocated = this.allocated;
-
+        
         allocateBuffers(nextCapacity(keys.length));
 
         // We have succeeded at allocating new data so insert the pending key/value at
@@ -284,8 +284,8 @@ public class KTypeOpenHashSet<KType>
             if (oldAllocated[i])
             {
                 final KType k = oldKeys[i];
-
                 int slot = rehash(k, perturbation) & mask;
+               
                 while (allocated[slot])
                 {
                     slot = (slot + 1) & mask;
@@ -295,8 +295,6 @@ public class KTypeOpenHashSet<KType>
                 keys[slot] = k;                
             }
         }
-
-        /* #if ($TemplateOptions.KTypeGeneric) */ Arrays.fill(oldKeys,   null); /* #end */
     }
 
 
@@ -350,7 +348,7 @@ public class KTypeOpenHashSet<KType>
     public boolean remove(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask; 
+        int slot = rehash(key, perturbation) & mask;
 
         while (allocated[slot])
         {
@@ -374,6 +372,8 @@ public class KTypeOpenHashSet<KType>
         // Copied nearly verbatim from fastutil's impl.
         final int mask = allocated.length - 1;
         int slotPrev, slotOther;
+       
+        
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
@@ -450,7 +450,9 @@ public class KTypeOpenHashSet<KType>
     public boolean contains(KType key)
     {
         final int mask = allocated.length - 1;
+        
         int slot = rehash(key, perturbation) & mask;
+       
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -474,12 +476,14 @@ public class KTypeOpenHashSet<KType>
     {
         assigned = 0;
 
-        Arrays.fill(allocated, false);
+        HashContainerUtils.blankPowerOf2BooleanArray(allocated);
         
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        //Slightly faster than Arrays.fill(keys, null); // Help the GC.
+        //Faster than Arrays.fill(keys, null); // Help the GC.
         HashContainerUtils.blankPowerOf2ObjectArray(keys);
         /*! #end !*/
+        
+        
     }
 
     /**
@@ -537,6 +541,7 @@ public class KTypeOpenHashSet<KType>
             if (obj instanceof KTypeSet<?>)
             {
                 KTypeSet<Object> other = (KTypeSet<Object>) obj;
+                
                 if (other.size() == this.size())
                 {
                     for (KTypeCursor<KType> c : this)
@@ -644,6 +649,7 @@ public class KTypeOpenHashSet<KType>
             KTypeOpenHashSet<KType> cloned = (KTypeOpenHashSet<KType>) super.clone();
             cloned.keys = keys.clone();
             cloned.allocated = allocated.clone();
+            
             return cloned;
         }
         catch (CloneNotSupportedException e)
