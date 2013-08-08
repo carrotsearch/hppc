@@ -1,5 +1,6 @@
 package com.carrotsearch.hppc;
 
+
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
@@ -138,7 +139,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @see "http://issues.carrot2.org/browse/HPPC-80"
      */
     protected int perturbation;
-
+    
     /**
      * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
      * load factor of {@value #DEFAULT_LOAD_FACTOR}.
@@ -165,7 +166,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Creates a hash map with the given initial capacity,
+      * Creates a hash map with the given initial capacity,
      * load factor.
      * 
      * <p>See class notes about hash distribution importance.</p>
@@ -206,7 +207,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
+       
         int slot = rehash(key, perturbation) & mask;
+     
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -311,8 +314,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         assert assigned < allocated.length;
 
-        final int mask = allocated.length - 1;
+        final int mask = allocated.length - 1;  
         int slot = rehash(key, perturbation) & mask;
+       
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -390,6 +394,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         final KType []   keys = this.keys;
         final VType []   values = this.values;
         final boolean [] allocated = this.allocated;
+       
         final int mask = allocated.length - 1;
         for (int i = oldAllocated.length; --i >= 0;)
         {
@@ -399,6 +404,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 final VType v = oldValues[i];
 
                 int slot = rehash(k, perturbation) & mask;
+              
                 while (allocated[slot])
                 {
                     slot = (slot + 1) & mask;
@@ -409,9 +415,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 values[slot] = v;
             }
         }
-
-        /* #if ($TemplateOptions.KTypeGeneric) */ Arrays.fill(oldKeys,   null); /* #end */
-        /* #if ($TemplateOptions.VTypeGeneric) */ Arrays.fill(oldValues, null); /* #end */
     }
 
     /**
@@ -458,7 +461,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public VType remove(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask; 
+
+        int slot = rehash(key, perturbation) & mask;
+       
         final int wrappedAround = slot;
         while (allocated[slot])
         {
@@ -484,6 +489,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         // Copied nearly verbatim from fastutil's impl.
         final int mask = allocated.length - 1;
         int slotPrev, slotOther;
+        
         while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
@@ -491,6 +497,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             while (allocated[slotCurr])
             {
                 slotOther = rehash(keys[slotCurr], perturbation) & mask;
+             
                 if (slotPrev <= slotCurr)
                 {
                     // we're on the right of the original slot.
@@ -582,7 +589,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public VType get(KType key)
     {
         final int mask = allocated.length - 1;
+       
         int slot = rehash(key, perturbation) & mask;
+   
         final int wrappedAround = slot;
         while (allocated[slot])
         {
@@ -689,6 +698,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public boolean containsKey(KType key)
     {
         final int mask = allocated.length - 1;
+       
         int slot = rehash(key, perturbation) & mask;
         final int wrappedAround = slot;
         while (allocated[slot])
@@ -716,15 +726,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assigned = 0;
 
         // States are always cleared.
-        Arrays.fill(allocated, false);
+        HashContainerUtils.blankPowerOf2BooleanArray(allocated);
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        //Slightly faster than Arrays.fill(keys, null); // Help the GC.
+        //Faster than Arrays.fill(keys, null); // Help the GC.
         HashContainerUtils.blankPowerOf2ObjectArray(keys);
         /*! #end !*/
 
         /*! #if ($TemplateOptions.VTypeGeneric) !*/
-        //Slightly faster than Arrays.fill(values, null); // Help the GC.
+        //Faster than Arrays.fill(values, null); // Help the GC.
         HashContainerUtils.blankPowerOf2ObjectArray(values);
         /*! #end !*/
     }
@@ -758,7 +768,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int h = 0;
         for (KTypeVTypeCursor<KType, VType> c : this)
         {
-            h += rehash(c.key) + rehash(c.value);
+            h += rehash(c.key) + rehash(c.value);  
         }
         return h;
     }
@@ -772,7 +782,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         if (obj != null)
         {
             if (obj == this) return true;
-
+            
             if (obj instanceof KTypeVTypeMap)
             {
                 /* #if ($TemplateOptions.AnyGeneric) */
@@ -1147,7 +1157,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             cloned.keys = keys.clone();
             cloned.values = values.clone();
             cloned.allocated = allocated.clone();
-
+            
             return cloned;
         }
         catch (CloneNotSupportedException e)
