@@ -1,0 +1,10 @@
+
+HPPC tries to be open but sometimes people will have very specific
+needs or wishes that are hard to accomodate in the main code line.
+Here is a list of "friends" -- forks which implement certain features
+or aspects that didn't make it into HPPC but are still worth 
+investigating (perhaps they'll be more useful to you than HPPC itself!).
+
+* HPPC-RT (by Vincent Sonnier), https://github.com/vsonnier/hppc
+  A fork for real-time HPPC, minimizes allocations, introduces cool 
+  overhead-less iterators and other miscellaneous goodies.
