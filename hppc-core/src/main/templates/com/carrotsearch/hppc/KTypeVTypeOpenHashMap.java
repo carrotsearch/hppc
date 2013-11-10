@@ -269,6 +269,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * if (!map.containsKey(key)) map.put(value);
      * </pre>
      * 
+     * <p>This method saves to {@link #lastSlot} as a side effect of each call.</p>
+     * 
      * @param key The key of the value to check.
      * @param value The value to put if <code>key</code> does not exist.
      * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
@@ -285,8 +287,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-     * of the following code:
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical 
+     * equivalent of the following code (but does not update {@link #lastSlot):
      * <pre>
      *  if (containsKey(key))
      *  {
@@ -714,6 +716,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * if (map.containsKey(key))
      *   map.lkey();
      * </pre>#end
+     * 
+     * <p><strong>Important:</strong> {@link #containsKey} and consecutive {@link #lget}, {@link #lset}
+     * or {@link #lkey} must not be used by concurrent threads because {@link #lastSlot} is 
+     * used to store state.</p>
      */
     @Override
     public boolean containsKey(KType key)
