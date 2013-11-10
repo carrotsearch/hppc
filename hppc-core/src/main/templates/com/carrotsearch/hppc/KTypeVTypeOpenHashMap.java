@@ -571,16 +571,24 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * {@inheritDoc}
      * 
-     * <p> Use the following snippet of code to check for key existence
+     * <p>Use the following snippet of code to check for key existence
      * first and then retrieve the value if it exists.</p>
      * <pre>
      * if (map.containsKey(key))
      *   value = map.lget(); 
      * </pre>
+     * <p>The above code <strong>cannot</strong> be used by multiple concurrent
+     * threads because a call to {@link #containsKey(Object)} stores
+     * the temporary slot number in {@link #lastSlot}. An alternative to the above
+     * conditional statement is to use {@link #getOrDefault(Object, Object)} and
+     * provide a custom default value sentinel (not present in the value set).</p>
      */
     @Override
     public VType get(KType key)
     {
+        // Same as:
+        // getOrDefault(key, Intrinsics.<VType> defaultVTypeValue())
+        // but let's keep it duplicated for VMs that don't have advanced inlining.
         final int mask = allocated.length - 1;
         int slot = rehash(key, perturbation) & mask;
         final int wrappedAround = slot;
@@ -595,6 +603,28 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             if (slot == wrappedAround) break;
         }
         return Intrinsics.<VType> defaultVTypeValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VType getOrDefault(KType key, VType defaultValue)
+    {
+        final int mask = allocated.length - 1;
+        int slot = rehash(key, perturbation) & mask;
+        final int wrappedAround = slot;
+        while (allocated[slot])
+        {
+            if (Intrinsics.equalsKType(key, keys[slot]))
+            {
+                return values[slot]; 
+            }
+            
+            slot = (slot + 1) & mask;
+            if (slot == wrappedAround) break;
+        }
+        return defaultValue;
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
