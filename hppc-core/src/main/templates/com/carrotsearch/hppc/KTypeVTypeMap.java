@@ -27,6 +27,12 @@ public interface KTypeVTypeMap<KType, VType>
     public VType get(KType key);
 
     /**
+     * @return Returns the value associated with the given key or the provided default value if the
+     * key is not associated with any value. 
+     */
+    public VType getOrDefault(KType key, VType defaultValue);
+
+    /**
      * Puts all keys from another container to this map, replacing the values
      * of existing keys, if such keys are present.   
      * 
