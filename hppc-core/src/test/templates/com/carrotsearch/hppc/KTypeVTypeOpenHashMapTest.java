@@ -120,7 +120,22 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
         assertSameMap(map, map2);
     }
-    
+
+    @Test
+    public void testGetOrDefault()
+    {
+        map.put(key2, value2);
+        assertTrue(map.containsKey(key2));
+
+        map.put(key1, value1);
+        assertEquals2(value1, map.getOrDefault(key1, value3));
+        assertEquals2(value3, map.getOrDefault(key3, value3));
+        map.remove(key1);
+        assertEquals2(value3, map.getOrDefault(key1, value3));
+
+        // Make sure lslot wasn't touched.
+        assertEquals2(value2, map.lget());
+    }
 
     /* */
     @Test
