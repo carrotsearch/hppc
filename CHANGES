@@ -15,6 +15,9 @@ HPPC-81: Improvements to near-the-limit collection sizes and resize strategies.
 
 ** New features
 
+HPPC-88: added get(key,defaultValue) to somehow support custom default values
+         and potential read-only concurrent containsKey/get conditionals.
+
 ** Changes in functionality
 
 ** Other changes
