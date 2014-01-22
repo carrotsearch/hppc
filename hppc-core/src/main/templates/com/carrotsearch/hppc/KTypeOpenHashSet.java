@@ -747,4 +747,24 @@ public class KTypeOpenHashSet<KType>
     {
         return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
     }
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor). The returned instance will have enough initial
+     * capacity to hold <code>expectedSize</code> elements without having to resize.
+     */
+    public static <KType> KTypeOpenHashSet<KType> newInstanceWithExpectedSize(int expectedSize)
+    {
+        return newInstanceWithExpectedSize(expectedSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor). The returned instance will have enough initial
+     * capacity to hold <code>expectedSize</code> elements without having to resize.
+     */
+    public static <KType> KTypeOpenHashSet<KType> newInstanceWithExpectedSize(int expectedSize, float loadFactor)
+    {
+        return newInstanceWithCapacity((int) (expectedSize / loadFactor) + 1, loadFactor);
+    }
 }
