@@ -37,9 +37,6 @@ mvn clean deploy
 # Deploy a release
 mvn -Psign,release,site-labs clean package deploy
 
-# rsyncing to labs.carrotsearch.com:
-# rsync -azv -e "ssh -p 2222" --chmod=u=rwX,g=rX,o=rX hppc-core/target/site-labs/ carrot2@hostgator.carrot2.org:./public_html/com.carrotsearch.labs/download/hppc/
-
 
 Clover
 ------
