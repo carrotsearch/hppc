@@ -24,14 +24,23 @@ HPPC-88: added get(key,defaultValue) to somehow support custom default values
 
 HPPC-79: javadocs generated with 1.7 (and 1.8) look crappy.
 
-
-[0.5.4]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11927
+[0.5.5]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12120
 
 ** New features
 ** Other changes
 ** API-breaking changes
 ** Bug fixes
+
+
+[0.5.4]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11927
+
+** New features
+
+HPPC-91: Added newInstanceWithExpectedSize methods to 
+         KTypeOpenHashSet and KTypeVTypeOpenHashMap (no buffer resizing for a given
+         number of elements). [shaunkalley]
 
 
 [0.5.3]
