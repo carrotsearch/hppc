@@ -2,6 +2,7 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.*;
 
@@ -845,5 +846,30 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
                 }
             });
         assertSortedListEquals(map.values().toArray(), value1, value2, value2);
+    }
+
+    /**
+     * Tests that instances created with the <code>newInstanceWithExpectedSize</code>
+     * static factory methods do not have to resize to hold the expected number of elements.
+     */
+    @Test
+    public void testExpectedSizeInstanceCreation()
+    {
+        KTypeVTypeOpenHashMap<KType, VType> fixture =
+                KTypeVTypeOpenHashMap.newInstanceWithExpectedSize(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY);
+
+        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY, this.map.keys.length);
+        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, fixture.keys.length);
+
+        for (int i = 0; i < KTypeOpenHashSet.DEFAULT_CAPACITY; i++)
+        {
+            KType key = cast(i);
+            VType value = vcast(i);
+            this.map.put(key, value);
+            fixture.put(key, value);
+        }
+
+        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, this.map.keys.length);
+        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, fixture.keys.length);
     }
 }

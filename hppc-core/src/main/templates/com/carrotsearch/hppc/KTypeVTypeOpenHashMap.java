@@ -1266,4 +1266,24 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor);
     }
+
+    /**
+     * Create a new hash map without providing the full generic signature (constructor
+     * shortcut). The returned instance will have enough initial capacity to hold
+     * <code>expectedSize</code> elements without having to resize.
+     */
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize)
+    {
+        return newInstanceWithExpectedSize(expectedSize, DEFAULT_LOAD_FACTOR);
+    }
+
+    /**
+     * Create a new hash map without providing the full generic signature (constructor
+     * shortcut). The returned instance will have enough initial capacity to hold
+     * <code>expectedSize</code> elements without having to resize.
+     */
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize, float loadFactor)
+    {
+        return newInstance((int) (expectedSize / loadFactor) + 1, loadFactor);
+    }
 }
