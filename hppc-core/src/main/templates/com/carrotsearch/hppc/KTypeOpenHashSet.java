@@ -79,6 +79,17 @@ public class KTypeOpenHashSet<KType>
     /**
      * Hash-indexed array holding all set entries.
      * 
+#if ($TemplateOptions.KTypeGeneric)
+     * <p><strong>Important!</strong> 
+     * The actual value in this field is always an instance of <code>Object[]</code>.
+     * Be warned that <code>javac</code> emits additional casts when <code>keys</code> 
+     * are directly accessed; <strong>these casts
+     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
+     * recommended to use a {@link #iterator()} instead.
+     * </pre>
+#end
+     * 
      * @see #allocated
      */
     public KType [] keys;
