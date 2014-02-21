@@ -69,15 +69,25 @@ public class KTypeArrayList<KType>
      * Internal array for storing the list. The array may be larger than the current size
      * ({@link #size()}).
      * 
-     * #if ($TemplateOptions.KTypeGeneric)
-     * <p>The actual value in this field is always an instance of <code>Object[]</code>,
-     * regardless of the generic type used. The JDK is inconsistent here too --
+#if ($TemplateOptions.KTypeGeneric) 
+     * <p><strong>Important!</strong> 
+     * The actual value in this field is always an instance of <code>Object[]</code>,
+     * regardless of the generic type used. The JDK is inconsistent here too:
      * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
      * {@link ArrayDeque} declares an array of generic type objects like we do. The
      * tradeoff is probably minimal, but you should be aware of additional casts generated
-     * by <code>javac</code> when <code>buffer</code> is directly accessed - these casts
-     * may result in exceptions at runtime. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements.#end
+     * by <code>javac</code> when <code>buffer</code> is directly accessed; <strong>these casts
+     * may also result in exceptions at runtime</strong>. A workaround is to cast directly to
+     * <code>Object[]</code> before accessing the buffer's elements, as shown
+     * in the following code snippet.</p>
+     * 
+     * <pre>
+     * Object[] buf = list.buffer;
+     * for (int i = list.size(); --i >= 0;) {
+     *   doSomething(buf[i]);
+     * }
+     * </pre>
+#end
      */
     public KType [] buffer;
 
