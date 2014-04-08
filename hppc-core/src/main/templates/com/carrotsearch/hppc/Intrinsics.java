@@ -63,7 +63,9 @@ final class Intrinsics
 
     /**
      * Compare two keys for equivalence. Null references return <code>true</code>.
-     * Primitive types are compared using <code>==</code>.
+     * Primitive types are compared using <code>==</code>, except for floating-point types
+     * where they're compared by their actual representation bits as returned from
+     * {@link Double#doubleToLongBits(double)} and {@link Float#floatToIntBits(float)}.
      */
     public static boolean equalsKType(Object e1, Object e2)
     {
