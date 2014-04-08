@@ -263,6 +263,18 @@ public final class TemplateProcessor
                             String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
                                 params.toArray()));
                     }
+                    else if (templateOptions.ktype == Type.DOUBLE)
+                    {
+                      sb.append(
+                          String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))",
+                              params.toArray()));
+                    }
+                    else if (templateOptions.ktype == Type.FLOAT)
+                    {
+                      sb.append(
+                          String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))",
+                              params.toArray()));
+                    }
                     else
                     {
                         sb.append(
@@ -277,6 +289,18 @@ public final class TemplateProcessor
                         sb.append(
                             String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
                                 params.toArray()));
+                    }
+                    else if (templateOptions.vtype == Type.DOUBLE)
+                    {
+                      sb.append(
+                          String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))",
+                              params.toArray()));
+                    }
+                    else if (templateOptions.vtype == Type.FLOAT)
+                    {
+                      sb.append(
+                          String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))",
+                              params.toArray()));
                     }
                     else
                     {
