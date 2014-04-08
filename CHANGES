@@ -17,6 +17,10 @@ HPPC-81: Improvements to near-the-limit collection sizes and resize strategies.
 
 ** New features
 
+HPPC-91: Added newInstanceWithExpectedSize methods to 
+         KTypeOpenHashSet and KTypeVTypeOpenHashMap (no buffer resizing for a given
+         number of elements). [shaunkalley]
+
 HPPC-88: added get(key,defaultValue) to somehow support custom default values
          and potential read-only concurrent containsKey/get conditionals.
 
