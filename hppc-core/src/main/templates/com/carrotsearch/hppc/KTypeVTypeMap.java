@@ -16,6 +16,50 @@ public interface KTypeVTypeMap<KType, VType>
      */
     public VType put(KType key, VType value);
 
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
+    /**
+     * An equivalent of calling
+     * <pre>
+     *  putOrAdd(key, additionValue, additionValue);
+     * </pre>
+     * 
+     * @param key The key of the value to adjust.
+     * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
+     */
+    /*! #end !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) 
+    public VType addTo(KType key, VType additionValue);
+    #end !*/
+
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
+    /**
+     * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical 
+     * equivalent of the following code (but does not update {@link #lastSlot):
+     * <pre>
+     *  if (containsKey(key))
+     *  {
+     *      VType v = (VType) (lget() + additionValue);
+     *      lset(v);
+     *      return v;
+     *  }
+     *  else
+     *  {
+     *     put(key, putValue);
+     *     return putValue;
+     *  }
+     * </pre>
+     * 
+     * @param key The key of the value to adjust.
+     * @param putValue The value to put if <code>key</code> does not exist.
+     * @param additionValue The value to add to the existing value if <code>key</code> exists.
+     * @return Returns the current value associated with <code>key</code> (after changes).
+     */
+    /*! #end !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) 
+    public VType putOrAdd(KType key, VType putValue, VType additionValue);
+    #end !*/
+
     /**
      * @return Returns the value associated with the given key or the default value
      * for the key type, if the key is not associated with any value. 
