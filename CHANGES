@@ -6,6 +6,8 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11820
 
 HPPC-82: Expose resizeAt and lastSlot to subclasses (sets, maps).
 
+HPPC-94: Drop support for Java 1.5 (backcompat build).
+
 ** Bug fixes
 
 HPPC-93: NaN keys are not treated correctly in hash sets/ maps.
