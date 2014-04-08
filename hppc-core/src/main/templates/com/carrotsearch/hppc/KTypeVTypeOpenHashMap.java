@@ -308,6 +308,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return false;
     }
 
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/ 
     /**
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical 
      * equivalent of the following code (but does not update {@link #lastSlot):
@@ -330,6 +331,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @param additionValue The value to add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
+    /*! #end !*/
     /*! #if ($TemplateOptions.VTypePrimitive) 
     public VType putOrAdd(KType key, VType putValue, VType additionValue)
     {
@@ -359,6 +361,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
     #end !*/
 
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/ 
     /**
      * An equivalent of calling
      * <pre>
@@ -379,6 +382,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
      * @return Returns the current value associated with <code>key</code> (after changes).
      */
+    /*! #end !*/
     /*! #if ($TemplateOptions.VTypePrimitive) 
     public VType addTo(KType key, VType additionValue)
     {
