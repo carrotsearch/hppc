@@ -21,19 +21,6 @@
   Fundamental data structures (maps, sets, lists, stacks, queues) generated for
   combinations of object and primitive types to conserve JVM memory and speed
   up execution.</description>
-
-  <!-- We'll use a snapshot version of junit4 plugin. -->
-  <pluginRepositories>
-    <pluginRepository>
-      <id>sonatype-snapshots</id>
-      <name>SonaType Snapshots Plugin Repository</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <layout>default</layout>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
   
   <!-- Dependencies. -->
   <dependencies>
