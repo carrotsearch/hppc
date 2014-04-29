@@ -450,7 +450,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         }
         assertEquals(max, map.size());
         assertEquals(capacity, map.keys.length);
-
+        
         // Non-existent key.
         map.remove(cast(max + 1));
         assertFalse(map.containsKey(cast(max + 1)));
@@ -469,6 +469,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map.remove(cast(0));
         assertEquals(max - 1, map.size());
         assertEquals(capacity, map.keys.length);
+        
+        // Check expand on "last slot of a full map" condition.
+        map.put(cast(0), value1);
+        map.put(cast(max), value1);
+        assertEquals(max + 1, map.size());
+        assertEquals(capacity << 1, map.keys.length);
     }
 
     /* */
