@@ -487,7 +487,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         final int mask = allocated.length - 1;
         int slot = rehash(key, perturbation) & mask; 
-        final int wrappedAround = slot;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -498,7 +497,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return v;
              }
              slot = (slot + 1) & mask;
-             if (slot == wrappedAround) break;
         }
 
         return Intrinsics.<VType> defaultVTypeValue();
@@ -521,13 +519,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 slotOther = rehash(keys[slotCurr], perturbation) & mask;
                 if (slotPrev <= slotCurr)
                 {
-                    // we're on the right of the original slot.
+                    // We are on the right of the original slot.
                     if (slotPrev >= slotOther || slotOther > slotCurr)
                         break;
                 }
                 else
                 {
-                    // we've wrapped around.
+                    // We have wrapped around.
                     if (slotPrev >= slotOther && slotOther > slotCurr)
                         break;
                 }
@@ -619,7 +617,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         // but let's keep it duplicated for VMs that don't have advanced inlining.
         final int mask = allocated.length - 1;
         int slot = rehash(key, perturbation) & mask;
-        final int wrappedAround = slot;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -628,7 +625,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             }
             
             slot = (slot + 1) & mask;
-            if (slot == wrappedAround) break;
         }
         return Intrinsics.<VType> defaultVTypeValue();
     }
@@ -641,7 +637,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         final int mask = allocated.length - 1;
         int slot = rehash(key, perturbation) & mask;
-        final int wrappedAround = slot;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -650,7 +645,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             }
             
             slot = (slot + 1) & mask;
-            if (slot == wrappedAround) break;
         }
         return defaultValue;
     }
@@ -752,7 +746,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         final int mask = allocated.length - 1;
         int slot = rehash(key, perturbation) & mask;
-        final int wrappedAround = slot;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -761,7 +754,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return true; 
             }
             slot = (slot + 1) & mask;
-            if (slot == wrappedAround) break;
         }
         lastSlot = -1;
         return false;
