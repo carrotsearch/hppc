@@ -1,4 +1,12 @@
 
+[0.6.1]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12420
+
+** New features
+
+HPPC-96: Identity hash maps with primitive backing storage arrays for values.
+
+
 [0.6.0]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11820
 
@@ -33,6 +41,7 @@ HPPC-88: added get(key,defaultValue) to somehow support custom default values
 ** Other changes
 
 HPPC-79: javadocs generated with 1.7 (and 1.8) look crappy.
+
 
 [0.5.5]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12120
