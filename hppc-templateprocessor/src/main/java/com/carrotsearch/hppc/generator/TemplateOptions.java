@@ -10,6 +10,8 @@ import java.util.Locale;
  */
 public class TemplateOptions
 {
+    private boolean ignore;
+
     public Type ktype;
     public Type vtype;
     
@@ -24,6 +26,16 @@ public class TemplateOptions
     {
         this.ktype = ktype;
         this.vtype = vtype;
+    }
+    
+    public void setIgnored(boolean ignore)
+    {
+        this.ignore = ignore;
+    }
+
+    public boolean isIgnored()
+    {
+        return ignore;
     }
 
     public boolean isKTypePrimitive()

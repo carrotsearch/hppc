@@ -117,9 +117,6 @@
 	          <useUniqueVersions>false</useUniqueVersions>
               <addClasspath>true</addClasspath>
             </manifest>
-            <manifestEntries>
-              <Class-Path>mahout-math-0.8-SNAPSHOT.jar</Class-Path>
-            </manifestEntries>
           </archive>
         </configuration>
       </plugin>

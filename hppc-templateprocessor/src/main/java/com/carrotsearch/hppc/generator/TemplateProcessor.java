@@ -1,6 +1,7 @@
 package com.carrotsearch.hppc.generator;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -123,9 +124,9 @@ public final class TemplateProcessor
             String fileName = f.file.getName();
             if (!fileName.contains("VType") && fileName.contains("KType"))
             {
-                for (Type t : Type.values())
+                for (Type ktype : Type.values())
                 {
-                    TemplateOptions options = new TemplateOptions(t);
+                    TemplateOptions options = new TemplateOptions(ktype);
                     options.sourceFile = f.file;
                     generate(f, outputs, options);
                 }
@@ -145,11 +146,13 @@ public final class TemplateProcessor
         }
         
         if (verbose)
+        {
             System.out.println(
                 "Velocity: " + timeVelocity + "\n" +
                 "Intrinsics: " + timeIntrinsics + "\n" +
                 "TypeClassRefs: " + timeTypeClassRefs + "\n" +
                 "Comments: " + timeComments + "\n");
+        }
     }
 
     /**
@@ -168,6 +171,17 @@ public final class TemplateProcessor
             String input = readFile(f.file);
             long t1, t0 = System.currentTimeMillis();
             input = filterVelocity(f, input, templateOptions);
+
+            // Check if template requested ignoring a given type combination.
+            if (templateOptions.isIgnored())
+            {
+                if (output.file.exists()) {
+                    output.file.delete();
+                    output.updated = true;
+                }
+                return;
+            }
+
             timeVelocity += (t1 = System.currentTimeMillis()) - t0;
             input = filterIntrinsics(f, input, templateOptions);
             timeIntrinsics += (t0 = System.currentTimeMillis()) - t1;
