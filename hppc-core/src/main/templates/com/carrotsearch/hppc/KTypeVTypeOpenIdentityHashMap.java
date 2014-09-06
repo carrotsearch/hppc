@@ -789,7 +789,14 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         int h = 0;
         for (KTypeVTypeCursor<KType, VType> c : this)
         {
-            h += rehash(System.identityHashCode(c.key)) + rehash(System.identityHashCode(c.value));
+            /*! #if ($TemplateOptions.VTypePrimitive) 
+            h += rehash(System.identityHashCode(c.key)) + 
+                 rehash(c.value);
+            #end !*/
+            /* #if ($TemplateOptions.VTypeGeneric) */
+            h += rehash(System.identityHashCode(c.key)) + 
+                 rehash(System.identityHashCode(c.value));
+            /* #end */
         }
         return h;
     }
