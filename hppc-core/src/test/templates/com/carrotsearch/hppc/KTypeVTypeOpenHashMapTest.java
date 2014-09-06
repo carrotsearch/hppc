@@ -2,7 +2,6 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 import java.util.*;
 
