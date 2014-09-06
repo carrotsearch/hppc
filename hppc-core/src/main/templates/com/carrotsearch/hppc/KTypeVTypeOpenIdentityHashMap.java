@@ -1,3 +1,4 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.KTypePrimitive)) !*/
 package com.carrotsearch.hppc;
 
 import java.util.*;
@@ -11,43 +12,21 @@ import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
- * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
+ * An identity hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
+ * 
+ * <p>
+ * This class implements the {@link KTypeVTypeMap} interface using
+ * reference-equality in place of object-equality when comparing keys (and values!). 
+ * It is an equivalent of {@link IdentityHashMap}, but with primitive arrays for 
+ * value storage.
+ * </p>
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, {@link #values},
  * {@link #allocated}) are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
- *
-#if ($TemplateOptions.AllGeneric)
- * <p>
- * A brief comparison of the API against the Java Collections framework:
- * </p>
- * <table class="nice" summary="Java Collections HashMap and HPPC ObjectObjectOpenHashMap, related methods.">
- * <caption>Java Collections HashMap and HPPC {@link ObjectObjectOpenHashMap}, related methods.</caption>
- * <thead>
- *     <tr class="odd">
- *         <th scope="col">{@linkplain HashMap java.util.HashMap}</th>
- *         <th scope="col">{@link ObjectObjectOpenHashMap}</th>  
- *     </tr>
- * </thead>
- * <tbody>
- * <tr            ><td>V put(K)       </td><td>V put(K)      </td></tr>
- * <tr class="odd"><td>V get(K)       </td><td>V get(K)      </td></tr>
- * <tr            ><td>V remove(K)    </td><td>V remove(K)   </td></tr>
- * <tr class="odd"><td>size, clear, 
- *                     isEmpty</td><td>size, clear, isEmpty</td></tr>                     
- * <tr            ><td>containsKey(K) </td><td>containsKey(K), lget()</td></tr>
- * <tr class="odd"><td>containsValue(K) </td><td>(no efficient equivalent)</td></tr>
- * <tr            ><td>keySet, entrySet </td><td>{@linkplain #iterator() iterator} over map entries,
- *                                               keySet, pseudo-closures</td></tr>
- * </tbody>
- * </table>
-#else
- * <p>See {@link ObjectObjectOpenHashMap} class for API similarities and differences against Java
- * Collections.  
-#end
  * 
 #if ($TemplateOptions.KTypeGeneric)
  * <p>This implementation supports <code>null</code> keys.</p>
@@ -65,7 +44,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeVTypeOpenHashMap<KType, VType>
+public class KTypeVTypeOpenIdentityHashMap<KType, VType>
     implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
@@ -167,7 +146,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * 
      * <p>See class notes about hash distribution importance.</p>
      */
-    public KTypeVTypeOpenHashMap()
+    public KTypeVTypeOpenIdentityHashMap()
     {
         this(DEFAULT_CAPACITY);
     }
@@ -181,7 +160,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @param initialCapacity Initial capacity (greater than zero and automatically
      *            rounded to the next power of two).
      */
-    public KTypeVTypeOpenHashMap(int initialCapacity)
+    public KTypeVTypeOpenIdentityHashMap(int initialCapacity)
     {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
@@ -197,7 +176,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      *
      * @param loadFactor The load factor (greater than zero and smaller than 1).
      */
-    public KTypeVTypeOpenHashMap(int initialCapacity, float loadFactor)
+    public KTypeVTypeOpenIdentityHashMap(int initialCapacity, float loadFactor)
     {
         initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
 
@@ -213,7 +192,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Create a hash map from all key-value pairs of another container.
      */
-    public KTypeVTypeOpenHashMap(KTypeVTypeAssociativeContainer<KType, VType> container)
+    public KTypeVTypeOpenIdentityHashMap(KTypeVTypeAssociativeContainer<KType, VType> container)
     {
         this((int)(container.size() * (1 + DEFAULT_LOAD_FACTOR)));
         putAll(container);
@@ -228,10 +207,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = rehash(System.identityHashCode(key), perturbation) & mask;
         while (allocated[slot])
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (key == keys[slot])
             {
                 final VType oldValue = values[slot];
                 values[slot] = value;
@@ -338,10 +317,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = rehash(System.identityHashCode(key), perturbation) & mask;
         while (allocated[slot])
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (key == keys[slot])
             {
                 return values[slot] = (VType) (values[slot] + additionValue);
             }
@@ -426,7 +405,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 final KType k = oldKeys[i];
                 final VType v = oldValues[i];
 
-                int slot = rehash(k, perturbation) & mask;
+                int slot = rehash(System.identityHashCode(k), perturbation) & mask;
                 while (allocated[slot])
                 {
                     slot = (slot + 1) & mask;
@@ -486,10 +465,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public VType remove(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask; 
+        int slot = rehash(System.identityHashCode(key), perturbation) & mask; 
         while (allocated[slot])
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (key == keys[slot])
              {
                 assigned--;
                 VType v = values[slot];
@@ -516,7 +495,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             while (allocated[slotCurr])
             {
-                slotOther = rehash(keys[slotCurr], perturbation) & mask;
+                slotOther = rehash(System.identityHashCode(keys[slotCurr]), perturbation) & mask;
                 if (slotPrev <= slotCurr)
                 {
                     // We are on the right of the original slot.
@@ -616,10 +595,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         // getOrDefault(key, Intrinsics.<VType> defaultVTypeValue())
         // but let's keep it duplicated for VMs that don't have advanced inlining.
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = rehash(System.identityHashCode(key), perturbation) & mask;
         while (allocated[slot])
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (key == keys[slot])
             {
                 return values[slot]; 
             }
@@ -636,10 +615,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public VType getOrDefault(KType key, VType defaultValue)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = rehash(System.identityHashCode(key), perturbation) & mask;
         while (allocated[slot])
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (key == keys[slot])
             {
                 return values[slot]; 
             }
@@ -745,10 +724,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public boolean containsKey(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = rehash(System.identityHashCode(key), perturbation) & mask;
         while (allocated[slot])
         {
-            if (Intrinsics.equalsKType(key, keys[slot]))
+            if (key == keys[slot])
             {
                 lastSlot = slot;
                 return true; 
@@ -810,7 +789,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int h = 0;
         for (KTypeVTypeCursor<KType, VType> c : this)
         {
-            h += rehash(c.key) + rehash(c.value);
+            h += rehash(System.identityHashCode(c.key)) + rehash(System.identityHashCode(c.value));
         }
         return h;
     }
@@ -833,15 +812,23 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 KTypeVTypeMap<KType, VType> other = (KTypeVTypeMap<KType, VType>) obj;
                 if (other.size() == this.size())
                 {
-                    for (KTypeVTypeCursor<KType, VType> c : this)
+                    for (KTypeVTypeCursor<KType, VType> c : other)
                     {
-                        if (other.containsKey(c.key))
+                        if (this.containsKey(c.key))
                         {
-                            VType v = other.get(c.key);
+                            VType v = this.get(c.key);
+                            /*! #if ($TemplateOptions.VTypePrimitive) 
                             if (Intrinsics.equalsVType(c.value, v))
                             {
                                 continue;
                             }
+                            #end !*/
+                            /* #if ($TemplateOptions.VTypeGeneric) */
+                            if (c.value == v)
+                            {
+                                continue;
+                            }
+                            /* #end */
                         }
                         return false;
                     }
@@ -924,13 +911,14 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * A view of the keys inside this hash map.
+     * A view of the keys inside this hash map. The returned container will
+     * still be based on reference-equality! 
      */
     public final class KeysContainer 
         extends AbstractKTypeCollection<KType> implements KTypeLookupContainer<KType>
     {
-        private final KTypeVTypeOpenHashMap<KType, VType> owner = 
-            KTypeVTypeOpenHashMap.this;
+        private final KTypeVTypeOpenIdentityHashMap<KType, VType> owner = 
+            KTypeVTypeOpenIdentityHashMap.this;
         
         @Override
         public boolean contains(KType e)
@@ -1065,27 +1053,39 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         @Override                                                                                                                             
         public int size()                                                                                                                     
         {                                                                                                                                     
-            return KTypeVTypeOpenHashMap.this.size();                                                                                       
+            return KTypeVTypeOpenIdentityHashMap.this.size();                                                                                       
         }                                                                                                                                     
                                                                                                                                               
         @Override                                                                                                                             
         public boolean isEmpty()                                                                                                              
         {                                                                                                                                     
-            return KTypeVTypeOpenHashMap.this.isEmpty();                                                                                    
+            return KTypeVTypeOpenIdentityHashMap.this.isEmpty();                                                                                    
         }                                                                                                                                     
                                                                                                                                               
         @Override                                                                                                                             
         public boolean contains(VType value)                                                                                                  
         {                                                                                                                                     
             // This is a linear scan over the values, but it's in the contract, so be it.                                                     
-            final boolean [] allocated = KTypeVTypeOpenHashMap.this.allocated;                                                              
-            final VType [] values = KTypeVTypeOpenHashMap.this.values;                                                                      
+            final boolean [] allocated = KTypeVTypeOpenIdentityHashMap.this.allocated;                                                              
+            final VType [] values = KTypeVTypeOpenIdentityHashMap.this.values;                                                                      
                                                                                                                                               
             for (int slot = 0; slot < allocated.length; slot++)                                                                               
             {                                                                                                                                 
-                if (allocated[slot] && Intrinsics.equalsVType(value, values[slot]))                                    
-                {                                                                                                                             
-                    return true;                                                                                                              
+                if (allocated[slot])                                    
+                {   
+                    VType v = values[slot];
+                    /*! #if ($TemplateOptions.VTypePrimitive) 
+                    if (Intrinsics.equalsVType(value, v))
+                    {
+                        return true;
+                    }
+                    #end !*/
+                    /* #if ($TemplateOptions.VTypeGeneric) */
+                    if (value == v)
+                    {
+                        return true;
+                    }
+                    /* #end */
                 }                                                                                                                             
             }
             return false;                                                                                                                     
@@ -1094,8 +1094,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         @Override                                                                                                                             
         public <T extends KTypeProcedure<? super VType>> T forEach(T procedure)                                                              
         {                                                                                                                                     
-            final boolean [] allocated = KTypeVTypeOpenHashMap.this.allocated;                                                              
-            final VType [] values = KTypeVTypeOpenHashMap.this.values;                                                                      
+            final boolean [] allocated = KTypeVTypeOpenIdentityHashMap.this.allocated;                                                              
+            final VType [] values = KTypeVTypeOpenIdentityHashMap.this.values;                                                                      
                                                                                                                                               
             for (int i = 0; i < allocated.length; i++)                                                                                        
             {                                                                                                                                 
@@ -1109,8 +1109,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         @Override                                                                                                                             
         public <T extends KTypePredicate<? super VType>> T forEach(T predicate)                                                              
         {                                                                                                                                     
-            final boolean [] allocated = KTypeVTypeOpenHashMap.this.allocated;                                                              
-            final VType [] values = KTypeVTypeOpenHashMap.this.values;                                                                      
+            final boolean [] allocated = KTypeVTypeOpenIdentityHashMap.this.allocated;                                                              
+            final VType [] values = KTypeVTypeOpenIdentityHashMap.this.values;                                                                      
                                                                                                                                               
             for (int i = 0; i < allocated.length; i++)                                                                                        
             {                                                                                                                                 
@@ -1186,15 +1186,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@inheritDoc}
      */
     @Override
-    public KTypeVTypeOpenHashMap<KType, VType> clone()
+    public KTypeVTypeOpenIdentityHashMap<KType, VType> clone()
     {
         try
         {
             /* #if ($TemplateOptions.AnyGeneric) */
             @SuppressWarnings("unchecked")
             /* #end */
-            KTypeVTypeOpenHashMap<KType, VType> cloned = 
-                (KTypeVTypeOpenHashMap<KType, VType>) super.clone();
+            KTypeVTypeOpenIdentityHashMap<KType, VType> cloned = 
+                (KTypeVTypeOpenIdentityHashMap<KType, VType>) super.clone();
             
             cloned.keys = keys.clone();
             cloned.values = values.clone();
@@ -1233,12 +1233,12 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Creates a hash map from two index-aligned arrays of key-value pairs. 
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(KType [] keys, VType [] values)
+    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(KType [] keys, VType [] values)
     {
         if (keys.length != values.length) 
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length."); 
 
-        KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<KType, VType>();
+        KTypeVTypeOpenIdentityHashMap<KType, VType> map = new KTypeVTypeOpenIdentityHashMap<KType, VType>();
         for (int i = 0; i < keys.length; i++)
         {
             map.put(keys[i], values[i]);
@@ -1247,20 +1247,20 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Create a hash map from another associative container.
+     * Create the map from another associative container.
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(KTypeVTypeAssociativeContainer<KType, VType> container)
+    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(KTypeVTypeAssociativeContainer<KType, VType> container)
     {
-        return new KTypeVTypeOpenHashMap<KType, VType>(container);
+        return new KTypeVTypeOpenIdentityHashMap<KType, VType>(container);
     }
     
     /**
      * Create a new hash map without providing the full generic signature (constructor
      * shortcut). 
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance()
+    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance()
     {
-        return new KTypeVTypeOpenHashMap<KType, VType>();
+        return new KTypeVTypeOpenIdentityHashMap<KType, VType>();
     }
 
     /**
@@ -1268,9 +1268,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * {@link #computePerturbationValue(int)}). Only use when sure the container will not
      * be used for direct copying of keys to another hash container.
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithoutPerturbations()
+    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstanceWithoutPerturbations()
     {
-        return new KTypeVTypeOpenHashMap<KType, VType>() {
+        return new KTypeVTypeOpenIdentityHashMap<KType, VType>() {
             @Override
             protected int computePerturbationValue(int capacity) { return 0; }
         };
@@ -1280,9 +1280,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * Create a new hash map without providing the full generic signature (constructor
      * shortcut). 
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance(int initialCapacity, float loadFactor)
+    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstance(int initialCapacity, float loadFactor)
     {
-        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor);
+        return new KTypeVTypeOpenIdentityHashMap<KType, VType>(initialCapacity, loadFactor);
     }
 
     /**
@@ -1290,7 +1290,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * shortcut). The returned instance will have enough initial capacity to hold
      * <code>expectedSize</code> elements without having to resize.
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize)
+    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize)
     {
         return newInstanceWithExpectedSize(expectedSize, DEFAULT_LOAD_FACTOR);
     }
@@ -1300,7 +1300,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * shortcut). The returned instance will have enough initial capacity to hold
      * <code>expectedSize</code> elements without having to resize.
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize, float loadFactor)
+    public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize, float loadFactor)
     {
         return newInstance((int) (expectedSize / loadFactor) + 1, loadFactor);
     }

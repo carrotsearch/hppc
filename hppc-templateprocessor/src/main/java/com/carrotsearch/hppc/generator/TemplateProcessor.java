@@ -1,7 +1,6 @@
 package com.carrotsearch.hppc.generator;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
