@@ -68,7 +68,7 @@
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
-      <version>6.5.13</version>
+      <version>6.5.15</version>
     </dependency>
 
     <dependency>
@@ -92,9 +92,7 @@
     <dependency>
       <groupId>org.apache.mahout</groupId>
       <artifactId>mahout-math</artifactId>
-      <version>0.8-SNAPSHOT</version>
-      <scope>system</scope>
-      <systemPath>${libs}/mahout-math-0.8-SNAPSHOT.jar</systemPath>
+      <version>0.9</version>
     </dependency>
 
     <dependency>
