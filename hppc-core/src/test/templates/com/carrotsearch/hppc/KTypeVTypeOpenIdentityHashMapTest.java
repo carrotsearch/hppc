@@ -2,7 +2,6 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
-import static org.junit.Assert.*;
 
 import java.util.*;
 
@@ -71,7 +70,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     /**
      * Create a new array of a given type and copy the arguments to this array.
      */
-    protected VType [] newvArray(VType... elements)
+    protected VType [] newvArray(@SuppressWarnings("unchecked") VType... elements)
     {
         return elements;
     }
@@ -169,27 +168,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         map.put(key1, value1);
         assertEquals2(value1, map.put(key1, value3));
         assertEquals2(value3, map.get(key1));
-    }
-
-    /* */
-    @Test
-    public void testPutWithExpansions()
-    {
-        final int COUNT = 10000;
-        final Random rnd = new Random();
-        final HashSet<Object> values = new HashSet<Object>();
-
-        for (int i = 0; i < COUNT; i++)
-        {
-            final int v = rnd.nextInt();
-            final boolean hadKey = values.contains(cast(v));
-            values.add(cast(v));
-
-            assertEquals(hadKey, map.containsKey(cast(v)));
-            map.put(cast(v), vcast(v));
-            assertEquals(values.size(), map.size());
-        }
-        assertEquals(values.size(), map.size());
     }
 
     /* */
@@ -369,9 +347,6 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
 
         // These are internals, but perhaps worth asserting too.
         assertEquals(0, map.assigned);
-
-        // Check if the map behaves properly upon subsequent use.
-        testPutWithExpansions();
     }
 
     /* */
@@ -639,7 +614,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     @Test
     public void testAgainstIdentityHashMap()
     {
-        final Random rnd = new Random();
+        final Random rnd = new Random(randomLong());
         final IdentityHashMap<KType, VType> other = 
             new IdentityHashMap<KType, VType>();
 

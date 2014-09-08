@@ -1,7 +1,5 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
-
 import java.util.*;
 
 import org.junit.Before;
@@ -11,17 +9,15 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.LongCursor;
 import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.carrotsearch.hppc.predicates.LongPredicate;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
  * Regression tests against <code>java.util.BitSet</code>.
  */
-public class BitSetTest
+public class BitSetTest extends RandomizedTest
 {
     private BitSet hppc;
     private java.util.BitSet jre;
-    
-    /** Pseudo-random with initial seed (repeatability). */
-    private Random rnd = new Random(0x11223344);
 
     /* */
     @Before
@@ -60,7 +56,7 @@ public class BitSetTest
         {
             for (int bit = 0; bit < bits; bit++)
             {
-                int index = rnd.nextInt(bitSpace);
+                int index = randomInt(bitSpace);
                 jre.set(index);
                 hppc.set(index);
 

@@ -1,7 +1,6 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
-import static org.junit.Assert.*;
 
 import java.util.*;
 
@@ -70,7 +69,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     /**
      * Create a new array of a given type and copy the arguments to this array.
      */
-    protected VType [] newvArray(VType... elements)
+    protected VType [] newvArray(@SuppressWarnings("unchecked") VType... elements)
     {
         return elements;
     }
@@ -175,7 +174,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     public void testPutWithExpansions()
     {
         final int COUNT = 10000;
-        final Random rnd = new Random();
+        final Random rnd = new Random(randomLong());
         final HashSet<Object> values = new HashSet<Object>();
 
         for (int i = 0; i < COUNT; i++)
@@ -639,7 +638,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testAgainstHashMap()
     {
-        final Random rnd = new Random();
+        final Random rnd = new Random(randomLong());
         final java.util.HashMap<KType, VType> other = 
             new java.util.HashMap<KType, VType>();
 
@@ -740,7 +739,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         /*
          * Add some more keys (random).
          */
-        Random rnd = new Random(0xbabebeef);
+        Random rnd = new Random(randomLong());
         IntSet chainKeys = IntOpenHashSet.from(hashChain);
         IntSet differentKeys = new IntOpenHashSet();
         while (differentKeys.size() < 500)
