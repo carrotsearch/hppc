@@ -55,5 +55,30 @@ public class IdentityMapsTest
         m2.put(a, new String(av));
         assertNotEquals(m1,  m2);
         assertNotEquals(m2,  m1);
-    }    
+    }
+
+    @Test
+    public void testNaNsInValues()
+    {
+        ObjectDoubleOpenIdentityHashMap<String> m1 = ObjectDoubleOpenIdentityHashMap.newInstance();
+        ObjectDoubleOpenIdentityHashMap<String> m2 = ObjectDoubleOpenIdentityHashMap.newInstance();
+
+        String a = "a";
+        Double av = Double.NaN;
+
+        m1.put(a, av);
+        m2.put(a, av);
+
+        assertEquals(m1, m2);
+        assertEquals(m2, m1);
+        
+        // value storage is an array of primitives, so NaNs should be equal, even though the object
+        // was different.
+        m2.put(a, new Double(Double.NaN));
+        assertEquals(m1,  m2);
+        assertEquals(m2,  m1);
+
+        DoubleContainer values = m1.values();
+        assertTrue(values.contains(Double.NaN));
+    }   
 }
