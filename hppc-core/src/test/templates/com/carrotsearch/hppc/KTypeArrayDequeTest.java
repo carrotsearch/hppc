@@ -1,7 +1,6 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
-import static org.junit.Assert.*;
 
 import java.util.*;
 
@@ -248,7 +247,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             sequence.add(cast(i % modulo));
         }
 
-        Random rnd = new Random(0xdeadbeef);
+        Random rnd = getRandom();
         for (int i = 0; i < 500; i++)
         {
             KType k = cast(rnd.nextInt(modulo));
@@ -277,7 +276,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             sequence.add(cast(i % modulo));
         }
 
-        Random rnd = new Random(0x11223344);
+        Random rnd = getRandom();
         for (int i = 0; i < 500; i++)
         {
             KType k = cast(rnd.nextInt(modulo));
@@ -512,7 +511,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAgainstArrayDeque()
     {
-        final Random rnd = new Random();
+        final Random rnd = new Random(randomLong());
         final int rounds = 10000;
         final int modulo = 100;
 

@@ -1,7 +1,6 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
-import static org.junit.Assert.*;
 
 import org.junit.*;
 import java.util.*;
@@ -72,7 +71,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         /*
          * Add some more keys (random).
          */
-        Random rnd = new Random(0xbabebeef);
+        Random rnd = getRandom();
         IntSet chainKeys = IntOpenHashSet.from(hashChain);
         IntSet differentKeys = new IntOpenHashSet();
         while (differentKeys.size() < 500)

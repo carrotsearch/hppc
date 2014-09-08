@@ -1,7 +1,6 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.assertSortedListEquals;
-import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
@@ -10,11 +9,12 @@ import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.predicates.IntPredicate;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
  * Unit tests for {@link IntDoubleLinkedSet}.
  */
-public class IntDoubleLinkedSetTest<KType>
+public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
 {
     /**
      * Per-test fresh initialized instance.
@@ -251,7 +251,7 @@ public class IntDoubleLinkedSetTest<KType>
     @Test
     public void testAgainstHashMap()
     {
-        final java.util.Random rnd = new java.util.Random(0x11223344);
+        final java.util.Random rnd = new java.util.Random(randomLong());
         final java.util.HashSet<Integer> other = new java.util.HashSet<Integer>();
 
         for (int size = 1000; size < 20000; size += 4000)

@@ -3,6 +3,8 @@ package com.carrotsearch.hppc;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
 
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+
 
 /**
  * Unit helpers for <code>KType</code>.
@@ -11,7 +13,7 @@ import org.junit.rules.MethodRule;
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
 @SuppressWarnings("unchecked")
 /*! #end !*/
-public abstract class AbstractKTypeTest<KType>
+public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 {
     /**
      * Require assertions for all tests.
