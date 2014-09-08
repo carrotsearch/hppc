@@ -604,7 +604,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      *   value = map.lget(); 
      * </pre>
      * <p>The above code <strong>cannot</strong> be used by multiple concurrent
-     * threads because a call to {@link #containsKey(Object)} stores
+     * threads because a call to {@link #containsKey} stores
      * the temporary slot number in {@link #lastSlot}. An alternative to the above
      * conditional statement is to use {@link #getOrDefault} and
      * provide a custom default value sentinel (not present in the value set).</p>
@@ -737,9 +737,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      *   map.lkey();
      * </pre>#end
      * 
+     * #if ($TemplateOptions.KTypeGeneric)
      * <p><strong>Important:</strong> {@link #containsKey} and consecutive {@link #lget}, {@link #lset}
      * or {@link #lkey} must not be used by concurrent threads because {@link #lastSlot} is 
      * used to store state.</p>
+     * #end
      */
     @Override
     public boolean containsKey(KType key)

@@ -122,7 +122,9 @@ public class KTypeOpenHashSet<KType>
      * The most recent slot accessed in {@link #contains}.
      * 
      * @see #contains
+     * #if ($TemplateOptions.KTypeGeneric)
      * @see #lkey
+     * #end
      */
     protected int lastSlot;
     

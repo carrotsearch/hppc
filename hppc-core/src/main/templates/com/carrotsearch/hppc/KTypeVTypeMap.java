@@ -35,7 +35,7 @@ public interface KTypeVTypeMap<KType, VType>
     /*! #if ($TemplateOptions.VTypePrimitive) !*/
     /**
      * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A logical 
-     * equivalent of the following code (but does not update {@link #lastSlot):
+     * equivalent of the following code:
      * <pre>
      *  if (containsKey(key))
      *  {
