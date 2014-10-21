@@ -37,7 +37,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
                 if (Intrinsics.equalsKTypeDefault(set.keys[i]))
                 {
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    assertEquals2(Intrinsics.defaultKTypeValue(), set.keys[i]);
+                    assertEquals2(Intrinsics.<KType>defaultKTypeValue(), set.keys[i]);
                     /*! #end !*/
                 }
                 else
@@ -49,13 +49,11 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
           if (set.allocatedDefaultKey) {
 
             //try to reach the key by contains()
-            Assert.assertTrue(this.set.contains(Intrinsics.defaultKTypeValue()));
+            Assert.assertTrue(this.set.contains(Intrinsics.<KType>defaultKTypeValue()));
 
             //check slot
            Assert.assertEquals(-2, this.set.lslot());
 
-            //Retrieve again by lkey() :
-            TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.lkey());
             occupied++;
          }
 
@@ -308,7 +306,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         {
             if (cursor.index == -1) {
 
-                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                TestUtils.assertEquals2(Intrinsics.<KType>defaultKTypeValue(), cursor.value);
                 count++;
                 continue;
             }

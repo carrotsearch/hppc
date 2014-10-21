@@ -24,7 +24,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, {@link #values},
- * {@link #allocated}) are always allocated to the nearest size that is a power of two. When
+ * ...) are always allocated to the nearest size that is a power of two. When
  * the capacity exceeds the given load factor, the buffer size is doubled.
  * </p>
  * 
@@ -531,7 +531,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
     protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
-        final int mask = allocated.length - 1;
+        final int mask = keys.length - 1;
         int slotPrev, slotOther;
         while (true)
         {
@@ -596,7 +596,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.defaultKTypeValue()))
+            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue()))
             {
                  this.allocatedDefaultKey = false;
             }
@@ -678,7 +678,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
                 return this.defaultKeyValue;
             }
 
-            return this.defaultValue;
+            return defaultValue;
         }
 
         final int mask = keys.length - 1;
@@ -718,7 +718,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
     {
         if (this.lastSlot == -2) {
 
-            return Intrinsics.defaultKTypeValue();
+            return Intrinsics.<KType>defaultKTypeValue();
         }
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
@@ -752,7 +752,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
      * @see #containsKey
      * @return Returns the previous value stored under the given key.
      */
-    public VType lset(VType key)
+    public VType lset(VType value)
     {
          if (this.lastSlot == -2) {
 
@@ -764,7 +764,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         assert ! Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
 
         final VType previous = values[lastSlot];
-        values[lastSlot] = key;
+        values[lastSlot] = value;
         return previous;
     }
 
@@ -845,7 +845,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
     {
         assigned = 0;
 
-        Arrays.fill(keys, Intrinsics.defaultKTypeValue()); // Help the GC and mark as not allocated
+        Arrays.fill(keys, Intrinsics.<KType>defaultKTypeValue()); // Help the GC and mark as not allocated
 
         /* #if ($TemplateOptions.VTypeGeneric) */
         Arrays.fill(values, null); // Help the GC.
@@ -881,7 +881,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         int h = 0;
         
         if (this.allocatedDefaultKey) {
-            h +=  Internals.rehash(Intrinsics.defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
+            h +=  Internals.rehash(Intrinsics.<KType>defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
         }
 
         for (KTypeVTypeCursor<KType, VType> c : this)
@@ -964,7 +964,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
                    if (KTypeVTypeOpenIdentityHashMap.this.allocatedDefaultKey) {
 
                        this.cursor.index = -1;
-                       this.cursor.key = Intrinsics.defaultKTypeValue();
+                       this.cursor.key = Intrinsics.<KType>defaultKTypeValue();
                        this.cursor.value = KTypeVTypeOpenIdentityHashMap.this.defaultKeyValue;
 
                        return this.cursor;
@@ -1012,7 +1012,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
       
         for (int i = 0; i < keys.length; i++)
         {
-            if (!Intrinsics.equalsKTypeDefault(keys[i])
+            if (!Intrinsics.equalsKTypeDefault(keys[i]))
                 procedure.apply(keys[i], values[i]);
         }
         
@@ -1049,7 +1049,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         {
             if (this.owner.allocatedDefaultKey) {
 
-                 procedure.apply(Intrinsics.defaultKTypeValue());
+                 procedure.apply(Intrinsics.<KType>defaultKTypeValue());
             }
             final KType [] localKeys = owner.keys;
            
@@ -1067,7 +1067,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         {
             if (this.owner.allocatedDefaultKey) {
 
-                 if(! predicate.apply(Intrinsics.defaultKTypeValue())) {
+                 if(! predicate.apply(Intrinsics.<KType>defaultKTypeValue())) {
 
                        return predicate;
                  }
@@ -1151,7 +1151,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
                 if (KTypeVTypeOpenIdentityHashMap.this.allocatedDefaultKey) {
 
                     this.cursor.index = -1;
-                    this.cursor.value = Intrinsics.defaultKTypeValue();
+                    this.cursor.value = Intrinsics.<KType>defaultKTypeValue();
 
                     return this.cursor;
 
@@ -1206,7 +1206,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
         @Override                                                                                                                             
         public boolean contains(VType value)                                                                                                  
         {                                                                                                                                     
-             if (KTypeVTypeOpenIdentityHashMap.this.allocatedDefaultKey && Intrinsics.equalsVType(value, KTypeVTypeOpenHashMap.this.defaultKeyValue)) {
+             if (KTypeVTypeOpenIdentityHashMap.this.allocatedDefaultKey && Intrinsics.equalsVType(value, KTypeVTypeOpenIdentityHashMap.this.defaultKeyValue)) {
 
                  return true;
              }

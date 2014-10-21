@@ -556,7 +556,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
-        final int mask = allocated.length - 1;
+        final int mask = keys.length - 1;
         int slotPrev, slotOther;
         while (true)
         {
@@ -621,7 +621,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         if (this.allocatedDefaultKey) {
 
-            if (predicate.apply(Intrinsics.defaultKTypeValue()))
+            if (predicate.apply(Intrinsics.<KType> defaultKTypeValue()))
             {
                  this.allocatedDefaultKey = false;
             }
@@ -705,7 +705,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return this.defaultKeyValue;
             }
 
-            return this.defaultValue;
+            return defaultValue;
         }
 
         final int mask = keys.length - 1;
@@ -746,7 +746,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {      
         if (this.lastSlot == -2) {
 
-            return Intrinsics.defaultKTypeValue();
+            return Intrinsics.<KType> defaultKTypeValue();
         }
 
         assert this.lastSlot >= 0 : "Call containsKey() first.";
@@ -781,7 +781,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @see #containsKey
      * @return Returns the previous value stored under the given key.
      */
-    public VType lset(VType key)
+    public VType lset(VType value)
     {
          if (this.lastSlot == -2) {
 
@@ -794,7 +794,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert ! Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
 
         final VType previous = values[lastSlot];
-        values[lastSlot] = key;
+        values[lastSlot] = value;
         return previous;
     }
 
@@ -878,7 +878,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         assigned = 0;
 
-        Arrays.fill(keys, Intrinsics.defaultKTypeValue()); // Help the GC and mark as not allocated
+        Arrays.fill(keys, Intrinsics.<KType> defaultKTypeValue()); // Help the GC and mark as not allocated
       
         /* #if ($TemplateOptions.VTypeGeneric) */
         Arrays.fill(values, null); // Help the GC.
@@ -914,7 +914,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int h = 0;
 
         if (this.allocatedDefaultKey) {
-            h +=  Internals.rehash(Intrinsics.defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
+            h +=  Internals.rehash(Intrinsics.<KType> defaultKTypeValue()) + Internals.rehash(this.defaultKeyValue);
         }
 
         for (KTypeVTypeCursor<KType, VType> c : this)
@@ -983,7 +983,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                    if (KTypeVTypeOpenHashMap.this.allocatedDefaultKey) {
 
                        this.cursor.index = -1;
-                       this.cursor.key = Intrinsics.defaultKTypeValue();
+                       this.cursor.key = Intrinsics.<KType> defaultKTypeValue();
                        this.cursor.value = KTypeVTypeOpenHashMap.this.defaultKeyValue;
 
                        return this.cursor;
@@ -1033,7 +1033,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
        
         for (int i = 0; i < keys.length; i++)
         {
-            if (!Intrinsics.equalsKTypeDefault(keys[i])
+            if (!Intrinsics.equalsKTypeDefault(keys[i]))
                 procedure.apply(keys[i], values[i]);
         }
         
@@ -1069,7 +1069,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (this.owner.allocatedDefaultKey) {
 
-                 procedure.apply(Intrinsics.defaultKTypeValue());
+                 procedure.apply(Intrinsics.<KType>defaultKTypeValue());
             }
 
             final KType [] localKeys = owner.keys;
@@ -1088,7 +1088,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (this.owner.allocatedDefaultKey) {
 
-                 if(! predicate.apply(Intrinsics.defaultKTypeValue())) {
+                 if(! predicate.apply(Intrinsics.<KType> defaultKTypeValue())) {
 
                        return predicate;
                  }
@@ -1173,7 +1173,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 if (KTypeVTypeOpenHashMap.this.allocatedDefaultKey) {
 
                     this.cursor.index = -1;
-                    this.cursor.value = Intrinsics.defaultKTypeValue();
+                    this.cursor.value = Intrinsics.<KType> defaultKTypeValue();
 
                     return this.cursor;
 
