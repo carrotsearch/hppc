@@ -295,6 +295,11 @@ public final class TemplateProcessor
                                 params.toArray()));
                     }
                 }
+                else if ("equalsKTypeDefault".equals(method))
+                {
+                    sb.append(String.format("((%1$s) == " +
+                            TemplateProcessor.getDefaultValue(templateOptions.getKType().getType()) + ")", params.toArray()));
+                }
                 else if ("equalsVType".equals(method))
                 {
                     if (templateOptions.isVTypeGeneric())
@@ -635,6 +640,43 @@ public final class TemplateProcessor
         {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String getDefaultValue(final String typeName) {
+
+        final String litteral = typeName.trim();
+
+        String defaultValue = null;
+
+        if (litteral.equals("byte")) {
+            defaultValue = "(byte)0";
+        }
+        else if (litteral.equals("char")) {
+            defaultValue = "\'\\u0000\'";
+        }
+        else if (litteral.equals("short")) {
+            defaultValue = "(short)0";
+        }
+        else if (litteral.equals("int")) {
+            defaultValue = "0";
+        }
+        else if (litteral.equals("long")) {
+            defaultValue = "0L";
+        }
+        else if (litteral.equals("float")) {
+            defaultValue = "0f";
+        }
+        else if (litteral.equals("double")) {
+            defaultValue = "0.0D";
+        }
+        else if (litteral.equals("boolean")) {
+            defaultValue = "false";
+        }
+        else {
+            defaultValue = "null";
+        }
+
+        return "(" + defaultValue + ")";
     }
 
     /**

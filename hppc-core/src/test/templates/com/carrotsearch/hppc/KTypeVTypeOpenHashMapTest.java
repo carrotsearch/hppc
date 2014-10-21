@@ -34,7 +34,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             int occupied = 0;
             for (int i = 0; i < map.keys.length; i++)
             {
-                if (map.allocated[i] == false)
+                if (Intrinsics.equalsKTypeDefault(map.keys[i])
                 {
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
                     assertEquals2(Intrinsics.defaultKTypeValue(), map.keys[i]);
@@ -48,7 +48,27 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
                     occupied++;
                 }
             }
-            assertEquals(occupied, map.assigned);
+
+             if (map.allocatedDefaultKey) {
+
+                //try to reach the key by contains()
+                Assert.assertTrue(this.map.containsKey(Intrinsics.defaultKTypeValue()));
+
+                //check slot
+                Assert.assertEquals(-2, this.map.lslot());
+
+                //get() test
+                Assert.assertEquals(vcastType(this.map.defaultKeyValue), vcastType(this.map.get(Intrinsics.defaultKTypeValue())));
+
+                //Retrieve again by lkey(), lget() :
+
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.map.lkey());
+                Assert.assertEquals(vcastType(this.map.defaultKeyValue), vcastType(this.map.lget()));
+
+                occupied++;
+            }
+
+            assertEquals(occupied, map.size());
         }
     }
 
@@ -350,6 +370,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         int counted = 0;
         for (KTypeCursor<KType> c : map.keys())
         {
+            if (cursor.index == -1) {
+
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                counted++;
+                continue;
+            }
+
             assertEquals2(map.keys[c.index], c.value);
             counted++;
         }
@@ -395,6 +422,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         int count = 0;
         for (KTypeVTypeCursor<KType, VType> cursor : map)
         {
+             if (cursor.index == -1) {
+
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.key);
+                TestUtils.assertEquals2(this.map.defaultKeyValue, cursor.value);
+                count++;
+                continue;
+            }
             count++;
             assertTrue(map.containsKey(cursor.key));
             assertEquals2(cursor.value, map.get(cursor.key));
@@ -416,22 +450,22 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
 
         // Fit in the byte key range.
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
+        final int capacity = 0x80;
+        final int max = capacity - 2;
+        for (int i = 1; i <= max; i++)
         {
-            map.put(cast(i), value1);
+            this.map.put(cast(i), this.value1);
         }
 
         // Still not expanded.
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
         // Won't expand (existing key).
-        map.put(cast(0), value2);
-        assertEquals(capacity, map.keys.length);
+        this.map.put(cast(1), this.value2);
+        Assert.assertEquals(capacity, this.map.keys.length);
         // Expanded.
-        map.put(cast(0xff), value2);
-        assertEquals(2 * capacity, map.keys.length);
+        this.map.put(cast(0xff), this.value2);
+        Assert.assertEquals(2 * capacity, this.map.keys.length);
     }
 
 
@@ -439,64 +473,58 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
+        this.map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        final int capacity = 0x80;
+        final int max = capacity - 2;
+        for (int i = 1; i <= max; i++)
         {
-            map.put(cast(i), value1);
+            this.map.put(cast(i), this.value1);
         }
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
         
         // Non-existent key.
-        map.remove(cast(max + 1));
-        assertFalse(map.containsKey(cast(max + 1)));
-        assertEquals2(Intrinsics.defaultVTypeValue(), map.get(cast(max + 1)));
+        this.map.remove(cast(max + 1));
+        Assert.assertFalse(this.map.containsKey(cast(max + 1)));
+        TestUtils.assertEquals2(Intrinsics.defaultVTypeValue(), this.map.get(cast(max + 1)));
 
         // Should not expand because we're replacing an existing element.
-        map.put(cast(0), value2);
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
+        this.map.put(cast(1), this.value2);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
 
-        map.putIfAbsent(cast(0), value3);
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
+        this.map.putIfAbsent(cast(1), this.value3);
+        Assert.assertEquals(max, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
 
         // Remove from a full map.
-        map.remove(cast(0));
-        assertEquals(max - 1, map.size());
-        assertEquals(capacity, map.keys.length);
-        
-        // Check expand on "last slot of a full map" condition.
-        map.put(cast(0), value1);
-        map.put(cast(max), value1);
-        assertEquals(max + 1, map.size());
-        assertEquals(capacity << 1, map.keys.length);
+        this.map.remove(cast(1));
+        Assert.assertEquals(max - 1, this.map.size());
+        Assert.assertEquals(capacity, this.map.keys.length);
     }
 
     /* */
     @Test
     public void testHalfLoadFactor()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 0.5f);
+        this.map = new KTypeVTypeOpenHashMap<KType, VType>(1, 0.5f);
 
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
+        final int capacity = 0x80;
+        final int max = capacity - 2;
+        for (int i = 1; i <= max; i++)
         {
-            map.put(cast(i), value1);
+            this.map.put(cast(i), this.value1);
         }
 
         assertEquals(max, map.size());
         // Still not expanded.
         assertEquals(2 * capacity, map.keys.length);
         // Won't expand (existing key);
-        map.put(cast(0), value2);
-        assertEquals(2 * capacity, map.keys.length);
+        this.map.put(cast(1), this.value2);
+        Assert.assertEquals(2 * capacity, this.map.keys.length);
         // Expanded.
-        map.put(cast(0xff), value1);
-        assertEquals(4 * capacity, map.keys.length);
+        this.map.put(cast(0xff), this.value1);
+        Assert.assertEquals(4 * capacity, this.map.keys.length);
     }
 
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -808,6 +836,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         int counted = 0;
         for (KTypeCursor<VType> c : map.values())
         {
+          if (cursor.index == -1) {
+
+                TestUtils.assertEquals2(this.map.defaultKeyValue, cursor.value);
+                counted++;
+                continue;
+            }
             assertEquals2(map.values[c.index], c.value);
             counted++;
         }

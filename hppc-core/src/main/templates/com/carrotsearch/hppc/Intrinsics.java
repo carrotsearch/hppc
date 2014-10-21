@@ -71,6 +71,14 @@ final class Intrinsics
     {
         return e1 == null ? e2 == null : e1.equals(e2);
     }
+
+    /**
+     * Compare key e1 for equality with {@link #defaultKTypeValue}.
+     */
+    public static <T> boolean equalsKTypeDefault(final Object e1)
+    {
+        return e1 == (T) null;
+    }
     
     /**
      * Compare two keys for equivalence. Null references return <code>true</code>.

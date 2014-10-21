@@ -34,7 +34,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
             int occupied = 0;
             for (int i = 0; i < set.keys.length; i++)
             {
-                if (!set.allocated[i])
+                if (Intrinsics.equalsKTypeDefault(set.keys[i]))
                 {
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
                     assertEquals2(Intrinsics.defaultKTypeValue(), set.keys[i]);
@@ -45,7 +45,21 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
                     occupied++;
                 }
             }
-            assertEquals(occupied, set.assigned);
+
+          if (set.allocatedDefaultKey) {
+
+            //try to reach the key by contains()
+            Assert.assertTrue(this.set.contains(Intrinsics.defaultKTypeValue()));
+
+            //check slot
+           Assert.assertEquals(-2, this.set.lslot());
+
+            //Retrieve again by lkey() :
+            TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), this.set.lkey());
+            occupied++;
+         }
+
+            assertEquals(occupied, set.size());
         }
     }
 
@@ -196,30 +210,30 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-        set = new KTypeOpenHashSet<KType>(1, 1f);
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
+        this.set = new KTypeOpenHashSet<KType>(1, 1f);
+        final int capacity = 0x80;
+        final int max = capacity - 2;
+        for (int i = 1; i <= max; i++)
         {
-            set.add(cast(i));
+            this.set.add(cast(i));
         }
         
-        assertEquals(max, set.size());
-        assertEquals(capacity, set.keys.length);
+        Assert.assertEquals(max, this.set.size());
+        Assert.assertEquals(capacity, this.set.keys.length);
 
         // Non-existent key.
-        set.remove(cast(max + 1));
-        assertFalse(set.contains(cast(max + 1)));
+        this.set.remove(cast(max + 1));
+        Assert.assertFalse(this.set.contains(cast(max + 1)));
 
         // Should not expand because we're replacing an existing element.
-        assertFalse(set.add(cast(0)));
-        assertEquals(max, set.size());
-        assertEquals(capacity, set.keys.length);
+        Assert.assertFalse(this.set.add(cast(1)));
+        Assert.assertEquals(max, this.set.size());
+        Assert.assertEquals(capacity, this.set.keys.length);
 
         // Remove from a full set.
-        set.remove(cast(0));
-        assertEquals(max - 1, set.size());
-        assertEquals(capacity, set.keys.length);
+        this.set.remove(cast(1));
+        Assert.assertEquals(max - 1, this.set.size());
+        Assert.assertEquals(capacity, this.set.keys.length);
     }
 
     
@@ -292,6 +306,13 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         int count = 0;
         for (KTypeCursor<KType> cursor : set)
         {
+            if (cursor.index == -1) {
+
+                TestUtils.assertEquals2(Intrinsics.defaultKTypeValue(), cursor.value);
+                count++;
+                continue;
+            }
+
             count++;
             assertTrue(set.contains(cursor.value));
             /* #if ($TemplateOptions.KTypeGeneric) */

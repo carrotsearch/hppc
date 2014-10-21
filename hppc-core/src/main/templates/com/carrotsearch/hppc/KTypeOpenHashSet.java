@@ -94,16 +94,13 @@ public class KTypeOpenHashSet<KType>
      */
     public KType [] keys;
 
-    /**
-     * Information if an entry (slot) in the {@link #keys} table is allocated
-     * or empty.
-     * 
-     * @see #assigned
-     */
-    public boolean [] allocated;
+     /**
+      * True if key = 0 is in the set.
+      */
+     public boolean allocatedDefaultKey = false;
 
     /**
-     * Cached number of assigned slots in {@link #allocated}.
+     * Cached number of assigned slots in {@link #keys}.
      */
     public int assigned;
 
@@ -114,7 +111,7 @@ public class KTypeOpenHashSet<KType>
     public final float loadFactor;
 
     /**
-     * Resize buffers when {@link #allocated} hits this value. 
+     * Resize buffers when {@link #keys} hits this value. 
      */
     protected int resizeAt;
 
@@ -185,11 +182,21 @@ public class KTypeOpenHashSet<KType>
     @Override
     public boolean add(KType e)
     {
-        assert assigned < allocated.length;
+        if (Intrinsics.equalsKTypeDefault(e)) {
 
-        final int mask = allocated.length - 1;
+            if (this.allocatedDefaultKey) {
+
+                return false;
+            }
+
+            this.allocatedDefaultKey = true;
+
+            return true;
+        }
+
+        final int mask = keys.length - 1;
         int slot = rehash(e, perturbation) & mask;
-        while (allocated[slot])
+        while (!Intrinsics.equalsKTypeDefault(keys[slot]))
         {
             if (Intrinsics.equalsKType(e, keys[slot]))
             {
@@ -205,7 +212,7 @@ public class KTypeOpenHashSet<KType>
             expandAndAdd(e, slot);
         } else {
             assigned++;
-            allocated[slot] = true;
+            
             keys[slot] = e;                
         }
         return true;
@@ -272,39 +279,38 @@ public class KTypeOpenHashSet<KType>
     private void expandAndAdd(KType pendingKey, int freeSlot)
     {
         assert assigned == resizeAt;
-        assert !allocated[freeSlot];
+        assert !Intrinsics.equalsKTypeDefault(pendingKey);
 
         // Try to allocate new buffers first. If we OOM, it'll be now without
         // leaving the data structure in an inconsistent state.
         final KType   [] oldKeys      = this.keys;
-        final boolean [] oldAllocated = this.allocated;
-
+      
         allocateBuffers(nextCapacity(keys.length));
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
         lastSlot = -1;
         assigned++;
-        oldAllocated[freeSlot] = true;
+      
         oldKeys[freeSlot] = pendingKey;
         
         // Rehash all stored keys into the new buffers.
         final KType []   keys = this.keys;
-        final boolean [] allocated = this.allocated;
-        final int mask = allocated.length - 1;
-        for (int i = oldAllocated.length; --i >= 0;)
+       
+        final int mask = keys.length - 1;
+        for (int i = oldKeys.length; --i >= 0;)
         {
-            if (oldAllocated[i])
+            if (! Intrinsics.equalsKTypeDefault(oldKeys[i]))
             {
                 final KType k = oldKeys[i];
 
                 int slot = rehash(k, perturbation) & mask;
-                while (allocated[slot])
+                
+                while (! Intrinsics.equalsKTypeDefault(keys[slot]))
                 {
                     slot = (slot + 1) & mask;
                 }
 
-                allocated[slot] = true;
                 keys[slot] = k;                
             }
         }
@@ -321,11 +327,9 @@ public class KTypeOpenHashSet<KType>
     private void allocateBuffers(int capacity)
     {
         KType [] keys = Intrinsics.newKTypeArray(capacity);
-        boolean [] allocated = new boolean [capacity];
-
+      
         this.keys = keys;
-        this.allocated = allocated;
-
+       
         this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
         this.perturbation = computePerturbationValue(capacity);
     }
@@ -362,10 +366,22 @@ public class KTypeOpenHashSet<KType>
      */
     public boolean remove(KType key)
     {
-        final int mask = allocated.length - 1;
+        if (Intrinsics.equalsKTypeDefault(key)) {
+
+            if (this.allocatedDefaultKey) {
+
+                this.allocatedDefaultKey = false;
+                return true;
+            }
+
+            return false;
+        }
+
+
+        final int mask = keys.length - 1;
         int slot = rehash(key, perturbation) & mask; 
 
-        while (allocated[slot])
+        while (! Intrinsics.equalsKTypeDefault(keys[slot]))
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
              {
@@ -385,13 +401,14 @@ public class KTypeOpenHashSet<KType>
     protected void shiftConflictingKeys(int slotCurr)
     {
         // Copied nearly verbatim from fastutil's impl.
-        final int mask = allocated.length - 1;
+        final int mask = keys.length - 1;
         int slotPrev, slotOther;
-        while (true)
+        
+while (true)
         {
             slotCurr = ((slotPrev = slotCurr) + 1) & mask;
 
-            while (allocated[slotCurr])
+            while (! Intrinsics.equalsKTypeDefault(keys[slotCurr]))
             {
                 slotOther = rehash(keys[slotCurr], perturbation) & mask;
                 if (slotPrev <= slotCurr)
@@ -409,18 +426,14 @@ public class KTypeOpenHashSet<KType>
                 slotCurr = (slotCurr + 1) & mask;
             }
 
-            if (!allocated[slotCurr]) 
+            if (Intrinsics.equalsKTypeDefault(keys[slotCurr])) 
                 break;
 
             // Shift key/value pair.
             keys[slotPrev] = keys[slotCurr];
         }
-
-        allocated[slotPrev] = false;
-
-        /* #if ($TemplateOptions.KTypeGeneric) */ 
+ 
         keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
-        /* #end */
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -431,8 +444,13 @@ public class KTypeOpenHashSet<KType>
      */
     public KType lkey()
     {
+         if (this.lastSlot == -2) {
+
+            return Intrinsics.defaultKTypeValue();
+        }
+
         assert lastSlot >= 0 : "Call contains() first.";
-        assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
+        assert ! Intrinsics.equalsKTypeDefault(this.keys[lastSlot]) : "Last call to exists did not have any associated value.";
     
         return keys[lastSlot];
     }
@@ -441,12 +459,13 @@ public class KTypeOpenHashSet<KType>
     /**
      * @return Returns the slot of the last key looked up in a call to {@link #contains} if
      * it returned <code>true</code>.
+     * or else -2 if {@link #contains} were succesfull on key = 0
      * 
      * @see #contains
      */
     public int lslot()
     {
-        assert lastSlot >= 0 : "Call contains() first.";
+        assert lastSlot >= 0 || this.lastSlot == -2 : "Call contains() first.";
         return lastSlot;
     }
 
@@ -462,9 +481,21 @@ public class KTypeOpenHashSet<KType>
     @Override
     public boolean contains(KType key)
     {
-        final int mask = allocated.length - 1;
+        if (Intrinsics.equalsKTypeDefault(key)) {
+
+            if (this.allocatedDefaultKey) {
+                this.lastSlot = -2;
+            } else {
+                this.lastSlot = -1;
+            }
+
+            return this.allocatedDefaultKey;
+        }
+
+        final int mask = keys.length - 1;
         int slot = rehash(key, perturbation) & mask;
-        while (allocated[slot])
+
+        while (!Intrinsics.equalsKTypeDefault(keys[slot]))
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
@@ -486,9 +517,9 @@ public class KTypeOpenHashSet<KType>
     public void clear()
     {
         assigned = 0;
+        this.lastSlot = -1;
 
-        Arrays.fill(allocated, false);
-        Arrays.fill(keys, Intrinsics.<KType>defaultKTypeValue());
+        Arrays.fill(keys, Intrinsics.<KType>defaultKTypeValue()); //Help GC  and reset states
     }
 
     /**
@@ -497,7 +528,7 @@ public class KTypeOpenHashSet<KType>
     @Override
     public int size()
     {
-        return assigned;
+        return assigned + (this.allocatedDefaultKey?1:0) ;
     }
 
     /**
@@ -517,11 +548,15 @@ public class KTypeOpenHashSet<KType>
     {
         int h = 0;
 
+        if (this.allocatedDefaultKey) {
+            h +=  Internals.rehash(Intrinsics.defaultKTypeValue());
+        }
+
         final KType [] keys = this.keys;
-        final boolean [] states = this.allocated;
-        for (int i = states.length; --i >= 0;)
+      
+        for (int i = keys.length; --i >= 0;)
         {
-            if (states[i])
+            if (!Intrinsics.equalsKTypeDefault(keys[i]))
             {
                 h += rehash(keys[i]);
             }
@@ -572,16 +607,32 @@ public class KTypeOpenHashSet<KType>
         public EntryIterator()
         {
             cursor = new KTypeCursor<KType>();
-            cursor.index = -1;
+            cursor.index = -2;
         }
 
         @Override
         protected KTypeCursor<KType> fetch()
         {
+            
+            if (this.cursor.index == -2) {
+
+                    if (KTypeOpenHashSet.this.allocatedDefaultKey) {
+
+                        this.cursor.index = -1;
+                        this.cursor.value = Intrinsics.defaultKTypeValue();
+
+                        return this.cursor;
+
+                    } else {
+                        //no value associated with the default key, continue iteration...
+                         this.cursor.index = -1;
+                    }
+            }
+
             final int max = keys.length;
 
             int i = cursor.index + 1;
-            while (i < keys.length && !allocated[i])
+            while (i < keys.length && Intrinsics.equalsKTypeDefault(keys[i]))
             {
                 i++;
             }
@@ -610,12 +661,17 @@ public class KTypeOpenHashSet<KType>
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(T procedure)
     {
-        final KType [] keys = this.keys;
-        final boolean [] states = this.allocated;
 
-        for (int i = 0; i < states.length; i++)
+        if (this.allocatedDefaultKey) {
+
+            procedure.apply(Intrinsics.defaultKTypeValue());
+        }
+
+        final KType [] keys = this.keys;
+      
+        for (int i = 0; i < keys.length; i++)
         {
-            if (states[i])
+            if (!Intrinsics.equalsKTypeDefault(keys[i]))
                 procedure.apply(keys[i]);
         }
 
@@ -632,10 +688,18 @@ public class KTypeOpenHashSet<KType>
     public Object [] toArray()
     /*! #end !*/
     {
-        final KType [] cloned = Intrinsics.newKTypeArray(assigned);
-        for (int i = 0, j = 0; i < keys.length; i++)
-            if (allocated[i])
-                cloned[j++] = keys[i];
+        final KType [] cloned = Intrinsics.newKTypeArray(size());
+
+        int count = 0;
+        if (this.allocatedDefaultKey) {
+
+            cloned[count++] = Intrinsics.defaultKTypeValue();
+        }
+
+        for (int i = 0; i < keys.length; i++)
+            if (! Intrinsics.equalsKTypeDefault(keys[i]))
+                cloned[count++] = keys[i];
+
         return cloned;
     }
 
@@ -653,6 +717,7 @@ public class KTypeOpenHashSet<KType>
             KTypeOpenHashSet<KType> cloned = (KTypeOpenHashSet<KType>) super.clone();
             cloned.keys = keys.clone();
             cloned.allocated = allocated.clone();
+            cloned.allocatedDefaultKey = this.allocatedDefaultKey;
             return cloned;
         }
         catch (CloneNotSupportedException e)
@@ -667,12 +732,19 @@ public class KTypeOpenHashSet<KType>
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(T predicate)
     {
-        final KType [] keys = this.keys;
-        final boolean [] states = this.allocated;
+         if (this.allocatedDefaultKey) {
 
-        for (int i = 0; i < states.length; i++)
+            if(! predicate.apply(Intrinsics.defaultKTypeValue())) {
+
+                return predicate;
+            }
+        }
+
+        final KType [] keys = this.keys;
+      
+        for (int i = 0; i < keys.length; i++)
         {
-            if (states[i])
+            if (! Intrinsics.equalsKTypeDefault(keys[i]))
             {
                 if (!predicate.apply(keys[i]))
                     break;
@@ -688,13 +760,21 @@ public class KTypeOpenHashSet<KType>
     @Override
     public int removeAll(KTypePredicate<? super KType> predicate)
     {
-        final KType [] keys = this.keys;
-        final boolean [] allocated = this.allocated;
+         if (this.allocatedDefaultKey) {
 
-        int before = assigned;
-        for (int i = 0; i < allocated.length;)
+            if (predicate.apply(Intrinsics.defaultKTypeValue()))
+            {
+                 this.allocatedDefaultKey = false;
+            }
+        }
+
+        final KType [] keys = this.keys;
+       
+        int before = this.size();
+
+        for (int i = 0; i < keys.length;)
         {
-            if (allocated[i])
+            if (! Intrinsics.equalsKTypeDefault(keys[i]))
             {
                 if (predicate.apply(keys[i]))
                 {
@@ -707,7 +787,7 @@ public class KTypeOpenHashSet<KType>
             i++;
         }
 
-        return before - this.assigned;
+        return before - this.size();
     }
 
     /**
