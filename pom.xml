@@ -84,17 +84,10 @@
     <module>hppc-templateprocessor</module>
     <module>hppc-core</module>
     <module>hppc-examples</module>
-    <module>hppc-benchmarks</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>com.carrotsearch</groupId>
-        <artifactId>junit-benchmarks</artifactId>
-        <version>0.7.2</version>
-      </dependency>
-
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
