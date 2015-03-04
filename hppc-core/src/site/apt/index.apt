@@ -20,6 +20,5 @@ HPPC, High Performance Primitive Collections
    * {{{./pmd.html}Static Bug Analysis, PMD}} (<<<pmd>>>).
    
    * {{{./surefire-report.html}JUnit Tests}} (<<<junit>>>).
-   
-   * {{{./coverage/index.html}Test Code Coverage}} (<<<clover>>>).
+
 

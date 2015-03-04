@@ -18,16 +18,6 @@ mvn clean install
 mvn clean package -Prelease
 
 
-hppc-core targets
------------------
-
-# Run tests with clover
-mvn -Pclover
-
-# Generate code quality reports
-mvn -Pclover site 
-
-
 Deployment
 ----------
 
@@ -37,25 +27,3 @@ mvn clean deploy
 # Deploy a release
 mvn -Psign,release,site-labs clean package deploy
 
-
-Clover
-------
-
-A local license is required for Clover support. Edit your ~/.m2/settings.xml and 
-add an active profile definiting these settings:
-
-...
-  <profiles>
-          <profile>
-            <id>clover-license</id>
-            <properties>
-              <clover.license.path>[...]\clover.license</clover.license.path>
-              <maven.clover.licenseLocation>[...]\clover.license</maven.clover.licenseLocation>
-            </properties>
-          </profile>
-  </profiles>
-
-  <activeProfiles>
-    <activeProfile>clover-license</activeProfile>
-  </activeProfiles>
-...

@@ -5,7 +5,6 @@ import java.util.Random;
 
 import org.junit.*;
 
-import com.carrotsearch.hppc.CloverSupport;
 import com.carrotsearch.hppc.XorShiftRandom;
 
 import static org.junit.Assert.*;
@@ -15,11 +14,7 @@ import static org.junit.Assert.*;
  */
 public class IndirectSortTest
 {
-    /**
-     * Limit data length if running with Clover.
-     */
-    static final int DATA_LENGTH = 
-        CloverSupport.isClover() ? 10000 : 1000000;
+    static final int DATA_LENGTH = 1000000;
 
     /**
      * Implies the same order as the order of indices.
