@@ -1,6 +1,7 @@
 package com.carrotsearch.hppc;
 
 import com.carrotsearch.hppc.hash.MurmurHash3;
+import com.carrotsearch.hppc.hash.PhiMix;
 
 /**
  * Internal utilities.
@@ -10,7 +11,7 @@ final class Internals
     static int rehash(Object o, int p) { return o == null ? 0 : MurmurHash3.hash(o.hashCode() ^ p); }
     static int rehash(byte v, int p)   { return MurmurHash3.hash(v ^ p); }
     static int rehash(short v, int p)  { return MurmurHash3.hash(v ^ p); }
-    static int rehash(int v, int p)    { return MurmurHash3.hash(v ^ p); }
+    static int rehash(int v, int p)    { return PhiMix.hash(v ^ p); }
     static int rehash(long v, int p)   { return (int) MurmurHash3.hash(v ^ p); }
     static int rehash(char v, int p)   { return MurmurHash3.hash(v ^ p); }
     static int rehash(float v, int p)  { return MurmurHash3.hash(Float.floatToIntBits(v) ^ p); }
