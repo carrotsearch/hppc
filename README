@@ -2,6 +2,18 @@
 HPPC: High Performance Primitive Collections
 --------------------------------------------
 
-See JavaDoc and documentation at: http://labs.carrotsearch.com/hppc.html for more info.
+Collections of primitive types (maps, sets, stacks, lists) with open internals
+and an unusual API twist (not Java Collections compatible).
 
-IMPORTANT: Developers - read INSTALL file for proper Eclipse setup!
+More information:
+  http://labs.carrotsearch.com/hppc.html
+
+See ALTERNATIVES if you're just shopping around.
+
+See LICENSE to make your company's lawyer happy.
+
+See CHANGES for API changes and updates.
+
+__
+(c) Carrot Search s.c.
+http://carrotsearch.com/
