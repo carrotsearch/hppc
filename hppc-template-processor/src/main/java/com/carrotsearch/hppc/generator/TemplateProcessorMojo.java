@@ -177,7 +177,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
     if (incremental &&
         Files.exists(output.path) &&
-        Files.getLastModifiedTime(output.path).toInstant().isAfter(Files.getLastModifiedTime(input.path).toInstant())) {
+        Files.getLastModifiedTime(output.path).toMillis() >= Files.getLastModifiedTime(input.path).toMillis()) {
       // No need to re-render but mark as generated.
       output.upToDate = true;
       outputs.add(output);
