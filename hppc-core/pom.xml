@@ -10,10 +10,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <!-- Project info. -->
-  <groupId>com.carrotsearch</groupId>
   <artifactId>hppc</artifactId>
-  <version>0.7.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HPPC Collections</name>
@@ -21,15 +18,8 @@
   Fundamental data structures (maps, sets, lists, stacks, queues) generated for
   combinations of object and primitive types to conserve JVM memory and speed
   up execution.</description>
-  
-  <!-- Dependencies. -->
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
 
+  <dependencies>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -37,123 +27,53 @@
     </dependency>
 
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.carrotsearch.randomizedtesting</groupId>
       <artifactId>randomizedtesting-runner</artifactId>
-      <version>2.1.3</version>
+      <version>${version.randomizedtesting}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
-
-  <properties>
-    <backport-util-concurrent.version>3.1</backport-util-concurrent.version>
-  </properties>
-
-  <!-- Build tuning. -->
   <build>
     <defaultGoal>install</defaultGoal>
 
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <configuration>
-            <buildcommands>
-              <buildCommand>
-                <name>org.ui.externaltools.ExternalToolBuilder</name>
-                <triggers>auto,full,</triggers>
-                <arguments>
-                  <LaunchConfigHandle>&lt;project&gt;/.externalToolBuilders/HPPC-generate-sources.launch</LaunchConfigHandle>
-                </arguments>
-              </buildCommand>
-              <buildCommand>
-                <name>org.eclipse.jdt.core.javabuilder</name>
-              </buildCommand>
-            </buildcommands>
-          </configuration>
-        </plugin>
-
-        <!-- We don't want to use surefire to run our tests so we skip it. -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <skipTests>true</skipTests>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
     <plugins>
-      <!-- Generate sources for primitives from template. -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-
+        <groupId>com.carrotsearch</groupId>
+        <artifactId>hppc-templateprocessor</artifactId>
+        <version>${project.version}</version>
         <executions>
           <execution>
-            <id>generate.sources</id>
-            <phase>generate-sources</phase>
-            <configuration>
-              <target>
-                <property name="classpath" refid="maven.plugin.classpath" />
-                <echo file="${project.basedir}/.builder.classpath">${classpath}</echo>
-                <ant antfile="${basedir}/build.xml" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-
-        <dependencies>
-          <dependency>
-            <groupId>com.carrotsearch</groupId>
-            <artifactId>hppc-templateprocessor</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <!-- Add generated source locations. -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-
-        <executions>
-          <execution>
-            <id>add-source</id>
+            <id>generate-sources</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>add-source</goal>
+              <goal>template-processor</goal>
             </goals>
             <configuration>
-              <sources>
-                <source>${project.basedir}/src/main/templates</source>
-                <source>${project.build.directory}/generated-sources/main/java</source>
-              </sources>
+              <templatesDir>${project.basedir}/src/main/templates</templatesDir>
+              <outputDir>${project.build.directory}/generated-sources/main/java</outputDir>
             </configuration>
           </execution>
-
           <execution>
-            <id>add-test-source</id>
-            <phase>generate-sources</phase>
+            <id>generate-test-sources</id>
+            <phase>generate-test-sources</phase>
             <goals>
-              <goal>add-test-source</goal>
+              <goal>template-processor</goal>
             </goals>
             <configuration>
-              <sources>
-                <source>${project.basedir}/src/test/templates</source>
-                <source>${project.build.directory}/generated-sources/test/java</source>
-              </sources>
+              <templatesDir>${project.basedir}/src/test/templates</templatesDir>
+              <outputDir>${project.build.directory}/generated-test-sources/test/java</outputDir>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <!-- Run tests with JUnit4 instead. A simple configuration here. -->
       <plugin>
         <groupId>com.carrotsearch.randomizedtesting</groupId>
         <artifactId>junit4-maven-plugin</artifactId>
@@ -175,7 +95,6 @@
               <parallelism>auto</parallelism>
               <maxMemory>750m</maxMemory>
 
-              <!-- Attach a simple listener. -->
               <listeners>
                 <report-text
                     showThrowable="false" 
@@ -201,191 +120,57 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <configuration>
-          <reportPlugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-project-info-reports-plugin</artifactId>
-              <version>2.4</version>
-              <configuration>
-                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-              </configuration>
-              <reports>
-                <report>dependencies</report>
-                <report>scm</report>
-              </reports>
-            </plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <configuration>
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <docfilessubdirs>true</docfilessubdirs>
+              <windowtitle>HPPC v${project.version} API Documentation (JavaDoc)</windowtitle>
+              <doctitle>HPPC v${project.version} API Documentation</doctitle>
+              <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
+              <overview>${basedir}/src/main/java/com/carrotsearch/hppc/overview.html</overview>
+              <failOnError>true</failOnError>
+              <use>false</use>
+              <groups>
+                <group>
+                  <title>HPPC</title>
+                  <packages>com.carrotsearch.hppc*</packages>
+                </group>
+              </groups>
+            </configuration>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-pmd-plugin</artifactId>
-              <version>2.5</version>
-              <reportSets>
-                <reportSet>
-                  <id>cpd</id>
-                  <reports>
-                    <report>cpd</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <targetJdk>${maven.compiler.target}</targetJdk>
-                <aggregate>true</aggregate>
-                <excludes>
-                  <exclude>**/BitUtil.java</exclude>
-                  <exclude>**/BitSet.java</exclude>
-                </excludes>
-              </configuration>
-            </plugin>
-
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-surefire-report-plugin</artifactId>
-              <version>2.10</version>
-              <reportSets>
-                <reportSet>
-                  <id>main</id>
-                  <reports>
-                    <report>report-only</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-              <configuration>
-                <linkXRef>false</linkXRef>
-              </configuration>
-            </plugin>
-
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>findbugs-maven-plugin</artifactId>
-              <version>2.3.2</version>
-              <configuration>
-                <excludeFilterFile>${basedir}/src/main/findbugs/excludes.xml</excludeFilterFile>
-                <findbugsXmlOutput>true</findbugsXmlOutput>
-                <includeTests>false</includeTests>
-              </configuration>
-            </plugin>
-          </reportPlugins>
-        </configuration>
-      </plugin>      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>make-release-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/bin.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>gnu</tarLongFileMode>
+              <attach>false</attach>
+              <appendAssemblyId>false</appendAssemblyId>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <!-- Labs' site rsync assembly. -->
-    <profile>
-      <id>site-labs</id>
-
-      <build>
-        <defaultGoal>assembly:single</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>make-labs-assembly</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>src/main/assembly/site-labs.xml</descriptor>
-                  </descriptors>
-                  <attach>false</attach>
-                  <appendAssemblyId>false</appendAssemblyId>
-                  <finalName>site-labs</finalName>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- Release mode (javadocs, sources, zip/tgz bundles, signing). -->
-    <profile>
-      <id>release</id>
-
-      <build>
-        <defaultGoal>package</defaultGoal>
-
-        <plugins>
-          <!-- Attach and modify JavaDocs. -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <configuration>
-                  <encoding>${project.build.sourceEncoding}</encoding>
-                  <docfilessubdirs>true</docfilessubdirs>
-                  <windowtitle>HPPC v${project.version} API Documentation (JavaDoc)</windowtitle>
-                  <doctitle>HPPC v${project.version} API Documentation</doctitle>
-                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
-                  <overview>${basedir}/src/main/java/com/carrotsearch/hppc/overview.html</overview>
-                  <failonerror>true</failonerror>
-                  <use>false</use>
-                  <groups>
-                    <group>
-                      <title>HPPC</title>
-                      <packages>com.carrotsearch.hppc*</packages>
-                    </group>
-                  </groups>
-                </configuration>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- Attach sources -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <!-- Configure assembly of ZIP and TAR.GZ bundles (stand-alone distributions). -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>make-release-assembly</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>src/main/assembly/bin.xml</descriptor>
-                  </descriptors>
-                  <tarLongFileMode>gnu</tarLongFileMode>
-                  <attach>false</attach>
-                  <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

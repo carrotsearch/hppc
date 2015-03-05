@@ -1,16 +1,13 @@
 package com.carrotsearch.hppc.generator;
 
 import java.io.File;
+import java.nio.file.Path;
 
-class OutputFile
-{
-    public final File file;
-    public boolean generated;
-    public boolean updated = false;
+class OutputFile {
+  public final Path path;
+  public boolean upToDate;
 
-    public OutputFile(File target, boolean generated)
-    {
-        this.file = TemplateProcessor.canonicalFile(target);
-        this.generated = generated;
-    }
+  public OutputFile(Path target) {
+    this.path = target.toAbsolutePath().normalize();
+  }
 }

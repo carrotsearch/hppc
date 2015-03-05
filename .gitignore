@@ -16,3 +16,6 @@ target
 # Locally generated
 .builder.classpath
 .benchmark.*.db
+
+# IntelliJ
+.idea/

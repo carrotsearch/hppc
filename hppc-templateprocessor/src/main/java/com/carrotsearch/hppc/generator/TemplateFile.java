@@ -1,13 +1,15 @@
 package com.carrotsearch.hppc.generator;
 
-import java.io.File;
+import java.nio.file.Path;
 
-class TemplateFile
-{
-    public final File file;
+class TemplateFile {
+  public final Path path;
 
-    public TemplateFile(File target)
-    {
-        this.file = target;
-    }
+  public TemplateFile(Path path) {
+    this.path = path;
+  }
+
+  public String getFileName() {
+    return path.getFileName().toString();
+  }
 }
