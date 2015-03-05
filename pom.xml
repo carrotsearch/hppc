@@ -98,8 +98,8 @@
   </properties>
 
   <modules>
-    <module>hppc-templateprocessor</module>
     <module>hppc-core</module>
+    <module>hppc-template-processor</module>
   </modules>
 
   <dependencyManagement>

@@ -46,7 +46,7 @@
     <plugins>
       <plugin>
         <groupId>com.carrotsearch</groupId>
-        <artifactId>hppc-templateprocessor</artifactId>
+        <artifactId>hppc-template-processor</artifactId>
         <version>${project.version}</version>
         <executions>
           <execution>
