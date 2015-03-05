@@ -100,7 +100,6 @@
   <modules>
     <module>hppc-templateprocessor</module>
     <module>hppc-core</module>
-    <module>hppc-examples</module>
   </modules>
 
   <dependencyManagement>
