@@ -5,9 +5,7 @@
   <id>distribution</id>
 
   <formats>
-    <format>tar.gz</format>
     <format>zip</format>
-    <format>dir</format>
   </formats>
 
   <fileSets>
@@ -15,9 +13,10 @@
       <directory>../</directory>
       <outputDirectory />
       <includes>
+        <include>ALTERNATIVES</include>
+        <include>CHANGES</include>
         <include>LICENSE</include>
         <include>README</include>
-        <include>CHANGES</include>
       </includes>
     </fileSet>
 
