@@ -98,7 +98,7 @@
   </properties>
 
   <modules>
-    <module>hppc-core</module>
+    <module>hppc</module>
     <module>hppc-template-processor</module>
   </modules>
 
@@ -231,5 +231,14 @@
       </plugins>
     </pluginManagement>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>quick</id>
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+    </profile>
+  </profiles>
 </project>
 

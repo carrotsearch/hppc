@@ -123,35 +123,6 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <configuration>
-              <encoding>${project.build.sourceEncoding}</encoding>
-              <docfilessubdirs>true</docfilessubdirs>
-              <windowtitle>HPPC v${project.version} API Documentation (JavaDoc)</windowtitle>
-              <doctitle>HPPC v${project.version} API Documentation</doctitle>
-              <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
-              <overview>${basedir}/src/main/java/com/carrotsearch/hppc/overview.html</overview>
-              <failOnError>true</failOnError>
-              <use>false</use>
-              <groups>
-                <group>
-                  <title>HPPC</title>
-                  <packages>com.carrotsearch.hppc*</packages>
-                </group>
-              </groups>
-            </configuration>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
@@ -173,4 +144,42 @@
       </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>sonatype-oss-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <configuration>
+                  <encoding>${project.build.sourceEncoding}</encoding>
+                  <docfilessubdirs>true</docfilessubdirs>
+                  <windowtitle>HPPC v${project.version} API Documentation (JavaDoc)</windowtitle>
+                  <doctitle>HPPC v${project.version} API Documentation</doctitle>
+                  <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
+                  <overview>${basedir}/src/main/java/com/carrotsearch/hppc/overview.html</overview>
+                  <failOnError>true</failOnError>
+                  <use>false</use>
+                  <groups>
+                    <group>
+                      <title>HPPC</title>
+                      <packages>com.carrotsearch.hppc*</packages>
+                    </group>
+                  </groups>
+                </configuration>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>        
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
