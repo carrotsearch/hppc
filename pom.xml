@@ -17,10 +17,6 @@
   <description>Parent POM for HPPC projects (High Performance Primitive Collections)</description>
   <url>http://labs.carrotsearch.com/hppc.html</url>
 
-  <prerequisites>
-    <maven>3.0.3</maven>
-  </prerequisites>
-
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -75,11 +71,7 @@
 
     <version.guava>18.0</version.guava>
     <version.junit>4.11</version.junit> 
-    <version.ant>1.9.3</version.ant>
-
-    <version.ant>1.9.4</version.ant> 
     <version.randomizedtesting>2.1.11</version.randomizedtesting>
-
     <version.maven-assembly-plugin>2.5.2</version.maven-assembly-plugin>
     <version.maven-clean-plugin>2.5</version.maven-clean-plugin>
     <version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>
@@ -90,8 +82,7 @@
     <version.maven-resources-plugin>2.6</version.maven-resources-plugin>
     <version.maven-surefire-plugin>2.17</version.maven-surefire-plugin>
     <version.maven-site-plugin>3.4</version.maven-site-plugin>
-    <version.maven-antrun-plugin>1.7</version.maven-antrun-plugin>
-    <version.maven-enforcer-plugin>1.3.1</version.maven-enforcer-plugin>
+    <version.maven-enforcer-plugin>1.4</version.maven-enforcer-plugin>
     <version.maven-javadoc-plugin>2.10.1</version.maven-javadoc-plugin>
 
     <version.maven.api>3.0.3</version.maven.api>
@@ -114,12 +105,6 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${version.junit}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.ant</groupId>
-        <artifactId>ant</artifactId>
-        <version>${version.ant}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -211,23 +196,30 @@
         </plugin>
 
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.8</version>
-        </plugin>
-
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>${version.maven-antrun-plugin}</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.apache.ant</groupId>
-              <artifactId>ant</artifactId>
-              <version>${version.ant}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${version.maven-enforcer-plugin}</version>
+          <inherited>false</inherited>
+          <executions>
+            <execution>
+              <id>enforce-environment</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireJavaVersion>
+                    <version>1.7.0</version>
+                  </requireJavaVersion>
+                  <requireMavenVersion>
+                    <version>3.2.3</version>
+                  </requireMavenVersion>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>         
       </plugins>
     </pluginManagement>
   </build>
