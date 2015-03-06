@@ -93,7 +93,7 @@
               </excludes>
 
               <parallelism>auto</parallelism>
-              <maxMemory>350m</maxMemory>
+              <maxMemory>500m</maxMemory>
 
               <listeners>
                 <report-text
