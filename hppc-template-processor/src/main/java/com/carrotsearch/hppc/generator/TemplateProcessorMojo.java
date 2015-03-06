@@ -11,6 +11,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeInstance;
+import org.apache.velocity.runtime.log.NullLogChute;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,14 +60,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException {
     try {
       execute0();
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new MojoExecutionException("Couldn't process templates.", e);
     }
   }
 
-  private void execute0() throws Exception {
+  private void execute0() throws IOException {
     velocity = new RuntimeInstance();
     final ExtendedProperties p = new ExtendedProperties();
+    p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, NullLogChute.class.getName());
     p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
     velocity.setConfiguration(p);
 
@@ -75,7 +77,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
     Path basedir = project.getBasedir().toPath().toAbsolutePath().normalize();
     getLog().info(String.format(Locale.ROOT,
-        "Processing templates from %s => %s",
+        "2 Processing templates from %s => %s",
         basedir.relativize(templatesPath),
         basedir.relativize(outputPath)));
 
