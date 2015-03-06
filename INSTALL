@@ -6,3 +6,11 @@ mvn clean verify
 
 # Package JAR files, no tests.
 mvn clean package -Pquick
+
+
+IDE hints
+---------
+
+Eclipse workflow/ import:
+ 1) mvn install -am -pl :hppc-template-processor
+ 2) import into Eclipse (e2m).

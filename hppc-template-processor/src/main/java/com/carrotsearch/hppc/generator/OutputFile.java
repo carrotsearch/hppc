@@ -1,6 +1,5 @@
 package com.carrotsearch.hppc.generator;
 
-import java.io.File;
 import java.nio.file.Path;
 
 class OutputFile {

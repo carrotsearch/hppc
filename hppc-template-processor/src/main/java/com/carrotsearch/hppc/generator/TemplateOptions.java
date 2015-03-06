@@ -1,6 +1,5 @@
 package com.carrotsearch.hppc.generator;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -79,7 +78,7 @@ public class TemplateOptions {
    * Returns the current time in ISO format.
    */
   public String getTimeNow() {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ROOT);
     return format.format(new Date());
   }
 
