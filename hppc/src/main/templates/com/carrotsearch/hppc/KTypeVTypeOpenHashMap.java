@@ -16,8 +16,9 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * addressing with linear probing for collision resolution.
  * 
  * <p>
- * The internal buffers of this implementation ({@link #keys}, {@link #values},
- * {@link #allocated}) are always allocated to the nearest size that is a power of two.
+ * The internal buffers of this implementation
+ * are always allocated to the nearest size that is a power of two. When
+ * the fill ratio of these buffers is exceeded, their size is doubled.
  * </p>
  *
 #if ($TemplateOptions.AllGeneric)
@@ -115,9 +116,12 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
     /**
      * The load factor for this map (fraction of allocated slots
-     * before the buffers must be rehashed or reallocated).
+     * before the buffers must be rehashed or reallocated) passed at 
+     * construction time.
+     * 
+     * @see #getLoadFactor()
      */
-    public final double loadFactor;
+    public final double initialLoadFactor;
 
     /**
      * Cached number of assigned slots in {@link #allocated}.
@@ -147,22 +151,21 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     protected int perturbation;
 
     /**
-     * Creates a hash map with the default capacity and load factor.
+     * Creates a hash map with the default number of expected elements
+     * and load factor.
      */
     public KTypeVTypeOpenHashMap()
     {
-        this(DEFAULT_CAPACITY);
+        this(DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
-     * Creates a hash map capable of storing the given number of keys without
-     * resizing.
-     * 
-     * @param capacity The maximum (inclusive) number of keys that won't cause a rehash.  
+     * Creates a hash map with the given number of expected elements and
+     * the default load factor.
      */
-    public KTypeVTypeOpenHashMap(int capacity)
+    public KTypeVTypeOpenHashMap(int expectedElements)
     {
-        this(capacity, DEFAULT_LOAD_FACTOR);
+        this(expectedElements, DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -174,8 +177,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public KTypeVTypeOpenHashMap(int expectedElements, double loadFactor)
     {
-        this.loadFactor = loadFactor;
-        allocateBuffers(minBufferSize(expectedElements, loadFactor));
+        this.initialLoadFactor = loadFactor;
+        loadFactor = getLoadFactor();
+        allocateBuffers(minBufferSize(expectedElements, loadFactor), loadFactor);
     }
     
     /**
@@ -185,6 +189,14 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         this(container.size());
         putAll(container);
+    }
+
+    /**
+     * Validate load factor range and return it.
+     */
+    protected double getLoadFactor() {
+      checkLoadFactor(initialLoadFactor, MIN_LOAD_FACTOR, MAX_LOAD_FACTOR);
+      return initialLoadFactor;
     }
 
     /**
@@ -359,7 +371,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     #end !*/
 
     /**
-     * Expand the internal storage buffers (capacity) and rehash.
+     * Expand the internal storage buffers and rehash.
      */
     private void expandAndPut(KType pendingKey, VType pendingValue, int freeSlot)
     {
@@ -371,7 +383,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         final KType   [] oldKeys      = this.keys;
         final VType   [] oldValues    = this.values;
         final boolean [] oldAllocated = this.allocated;
-        allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
+        final double loadFactor = getLoadFactor();
+        allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor), loadFactor);
         assert this.keys.length > oldKeys.length;
 
         // We have succeeded at allocating new data so insert the pending key/value at
@@ -414,7 +427,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * Allocate internal buffers and thresholds to ensure they can hold 
      * the given number of elements.
      */
-    protected final void allocateBuffers(int arraySize)
+    protected void allocateBuffers(int arraySize, double loadFactor)
     {
         // Ensure no change is done if we hit an OOM.
         KType [] keys = this.keys;
@@ -1239,6 +1252,25 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         return new KTypeVTypeOpenHashMap<KType, VType>();
     }
 
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance(int expectedElements)
+    {
+        return new KTypeVTypeOpenHashMap<KType, VType>(expectedElements);
+    }
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance(int expectedElements, double loadFactor)
+    {
+      return new KTypeVTypeOpenHashMap<KType, VType>(expectedElements, loadFactor);
+    }
+
     /**
      * Returns a new object with no key perturbations (see
      * {@link #computePerturbationValue(int)}). Only use when sure the container will not
@@ -1250,34 +1282,5 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             @Override
             protected int computePerturbationValue(int capacity) { return 0; }
         };
-    }
-
-    /**
-     * Create a new hash map without providing the full generic signature (constructor
-     * shortcut). 
-     */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstance(int initialCapacity, float loadFactor)
-    {
-        return new KTypeVTypeOpenHashMap<KType, VType>(initialCapacity, loadFactor);
-    }
-
-    /**
-     * Create a new hash map without providing the full generic signature (constructor
-     * shortcut). The returned instance will have enough initial capacity to hold
-     * <code>expectedSize</code> elements without having to resize.
-     */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize)
-    {
-        return newInstanceWithExpectedSize(expectedSize, DEFAULT_LOAD_FACTOR);
-    }
-
-    /**
-     * Create a new hash map without providing the full generic signature (constructor
-     * shortcut). The returned instance will have enough initial capacity to hold
-     * <code>expectedSize</code> elements without having to resize.
-     */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> newInstanceWithExpectedSize(int expectedSize, float loadFactor)
-    {
-        return newInstance((int) (expectedSize / loadFactor) + 1, loadFactor);
     }
 }

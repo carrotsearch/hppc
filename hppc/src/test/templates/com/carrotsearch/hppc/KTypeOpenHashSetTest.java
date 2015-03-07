@@ -3,9 +3,11 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 import org.junit.*;
+
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 
 /**
@@ -196,30 +198,46 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-        set = new KTypeOpenHashSet<KType>(1, 1f);
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
+        final IntHolder reallocations = new IntHolder();
+        final int elements = 0x7F;
+        set = new KTypeOpenHashSet<KType>(elements, 1f) {
+          @Override
+          protected double getLoadFactor() {
+            // Skip load factor sanity range checking.
+            return initialLoadFactor;
+          }
+          
+          @Override
+          protected void allocateBuffers(int arraySize, double loadFactor) {
+            super.allocateBuffers(arraySize, loadFactor);
+            reallocations.value++;
+          }
+        };
+
+        int reallocationsBefore = reallocations.value;
+        assertEquals(reallocationsBefore, 1);
+        for (int i = 0; i < elements; i++)
         {
             set.add(cast(i));
         }
-        
-        assertEquals(max, set.size());
-        assertEquals(capacity, set.keys.length);
 
         // Non-existent key.
-        set.remove(cast(max + 1));
-        assertFalse(set.contains(cast(max + 1)));
+        set.remove(cast(elements + 1));
+        assertFalse(set.contains(cast(elements + 1)));
+        assertEquals(reallocationsBefore, reallocations.value);
 
         // Should not expand because we're replacing an existing element.
         assertFalse(set.add(cast(0)));
-        assertEquals(max, set.size());
-        assertEquals(capacity, set.keys.length);
+        assertEquals(reallocationsBefore, reallocations.value);
 
         // Remove from a full set.
         set.remove(cast(0));
-        assertEquals(max - 1, set.size());
-        assertEquals(capacity, set.keys.length);
+        assertEquals(reallocationsBefore, reallocations.value);
+        
+        // Check expand on "last slot of a full map" condition.
+        set.add(cast(0));
+        set.add(cast(elements));
+        assertEquals(reallocationsBefore + 1, reallocations.value);
     }
 
     

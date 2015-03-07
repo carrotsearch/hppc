@@ -2,10 +2,10 @@ package com.carrotsearch.hppc;
 
 final class HashContainers {
   /**
-   * Maximum capacity for an array that is of power-of-two size and still
-   * allocable in Java (not a negative int).  
+   * Maximum array size for hash containers (power-of-two and still
+   * allocable in Java, not a negative int).  
    */
-  final static int MAX_ARRAY_SIZE = 0x80000000 >>> 1;
+  final static int MAX_HASH_ARRAY_LENGTH = 0x80000000 >>> 1;
 
   /**
    * Minimum buffer size to allocate.
@@ -16,7 +16,7 @@ final class HashContainers {
    * By default a hash container will store this many elements 
    * without resizing.
    */
-  final static int DEFAULT_CAPACITY = 4;
+  final static int DEFAULT_EXPECTED_ELEMENTS = 4;
   
   /**
    * Default load factor.
@@ -38,34 +38,37 @@ final class HashContainers {
    * that can be stored in a hash container for a given load factor.
    */
   static int maxCapacity(double loadFactor) {
-    checkLoadFactor(loadFactor);
-    return expandAtCount(MAX_ARRAY_SIZE, loadFactor) - 1;
+    checkLoadFactor(loadFactor, 0, 1);
+    return expandAtCount(MAX_HASH_ARRAY_LENGTH, loadFactor) - 1;
   }
 
   /** */
   static int minBufferSize(int elements, double loadFactor) {
-    checkLoadFactor(loadFactor);
-
     if (elements < 0) { 
       throw new IllegalArgumentException(
           "Number of elements must be >= 0: " + elements);
     }
 
-    final long requiredSize = Math.max(MIN_ARRAY_SIZE, BitUtil.nextHighestPowerOfTwo((long) Math.ceil(elements / loadFactor)));
-    if (requiredSize > MAX_ARRAY_SIZE) {
+    long length = (long) Math.ceil(elements / loadFactor);
+    if (length == elements) {
+      length++;
+    }
+    length = Math.max(MIN_ARRAY_SIZE, BitUtil.nextHighestPowerOfTwo(length));
+
+    if (length > MAX_HASH_ARRAY_LENGTH) {
       throw new BufferAllocationException(
           "Maximum array size exceeded for this load factor (elements: %d, load factor: %f)",
           elements,
           loadFactor);
     }
 
-    return (int) requiredSize;
+    return (int) length;
   }
 
   /** */
   static int nextBufferSize(int arraySize, int elements, double loadFactor) {
     checkValidArraySize(arraySize);
-    if (arraySize == MAX_ARRAY_SIZE) {
+    if (arraySize == MAX_HASH_ARRAY_LENGTH) {
       throw new BufferAllocationException(
           "Maximum array size exceeded for this load factor (elements: %d, load factor: %f)",
           elements,
@@ -78,8 +81,9 @@ final class HashContainers {
   /** */
   static int expandAtCount(int arraySize, double loadFactor) {
     checkValidArraySize(arraySize);
-    checkLoadFactor(loadFactor);
-    return (int) Math.ceil(arraySize * loadFactor);
+    // Take care of hash container invariant (there has to be at least one empty slot to ensure
+    // the lookup loop finds either the element or an empty slot).
+    return Math.min(arraySize - 1, (int) Math.ceil(arraySize * loadFactor));
   }
 
   private static void checkValidArraySize(int arraySize) {
@@ -88,12 +92,12 @@ final class HashContainers {
     assert BitUtil.nextHighestPowerOfTwo(arraySize) == arraySize;
   }
 
-  private static void checkLoadFactor(double loadFactor) {
-    if (loadFactor < MIN_LOAD_FACTOR || loadFactor > MAX_LOAD_FACTOR) {
+  static void checkLoadFactor(double loadFactor, double minAllowedInclusive, double maxAllowedInclusive) {
+    if (loadFactor < minAllowedInclusive || loadFactor > maxAllowedInclusive) {
       throw new BufferAllocationException(
           "The load factor should be in range [%.2f, %.2f]: %f",
-          MIN_LOAD_FACTOR,
-          MAX_LOAD_FACTOR,
+          minAllowedInclusive,
+          maxAllowedInclusive,
           loadFactor);
     }    
   }
