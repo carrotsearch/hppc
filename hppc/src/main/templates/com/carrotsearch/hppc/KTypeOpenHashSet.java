@@ -9,6 +9,7 @@ import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.HashContainerUtils.*;
+import static com.carrotsearch.hppc.HashContainers.*;
 
 /**
  * A hash set of <code>KType</code>s, implemented using using open
@@ -62,21 +63,6 @@ public class KTypeOpenHashSet<KType>
     implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
-     * Minimum capacity for the map.
-     */
-    public final static int MIN_CAPACITY = HashContainerUtils.MIN_CAPACITY;
-
-    /**
-     * Default capacity.
-     */
-    public final static int DEFAULT_CAPACITY = HashContainerUtils.DEFAULT_CAPACITY;
-
-    /**
-     * Default load factor.
-     */
-    public final static float DEFAULT_LOAD_FACTOR = HashContainerUtils.DEFAULT_LOAD_FACTOR;
-
-    /**
      * Hash-indexed array holding all set entries.
      * 
 #if ($TemplateOptions.KTypeGeneric)
@@ -111,7 +97,7 @@ public class KTypeOpenHashSet<KType>
      * The load factor for this map (fraction of allocated slots
      * before the buffers must be rehashed or reallocated).
      */
-    public final float loadFactor;
+    public final double loadFactor;
 
     /**
      * Resize buffers when {@link #allocated} hits this value. 
@@ -155,19 +141,16 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * Creates a hash set with the given capacity and load factor.
+     * Creates a hash set capable of storing the given number of keys without
+     * resizing and with the given load factor.
+     * 
+     * @param expectedElements The expected number of keys that won't cause a rehash (inclusive).  
+     * @param loadFactor The load factor for internal buffers in (0, 1) range.  
      */
-    public KTypeOpenHashSet(int initialCapacity, float loadFactor)
+    public KTypeOpenHashSet(int expectedElements, double loadFactor)
     {
-        initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
-
-        assert initialCapacity > 0
-            : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
-        assert loadFactor > 0 && loadFactor <= 1
-            : "Load factor must be between (0, 1].";
-
         this.loadFactor = loadFactor;
-        allocateBuffers(roundCapacity(initialCapacity));
+        allocateBuffers(minBufferSize(expectedElements, loadFactor));
     }
 
     /**
@@ -278,8 +261,8 @@ public class KTypeOpenHashSet<KType>
         // leaving the data structure in an inconsistent state.
         final KType   [] oldKeys      = this.keys;
         final boolean [] oldAllocated = this.allocated;
-
-        allocateBuffers(nextCapacity(keys.length));
+        allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
+        assert this.keys.length > oldKeys.length;
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
@@ -314,20 +297,25 @@ public class KTypeOpenHashSet<KType>
 
 
     /**
-     * Allocate internal buffers for a given capacity.
-     * 
-     * @param capacity New capacity (must be a power of two).
+     * Allocate internal buffers and thresholds to ensure they can hold 
+     * the given number of elements.
      */
-    private void allocateBuffers(int capacity)
+    protected void allocateBuffers(int arraySize)
     {
-        KType [] keys = Intrinsics.newKTypeArray(capacity);
-        boolean [] allocated = new boolean [capacity];
+        // Ensure no change is done if we hit an OOM.
+        KType [] keys = this.keys;
+        boolean [] allocated = this.allocated;
+        try {
+          this.keys = Intrinsics.newKTypeArray(arraySize);
+          this.allocated = new boolean [arraySize];
+        } catch (OutOfMemoryError e) {
+          this.keys = keys;
+          this.allocated = allocated;
+          throw new BufferAllocationException("Not enough memory.", e);
+        }
 
-        this.keys = keys;
-        this.allocated = allocated;
-
-        this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
-        this.perturbation = computePerturbationValue(capacity);
+        this.resizeAt = expandAtCount(arraySize, loadFactor);
+        this.perturbation = computePerturbationValue(arraySize);
     }
 
     /**

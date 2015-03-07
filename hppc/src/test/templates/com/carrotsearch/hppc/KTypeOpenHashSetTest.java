@@ -455,28 +455,4 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         Arrays.sort(asCharArray);
         assertEquals("12", new String(asCharArray));
     }
-
-    /**
-     * Tests that instances created with the <code>newInstanceWithExpectedSize</code>
-     * static factory methods do not have to resize to hold the expected number of elements.
-     */
-    @Test
-    public void testExpectedSizeInstanceCreation()
-    {
-        KTypeOpenHashSet<KType> fixture =
-                KTypeOpenHashSet.newInstanceWithExpectedSize(KTypeOpenHashSet.DEFAULT_CAPACITY);
-
-        assertEquals(KTypeOpenHashSet.DEFAULT_CAPACITY, this.set.keys.length);
-        assertEquals(KTypeOpenHashSet.DEFAULT_CAPACITY * 2, fixture.keys.length);
-
-        for (int i = 0; i < KTypeOpenHashSet.DEFAULT_CAPACITY; i++)
-        {
-            KType key = cast(i);
-            this.set.add(key);
-            fixture.add(key);
-        }
-
-        assertEquals(KTypeOpenHashSet.DEFAULT_CAPACITY * 2, this.set.keys.length);
-        assertEquals(KTypeOpenHashSet.DEFAULT_CAPACITY * 2, fixture.keys.length);
-    }
 }

@@ -374,17 +374,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
     /* */
     @Test
-    public void testRoundCapacity()
-    {
-        assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE));
-        assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE / 2 + 1));
-        assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE / 2));
-        assertEquals(KTypeVTypeOpenHashMap.MIN_CAPACITY, HashContainerUtils.roundCapacity(0));
-        assertEquals(Math.max(4, KTypeVTypeOpenHashMap.MIN_CAPACITY), HashContainerUtils.roundCapacity(3));
-    }
-
-    /* */
-    @Test
     public void testIterable()
     {
         map.put(key1, value1);
@@ -413,7 +402,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testFullLoadFactor()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        map = new KTypeVTypeOpenHashMap<KType, VType>(1, HashContainers.MAX_LOAD_FACTOR);
 
         // Fit in the byte key range.
         int capacity = 0x80;
@@ -434,12 +423,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals(2 * capacity, map.keys.length);
     }
 
-
     /* */
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        map = new KTypeVTypeOpenHashMap<KType, VType>(1, HashContainers.MAX_LOAD_FACTOR);
         int capacity = 0x80;
         int max = capacity - 1;
         for (int i = 0; i < max; i++)
@@ -850,30 +838,5 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
                 }
             });
         assertSortedListEquals(map.values().toArray(), value1, value2, value2);
-    }
-
-    /**
-     * Tests that instances created with the <code>newInstanceWithExpectedSize</code>
-     * static factory methods do not have to resize to hold the expected number of elements.
-     */
-    @Test
-    public void testExpectedSizeInstanceCreation()
-    {
-        KTypeVTypeOpenHashMap<KType, VType> fixture =
-                KTypeVTypeOpenHashMap.newInstanceWithExpectedSize(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY);
-
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY, this.map.keys.length);
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, fixture.keys.length);
-
-        for (int i = 0; i < KTypeOpenHashSet.DEFAULT_CAPACITY; i++)
-        {
-            KType key = cast(i);
-            VType value = vcast(i);
-            this.map.put(key, value);
-            fixture.put(key, value);
-        }
-
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, this.map.keys.length);
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, fixture.keys.length);
     }
 }

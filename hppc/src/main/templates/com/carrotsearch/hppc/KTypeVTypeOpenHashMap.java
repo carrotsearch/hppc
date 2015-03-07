@@ -8,6 +8,7 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+import static com.carrotsearch.hppc.HashContainers.*;
 import static com.carrotsearch.hppc.HashContainerUtils.*;
 
 /**
@@ -16,8 +17,7 @@ import static com.carrotsearch.hppc.HashContainerUtils.*;
  * 
  * <p>
  * The internal buffers of this implementation ({@link #keys}, {@link #values},
- * {@link #allocated}) are always allocated to the nearest size that is a power of two. When
- * the capacity exceeds the given load factor, the buffer size is doubled.
+ * {@link #allocated}) are always allocated to the nearest size that is a power of two.
  * </p>
  *
 #if ($TemplateOptions.AllGeneric)
@@ -69,21 +69,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     implements KTypeVTypeMap<KType, VType>, Cloneable
 {
     /**
-     * Minimum capacity for the map.
-     */
-    public final static int MIN_CAPACITY = HashContainerUtils.MIN_CAPACITY;
-
-    /**
-     * Default capacity.
-     */
-    public final static int DEFAULT_CAPACITY = HashContainerUtils.DEFAULT_CAPACITY;
-
-    /**
-     * Default load factor.
-     */
-    public final static float DEFAULT_LOAD_FACTOR = HashContainerUtils.DEFAULT_LOAD_FACTOR;
-
-    /**
      * Hash-indexed array holding all keys.
      *
 #if ($TemplateOptions.KTypeGeneric)
@@ -129,18 +114,18 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public boolean [] allocated;
 
     /**
+     * The load factor for this map (fraction of allocated slots
+     * before the buffers must be rehashed or reallocated).
+     */
+    public final double loadFactor;
+
+    /**
      * Cached number of assigned slots in {@link #allocated}.
      */
     public int assigned;
 
     /**
-     * The load factor for this map (fraction of allocated slots
-     * before the buffers must be rehashed or reallocated).
-     */
-    public final float loadFactor;
-
-    /**
-     * Resize buffers when {@link #allocated} hits this value. 
+     * Resize buffers when {@link #assigned} hits this value. 
      */
     protected int resizeAt;
 
@@ -162,10 +147,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     protected int perturbation;
 
     /**
-     * Creates a hash map with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
-     * 
-     * <p>See class notes about hash distribution importance.</p>
+     * Creates a hash map with the default capacity and load factor.
      */
     public KTypeVTypeOpenHashMap()
     {
@@ -173,41 +155,27 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Creates a hash map with the given initial capacity, default load factor of
-     * {@value #DEFAULT_LOAD_FACTOR}.
+     * Creates a hash map capable of storing the given number of keys without
+     * resizing.
      * 
-     * <p>See class notes about hash distribution importance.</p>
-     * 
-     * @param initialCapacity Initial capacity (greater than zero and automatically
-     *            rounded to the next power of two).
+     * @param capacity The maximum (inclusive) number of keys that won't cause a rehash.  
      */
-    public KTypeVTypeOpenHashMap(int initialCapacity)
+    public KTypeVTypeOpenHashMap(int capacity)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR);
+        this(capacity, DEFAULT_LOAD_FACTOR);
     }
 
     /**
-     * Creates a hash map with the given initial capacity,
-     * load factor.
+     * Creates a hash map capable of storing the given number of keys without
+     * resizing and with the given load factor.
      * 
-     * <p>See class notes about hash distribution importance.</p>
-     * 
-     * @param initialCapacity Initial capacity (greater than zero and automatically
-     *            rounded to the next power of two).
-     *
-     * @param loadFactor The load factor (greater than zero and smaller than 1).
+     * @param expectedElements The expected number of keys that won't cause a rehash (inclusive).  
+     * @param loadFactor The load factor for internal buffers in (0, 1) range.  
      */
-    public KTypeVTypeOpenHashMap(int initialCapacity, float loadFactor)
+    public KTypeVTypeOpenHashMap(int expectedElements, double loadFactor)
     {
-        initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
-
-        assert initialCapacity > 0
-            : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
-        assert loadFactor > 0 && loadFactor <= 1
-            : "Load factor must be between (0, 1].";
-
         this.loadFactor = loadFactor;
-        allocateBuffers(roundCapacity(initialCapacity));
+        allocateBuffers(minBufferSize(expectedElements, loadFactor));
     }
     
     /**
@@ -215,7 +183,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public KTypeVTypeOpenHashMap(KTypeVTypeAssociativeContainer<KType, VType> container)
     {
-        this((int)(container.size() * (1 + DEFAULT_LOAD_FACTOR)));
+        this(container.size());
         putAll(container);
     }
 
@@ -398,13 +366,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert assigned == resizeAt;
         assert !allocated[freeSlot];
 
-        // Try to allocate new buffers first. If we OOM, it'll be now without
-        // leaving the data structure in an inconsistent state.
+        // Try to allocate new buffers first to leave the map in a consistent
+        // state in case of OOMs.
         final KType   [] oldKeys      = this.keys;
         final VType   [] oldValues    = this.values;
         final boolean [] oldAllocated = this.allocated;
-
-        allocateBuffers(nextCapacity(keys.length));
+        allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
+        assert this.keys.length > oldKeys.length;
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
@@ -443,22 +411,28 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     /**
-     * Allocate internal buffers for a given capacity.
-     * 
-     * @param capacity New capacity (must be a power of two).
+     * Allocate internal buffers and thresholds to ensure they can hold 
+     * the given number of elements.
      */
-    private void allocateBuffers(int capacity)
+    protected final void allocateBuffers(int arraySize)
     {
-        KType [] keys = Intrinsics.newKTypeArray(capacity);
-        VType [] values = Intrinsics.newVTypeArray(capacity);
-        boolean [] allocated = new boolean [capacity];
+        // Ensure no change is done if we hit an OOM.
+        KType [] keys = this.keys;
+        VType [] values = this.values;
+        boolean [] allocated = this.allocated;
+        try {
+          this.keys = Intrinsics.newKTypeArray(arraySize);
+          this.values = Intrinsics.newVTypeArray(arraySize);
+          this.allocated = new boolean [arraySize];
+        } catch (OutOfMemoryError e) {
+          this.keys = keys;
+          this.values = values;
+          this.allocated = allocated;
+          throw new BufferAllocationException("Not enough memory.", e);
+        }
 
-        this.keys = keys;
-        this.values = values;
-        this.allocated = allocated;
-
-        this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
-        this.perturbation = computePerturbationValue(capacity);
+        this.resizeAt = expandAtCount(arraySize, loadFactor);
+        this.perturbation = computePerturbationValue(arraySize);
     }
 
     /**
