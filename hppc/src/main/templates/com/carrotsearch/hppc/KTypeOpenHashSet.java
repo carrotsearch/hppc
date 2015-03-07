@@ -9,15 +9,16 @@ import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.HashContainerUtils.*;
+import static com.carrotsearch.hppc.HashContainers.*;
 
 /**
  * A hash set of <code>KType</code>s, implemented using using open
  * addressing with linear probing for collision resolution.
  * 
  * <p>
- * The internal buffers of this implementation ({@link #keys}), {@link #allocated})
+ * The internal buffers of this implementation
  * are always allocated to the nearest size that is a power of two. When
- * the capacity exceeds the given load factor, the buffer size is doubled.
+ * the fill ratio of these buffers is exceeded, their size is doubled.
  * </p>
 #if ($TemplateOptions.KTypeGeneric)
  * <p>
@@ -62,21 +63,6 @@ public class KTypeOpenHashSet<KType>
     implements KTypeLookupContainer<KType>, KTypeSet<KType>, Cloneable
 {
     /**
-     * Minimum capacity for the map.
-     */
-    public final static int MIN_CAPACITY = HashContainerUtils.MIN_CAPACITY;
-
-    /**
-     * Default capacity.
-     */
-    public final static int DEFAULT_CAPACITY = HashContainerUtils.DEFAULT_CAPACITY;
-
-    /**
-     * Default load factor.
-     */
-    public final static float DEFAULT_LOAD_FACTOR = HashContainerUtils.DEFAULT_LOAD_FACTOR;
-
-    /**
      * Hash-indexed array holding all set entries.
      * 
 #if ($TemplateOptions.KTypeGeneric)
@@ -109,9 +95,12 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * The load factor for this map (fraction of allocated slots
-     * before the buffers must be rehashed or reallocated).
+     * before the buffers must be rehashed or reallocated) passed at 
+     * construction time.
+     * 
+     * @see #getLoadFactor()
      */
-    public final float loadFactor;
+    public final double initialLoadFactor;
 
     /**
      * Resize buffers when {@link #allocated} hits this value. 
@@ -137,37 +126,42 @@ public class KTypeOpenHashSet<KType>
     protected int perturbation;
 
     /**
-     * Creates a hash set with the default capacity of {@value #DEFAULT_CAPACITY},
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
+     * Creates a hash set with the default expected number of elements and
+     * load factor.
 `     */
     public KTypeOpenHashSet()
     {
-        this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+        this(DEFAULT_EXPECTED_ELEMENTS, DEFAULT_LOAD_FACTOR);
     }
 
     /**
-     * Creates a hash set with the given capacity,
-     * load factor of {@value #DEFAULT_LOAD_FACTOR}.
+     * Creates a hash set with the given number of expected elements.
      */
-    public KTypeOpenHashSet(int initialCapacity)
+    public KTypeOpenHashSet(int expectedElements)
     {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR);
+        this(expectedElements, DEFAULT_LOAD_FACTOR);
     }
 
     /**
-     * Creates a hash set with the given capacity and load factor.
+     * Creates a hash set capable of storing the given number of keys without
+     * resizing and with the given load factor.
+     * 
+     * @param expectedElements The expected number of keys that won't cause a rehash (inclusive).  
+     * @param loadFactor The load factor for internal buffers in (0, 1) range.  
      */
-    public KTypeOpenHashSet(int initialCapacity, float loadFactor)
+    public KTypeOpenHashSet(int expectedElements, double loadFactor)
     {
-        initialCapacity = Math.max(initialCapacity, MIN_CAPACITY);
+        this.initialLoadFactor = loadFactor;
+        loadFactor = getLoadFactor();
+        allocateBuffers(minBufferSize(expectedElements, loadFactor), loadFactor);
+    }
 
-        assert initialCapacity > 0
-            : "Initial capacity must be between (0, " + Integer.MAX_VALUE + "].";
-        assert loadFactor > 0 && loadFactor <= 1
-            : "Load factor must be between (0, 1].";
-
-        this.loadFactor = loadFactor;
-        allocateBuffers(roundCapacity(initialCapacity));
+    /**
+     * Validate load factor range and return it.
+     */
+    protected double getLoadFactor() {
+      checkLoadFactor(initialLoadFactor, MIN_LOAD_FACTOR, MAX_LOAD_FACTOR);
+      return initialLoadFactor;
     }
 
     /**
@@ -266,7 +260,7 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * Expand the internal storage buffers (capacity) or rehash current
+     * Expand the internal storage buffers or rehash current
      * keys and values if there are a lot of deleted slots.
      */
     private void expandAndAdd(KType pendingKey, int freeSlot)
@@ -278,8 +272,9 @@ public class KTypeOpenHashSet<KType>
         // leaving the data structure in an inconsistent state.
         final KType   [] oldKeys      = this.keys;
         final boolean [] oldAllocated = this.allocated;
-
-        allocateBuffers(nextCapacity(keys.length));
+        final double loadFactor = getLoadFactor();
+        allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor), loadFactor);
+        assert this.keys.length > oldKeys.length;
 
         // We have succeeded at allocating new data so insert the pending key/value at
         // the free slot in the old arrays before rehashing.
@@ -314,20 +309,25 @@ public class KTypeOpenHashSet<KType>
 
 
     /**
-     * Allocate internal buffers for a given capacity.
-     * 
-     * @param capacity New capacity (must be a power of two).
+     * Allocate internal buffers and thresholds to ensure they can hold 
+     * the given number of elements.
      */
-    private void allocateBuffers(int capacity)
+    protected void allocateBuffers(int arraySize, double loadFactor)
     {
-        KType [] keys = Intrinsics.newKTypeArray(capacity);
-        boolean [] allocated = new boolean [capacity];
+        // Ensure no change is done if we hit an OOM.
+        KType [] keys = this.keys;
+        boolean [] allocated = this.allocated;
+        try {
+          this.keys = Intrinsics.newKTypeArray(arraySize);
+          this.allocated = new boolean [arraySize];
+        } catch (OutOfMemoryError e) {
+          this.keys = keys;
+          this.allocated = allocated;
+          throw new BufferAllocationException("Not enough memory.", e);
+        }
 
-        this.keys = keys;
-        this.allocated = allocated;
-
-        this.resizeAt = Math.max(2, (int) Math.ceil(capacity * loadFactor)) - 1;
-        this.perturbation = computePerturbationValue(capacity);
+        this.resizeAt = expandAtCount(arraySize, loadFactor);
+        this.perturbation = computePerturbationValue(arraySize);
     }
 
     /**
@@ -740,6 +740,24 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static <KType> KTypeOpenHashSet<KType> newInstance(int expectedElements)
+    {
+        return new KTypeOpenHashSet<KType>(expectedElements);
+    }
+
+    /**
+     * Returns a new object of this class with no need to declare generic type (shortcut
+     * instead of using a constructor).
+     */
+    public static <KType> KTypeOpenHashSet<KType> newInstance(int expectedElements, double loadFactor)
+    {
+        return new KTypeOpenHashSet<KType>(expectedElements, loadFactor);
+    }
+
+    /**
      * Returns a new object with no key perturbations (see
      * {@link #computePerturbationValue(int)}). Only use when sure the container will not
      * be used for direct copying of keys to another hash container.
@@ -750,34 +768,5 @@ public class KTypeOpenHashSet<KType>
             @Override
             protected int computePerturbationValue(int capacity) { return 0; }
         };
-    }
-
-    /**
-     * Returns a new object of this class with no need to declare generic type (shortcut
-     * instead of using a constructor).
-     */
-    public static <KType> KTypeOpenHashSet<KType> newInstanceWithCapacity(int initialCapacity, float loadFactor)
-    {
-        return new KTypeOpenHashSet<KType>(initialCapacity, loadFactor);
-    }
-
-    /**
-     * Returns a new object of this class with no need to declare generic type (shortcut
-     * instead of using a constructor). The returned instance will have enough initial
-     * capacity to hold <code>expectedSize</code> elements without having to resize.
-     */
-    public static <KType> KTypeOpenHashSet<KType> newInstanceWithExpectedSize(int expectedSize)
-    {
-        return newInstanceWithExpectedSize(expectedSize, DEFAULT_LOAD_FACTOR);
-    }
-
-    /**
-     * Returns a new object of this class with no need to declare generic type (shortcut
-     * instead of using a constructor). The returned instance will have enough initial
-     * capacity to hold <code>expectedSize</code> elements without having to resize.
-     */
-    public static <KType> KTypeOpenHashSet<KType> newInstanceWithExpectedSize(int expectedSize, float loadFactor)
-    {
-        return newInstanceWithCapacity((int) (expectedSize / loadFactor) + 1, loadFactor);
     }
 }

@@ -9,9 +9,9 @@ public interface ArraySizingStrategy
      * Array sizing strategies may require that the initial size fulfills
      * certain constraints (is a prime or a power of two, for example). This
      * method must return the first size that fulfills these conditions
-     * and is greater or equal to <code>capacity</code>.
+     * and is greater or equal to <code>expectedElements</code>.
      */
-    int round(int capacity);
+    int round(int expectedElements);
     
     /**
      * @param currentBufferLength Current size of the array (buffer). This number

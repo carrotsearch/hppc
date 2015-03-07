@@ -50,6 +50,7 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <attachSources>main</attachSources>
               <templatesDir>${project.basedir}/src/main/templates</templatesDir>
               <outputDir>${project.build.directory}/generated-sources/main/java</outputDir>
             </configuration>
@@ -61,8 +62,9 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <attachSources>test</attachSources>
               <templatesDir>${project.basedir}/src/test/templates</templatesDir>
-              <outputDir>${project.build.directory}/generated-test-sources/test/java</outputDir>
+              <outputDir>${project.build.directory}/generated-sources/test/java</outputDir>
             </configuration>
           </execution>
         </executions>
@@ -149,12 +151,12 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>${version.maven-buildhelper-plugin}</version>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>hppc-template-processor</artifactId>
+            <version>${project.version}</version>
             <executions>
               <execution>
-                <id>add-source</id>
+                <id>add-templates</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>add-source</goal>
@@ -162,6 +164,17 @@
                 <configuration>
                   <sources>
                     <source>src/main/templates</source>
+                  </sources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-templates-tests</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
                     <source>src/test/templates</source>
                   </sources>
                 </configuration>

@@ -7,6 +7,7 @@ import java.util.*;
 import org.junit.*;
 
 import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
@@ -374,17 +375,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
     /* */
     @Test
-    public void testRoundCapacity()
-    {
-        assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE));
-        assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE / 2 + 1));
-        assertEquals(0x40000000, HashContainerUtils.roundCapacity(Integer.MAX_VALUE / 2));
-        assertEquals(KTypeVTypeOpenHashMap.MIN_CAPACITY, HashContainerUtils.roundCapacity(0));
-        assertEquals(Math.max(4, KTypeVTypeOpenHashMap.MIN_CAPACITY), HashContainerUtils.roundCapacity(3));
-    }
-
-    /* */
-    @Test
     public void testIterable()
     {
         map.put(key1, value1);
@@ -413,90 +403,87 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testFullLoadFactor()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
+        final IntHolder reallocations = new IntHolder();
+        final int elements = 0x7F;
+        map = new KTypeVTypeOpenHashMap<KType, VType>(elements, 1d) {
+          @Override
+          protected double getLoadFactor() {
+            // Skip load factor sanity range checking.
+            return initialLoadFactor;
+          }
+          
+          @Override
+          protected void allocateBuffers(int arraySize, double loadFactor) {
+            super.allocateBuffers(arraySize, loadFactor);
+            reallocations.value++;
+          }
+        };
 
         // Fit in the byte key range.
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
+        int reallocationsBefore = reallocations.value;
+        assertEquals(reallocationsBefore, 1);
+        for (int i = 0; i < elements; i++)
         {
             map.put(cast(i), value1);
         }
 
         // Still not expanded.
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
-        // Won't expand (existing key).
+        assertEquals(reallocationsBefore, reallocations.value);
+        // Must not expand (insertion of an existing key).
         map.put(cast(0), value2);
-        assertEquals(capacity, map.keys.length);
-        // Expanded.
+        assertEquals(reallocationsBefore, reallocations.value);
+        // Expand now.
         map.put(cast(0xff), value2);
-        assertEquals(2 * capacity, map.keys.length);
+        assertEquals(reallocationsBefore + 1, reallocations.value);
     }
-
 
     /* */
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 1f);
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
+        final IntHolder reallocations = new IntHolder();
+        final int elements = 0x7F;
+        map = new KTypeVTypeOpenHashMap<KType, VType>(elements, 1d) {
+          @Override
+          protected double getLoadFactor() {
+            // Skip load factor sanity range checking.
+            return initialLoadFactor;
+          }
+          
+          @Override
+          protected void allocateBuffers(int arraySize, double loadFactor) {
+            super.allocateBuffers(arraySize, loadFactor);
+            reallocations.value++;
+          }
+        };
+
+        int reallocationsBefore = reallocations.value;
+        assertEquals(reallocationsBefore, 1);
+        for (int i = 0; i < elements; i++)
         {
             map.put(cast(i), value1);
         }
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
         
         // Non-existent key.
-        map.remove(cast(max + 1));
-        assertFalse(map.containsKey(cast(max + 1)));
-        assertEquals2(Intrinsics.defaultVTypeValue(), map.get(cast(max + 1)));
+        map.remove(cast(elements + 1));
+        assertFalse(map.containsKey(cast(elements + 1)));
+        assertEquals2(Intrinsics.defaultVTypeValue(), map.get(cast(elements + 1)));
 
         // Should not expand because we're replacing an existing element.
         map.put(cast(0), value2);
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
+        assertEquals(reallocationsBefore, reallocations.value);
 
         map.putIfAbsent(cast(0), value3);
-        assertEquals(max, map.size());
-        assertEquals(capacity, map.keys.length);
+        assertEquals(reallocationsBefore, reallocations.value);
 
         // Remove from a full map.
         map.remove(cast(0));
-        assertEquals(max - 1, map.size());
-        assertEquals(capacity, map.keys.length);
-        
+        assertEquals(reallocationsBefore, reallocations.value);
+
         // Check expand on "last slot of a full map" condition.
         map.put(cast(0), value1);
-        map.put(cast(max), value1);
-        assertEquals(max + 1, map.size());
-        assertEquals(capacity << 1, map.keys.length);
-    }
-
-    /* */
-    @Test
-    public void testHalfLoadFactor()
-    {
-        map = new KTypeVTypeOpenHashMap<KType, VType>(1, 0.5f);
-
-        int capacity = 0x80;
-        int max = capacity - 1;
-        for (int i = 0; i < max; i++)
-        {
-            map.put(cast(i), value1);
-        }
-
-        assertEquals(max, map.size());
-        // Still not expanded.
-        assertEquals(2 * capacity, map.keys.length);
-        // Won't expand (existing key);
-        map.put(cast(0), value2);
-        assertEquals(2 * capacity, map.keys.length);
-        // Expanded.
-        map.put(cast(0xff), value1);
-        assertEquals(4 * capacity, map.keys.length);
+        map.put(cast(elements), value1);
+        assertEquals(reallocationsBefore + 1, reallocations.value);
     }
 
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
@@ -850,30 +837,5 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
                 }
             });
         assertSortedListEquals(map.values().toArray(), value1, value2, value2);
-    }
-
-    /**
-     * Tests that instances created with the <code>newInstanceWithExpectedSize</code>
-     * static factory methods do not have to resize to hold the expected number of elements.
-     */
-    @Test
-    public void testExpectedSizeInstanceCreation()
-    {
-        KTypeVTypeOpenHashMap<KType, VType> fixture =
-                KTypeVTypeOpenHashMap.newInstanceWithExpectedSize(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY);
-
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY, this.map.keys.length);
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, fixture.keys.length);
-
-        for (int i = 0; i < KTypeOpenHashSet.DEFAULT_CAPACITY; i++)
-        {
-            KType key = cast(i);
-            VType value = vcast(i);
-            this.map.put(key, value);
-            fixture.put(key, value);
-        }
-
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, this.map.keys.length);
-        assertEquals(KTypeVTypeOpenHashMap.DEFAULT_CAPACITY * 2, fixture.keys.length);
     }
 }
