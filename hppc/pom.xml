@@ -151,12 +151,12 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>${version.maven-buildhelper-plugin}</version>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>hppc-template-processor</artifactId>
+            <version>${project.version}</version>
             <executions>
               <execution>
-                <id>add-source</id>
+                <id>add-templates</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>add-source</goal>
@@ -164,6 +164,17 @@
                 <configuration>
                   <sources>
                     <source>src/main/templates</source>
+                  </sources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-templates-tests</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
                     <source>src/test/templates</source>
                   </sources>
                 </configuration>
