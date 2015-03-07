@@ -50,6 +50,7 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <attachSources>main</attachSources>
               <templatesDir>${project.basedir}/src/main/templates</templatesDir>
               <outputDir>${project.build.directory}/generated-sources/main/java</outputDir>
             </configuration>
@@ -61,8 +62,9 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <attachSources>test</attachSources>
               <templatesDir>${project.basedir}/src/test/templates</templatesDir>
-              <outputDir>${project.build.directory}/generated-test-sources/test/java</outputDir>
+              <outputDir>${project.build.directory}/generated-sources/test/java</outputDir>
             </configuration>
           </execution>
         </executions>

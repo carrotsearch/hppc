@@ -1,6 +1,7 @@
 package com.carrotsearch.hppc.generator;
 
 import com.google.common.base.Stopwatch;
+
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -43,8 +44,8 @@ public class TemplateProcessorMojo extends AbstractMojo {
   @Parameter(defaultValue = "true")
   public boolean incremental;
 
-  @Parameter(defaultValue = "true")
-  public boolean attachSources;
+  @Parameter(required = true)
+  public String attachSources;
 
   @Parameter(required = true)
   public File templatesDir;
@@ -65,7 +66,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
     }
   }
 
-  private void execute0() throws IOException {
+  private void execute0() throws IOException, MojoExecutionException {
     velocity = new RuntimeInstance();
     final ExtendedProperties p = new ExtendedProperties();
     p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, NullLogChute.class.getName());
@@ -99,8 +100,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
         updated,
         removed.size()));
 
-    if (attachSources) {
-      project.addCompileSourceRoot(outputPath.toString());
+    switch (attachSources.toLowerCase(Locale.ROOT)) {
+      case "main":
+        project.addCompileSourceRoot(outputPath.toString());
+        break;
+      case "test":
+        project.addTestCompileSourceRoot(outputPath.toString());
+        break;
+      default:
+        throw new MojoExecutionException("Invalid source attachment option ('source' or 'test' allowed): " + attachSources);
     }
   }
 
