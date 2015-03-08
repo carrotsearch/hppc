@@ -7,6 +7,8 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.carrotsearch.hppc.procedures.IntProcedure;
 
+import static com.carrotsearch.hppc.Containers.*;
+
 /**
  * A double-linked set of <code>int</code> values. This data structure is characterized by
  * constant-time lookup, insertions, deletions and removal of all set elements (unlike a 
@@ -18,11 +20,6 @@ import com.carrotsearch.hppc.procedures.IntProcedure;
  */
 public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
 {
-    /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 5;
-
     /**
      * Dense array of set elements. 
      */
@@ -44,19 +41,21 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
     protected final ArraySizingStrategy resizer;
 
     /**
-     * Create with default sizing strategy and initial dense capacity of 
-     * {@value #DEFAULT_CAPACITY} elements and initial sparse capacity of zero (first insert
-     * will cause reallocation).
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
     public IntDoubleLinkedSet()
     {
-        this(DEFAULT_CAPACITY, 0);
+        this(DEFAULT_EXPECTED_ELEMENTS, 0);
     }
 
     /**
-     * Create with default sizing strategy and the given initial capacity.
+     * Create with default sizing strategy and the given initial expected number
+     * of elements for dense and sparse container. The dense container's expected
+     * number of elements should be equal to the actual number of elements added to
+     * the container. The sparse container's expected size should be at least one more
+     * than the maximum value stored in the set.  
      * 
      * @see BoundedProportionalArraySizingStrategy
      */

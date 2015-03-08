@@ -10,6 +10,7 @@ import com.carrotsearch.hppc.procedures.*;
 import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.HashContainers.*;
 import static com.carrotsearch.hppc.HashContainerUtils.*;
+import static com.carrotsearch.hppc.Containers.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open

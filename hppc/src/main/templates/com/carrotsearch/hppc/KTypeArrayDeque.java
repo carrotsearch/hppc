@@ -7,6 +7,7 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
 import static com.carrotsearch.hppc.Internals.*;
+import static com.carrotsearch.hppc.Containers.*;
 
 /**
  * An array-backed deque (doubly linked queue) of KTypes. A single array is used to store and 
@@ -50,11 +51,6 @@ public class KTypeArrayDeque<KType>
     extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, Cloneable
 {
     /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 5;
-
-    /**
      * Internal array for storing elements.
      * 
 #if ($TemplateOptions.KTypeGeneric) 
@@ -88,18 +84,17 @@ public class KTypeArrayDeque<KType>
     protected final ArraySizingStrategy resizer;
 
     /**
-     * Create with default sizing strategy and initial capacity for storing 
-     * {@value #DEFAULT_CAPACITY} elements.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeArrayDeque()
     {
-        this(DEFAULT_CAPACITY);
+        this(DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
-     * Create with default sizing strategy and the given initial capacity.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -507,12 +502,12 @@ public class KTypeArrayDeque<KType>
     }
 
     /**
-     * Release internal buffers of this deque and reallocate the smallest buffer possible.
+     * Release internal buffers of this deque and reallocate with the default buffer.
      */
     public void release()
     {
         this.head = tail = 0;
-        buffer = Intrinsics.newKTypeArray(resizer.round(DEFAULT_CAPACITY));
+        buffer = Intrinsics.newKTypeArray(resizer.round(DEFAULT_EXPECTED_ELEMENTS));
     }
 
     /**

@@ -36,7 +36,7 @@ import com.carrotsearch.hppc.cursors.KTypeCursor;
 public class KTypeStack<KType> extends KTypeArrayList<KType>
 {
     /**
-     * Create with default sizing strategy and initial capacity.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -46,7 +46,8 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     }
 
     /**
-     * Create with default sizing strategy and the given initial capacity.
+     * Create with default sizing strategy and the given initial number
+     * of expected elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */

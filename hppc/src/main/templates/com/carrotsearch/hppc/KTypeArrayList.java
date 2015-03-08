@@ -7,6 +7,7 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
+import static com.carrotsearch.hppc.Containers.*;
 
 /**
  * An array-backed list of KTypes. A single array is used to store and manipulate
@@ -50,11 +51,6 @@ import static com.carrotsearch.hppc.Internals.*;
 public class KTypeArrayList<KType>
     extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
-    /**
-     * Default capacity if no other capacity is given in the constructor.
-     */
-    public final static int DEFAULT_CAPACITY = 5;
-
     /**
      * Internal static instance of an empty buffer.
      */
@@ -102,18 +98,17 @@ public class KTypeArrayList<KType>
     protected final ArraySizingStrategy resizer;
 
     /**
-     * Create with default sizing strategy and initial capacity for storing 
-     * {@value #DEFAULT_CAPACITY} elements.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeArrayList()
     {
-        this(DEFAULT_CAPACITY);
+        this(DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
-     * Create with default sizing strategy and the given initial capacity.
+     * Create with the given number of expected elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -392,14 +387,14 @@ public class KTypeArrayList<KType>
     }
 
     /**
-     * Increases the capacity of this instance, if necessary, to ensure 
+     * Increases the buffers of this instance to ensure 
      * that it can hold at least the number of elements specified by 
-     * the minimum capacity argument.
      */
-    public void ensureCapacity(int minCapacity) 
+    public void ensureCapacity(int expectedElements) 
     {
-        if (minCapacity > this.buffer.length)
-            ensureBufferSpace(minCapacity - size());
+        if (expectedElements > this.buffer.length) {
+            ensureBufferSpace(expectedElements - size());
+        }
     }
 
     /**

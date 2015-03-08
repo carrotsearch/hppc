@@ -1,6 +1,6 @@
 package com.carrotsearch.hppc;
 
-final class HashContainers {
+public final class HashContainers {
   /**
    * Maximum array size for hash containers (power-of-two and still
    * allocable in Java, not a negative int).  
@@ -8,16 +8,10 @@ final class HashContainers {
   final static int MAX_HASH_ARRAY_LENGTH = 0x80000000 >>> 1;
 
   /**
-   * Minimum buffer size to allocate.
+   * Minimum hash buffer size.
    */
-  final static int MIN_ARRAY_SIZE = 2;
+  final static int MIN_HASH_ARRAY_LENGTH = 4;
 
-  /**
-   * By default a hash container will store this many elements 
-   * without resizing.
-   */
-  final static int DEFAULT_EXPECTED_ELEMENTS = 4;
-  
   /**
    * Default load factor.
    */
@@ -34,10 +28,10 @@ final class HashContainers {
   final static float MAX_LOAD_FACTOR = 99 / 100.0f;
 
   /**
-   * Compute and return the maximum capacity (maximum number of elements)
+   * Compute and return the maximum number of elements (inclusive)
    * that can be stored in a hash container for a given load factor.
    */
-  static int maxCapacity(double loadFactor) {
+  public static int maxElements(double loadFactor) {
     checkLoadFactor(loadFactor, 0, 1);
     return expandAtCount(MAX_HASH_ARRAY_LENGTH, loadFactor) - 1;
   }
@@ -53,7 +47,7 @@ final class HashContainers {
     if (length == elements) {
       length++;
     }
-    length = Math.max(MIN_ARRAY_SIZE, BitUtil.nextHighestPowerOfTwo(length));
+    length = Math.max(MIN_HASH_ARRAY_LENGTH, BitUtil.nextHighestPowerOfTwo(length));
 
     if (length > MAX_HASH_ARRAY_LENGTH) {
       throw new BufferAllocationException(
@@ -86,12 +80,7 @@ final class HashContainers {
     return Math.min(arraySize - 1, (int) Math.ceil(arraySize * loadFactor));
   }
 
-  private static void checkValidArraySize(int arraySize) {
-    // These are internals, we can just assert without retrying.
-    assert arraySize > 1;
-    assert BitUtil.nextHighestPowerOfTwo(arraySize) == arraySize;
-  }
-
+  /** */
   static void checkLoadFactor(double loadFactor, double minAllowedInclusive, double maxAllowedInclusive) {
     if (loadFactor < minAllowedInclusive || loadFactor > maxAllowedInclusive) {
       throw new BufferAllocationException(
@@ -101,4 +90,11 @@ final class HashContainers {
           loadFactor);
     }    
   }
+  
+  /** */
+  private static void checkValidArraySize(int arraySize) {
+    // These are internals, we can just assert without retrying.
+    assert arraySize > 1;
+    assert BitUtil.nextHighestPowerOfTwo(arraySize) == arraySize;
+  }  
 }

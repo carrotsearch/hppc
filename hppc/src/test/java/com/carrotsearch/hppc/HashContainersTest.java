@@ -10,13 +10,13 @@ public class HashContainersTest extends RandomizedTest {
   /* */
   @Test
   public void testCapacityCalculations() {
-    assertEquals(MIN_ARRAY_SIZE, minBufferSize(0, 0.5f));
-    assertEquals(MIN_ARRAY_SIZE, minBufferSize(1, 0.5f));
+    assertEquals(MIN_HASH_ARRAY_LENGTH, minBufferSize(0, 0.5f));
+    assertEquals(MIN_HASH_ARRAY_LENGTH, minBufferSize(1, 0.5f));
 
     assertEquals(0x20, minBufferSize(0x10, 0.5f));
     assertEquals(0x40, minBufferSize(0x10, 0.49f));
 
-    int maxCapacity = maxCapacity(HashContainers.MAX_LOAD_FACTOR);
+    int maxCapacity = maxElements(HashContainers.MAX_LOAD_FACTOR);
     assertEquals(0x40000000, minBufferSize(maxCapacity, MAX_LOAD_FACTOR));
 
     // This would fill the array fully, validating the invariant, but should
