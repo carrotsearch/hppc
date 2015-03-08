@@ -50,17 +50,17 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public KTypeStack(int initialCapacity)
+    public KTypeStack(int expectedElements)
     {
-        super(initialCapacity);
+        super(expectedElements);
     }
 
     /**
      * Create with a custom buffer resizing strategy.
      */
-    public KTypeStack(int initialCapacity, ArraySizingStrategy resizer)
+    public KTypeStack(int expectedElements, ArraySizingStrategy resizer)
     {
-        super(initialCapacity, resizer);
+        super(expectedElements, resizer);
     }
 
     /**
@@ -214,9 +214,9 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * Returns a new object of this list with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeStack<KType> newInstanceWithCapacity(int initialCapacity)
+    public static <KType> KTypeStack<KType> newInstance(int expectedElements)
     {
-        return new KTypeStack<KType>(initialCapacity);
+        return new KTypeStack<KType>(expectedElements);
     }
 
     /**

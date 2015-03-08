@@ -117,21 +117,20 @@ public class KTypeArrayList<KType>
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public KTypeArrayList(int initialCapacity)
+    public KTypeArrayList(int expectedElements)
     {
-        this(initialCapacity, new BoundedProportionalArraySizingStrategy());
+        this(expectedElements, new BoundedProportionalArraySizingStrategy());
     }
 
     /**
      * Create with a custom buffer resizing strategy.
      */
-    public KTypeArrayList(int initialCapacity, ArraySizingStrategy resizer)
+    public KTypeArrayList(int expectedElements, ArraySizingStrategy resizer)
     {
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
 
         this.resizer = resizer;
-        ensureBufferSpace(resizer.round(initialCapacity));
+        ensureBufferSpace(resizer.round(expectedElements));
     }
 
     /**
@@ -790,9 +789,9 @@ public class KTypeArrayList<KType>
      * instead of using a constructor).
      */
     public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
-      KTypeArrayList<KType> newInstanceWithCapacity(int initialCapacity)
+      KTypeArrayList<KType> newInstance(int expectedElements)
     {
-        return new KTypeArrayList<KType>(initialCapacity);
+        return new KTypeArrayList<KType>(expectedElements);
     }
 
     /**

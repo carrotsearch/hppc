@@ -103,22 +103,21 @@ public class KTypeArrayDeque<KType>
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public KTypeArrayDeque(int initialCapacity)
+    public KTypeArrayDeque(int expectedElements)
     {
-        this(initialCapacity, new BoundedProportionalArraySizingStrategy());
+        this(expectedElements, new BoundedProportionalArraySizingStrategy());
     }
 
     /**
      * Create with a custom buffer resizing strategy.
      */
-    public KTypeArrayDeque(int initialCapacity, ArraySizingStrategy resizer)
+    public KTypeArrayDeque(int expectedElements, ArraySizingStrategy resizer)
     {
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
 
         this.resizer = resizer;
-        initialCapacity = resizer.round(initialCapacity);
-        buffer = Intrinsics.newKTypeArray(initialCapacity);
+        expectedElements = resizer.round(expectedElements);
+        buffer = Intrinsics.newKTypeArray(expectedElements);
     }
 
     /**
@@ -958,9 +957,9 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
-        KTypeArrayDeque<KType> newInstanceWithCapacity(int initialCapacity)
+        KTypeArrayDeque<KType> newInstance(int expectedElements)
     {
-        return new KTypeArrayDeque<KType>(initialCapacity);
+        return new KTypeArrayDeque<KType>(expectedElements);
     }
 
     /**
