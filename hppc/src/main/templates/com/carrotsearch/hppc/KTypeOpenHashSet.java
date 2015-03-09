@@ -170,6 +170,7 @@ public class KTypeOpenHashSet<KType>
      */
     public KTypeOpenHashSet(KTypeContainer<KType> container)
     {
+        // NOCOMMIT: leftover.
         this((int) (container.size() * (1 + DEFAULT_LOAD_FACTOR)));
         addAll(container);
     }

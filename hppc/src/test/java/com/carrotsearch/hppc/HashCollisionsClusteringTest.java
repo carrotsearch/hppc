@@ -1,13 +1,14 @@
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
+import com.carrotsearch.hppc.annotations.AwaitsFix;
 import com.carrotsearch.hppc.cursors.IntCursor;
-
-import static org.junit.Assert.*;
 
 public class HashCollisionsClusteringTest
 {
@@ -35,8 +36,8 @@ public class HashCollisionsClusteringTest
         b2.putAll(a);
     }
     
-    /** @see "http://issues.carrot2.org/browse/HPPC-103" */
-    @Test @Ignore
+    /** */
+    @Test @AwaitsFix("http://issues.carrot2.org/browse/HPPC-115")
     public void testHashSetClusteringAtFront()
     {
         int keys = 10000000;
@@ -78,8 +79,8 @@ public class HashCollisionsClusteringTest
         }
     }
 
-    /** @see "http://issues.carrot2.org/browse/HPPC-103" */
-    @Test @Ignore
+    /** */
+    @Test @AwaitsFix("http://issues.carrot2.org/browse/HPPC-115")
     public void testHashSetClusteringAtFront2()
     {
         int keys = 100000;
@@ -88,7 +89,7 @@ public class HashCollisionsClusteringTest
           @Override
           protected void allocateBuffers(int arraySize, double loadFactor) {
             super.allocateBuffers(arraySize, loadFactor);
-            System.out.println("#> reallocate to " + arraySize);
+            System.out.println("Rehashed to: " + arraySize);
           }
         };
 
@@ -108,7 +109,7 @@ public class HashCollisionsClusteringTest
             if (firstSubsetOfKeys-- == 0) break;
           }
           long e = System.currentTimeMillis();
-          System.out.println("> " + i + " " + (e - s) + "ms.");
+          System.out.println("Added keys: " + i + " in " + (e - s) + " ms.");
           
           if (System.currentTimeMillis() > deadline) {
             fail("Takes too long, something is wrong. Added " + i + " batches.");
