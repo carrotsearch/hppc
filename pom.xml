@@ -260,9 +260,24 @@
                   <inherited>false</inherited>
                   <configuration>
                     <target>
+                      <presetdef name="copy">
+                        <copy overwrite="true" />
+                      </presetdef>
+                      <condition property="onwin"><os family="windows"/></condition>
+
                       <fileset id="id:settings" dir="etc/eclipse/_settings" />
-                      <copy todir="hppc/.settings">                   <fileset refid="id:settings" /></copy>
                       <copy todir="hppc-template-processor/.settings"><fileset refid="id:settings" /></copy>
+                      <copy todir="hppc/.settings">                   <fileset refid="id:settings" /></copy>
+                      <copy tofile="hppc/.project" file="etc/eclipse/hppc.project" />
+                      <copy todir="hppc/.externalToolBuilders">
+                        <fileset dir="etc/eclipse/_externalToolBuilders" />
+                        <filterchain unless:true="${onwin}" xmlns:unless="ant:unless">
+                          <tokenfilter>
+                            <filetokenizer/>
+                            <replacestring from=".bat" to="" />
+                          </tokenfilter>
+                        </filterchain>
+                      </copy>
                     </target>
                   </configuration>
                   <goals>
@@ -270,6 +285,13 @@
                   </goals>
                 </execution>
               </executions>
+              <dependencies>
+                <dependency>
+                  <groupId>org.apache.ant</groupId>
+                  <artifactId>ant</artifactId>
+                  <version>1.9.4</version>
+                </dependency>
+              </dependencies>
             </plugin>
 
             <plugin>

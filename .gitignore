@@ -9,6 +9,7 @@ target
 .classpath
 .project
 .settings
+.externalToolBuilders
 
 # External tools.
 .clover
