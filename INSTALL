@@ -11,8 +11,7 @@ mvn clean package -Pquick
 Eclipse workflow/ import
 ------------------------
 
-# Install template processor
-mvn install -am -pl :hppc-template-processor
-# Copy over initial IDE .settings
-mvn -Peclipse antrun:run
-# Ready to import into Eclipse (using m2e).
+# Install template processor and copy over initial IDE .settings
+mvn -Peclipse
+
+# Ready to use m2e: "File->Import->Existing Maven Projects".
