@@ -148,6 +148,12 @@
           <name>m2e.version</name>
         </property>
       </activation>
+      <properties>
+        <!-- Skip compilation. -->
+        <maven.test.skip>true</maven.test.skip>
+        <maven.main.skip>true</maven.main.skip>
+        <maven.install.skip>true</maven.install.skip>
+      </properties>
       <build>
         <plugins>
           <plugin>

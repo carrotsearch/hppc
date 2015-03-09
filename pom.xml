@@ -243,7 +243,11 @@
           <name>m2e.version</name>
         </property>
       </activation>
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
       <build>
+        <defaultGoal>install antrun:run</defaultGoal>
         <pluginManagement>
           <plugins>
             <plugin>
