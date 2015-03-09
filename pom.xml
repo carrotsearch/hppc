@@ -70,6 +70,7 @@
 
     <version.guava>18.0</version.guava>
     <version.junit>4.12</version.junit> 
+    <version.jmh>1.6.2</version.jmh>
     <version.randomizedtesting>2.1.12</version.randomizedtesting>
     <version.maven-assembly-plugin>2.5.2</version.maven-assembly-plugin>
     <version.maven-clean-plugin>2.5</version.maven-clean-plugin>
@@ -95,6 +96,7 @@
   <modules>
     <module>hppc</module>
     <module>hppc-template-processor</module>
+    <module>hppc-benchmarks</module>
   </modules>
 
   <dependencyManagement>
@@ -198,34 +200,43 @@
           <artifactId>junit4-maven-plugin</artifactId>
           <version>${version.randomizedtesting}</version>
         </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>${version.maven-enforcer-plugin}</version>
-          <inherited>false</inherited>
-          <executions>
-            <execution>
-              <id>enforce-environment</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <requireJavaVersion>
-                    <version>1.7.0</version>
-                  </requireJavaVersion>
-                  <requireMavenVersion>
-                    <version>${version.maven.api}</version>
-                  </requireMavenVersion>
-                </rules>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
       </plugins>
     </pluginManagement>
+    
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${version.maven-enforcer-plugin}</version>
+        <executions>
+          <execution>
+            <id>enforce-environment</id>
+            <phase>verify</phase>
+            <inherited>false</inherited>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>1.7.0</version>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>${version.maven.api}</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
   
   <profiles>
@@ -265,12 +276,15 @@
                       </presetdef>
                       <condition property="onwin"><os family="windows"/></condition>
 
-                      <fileset id="id:settings" dir="etc/eclipse/_settings" />
+                      <fileset id="id:settings" dir="etc/eclipse/settings" />
                       <copy todir="hppc-template-processor/.settings"><fileset refid="id:settings" /></copy>
                       <copy todir="hppc/.settings">                   <fileset refid="id:settings" /></copy>
-                      <copy tofile="hppc/.project" file="etc/eclipse/hppc.project" />
-                      <copy todir="hppc/.externalToolBuilders">
-                        <fileset dir="etc/eclipse/_externalToolBuilders" />
+
+                      <copy todir=".">
+                        <fileset dir="etc/eclipse/configs" />
+                        <filtermapper>
+                            <replacestring from="_" to="."/>
+                        </filtermapper>
                         <filterchain unless:true="${onwin}" xmlns:unless="ant:unless">
                           <tokenfilter>
                             <filetokenizer/>
