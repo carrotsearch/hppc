@@ -8,7 +8,6 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
-import static com.carrotsearch.hppc.HashContainerUtils.*;
 import static com.carrotsearch.hppc.HashContainers.*;
 import static com.carrotsearch.hppc.Containers.*;
 
@@ -34,13 +33,13 @@ import static com.carrotsearch.hppc.Containers.*;
  *     </tr>
  * </thead>
  * <tbody>
- * <tr            ><td>boolean add(E) </td><td>boolean add(E)</td></tr>
- * <tr class="odd"><td>boolean remove(E)    </td><td>int removeAllOccurrences(E)</td></tr>
+ * <tr            ><td>boolean add(E)    </td><td>boolean add(E)</td></tr>
+ * <tr class="odd"><td>boolean remove(E) </td><td>int removeAllOccurrences(E)</td></tr>
  * <tr            ><td>size, clear, 
- *                     isEmpty</td><td>size, clear, isEmpty</td></tr>
- * <tr class="odd"><td>contains(E)    </td><td>contains(E), lkey()</td></tr>
- * <tr            ><td>iterator       </td><td>{@linkplain #iterator() iterator} over set values,
- *                                               pseudo-closures</td></tr>
+ *                     isEmpty</td>      <td>size, clear, isEmpty</td></tr>
+ * <tr class="odd"><td>contains(E)  </td><td>contains(E), lkey()</td></tr>
+ * <tr            ><td>iterator     </td><td>{@linkplain #iterator() iterator} over set values,
+ *                                           pseudo-closures</td></tr>
  * </tbody>
  * </table>
  * 
@@ -93,6 +92,15 @@ public class KTypeOpenHashSet<KType>
      * Cached number of assigned slots in {@link #allocated}.
      */
     public int assigned;
+    
+    /**
+     * We perturb hashed values with the array size to avoid problems with
+     * nearly-sorted-by-hash values on iterations.
+     * 
+     * @see "http://issues.carrot2.org/browse/HPPC-80"
+     * @see "http://issues.carrot2.org/browse/HPPC-103"
+     */
+    protected int perturbation;
 
     /**
      * The load factor for this map (fraction of allocated slots
@@ -104,7 +112,7 @@ public class KTypeOpenHashSet<KType>
     public final double initialLoadFactor;
 
     /**
-     * Resize buffers when {@link #allocated} hits this value. 
+     * Resize buffers when {@link #assigned} hits this value. 
      */
     protected int resizeAt;
 
@@ -117,14 +125,6 @@ public class KTypeOpenHashSet<KType>
      * #end
      */
     protected int lastSlot;
-    
-    /**
-     * We perturb hashed values with the array size to avoid problems with
-     * nearly-sorted-by-hash values on iterations.
-     * 
-     * @see "http://issues.carrot2.org/browse/HPPC-80"
-     */
-    protected int perturbation;
 
     /**
      * Creates a hash set with the default expected number of elements and
@@ -316,6 +316,7 @@ public class KTypeOpenHashSet<KType>
     protected void allocateBuffers(int arraySize, double loadFactor)
     {
         // Ensure no change is done if we hit an OOM.
+        final int newPerturbation = computePerturbationValue(arraySize);
         KType [] keys = this.keys;
         boolean [] allocated = this.allocated;
         try {
@@ -328,15 +329,21 @@ public class KTypeOpenHashSet<KType>
         }
 
         this.resizeAt = expandAtCount(arraySize, loadFactor);
-        this.perturbation = computePerturbationValue(arraySize);
+        this.perturbation = newPerturbation;
     }
 
     /**
      * <p>Compute the key perturbation value applied before hashing. The returned value
-     * should be non-zero and ideally different for each capacity. This matters because
+     * should be non-zero and ideally be different for each instance.
+     * 
+     * <p>This matters because
      * keys are nearly-ordered by their hashed values so when adding one container's
      * values to the other, the number of collisions can skyrocket into the worst case
      * possible.
+     * 
+     * <p>The default implementation tries to provide a repeatable hash order 
+     * and at the same attempts to minimize the risk of hash keys clustering. It can be
+     * overriden.
      * 
      * <p>If it is known that hash containers will not be added to each other 
      * (will be used for counting only, for example) then some speed can be gained by 
@@ -344,9 +351,11 @@ public class KTypeOpenHashSet<KType>
      * capacities. The speed gain is a result of faster rehash operation (keys are mostly
      * in order).   
      */
-    protected int computePerturbationValue(int capacity)
+    protected int computePerturbationValue(int newBufferSize)
     {
-        return PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
+        // Make sure we still have access to old keys.
+        assert this.keys == null || this.keys.length < newBufferSize;
+        return newBufferSize;
     }
 
     /**
@@ -718,6 +727,7 @@ public class KTypeOpenHashSet<KType>
     public static <KType> KTypeOpenHashSet<KType> from(KType... elements)
     {
         final KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(
+            // NOCOMMIT: LEFTOVER!
             (int) (elements.length * (1 + DEFAULT_LOAD_FACTOR)));
         set.add(elements);
         return set;

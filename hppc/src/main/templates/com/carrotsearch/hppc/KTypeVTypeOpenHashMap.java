@@ -9,7 +9,6 @@ import com.carrotsearch.hppc.procedures.*;
 
 import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.HashContainers.*;
-import static com.carrotsearch.hppc.HashContainerUtils.*;
 import static com.carrotsearch.hppc.Containers.*;
 
 /**
@@ -130,6 +129,15 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public int assigned;
 
     /**
+     * We perturb hashed values with the array size to avoid problems with
+     * nearly-sorted-by-hash values on iterations.
+     * 
+     * @see "http://issues.carrot2.org/browse/HPPC-80"
+     * @see "http://issues.carrot2.org/browse/HPPC-103"
+     */
+    protected int perturbation;
+
+    /**
      * Resize buffers when {@link #assigned} hits this value. 
      */
     protected int resizeAt;
@@ -142,14 +150,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * @see #lget
      */
     protected int lastSlot;
-    
-    /**
-     * We perturb hashed values with the array size to avoid problems with
-     * nearly-sorted-by-hash values on iterations.
-     * 
-     * @see "http://issues.carrot2.org/browse/HPPC-80"
-     */
-    protected int perturbation;
 
     /**
      * Creates a hash map with the default number of expected elements
@@ -431,6 +431,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     protected void allocateBuffers(int arraySize, double loadFactor)
     {
         // Ensure no change is done if we hit an OOM.
+        final int newPerturbation = computePerturbationValue(arraySize);
         KType [] keys = this.keys;
         VType [] values = this.values;
         boolean [] allocated = this.allocated;
@@ -446,15 +447,21 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
 
         this.resizeAt = expandAtCount(arraySize, loadFactor);
-        this.perturbation = computePerturbationValue(arraySize);
+        this.perturbation = newPerturbation;
     }
 
     /**
      * <p>Compute the key perturbation value applied before hashing. The returned value
-     * should be non-zero and ideally different for each capacity. This matters because
+     * should be non-zero and ideally be different for each instance.
+     * 
+     * <p>This matters because
      * keys are nearly-ordered by their hashed values so when adding one container's
      * values to the other, the number of collisions can skyrocket into the worst case
      * possible.
+     * 
+     * <p>The default implementation tries to provide a repeatable hash order 
+     * and at the same attempts to minimize the risk of hash keys clustering. It can be
+     * overriden.
      * 
      * <p>If it is known that hash containers will not be added to each other 
      * (will be used for counting only, for example) then some speed can be gained by 
@@ -462,9 +469,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      * capacities. The speed gain is a result of faster rehash operation (keys are mostly
      * in order).   
      */
-    protected int computePerturbationValue(int capacity)
+    protected int computePerturbationValue(int newBufferSize)
     {
-        return PERTURBATIONS[Integer.numberOfLeadingZeros(capacity)];
+        // Make sure we still have access to old keys.
+        assert this.keys == null || this.keys.length < newBufferSize;
+        return newBufferSize;
     }
 
     /**
