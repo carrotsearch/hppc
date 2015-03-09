@@ -2,6 +2,8 @@ package com.carrotsearch.hppc;
 
 import org.junit.Test;
 
+import com.carrotsearch.hppc.cursors.IntCursor;
+
 public class HashAvalancheTest
 {
     @Test
@@ -45,6 +47,37 @@ public class HashAvalancheTest
           if ((i % 200) == 0 && source.keys.length == target.keys.length) {
             System.out.println(i);
           }
+        }
+    }
+
+    @Test
+    public void testFrontFillup()
+    {
+        int bin = 100000;
+        IntOpenHashSet target = new IntOpenHashSet(bin * 5, 0.9) {
+          @Override
+          protected void allocateBuffers(int arraySize, double loadFactor) {
+            super.allocateBuffers(arraySize, loadFactor);
+            System.out.println("#> reallocate to " + arraySize);
+          }
+        };
+
+        IntOpenHashSet source = new IntOpenHashSet(bin * 5, 0.9);
+        int v = 0;
+        for (int i = 0; i < 1000; i++) {
+          source.clear();
+          while (source.size() < bin) {
+            source.add(v++);
+          }
+
+          long s = System.currentTimeMillis();
+          int max = 1000;
+          for (IntCursor c : source) {
+            target.add(c.value);
+            if (max-- == 0) break;
+          }
+          long e = System.currentTimeMillis();
+          System.out.println("> " + (e - s) + "ms.");
         }
     }
 }
