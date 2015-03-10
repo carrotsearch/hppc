@@ -233,24 +233,26 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
+    /*!#if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
     public KType get(int index)
     {
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        return buffer[index];
+        return Intrinsics.<KType> cast(buffer[index]);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    /*!#if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
     public KType set(int index, KType e1)
     {
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        final KType v = buffer[index];
+        final KType v = Intrinsics.<KType> cast(buffer[index]);
         buffer[index] = e1;
         return v;
     }
@@ -259,12 +261,13 @@ public class KTypeArrayList<KType>
      * {@inheritDoc} 
      */
     @Override
+    /*!#if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
     public KType remove(int index)
     {
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        final KType v = buffer[index];
+        final KType v = Intrinsics.<KType> cast(buffer[index]);
         if (index + 1 < elementsCount)
             System.arraycopy(buffer, index + 1, buffer, index, elementsCount - index - 1);
         elementsCount--;
@@ -464,13 +467,11 @@ public class KTypeArrayList<KType>
     /**
      * Trim the internal buffer to the current size.
      */
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
-    /* #end */
     public void trimToSize()
     {
-        if (size() != this.buffer.length)
+        if (size() != this.buffer.length) {
             this.buffer = (KType[]) toArray();
+        }
     }
 
     /**
@@ -504,11 +505,7 @@ public class KTypeArrayList<KType>
      * the number of elements of the stack.</p>
      */
     @Override
-    /*! #if ($TemplateOptions.KTypePrimitive)
     public KType [] toArray()
-        #else !*/
-    public Object [] toArray()
-    /*! #end !*/
     {
         return Arrays.copyOf(buffer, elementsCount);
     }
@@ -641,7 +638,7 @@ public class KTypeArrayList<KType>
             if (cursor.index + 1 == size)
                 return done();
 
-            cursor.value = buffer[++cursor.index];
+            cursor.value = Intrinsics.<KType> cast(buffer[++cursor.index]);
             return cursor;
         }
     }
@@ -684,7 +681,7 @@ public class KTypeArrayList<KType>
         final KType [] buffer = this.buffer;
         for (int i = fromIndex; i < toIndex; i++)
         {
-            procedure.apply(buffer[i]);
+            procedure.apply(Intrinsics.<KType> cast(buffer[i]));
         }
 
         return procedure;
@@ -703,7 +700,8 @@ public class KTypeArrayList<KType>
         {
             for (; from < elementsCount; from++)
             {
-                if (predicate.apply(buffer[from]))
+                KType value = Intrinsics.<KType> cast(buffer[from]);
+                if (predicate.apply(value))
                 {
                     buffer[from] = Intrinsics.<KType>defaultKTypeValue();
                     continue;
@@ -711,7 +709,7 @@ public class KTypeArrayList<KType>
     
                 if (to != from)
                 {
-                    buffer[to] = buffer[from];
+                    buffer[to] = value;
                     buffer[from] = Intrinsics.<KType>defaultKTypeValue();
                 }
                 to++;
@@ -765,7 +763,7 @@ public class KTypeArrayList<KType>
         final KType [] buffer = this.buffer;
         for (int i = fromIndex; i < toIndex; i++)
         {
-            if (!predicate.apply(buffer[i]))
+            if (!predicate.apply(Intrinsics.<KType> cast(buffer[i])))
                 break;
         }
         

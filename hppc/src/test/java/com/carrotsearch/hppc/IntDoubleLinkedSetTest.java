@@ -113,7 +113,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
 
             for (int j = 0; j < i; j++)
             {
-                set.add(/* intrinsic:ktypecast */ j);
+                set.add(j);
             }
 
             assertEquals(i, set.size());

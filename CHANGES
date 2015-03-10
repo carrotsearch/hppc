@@ -14,13 +14,16 @@ HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
           "capacity" and presizing for the given number of expected elements
           is now equivalent. See API changes below.
 
-HPPC-*:   (API changes)
+HPPC-117: API simplifications and changes (related to other issues)
 
-          - 1.7 compatibility only. static factories removed, use diamonds.
+          * 1.7 compatibility only. static factories removed, use diamonds.
           T.newInstanceWithCapacity(*)     -> removed, use new T<>(*)
           T.newInstanceWithExpectedSize(*) -> removed, use new T<>(*)
           T.newInstance(*)                 -> removed, use new T<>(*)
           T.from(container)                -> removed, use new T<>(container)
+          
+          * Internal buffers for generic types are now Object[] to prevent
+            the compiler from injecting surprising implicit casts.   
 
 ** New features
 

@@ -188,7 +188,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         assert elementsCount > 0;
 
-        final KType v = buffer[--elementsCount];
+        final KType v = Intrinsics.<KType> cast(buffer[--elementsCount]);
         /* #if ($TemplateOptions.KTypeGeneric) */
         buffer[elementsCount] = null; 
         /* #end */
@@ -202,7 +202,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         assert elementsCount > 0;
 
-        return buffer[elementsCount - 1];
+        return Intrinsics.<KType> cast(buffer[elementsCount - 1]);
     }
 
     /**

@@ -67,46 +67,38 @@ abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
         });
     }
 
+    /* #if ($TemplateOptions.KTypeGeneric) */
     /**
      * Default implementation of copying to an array.
      */
     @Override
-    /*!#if ($TemplateOptions.KTypePrimitive)
-    public KType [] toArray()
-       #else !*/
     @SuppressWarnings("unchecked")
-    public KType [] toArray(Class<? super KType> clazz)
-    /*! #end !*/
+    public KType/*keep*/[] toArray(Class<? super KType> clazz)
     {
         final int size = size();
-        final KType [] array = 
-        /*!#if ($TemplateOptions.KTypePrimitive) 
-           new KType [size];   
-           #else !*/
-           (KType []) java.lang.reflect.Array.newInstance(clazz, size);
-        /*!#end !*/
+        final KType/*keep*/[] array = (KType/*keep*/[]) java.lang.reflect.Array.newInstance(clazz, size);
 
         int i = 0;
         for (KTypeCursor<KType> c : this)
         {
             array[i++] = c.value;
         }
-        return array;
-    }
 
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @Override
-    public Object[] toArray()
-    {
-        final Object [] array = new Object [size()];
-        int i = 0;
-        for (KTypeCursor<KType> c : this)
-        {
-            array[i++] = c.value;
-        }
         return array;
     }
     /* #end */
+
+    @Override
+    public KType[] toArray()
+    {
+        final KType [] array = Intrinsics.newKTypeArray(size());
+        int i = 0;
+        for (KTypeCursor<KType> c : this)
+        {
+            array[i++] = c.value;
+        }
+        return array;
+    }
 
     /**
      * Convert the contents of this container to a human-friendly string.

@@ -48,11 +48,12 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
         /*! #end !*/
     }
 
-    public KType [] asArray(int... ints)
+    public KType/*keep*/[] asArray(int... ints)
     {
-        KType [] values = Intrinsics.newKTypeArray(ints.length);
-        for (int i = 0; i < ints.length; i++)
+        KType/*keep*/[] values = (KType/*keep*/[]) Intrinsics.newKTypeArray(ints.length);
+        for (int i = 0; i < ints.length; i++) {
             values[i] = (KType) /*! #if ($TemplateOptions.KTypeGeneric) !*/ (Object) /*! #end !*/ ints[i];
+        }
         return values;
     }
     
@@ -62,7 +63,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     /* #if ($TemplateOptions.KTypeGeneric) */
     @SafeVarargs
     /* #end */
-    public final KType [] newArray(KType... elements)
+    public final KType/*keep*/[] newArray(KType... elements)
     {
         return newArray0(elements);
     }
@@ -70,21 +71,21 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     /* #if ($TemplateOptions.KTypeGeneric) */
     @SafeVarargs
     /* #end */
-    private final KType [] newArray0(KType... elements)
+    private final KType/*keep*/[] newArray0(KType... elements)
     {
         return elements;
     }
 
-    public KType [] newArray(KType v0) { return this.newArray0(v0); }
-    public KType [] newArray(KType v0, KType v1) { return this.newArray0(v0, v1); }
-    public KType [] newArray(KType v0, KType v1, KType v2) { return this.newArray0(v0, v1, v2); }
-    public KType [] newArray(KType v0, KType v1, KType v2, KType v3) { return this.newArray0(v0, v1, v2, v3); }
-    public KType [] newArray(KType v0, KType v1, KType v2, KType v3,
+    public KType/*keep*/[] newArray(KType v0) { return this.newArray0(v0); }
+    public KType/*keep*/[] newArray(KType v0, KType v1) { return this.newArray0(v0, v1); }
+    public KType/*keep*/[] newArray(KType v0, KType v1, KType v2) { return this.newArray0(v0, v1, v2); }
+    public KType/*keep*/[] newArray(KType v0, KType v1, KType v2, KType v3) { return this.newArray0(v0, v1, v2, v3); }
+    public KType/*keep*/[] newArray(KType v0, KType v1, KType v2, KType v3,
                              KType v4, KType v5, KType v6) { return this.newArray0(v0, v1, v2, v3, v4, v5, v6); }
-    public KType [] newArray(KType v0, KType v1, KType v2, KType v3,
+    public KType/*keep*/[] newArray(KType v0, KType v1, KType v2, KType v3,
                              KType v4, KType v5) { return this.newArray0(v0, v1, v2, v3, v4, v5); }
-    public KType [] newArray(KType v0, KType v1, KType v2, KType v3,
+    public KType/*keep*/[] newArray(KType v0, KType v1, KType v2, KType v3,
                              KType v4) { return this.newArray0(v0, v1, v2, v3, v4); }
-    public KType [] newArray(KType v0, KType v1, KType v2, KType v3,
+    public KType/*keep*/[] newArray(KType v0, KType v1, KType v2, KType v3,
                              KType v4, KType v5, KType v6, KType v7) { return this.newArray0(v0, v1, v2, v3, v4, v5, v6, v7); }
 }

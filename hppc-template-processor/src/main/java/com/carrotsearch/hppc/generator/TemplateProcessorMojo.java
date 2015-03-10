@@ -294,7 +294,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
         } else if ("newVTypeArray".equals(method)) {
           sb.append(
               templateOptions.isVTypeGeneric()
-                  ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
+                  ? "new Object [" + params.get(0) + "]"
                   : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
         } else if ("equalsKType".equals(method)) {
           if (templateOptions.isKTypeGeneric()) {
@@ -456,6 +456,10 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
       input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
                                (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
+
+      input = input.replaceAll("(VType)(\\s*)(\\[)([^]]*)(\\])", 
+          v.isGeneric() ? "Object" + " [$4]" 
+                        : v.getType() + "[$4]");
 
       if (!v.isGeneric()) {
         input = input.replaceAll("VType", v.getType());

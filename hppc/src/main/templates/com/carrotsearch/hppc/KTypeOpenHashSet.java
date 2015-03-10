@@ -19,7 +19,7 @@ public class KTypeOpenHashSet<KType>
   implements KTypeLookupContainer<KType>, 
              KTypeSet<KType>, 
              Cloneable {
-  /** The hash array holding keys. */
+  /** The array holding keys. */
   public KType [] keys;
 
   /**
@@ -197,18 +197,14 @@ public class KTypeOpenHashSet<KType>
    * {@inheritDoc}
    */
   @Override
-  /*! #if ($TemplateOptions.KTypePrimitive) 
-  public KType [] toArray() {
-      #else !*/
-  public Object[] toArray() {
-  /*! #end !*/
-    final KType[] cloned = Intrinsics.newKTypeArray(assigned);
+  public KType[] toArray() {
+    final KType[] asArray = Intrinsics.newKTypeArray(assigned);
     for (int i = 0, j = 0; i < keys.length; i++) {
       if (allocated[i]) {
-        cloned[j++] = keys[i];
+        asArray[j++] = keys[i];
       }
     }
-    return cloned;
+    return asArray;
   }
 
   /**
@@ -239,7 +235,7 @@ public class KTypeOpenHashSet<KType>
   /**
    * {@inheritDoc}
    */
-  @Override
+  @Override /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
   public int removeAll(KTypePredicate<? super KType> predicate) {
     final KType[] keys = this.keys;
     final boolean[] allocated = this.allocated;
@@ -247,7 +243,7 @@ public class KTypeOpenHashSet<KType>
     int before = size();
     for (int i = 0; i < allocated.length;) {
       if (allocated[i]) {
-        if (predicate.apply(keys[i])) {
+        if (predicate.apply(Intrinsics.<KType> cast(keys[i]))) {
           shiftConflictingKeys(i);
           assigned--;
           continue; // Repeat the check for the same index i (shifted).
@@ -337,9 +333,9 @@ public class KTypeOpenHashSet<KType>
    * {@inheritDoc}
    */
   @Override
-  /* #if ($TemplateOptions.KTypeGeneric) */
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
   @SuppressWarnings("unchecked")
-  /* #end */
+  /*! #end !*/
   public boolean equals(Object obj) {
     if (obj != null &&
         obj instanceof KTypeSet<?>) {
@@ -361,11 +357,11 @@ public class KTypeOpenHashSet<KType>
    * {@inheritDoc}
    */
   @Override
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  @SuppressWarnings("unchecked")
+  /*! #end !*/
   public KTypeOpenHashSet<KType> clone() {
     try {
-      /* #if ($TemplateOptions.KTypeGeneric) */
-      @SuppressWarnings("unchecked")
-      /* #end */
       KTypeOpenHashSet<KType> cloned = (KTypeOpenHashSet<KType>) super.clone();
       cloned.keys = keys.clone();
       cloned.allocated = allocated.clone();
@@ -395,6 +391,7 @@ public class KTypeOpenHashSet<KType>
       cursor.index = -1;
     }
 
+    /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
     @Override
     protected KTypeCursor<KType> fetch() {
       final int max = keys.length;
@@ -409,7 +406,7 @@ public class KTypeOpenHashSet<KType>
       }
 
       cursor.index = i;
-      cursor.value = keys[i];
+      cursor.value = Intrinsics.<KType> cast(keys[i]);
       return cursor;
     }
   }
@@ -417,14 +414,14 @@ public class KTypeOpenHashSet<KType>
   /**
    * {@inheritDoc}
    */
-  @Override
+  @Override /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
   public <T extends KTypeProcedure<? super KType>> T forEach(T procedure) {
     final KType[] keys = this.keys;
     final boolean[] allocated = this.allocated;
 
     for (int i = 0; i < allocated.length; i++) {
       if (allocated[i]) {
-        procedure.apply(keys[i]);
+        procedure.apply(Intrinsics.<KType> cast(keys[i]));
       }
     }
 
@@ -434,14 +431,14 @@ public class KTypeOpenHashSet<KType>
   /**
    * {@inheritDoc}
    */
-  @Override
+  @Override /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
   public <T extends KTypePredicate<? super KType>> T forEach(T predicate) {
     final KType[] keys = this.keys;
     final boolean[] states = this.allocated;
 
     for (int i = 0; i < states.length; i++) {
       if (states[i]) {
-        if (!predicate.apply(keys[i]))
+        if (!predicate.apply(Intrinsics.<KType> cast(keys[i])))
           break;
       }
     }
@@ -484,6 +481,7 @@ public class KTypeOpenHashSet<KType>
   /**
    * Rehash from old buffers to new buffers. 
    */
+  /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
   protected void rehash(KType[] fromKeys, boolean[] fromAllocated) {
     // Rehash all stored keys into the new buffers.
     final KType[] keys = this.keys;
@@ -491,8 +489,8 @@ public class KTypeOpenHashSet<KType>
     final int mask = this.mask;
     for (int i = fromAllocated.length; --i >= 0;) {
       if (fromAllocated[i]) {
-        final KType k = fromKeys[i];
-  
+        final KType k = Intrinsics.<KType> cast(fromKeys[i]);
+
         int slot = hashKey(k) & mask;
         while (allocated[slot]) {
           slot = (slot + 1) & mask;
@@ -565,7 +563,9 @@ public class KTypeOpenHashSet<KType>
   /**
    * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
    */
+  /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
   protected void shiftConflictingKeys(int slot) {
+    final KType [] keys = this.keys;
     final int mask = this.mask;
     int slotPrev, slotOther;
     while (true) {
@@ -573,7 +573,7 @@ public class KTypeOpenHashSet<KType>
       slot = (slot + 1) & mask;
 
       while (allocated[slot]) {
-        slotOther = hashKey(keys[slot]) & mask;
+        slotOther = hashKey(Intrinsics.<KType> cast(keys[slot])) & mask;
         if (slotPrev <= slot) {
           // We are on the right of the original slot.
           if (slotPrev >= slotOther || slotOther > slot) {
