@@ -315,8 +315,8 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         deque.addLast(asArray(0, 1, 2, 1, 0));
 
-        KTypeOpenHashSet<KType> set = KTypeOpenHashSet.newInstance();
-        set.add(asArray(0, 2));
+        KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<>();
+        set.addAll(asArray(0, 2));
 
         assertEquals(3, deque.removeAll(set));
         assertEquals(0, deque.removeAll(set));
@@ -578,9 +578,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
     /*! #end !*/
     
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testHashCodeEquals()
     {
@@ -597,7 +594,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
     
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
     @Test
     public void testHashCodeWithNulls()
     {
@@ -619,7 +615,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     /*! #end !*/
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
     @Test
     public void testToArray()
     {
@@ -629,9 +624,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
     /*! #end !*/
     
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testClone()
     {
@@ -644,9 +636,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         assertSortedListEquals(cloned.toArray(), key2, key3);
     }
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testToString()
     {

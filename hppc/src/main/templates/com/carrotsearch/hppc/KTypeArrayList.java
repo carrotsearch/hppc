@@ -176,7 +176,10 @@ public class KTypeArrayList<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void add(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final void add(KType... elements)
     {
         add(elements, 0, elements.length);
     }
@@ -793,6 +796,9 @@ public class KTypeArrayList<KType>
      * Create a list from a variable number of arguments or an array of <code>KType</code>.
      * The elements are copied from the argument to the internal buffer.
      */
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
     public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
       KTypeArrayList<KType> from(KType... elements)
     {

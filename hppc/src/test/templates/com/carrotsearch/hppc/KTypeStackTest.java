@@ -136,9 +136,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testHashCodeEquals()
     {
@@ -157,9 +154,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testHashCodeEqualsWithOtherContainer()
     {
@@ -204,9 +198,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testToString()
     {

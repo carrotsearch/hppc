@@ -12,10 +12,15 @@ HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
           
           A few methods have been removed or renamed because the meaning of
           "capacity" and presizing for the given number of expected elements
-          is now equivalent. For example:
-          
-          .newInstanceWithCapacity(*)     -> .newInstance(*)
-          .newInstanceWithExpectedSize(*) -> .newInstance(*)
+          is now equivalent. See API changes below.
+
+HPPC-*:   (API changes)
+
+          - 1.7 compatibility only. static factories removed, use diamonds.
+          T.newInstanceWithCapacity(*)     -> removed, use new T<>(*)
+          T.newInstanceWithExpectedSize(*) -> removed, use new T<>(*)
+          T.newInstance(*)                 -> removed, use new T<>(*)
+          T.from(container)                -> removed, use new T<>(container)
 
 ** New features
 

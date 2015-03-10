@@ -127,7 +127,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
         set.add(0, 1, 2, 3, 4);
 
         IntOpenHashSet list2 = new IntOpenHashSet();
-        list2.add(1, 3, 5);
+        list2.addAll(1, 3, 5);
 
         assertEquals(2, set.removeAll(list2));
         assertEquals(3, set.size());
@@ -203,7 +203,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     public void testConstructorFromContainer()
     {
         IntOpenHashSet list2 = new IntOpenHashSet();
-        list2.add(1, 3, 5);
+        list2.addAll(1, 3, 5);
 
         set = new IntDoubleLinkedSet(list2);
         assertEquals(3, set.size());
@@ -215,7 +215,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     public void testFromMethod()
     {
         IntOpenHashSet list2 = new IntOpenHashSet();
-        list2.add(1, 3, 5);
+        list2.addAll(1, 3, 5);
 
         IntDoubleLinkedSet s1 = IntDoubleLinkedSet.from(1, 3, 5);
         IntDoubleLinkedSet s2 = IntDoubleLinkedSet.from(1, 3, 5);

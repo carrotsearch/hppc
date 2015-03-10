@@ -70,7 +70,10 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     /**
      * Create a new array of a given type and copy the arguments to this array.
      */
-    protected VType [] newvArray(@SuppressWarnings("unchecked") VType... elements)
+    /* #if ($TemplateOptions.VTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    protected final VType [] newvArray(VType... elements)
     {
         return elements;
     }
@@ -104,9 +107,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     }
 
     /* */
-    /*! #if ($TemplateOptions.VTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testFromArrays()
     {
@@ -486,9 +486,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals(reallocationsBefore + 1, reallocations.value);
     }
 
-    /*! #if ($TemplateOptions.VTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testHashCodeEquals()
     {
@@ -518,9 +515,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
     /* */
     @Test
-    /*! #if ($TemplateOptions.VTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     public void testHashCodeEqualsDifferentPerturbance()
     {
         KTypeVTypeOpenHashMap<KType, VType> l0 = 
@@ -556,9 +550,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals(l0, l1);
     }
 
-    /*! #if ($TemplateOptions.VTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testBug_HPPC37()
     {
@@ -727,7 +718,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
          * Add some more keys (random).
          */
         Random rnd = new Random(randomLong());
-        IntSet chainKeys = IntOpenHashSet.from(hashChain);
+        IntSet chainKeys = new IntOpenHashSet(hashChain);
         IntSet differentKeys = new IntOpenHashSet();
         while (differentKeys.size() < 500)
         {

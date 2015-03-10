@@ -131,7 +131,10 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void push(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final void push(KType... elements)
     {
         push(elements, 0, elements.length);
     }
@@ -223,6 +226,9 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     /**
      * Create a stack by pushing a variable number of arguments to it.
      */
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
     public static <KType> KTypeStack<KType> from(KType... elements)
     {
         final KTypeStack<KType> stack = new KTypeStack<KType>(elements.length);

@@ -23,7 +23,7 @@ public class NaNCornerCaseTest
             (Double) map.keys().iterator().next().value, 
             (Double) Double.NaN);
         
-        DoubleOpenHashSet set = DoubleOpenHashSet.newInstance();
+        DoubleOpenHashSet set = new DoubleOpenHashSet();
         set.add(Double.NaN);
         set.add(Double.NaN);
         set.add(Double.longBitsToDouble(0xfff8000000000000L));
@@ -51,7 +51,7 @@ public class NaNCornerCaseTest
             (Float) map.keys().iterator().next().value, 
             (Float) Float.NaN);
         
-        FloatOpenHashSet set = FloatOpenHashSet.newInstance();
+        FloatOpenHashSet set = new FloatOpenHashSet();
         set.add(Float.NaN);
         set.add(Float.NaN);
         set.add(Float.intBitsToFloat(0xfff80000));

@@ -25,7 +25,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        set = KTypeOpenHashSet.newInstance();
+        set = new KTypeOpenHashSet<>();
     }
 
     @After
@@ -69,12 +69,12 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
             set.add(cast(c.value));
 
         assertEquals(hashChain.size(), set.size());
-        
+
         /*
          * Add some more keys (random).
          */
         Random rnd = getRandom();
-        IntSet chainKeys = IntOpenHashSet.from(hashChain);
+        IntSet chainKeys = new IntOpenHashSet(hashChain);
         IntSet differentKeys = new IntOpenHashSet();
         while (differentKeys.size() < 500)
         {
@@ -135,9 +135,9 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAdd2()
     {
-        set.add(key1, key1);
+        set.addAll(key1, key1);
         assertEquals(1, set.size());
-        assertEquals(1, set.add(key1, key2));
+        assertEquals(1, set.addAll(key1, key2));
         assertEquals(2, set.size());
     }
 
@@ -145,7 +145,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddVarArgs()
     {
-        set.add(asArray(0, 1, 2, 1, 0));
+        set.addAll(asArray(0, 1, 2, 1, 0));
         assertEquals(3, set.size());
         assertSortedListEquals(set.toArray(), 0, 1, 2);
     }
@@ -155,8 +155,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     public void testAddAll()
     {
         KTypeOpenHashSet<KType> set2 = new KTypeOpenHashSet<KType>();
-        set2.add(asArray(1, 2));
-        set.add(asArray(0, 1));
+        set2.addAll(asArray(1, 2));
+        set.addAll(asArray(0, 1));
 
         assertEquals(1, set.addAll(set2));
         assertEquals(0, set.addAll(set2));
@@ -169,7 +169,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemove()
     {
-        set.add(asArray(0, 1, 2, 3, 4));
+        set.addAll(asArray(0, 1, 2, 3, 4));
 
         assertTrue(set.remove(k2));
         assertFalse(set.remove(k2));
@@ -202,14 +202,14 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         final int elements = 0x7F;
         set = new KTypeOpenHashSet<KType>(elements, 1f) {
           @Override
-          protected double getLoadFactor() {
+          protected double verifyLoadFactor(double loadFactor) {
             // Skip load factor sanity range checking.
             return loadFactor;
           }
           
           @Override
-          protected void allocateBuffers(int arraySize, double loadFactor) {
-            super.allocateBuffers(arraySize, loadFactor);
+          protected void allocateBuffers(int arraySize) {
+            super.allocateBuffers(arraySize);
             reallocations.value++;
           }
         };
@@ -245,10 +245,10 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemoveAllFromLookupContainer()
     {
-        set.add(asArray(0, 1, 2, 3, 4));
+        set.addAll(asArray(0, 1, 2, 3, 4));
 
         KTypeOpenHashSet<KType> list2 = new KTypeOpenHashSet<KType>();
-        list2.add(asArray(1, 3, 5));
+        list2.addAll(asArray(1, 3, 5));
 
         assertEquals(2, set.removeAll(list2));
         assertEquals(3, set.size());
@@ -259,7 +259,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRemoveAllWithPredicate()
     {
-        set.add(newArray(k0, k1, k2));
+        set.addAll(newArray(k0, k1, k2));
 
         assertEquals(1, set.removeAll(new KTypePredicate<KType>()
         {
@@ -276,7 +276,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testRetainAllWithPredicate()
     {
-        set.add(newArray(k0, k1, k2, k3, k4, k5));
+        set.addAll(newArray(k0, k1, k2, k3, k4, k5));
 
         assertEquals(4, set.retainAll(new KTypePredicate<KType>()
         {
@@ -293,7 +293,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testClear()
     {
-        set.add(asArray(1, 2, 3));
+        set.addAll(asArray(1, 2, 3));
         set.clear();
         checkTrailingSpaceUninitialized();
         assertEquals(0, set.size());
@@ -303,7 +303,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testIterable()
     {
-        set.add(asArray(1, 2, 2, 3, 4));
+        set.addAll(asArray(1, 2, 2, 3, 4));
         set.remove(k2);
         assertEquals(3, set.size());
 
@@ -376,14 +376,11 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     public void testHashCodeEquals()
     {
-        KTypeOpenHashSet<Integer> l0 = KTypeOpenHashSet.from();
+        KTypeOpenHashSet<Integer> l0 = new KTypeOpenHashSet<>();
         assertEquals(0, l0.hashCode());
-        assertEquals(l0, KTypeOpenHashSet.newInstance());
+        assertEquals(l0, new KTypeOpenHashSet<>());
 
         KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, k2, k3);
         KTypeOpenHashSet<KType> l2 = KTypeOpenHashSet.from(k1, k2);
@@ -415,15 +412,14 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         assertEquals(l0.hashCode(), l1.hashCode());
         assertEquals(l0, l1);
 
-        l0.add(newArray(k1, k2, k3));
-        l1.add(newArray(k1, k2, k3));
+        l0.addAll(newArray(k1, k2, k3));
+        l1.addAll(newArray(k1, k2, k3));
 
         assertEquals(l0.hashCode(), l1.hashCode());
         assertEquals(l0, l1);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
     @Test
     public void testHashCodeWithNulls()
     {
@@ -436,13 +432,10 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     }
     /*! #end !*/
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testClone()
     {
-        this.set.add(key1, key2, key3);
+        this.set.addAll(key1, key2, key3);
 
         KTypeOpenHashSet<KType> cloned = set.clone();
         cloned.removeAllOccurrences(key1);
@@ -464,7 +457,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
              long[].class.isInstance(set.keys)    ||
              Object[].class.isInstance(set.keys));
 
-        this.set.add(key1, key2);
+        this.set.addAll(key1, key2);
         String asString = set.toString();
         asString = asString.replaceAll("[\\[\\],\\ ]", "");
         char [] asCharArray = asString.toCharArray();

@@ -100,9 +100,9 @@ public class APIExpectationsTest extends RandomizedTest
         ObjectStack<Integer> v5 = ObjectStack.newInstance();
         ObjectStack<Long> v6 = ObjectStack.newInstance();
         
-        IntOpenHashSet v7 = IntOpenHashSet.newInstance();
-        ObjectOpenHashSet<Integer> v8 = ObjectOpenHashSet.newInstance();
-        ObjectOpenHashSet<Long> v9 = ObjectOpenHashSet.newInstance();
+        IntOpenHashSet v7 = new IntOpenHashSet();
+        ObjectOpenHashSet<Integer> v8 = new ObjectOpenHashSet<>();
+        ObjectOpenHashSet<Long> v9 = new ObjectOpenHashSet<>();
         
         IntArrayDeque v10 = IntArrayDeque.newInstance();
         ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();

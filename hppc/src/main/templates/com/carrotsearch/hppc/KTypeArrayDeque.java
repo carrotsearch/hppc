@@ -146,13 +146,17 @@ public class KTypeArrayDeque<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void addFirst(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final void addFirst(KType... elements)
     {
         ensureBufferSpace(elements.length);
 
         // For now, naive loop.
-        for (int i = 0; i < elements.length; i++)
+        for (int i = 0; i < elements.length; i++) {
             addFirst(elements[i]);
+        }
     }
 
     /**
@@ -212,7 +216,10 @@ public class KTypeArrayDeque<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void addLast(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final void addLast(KType... elements)
     {
         ensureBufferSpace(1);
 
@@ -960,6 +967,9 @@ public class KTypeArrayDeque<KType>
     /**
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
     public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
         KTypeArrayDeque<KType> from(KType... elements)
     {

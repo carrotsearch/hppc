@@ -53,8 +53,8 @@ public class HashCollisionsClusteringTest
         int keys = 500000;
         IntOpenHashSet target = new IntOpenHashSet(keys, 0.9) {
           @Override
-          protected void allocateBuffers(int arraySize, double loadFactor) {
-            super.allocateBuffers(arraySize, loadFactor);
+          protected void allocateBuffers(int arraySize) {
+            super.allocateBuffers(arraySize);
             System.out.println("Rehashed to: " + arraySize);
           }
         };
@@ -98,8 +98,8 @@ public class HashCollisionsClusteringTest
         int expected = keys * 5;
         IntOpenHashSet target = new IntOpenHashSet(expected, 0.9) {
           @Override
-          protected void allocateBuffers(int arraySize, double loadFactor) {
-            super.allocateBuffers(arraySize, loadFactor);
+          protected void allocateBuffers(int arraySize) {
+            super.allocateBuffers(arraySize);
             System.out.println("Rehashed to: " + arraySize);
           }
         };

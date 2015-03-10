@@ -78,7 +78,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
     Path basedir = project.getBasedir().toPath().toAbsolutePath().normalize();
     getLog().info(String.format(Locale.ROOT,
-        "2 Processing templates from %s => %s",
+        "Processing templates from %s => %s",
         basedir.relativize(templatesPath),
         basedir.relativize(outputPath)));
 
@@ -430,8 +430,8 @@ public class TemplateProcessorMojo extends AbstractMojo {
     if (options.hasVType()) {
       Type v = options.getVType();
 
-      input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
-          (k.isGeneric() ? "Object" : k.getBoxedType()) +
+      input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
+              (k.isGeneric() ? "Object" : k.getBoxedType()) +
               (v.isGeneric() ? "Object" : v.getBoxedType()) +
               "$2" +
               (options.isAnyGeneric() ? "$3" : ""));
@@ -442,12 +442,13 @@ public class TemplateProcessorMojo extends AbstractMojo {
       if (!v.isGeneric())
         input = input.replaceAll("VType", v.getType());
     }
-
-    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<.+?>)?",
+    
+    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
         k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
 
-    if (!k.isGeneric())
+     if (!k.isGeneric()) {
       input = input.replaceAll("KType", k.getType());
+     }
 
     return input;
   }
