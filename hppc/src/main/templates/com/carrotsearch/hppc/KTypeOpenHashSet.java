@@ -268,12 +268,10 @@ public class KTypeOpenHashSet<KType>
     int slot = hashKey(key) & mask;
     while (allocated[slot]) {
       if (Intrinsics.equalsKType(key, keys[slot])) {
-        lastSlot = slot;
         return true;
       }
       slot = (slot + 1) & mask;
     }
-    lastSlot = -1;
     return false;
   }
 
@@ -517,7 +515,6 @@ public class KTypeOpenHashSet<KType>
 
     // We have succeeded at allocating new data so insert the pending key/value at
     // the free slot in the old arrays before rehashing.
-    lastSlot = -1;
     prevAllocated[slot] = true;
     prevKeys[slot] = pendingKey;
 
@@ -590,33 +587,4 @@ public class KTypeOpenHashSet<KType>
     keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
     /* #end */
   }
-
-// --- REMOVALS    
-// NOCOMMIT: remove, http://issues.carrot2.org/browse/HPPC-116
-
-    /**
-     * The most recent slot accessed in {@link #contains}.
-     * 
-     * @see #contains
-     * #if ($TemplateOptions.KTypeGeneric)
-     * @see #lkey
-     * #end
-     */
-    // NOCOMMIT: http://issues.carrot2.org/browse/HPPC-116
-    protected int lastSlot;
-
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    public KType lkey() {
-      assert lastSlot >= 0 : "Call contains() first.";
-      assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
-
-      return keys[lastSlot];
-    }
-    /* #end */
-
-    // NOCOMMIT: remove, http://issues.carrot2.org/browse/HPPC-116
-    public int lslot() {
-      assert lastSlot >= 0 : "Call contains() first.";
-      return lastSlot;
-    }    
 }
