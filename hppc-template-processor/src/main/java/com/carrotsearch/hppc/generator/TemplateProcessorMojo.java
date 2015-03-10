@@ -223,16 +223,16 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
     outputs.add(output);
   }
-
+  
   private String filterStaticTokens(String template, TemplateOptions templateOptions) {
     return template.replace(TemplateOptions.TEMPLATE_FILE_TOKEN, templateOptions.getTemplateFile());
   }
 
   private String filterIntrinsics(String input, TemplateOptions templateOptions) {
     Pattern p = Pattern.compile(
-        "(Intrinsics.\\s*)" + 
-        "(<(?<generic>[^>]+)>\\s*)?" + 
-        "(?<method>[a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
+                "(Intrinsics.\\s*)" + 
+                "(<(?<generic>[^>]+)>\\s*)?" + 
+                "(?<method>[a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
     StringBuilder sb = new StringBuilder();
     while (true) {
@@ -268,17 +268,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
           }
         }
 
-        if ("cast".equals(method)) {
-          if (templateOptions.isKTypeGeneric()) {
-            String generic = m.group("generic");
-            if (generic == null) {
-              throw new RuntimeException("Instrinsic requires an explicit generic type: " + m.group());
-            }
-            sb.append("(" + generic + ") " + params.get(0));
-          } else {
-            sb.append(params.get(0));
-          }
-        } else if ("defaultKTypeValue".equals(method)) {
+        if ("defaultKTypeValue".equals(method)) {
           sb.append(templateOptions.isKTypeGeneric()
               ? "null"
               : "((" + templateOptions.getKType().getType() + ") 0)");
@@ -289,7 +279,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
         } else if ("newKTypeArray".equals(method)) {
           sb.append(
               templateOptions.isKTypeGeneric()
-                  ? "new Object [" + params.get(0) + "]"
+                  ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
                   : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
         } else if ("newVTypeArray".equals(method)) {
           sb.append(
@@ -451,27 +441,23 @@ public class TemplateProcessorMojo extends AbstractMojo {
       input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
               (k.isGeneric() ? "Object" : k.getBoxedType()) +
               (v.isGeneric() ? "Object" : v.getBoxedType()) +
-              "$2" + 
+              "$2" +
               (options.isAnyGeneric() ? "$3" : ""));
 
       input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
-                               (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
+          (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
 
       if (!v.isGeneric()) {
         input = input.replaceAll("VType", v.getType());
       }
     }
+    
+    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
+        k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
 
-    input = input.replaceAll("(KType)(\\s*)(\\[)([^]]*)(\\])", 
-                              k.isGeneric() ? "Object" + " [$4]" 
-                                            : k.getType() + "[$4]");
-
-    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<[^>]*>)?", 
-                             k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
-
-    if (!k.isGeneric()) {
+     if (!k.isGeneric()) {
       input = input.replaceAll("KType", k.getType());
-    }
+     }
 
     return input;
   }
