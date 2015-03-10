@@ -20,7 +20,7 @@ public class KTypeOpenHashSet<KType>
              KTypeSet<KType>, 
              Cloneable {
   /** The hash array holding keys. */
-  public KType [] keys;
+  public /*! #if ($TemplateOptions.KTypeGeneric) !*/ Object [] /*! #else KType [] #end !*/ keys;
 
   /**
    * Information if an entry (slot) in the {@link #keys} table is allocated * or empty.
@@ -203,6 +203,7 @@ public class KTypeOpenHashSet<KType>
   public Object[] toArray() {
   /*! #end !*/
     final KType[] cloned = Intrinsics.newKTypeArray(assigned);
+    final KType[] keys = keys();
     for (int i = 0, j = 0; i < keys.length; i++) {
       if (allocated[i]) {
         cloned[j++] = keys[i];
@@ -241,7 +242,7 @@ public class KTypeOpenHashSet<KType>
    */
   @Override
   public int removeAll(KTypePredicate<? super KType> predicate) {
-    final KType[] keys = this.keys;
+    final KType[] keys = keys();
     final boolean[] allocated = this.allocated;
 
     int before = size();
@@ -300,7 +301,7 @@ public class KTypeOpenHashSet<KType>
    */
   public void ensureCapacity(int expectedElements) {
     if (expectedElements > resizeAt || keys == null) {
-      final KType[] prevKeys = this.keys;
+      final KType[] prevKeys = keys();
       final boolean[] prevAllocated = this.allocated;
       allocateBuffers(minBufferSize(expectedElements, loadFactor));
       if (prevKeys != null && !isEmpty()) {
@@ -323,7 +324,7 @@ public class KTypeOpenHashSet<KType>
   @Override
   public int hashCode() {
     int h = 0;
-    final KType[] keys = this.keys;
+    final KType[] keys = keys();
     final boolean[] allocated = this.allocated;
     for (int i = allocated.length; --i >= 0;) {
       if (allocated[i]) {
@@ -400,7 +401,7 @@ public class KTypeOpenHashSet<KType>
       final int max = keys.length;
 
       int i = cursor.index + 1;
-      while (i < keys.length && !allocated[i]) {
+      while (i < max && !allocated[i]) {
         i++;
       }
 
@@ -409,7 +410,7 @@ public class KTypeOpenHashSet<KType>
       }
 
       cursor.index = i;
-      cursor.value = keys[i];
+      cursor.value = keyAt(i);
       return cursor;
     }
   }
@@ -419,7 +420,7 @@ public class KTypeOpenHashSet<KType>
    */
   @Override
   public <T extends KTypeProcedure<? super KType>> T forEach(T procedure) {
-    final KType[] keys = this.keys;
+    final KType[] keys = keys();
     final boolean[] allocated = this.allocated;
 
     for (int i = 0; i < allocated.length; i++) {
@@ -436,7 +437,7 @@ public class KTypeOpenHashSet<KType>
    */
   @Override
   public <T extends KTypePredicate<? super KType>> T forEach(T predicate) {
-    final KType[] keys = this.keys;
+    final KType[] keys = keys();
     final boolean[] states = this.allocated;
 
     for (int i = 0; i < states.length; i++) {
@@ -486,7 +487,7 @@ public class KTypeOpenHashSet<KType>
    */
   protected void rehash(KType[] fromKeys, boolean[] fromAllocated) {
     // Rehash all stored keys into the new buffers.
-    final KType[] keys = this.keys;
+    final KType[] keys = keys();
     final boolean[] allocated = this.allocated;
     final int mask = this.mask;
     for (int i = fromAllocated.length; --i >= 0;) {
@@ -515,7 +516,7 @@ public class KTypeOpenHashSet<KType>
     final int newKeyMixer = this.orderMixer.newKeyMixer(arraySize);
 
     // Ensure no change is done if we hit an OOM.
-    KType[] prevKeys = this.keys;
+    KType[] prevKeys = keys();
     boolean[] prevAllocated = this.allocated;
     try {
       this.keys = Intrinsics.newKTypeArray(arraySize);
@@ -548,7 +549,7 @@ public class KTypeOpenHashSet<KType>
     assert assigned == resizeAt && !allocated[slot];
 
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
-    final KType[] prevKeys = this.keys;
+    final KType[] prevKeys = keys();
     final boolean[] prevAllocated = this.allocated;
     allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
     assert this.keys.length > prevKeys.length;
@@ -566,6 +567,7 @@ public class KTypeOpenHashSet<KType>
    * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
    */
   protected void shiftConflictingKeys(int slot) {
+    final KType[] keys = keys();
     final int mask = this.mask;
     int slotPrev, slotOther;
     while (true) {
@@ -600,5 +602,19 @@ public class KTypeOpenHashSet<KType>
     /* #if ($TemplateOptions.KTypeGeneric) */
     keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
     /* #end */
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
+  @SuppressWarnings("unchecked")
+  /*! #end !*/
+  private KType[] keys() {
+    return (KType[]) keys;
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
+  @SuppressWarnings("unchecked")
+  /*! #end !*/
+  private KType keyAt(int i) {
+    return (KType) keys[i];
   }
 }

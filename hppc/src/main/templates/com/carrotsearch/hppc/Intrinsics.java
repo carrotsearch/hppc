@@ -14,7 +14,15 @@ final class Intrinsics
     {
         // no instances.
     }
-    
+
+    /**
+     * Provide a cast to a generic array type. The type will be erased anyway.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] erasedCast(Object[] keys) {
+      return (T[]) keys;
+    }
+
     /**
      * Create and return an array of template objects (<code>Object</code>s in the generic
      * version, corresponding key-primitive type in the generated version).
