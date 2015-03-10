@@ -204,7 +204,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
           @Override
           protected double getLoadFactor() {
             // Skip load factor sanity range checking.
-            return initialLoadFactor;
+            return loadFactor;
           }
           
           @Override
@@ -395,22 +395,20 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testHashCodeEqualsDifferentPerturbance()
+    public void testHashCodeEqualsForDifferentKeyHash()
     {
         KTypeOpenHashSet<KType> l0 = new KTypeOpenHashSet<KType>() {
-            @Override
-            protected int computePerturbationValue(int capacity)
-            {
-                return 0xDEADBEEF;
-            }
+          @Override
+          protected int hashKey(KType key) {
+            return super.hashKey(key);
+          }
         };
 
         KTypeOpenHashSet<KType> l1 = new KTypeOpenHashSet<KType>() {
-            @Override
-            protected int computePerturbationValue(int capacity)
-            {
-                return 0xCAFEBABE;
-            }
+          @Override
+          protected int hashKey(KType key) {
+            return super.hashKey(key) ^ 0xCAFEBABE;
+          }
         };
         
         assertEquals(0, l0.hashCode());

@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.carrotsearch.hppc.annotations.AwaitsFix;
 import com.carrotsearch.hppc.cursors.IntCursor;
 
 public class HashCollisionsClusteringTest
@@ -16,12 +15,23 @@ public class HashCollisionsClusteringTest
     @Test
     public void testHashSetClusteringOnRehash()
     {
-        IntOpenHashSet a = new IntOpenHashSet();
-        for (int i = 10000000; i-- != 0;) {
-            a.add(i);
+        IntOpenHashSet source = new IntOpenHashSet(0, 0.9d);
+        for (int i = 1250000; i-- != 0;) {
+          source.add(i);
         }
-        IntOpenHashSet b2 = new IntOpenHashSet();
-        b2.addAll(a);
+
+        IntOpenHashSet target = new IntOpenHashSet(0, 0.9d);
+        int i = 0;
+        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(3);
+        for (IntCursor c : source) {
+          target.add(c.value);
+          if ((i++ % 1000) == 0) {
+            System.out.println("Added keys: " + i);
+            if (System.currentTimeMillis() >= deadline) {
+              fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
+            }
+          }
+        }
     }
 
     /** @see "http://issues.carrot2.org/browse/HPPC-80" */
@@ -37,10 +47,10 @@ public class HashCollisionsClusteringTest
     }
     
     /** */
-    @Test @AwaitsFix("http://issues.carrot2.org/browse/HPPC-115")
+    @Test 
     public void testHashSetClusteringAtFront()
     {
-        int keys = 10000000;
+        int keys = 500000;
         IntOpenHashSet target = new IntOpenHashSet(keys, 0.9) {
           @Override
           protected void allocateBuffers(int arraySize, double loadFactor) {
@@ -51,7 +61,7 @@ public class HashCollisionsClusteringTest
 
         int expandAtCount = HashContainers.expandAtCount(target.keys.length, 0.9);
         int fillUntil = expandAtCount - 100000;
-        
+
         IntOpenHashSet source = new IntOpenHashSet(keys, 0.9);
         int unique = 0;
         while (source.size() < expandAtCount - 1) {
@@ -66,9 +76,10 @@ public class HashCollisionsClusteringTest
 
         assertEquals(source.keys.length, target.keys.length);
         long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(3);
-        for (int i = 0; i < source.keys.length; i++) {
-          target.add(source.keys[i]);
-          if ((i % 1000) == 0) {
+        int i = 0;
+        for (IntCursor c : source) {
+          target.add(c.value);
+          if ((i++ % 1000) == 0) {
             if (source.keys.length == target.keys.length) {
               System.out.println("Added keys: " + i);
             }
@@ -80,7 +91,7 @@ public class HashCollisionsClusteringTest
     }
 
     /** */
-    @Test @AwaitsFix("http://issues.carrot2.org/browse/HPPC-115")
+    @Test 
     public void testHashSetClusteringAtFront2()
     {
         int keys = 100000;

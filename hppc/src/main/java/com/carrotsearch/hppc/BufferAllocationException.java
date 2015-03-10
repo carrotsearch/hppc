@@ -4,16 +4,16 @@ import java.util.IllegalFormatException;
 import java.util.Locale;
 
 @SuppressWarnings("serial")
-class BufferAllocationException extends RuntimeException {
-  public BufferAllocationException(String message) {
+public class BufferAllocationException extends RuntimeException {
+  BufferAllocationException(String message) {
     super(message);
   }
 
-  public BufferAllocationException(String message, Object... args) {
+  BufferAllocationException(String message, Object... args) {
     this(message, null, args);
   }
 
-  public BufferAllocationException(String message, Throwable t, Object... args) {
+  BufferAllocationException(String message, Throwable t, Object... args) {
     super(formatMessage(message, t, args), t);
   }
 

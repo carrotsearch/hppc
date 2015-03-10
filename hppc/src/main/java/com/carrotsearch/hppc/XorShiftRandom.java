@@ -28,10 +28,7 @@ public class XorShiftRandom extends Random
     @Override
     public long nextLong()
     {
-        x ^= (x << 21);
-        x ^= (x >>> 35);
-        x ^= (x << 4);
-        return x;
+        return x = next(x);
     }
 
     @Override
@@ -44,5 +41,12 @@ public class XorShiftRandom extends Random
     public void setSeed(long seed)
     {
         this.x = seed;
+    }
+
+    public static long next(long x) {
+      x ^= (x << 21);
+      x ^= (x >>> 35);
+      x ^= (x << 4);
+      return x;
     }
 }

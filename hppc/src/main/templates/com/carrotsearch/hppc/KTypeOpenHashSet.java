@@ -7,7 +7,6 @@ import com.carrotsearch.hppc.hash.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
-import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.HashContainers.*;
 import static com.carrotsearch.hppc.Containers.*;
 
@@ -89,18 +88,29 @@ public class KTypeOpenHashSet<KType>
     public boolean [] allocated;
 
     /**
-     * Cached number of assigned slots in {@link #allocated}.
+     * The number of assigned slots.
      */
     public int assigned;
     
     /**
-     * We perturb hashed values with the array size to avoid problems with
-     * nearly-sorted-by-hash values on iterations.
+     * Buffer round-robin mask.
+     */
+    protected int mask;
+
+    /**
+     * We perturb hash values with a container-unique
+     * seed to avoid problems with nearly-sorted-by-hash 
+     * values on iterations.
      * 
      * @see "http://issues.carrot2.org/browse/HPPC-80"
      * @see "http://issues.carrot2.org/browse/HPPC-103"
      */
-    protected int perturbation;
+    protected int keyMixer;
+
+    /**
+     * Resize buffers when {@link #assigned} hits this value. 
+     */
+    protected int resizeAt;
 
     /**
      * The load factor for this map (fraction of allocated slots
@@ -109,12 +119,7 @@ public class KTypeOpenHashSet<KType>
      * 
      * @see #getLoadFactor()
      */
-    public final double initialLoadFactor;
-
-    /**
-     * Resize buffers when {@link #assigned} hits this value. 
-     */
-    protected int resizeAt;
+    protected double loadFactor;
 
     /**
      * The most recent slot accessed in {@link #contains}.
@@ -124,19 +129,25 @@ public class KTypeOpenHashSet<KType>
      * @see #lkey
      * #end
      */
+    // NOCOMMIT: remove, http://issues.carrot2.org/browse/HPPC-116
     protected int lastSlot;
 
     /**
-     * Creates a hash set with the default expected number of elements and
-     * load factor.
+     * Per-instance hash order mixing strategy.
+     */
+    protected final HashOrderMixingStrategy orderMixer;
+
+    /**
+     * Creates a hash set with the default expected number of elements, 
+     * load factor and a random mixing seed.
 `     */
     public KTypeOpenHashSet()
     {
         this(DEFAULT_EXPECTED_ELEMENTS, DEFAULT_LOAD_FACTOR);
     }
-
     /**
-     * Creates a hash set with the given number of expected elements.
+     * Creates a hash set with the given number of expected elements and
+     * a random mixing seed.
      */
     public KTypeOpenHashSet(int expectedElements)
     {
@@ -145,24 +156,30 @@ public class KTypeOpenHashSet<KType>
 
     /**
      * Creates a hash set capable of storing the given number of keys without
-     * resizing and with the given load factor.
+     * resizing, the given load factor and a random key mixing seed. 
      * 
      * @param expectedElements The expected number of keys that won't cause a rehash (inclusive).  
-     * @param loadFactor The load factor for internal buffers in (0, 1) range.  
+     * @param loadFactor The load factor for internal buffers in (0, 1) range.
      */
     public KTypeOpenHashSet(int expectedElements, double loadFactor)
     {
-        this.initialLoadFactor = loadFactor;
-        loadFactor = getLoadFactor();
-        allocateBuffers(minBufferSize(expectedElements, loadFactor), loadFactor);
+      this(expectedElements, loadFactor, HashOrderMixing.randomized());
     }
 
     /**
-     * Validate load factor range and return it.
+     * Creates a hash set capable of storing the given number of keys without
+     * resizing, the given load factor and key mixing seed. 
+     * 
+     * @param expectedElements The expected number of keys that won't cause a rehash (inclusive).  
+     * @param loadFactor The load factor for internal buffers in (0, 1) range.
+     * @param mixSeed The initial key mixing seed.
      */
-    protected double getLoadFactor() {
-      checkLoadFactor(initialLoadFactor, MIN_LOAD_FACTOR, MAX_LOAD_FACTOR);
-      return initialLoadFactor;
+    public KTypeOpenHashSet(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer)
+    {
+        this.loadFactor = loadFactor;
+        this.orderMixer = orderMixer;
+        loadFactor = getLoadFactor();
+        allocateBuffers(minBufferSize(expectedElements, loadFactor), loadFactor);
     }
 
     /**
@@ -183,8 +200,8 @@ public class KTypeOpenHashSet<KType>
     {
         assert assigned < allocated.length;
 
-        final int mask = allocated.length - 1;
-        int slot = rehash(e, perturbation) & mask;
+        final int mask = this.mask;
+        int slot = hashKey(e) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(e, keys[slot]))
@@ -210,6 +227,7 @@ public class KTypeOpenHashSet<KType>
     /**
      * Adds two elements to the set.
      */
+    // TODO: remove, esoteric use case
     public int add(KType e1, KType e2)
     {
         int count = 0;
@@ -226,6 +244,7 @@ public class KTypeOpenHashSet<KType>
      * @return Returns the number of elements that were added to the set
      * (were not present in the set).
      */
+    // TODO: rename as addAll, ensureCapacity
     public int add(KType... elements)
     {
         int count = 0;
@@ -262,104 +281,6 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * Expand the internal storage buffers or rehash current
-     * keys and values if there are a lot of deleted slots.
-     */
-    private void expandAndAdd(KType pendingKey, int freeSlot)
-    {
-        assert assigned == resizeAt;
-        assert !allocated[freeSlot];
-
-        // Try to allocate new buffers first. If we OOM, it'll be now without
-        // leaving the data structure in an inconsistent state.
-        final KType   [] oldKeys      = this.keys;
-        final boolean [] oldAllocated = this.allocated;
-        final double loadFactor = getLoadFactor();
-        allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor), loadFactor);
-        assert this.keys.length > oldKeys.length;
-
-        // We have succeeded at allocating new data so insert the pending key/value at
-        // the free slot in the old arrays before rehashing.
-        lastSlot = -1;
-        assigned++;
-        oldAllocated[freeSlot] = true;
-        oldKeys[freeSlot] = pendingKey;
-        
-        // Rehash all stored keys into the new buffers.
-        final KType []   keys = this.keys;
-        final boolean [] allocated = this.allocated;
-        final int mask = allocated.length - 1;
-        for (int i = oldAllocated.length; --i >= 0;)
-        {
-            if (oldAllocated[i])
-            {
-                final KType k = oldKeys[i];
-
-                int slot = rehash(k, perturbation) & mask;
-                while (allocated[slot])
-                {
-                    slot = (slot + 1) & mask;
-                }
-
-                allocated[slot] = true;
-                keys[slot] = k;                
-            }
-        }
-
-        /* #if ($TemplateOptions.KTypeGeneric) */ Arrays.fill(oldKeys,   null); /* #end */
-    }
-
-
-    /**
-     * Allocate internal buffers and thresholds to ensure they can hold 
-     * the given number of elements.
-     */
-    protected void allocateBuffers(int arraySize, double loadFactor)
-    {
-        // Ensure no change is done if we hit an OOM.
-        final int newPerturbation = computePerturbationValue(arraySize);
-        KType [] keys = this.keys;
-        boolean [] allocated = this.allocated;
-        try {
-          this.keys = Intrinsics.newKTypeArray(arraySize);
-          this.allocated = new boolean [arraySize];
-        } catch (OutOfMemoryError e) {
-          this.keys = keys;
-          this.allocated = allocated;
-          throw new BufferAllocationException("Not enough memory.", e);
-        }
-
-        this.resizeAt = expandAtCount(arraySize, loadFactor);
-        this.perturbation = newPerturbation;
-    }
-
-    /**
-     * <p>Compute the key perturbation value applied before hashing. The returned value
-     * should be non-zero and ideally be different for each instance.
-     * 
-     * <p>This matters because
-     * keys are nearly-ordered by their hashed values so when adding one container's
-     * values to the other, the number of collisions can skyrocket into the worst case
-     * possible.
-     * 
-     * <p>The default implementation tries to provide a repeatable hash order 
-     * and at the same attempts to minimize the risk of hash keys clustering. It can be
-     * overriden.
-     * 
-     * <p>If it is known that hash containers will not be added to each other 
-     * (will be used for counting only, for example) then some speed can be gained by 
-     * not perturbing keys before hashing and returning a value of zero for all possible
-     * capacities. The speed gain is a result of faster rehash operation (keys are mostly
-     * in order).   
-     */
-    protected int computePerturbationValue(int newBufferSize)
-    {
-        // Make sure we still have access to old keys.
-        assert this.keys == null || this.keys.length < newBufferSize;
-        return newBufferSize;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -373,9 +294,8 @@ public class KTypeOpenHashSet<KType>
      */
     public boolean remove(KType key)
     {
-        final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask; 
-
+        final int mask = this.mask;
+        int slot = hashKey(key) & mask; 
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -386,52 +306,7 @@ public class KTypeOpenHashSet<KType>
              }
              slot = (slot + 1) & mask;
         }
-
         return false;
-    }
-
-    /**
-     * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>. 
-     */
-    protected void shiftConflictingKeys(int slotCurr)
-    {
-        // Copied nearly verbatim from fastutil's impl.
-        final int mask = allocated.length - 1;
-        int slotPrev, slotOther;
-        while (true)
-        {
-            slotCurr = ((slotPrev = slotCurr) + 1) & mask;
-
-            while (allocated[slotCurr])
-            {
-                slotOther = rehash(keys[slotCurr], perturbation) & mask;
-                if (slotPrev <= slotCurr)
-                {
-                    // We are on the right of the original slot.
-                    if (slotPrev >= slotOther || slotOther > slotCurr)
-                        break;
-                }
-                else
-                {
-                    // We have wrapped around.
-                    if (slotPrev >= slotOther && slotOther > slotCurr)
-                        break;
-                }
-                slotCurr = (slotCurr + 1) & mask;
-            }
-
-            if (!allocated[slotCurr]) 
-                break;
-
-            // Shift key/value pair.
-            keys[slotPrev] = keys[slotCurr];
-        }
-
-        allocated[slotPrev] = false;
-
-        /* #if ($TemplateOptions.KTypeGeneric) */ 
-        keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
-        /* #end */
     }
 
     /* #if ($TemplateOptions.KTypeGeneric) */
@@ -474,7 +349,7 @@ public class KTypeOpenHashSet<KType>
     public boolean contains(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = hashKey(key) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -527,17 +402,15 @@ public class KTypeOpenHashSet<KType>
     public int hashCode()
     {
         int h = 0;
-
         final KType [] keys = this.keys;
-        final boolean [] states = this.allocated;
-        for (int i = states.length; --i >= 0;)
+        final boolean [] allocated = this.allocated;
+        for (int i = allocated.length; --i >= 0;)
         {
-            if (states[i])
+            if (allocated[i])
             {
-                h += rehash(keys[i]);
+                h += Internals.rehash(keys[i]);
             }
         }
-
         return h;
     }
 
@@ -770,15 +643,143 @@ public class KTypeOpenHashSet<KType>
     }
 
     /**
-     * Returns a new object with no key perturbations (see
-     * {@link #computePerturbationValue(int)}). Only use when sure the container will not
-     * be used for direct copying of keys to another hash container.
+     * Validate load factor range and return it.
      */
-    public static <KType> KTypeOpenHashSet<KType> newInstanceWithoutPerturbations()
+    protected double getLoadFactor() {
+      checkLoadFactor(loadFactor, MIN_LOAD_FACTOR, MAX_LOAD_FACTOR);
+      return loadFactor;
+    }
+
+    /**
+     * Expand the internal storage buffers or rehash current
+     * keys and values if there are a lot of deleted slots.
+     */
+    protected void expandAndAdd(KType pendingKey, int freeSlot)
     {
-        return new KTypeOpenHashSet<KType>() {
-            @Override
-            protected int computePerturbationValue(int capacity) { return 0; }
-        };
+        assert assigned == resizeAt;
+        assert !allocated[freeSlot];
+    
+        // Try to allocate new buffers first. If we OOM, it'll be now without
+        // leaving the data structure in an inconsistent state.
+        final KType   [] prevKeys      = this.keys;
+        final boolean [] prevAllocated = this.allocated;
+        final double loadFactor = getLoadFactor();
+        allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor), loadFactor);
+        assert this.keys.length > prevKeys.length;
+    
+        // We have succeeded at allocating new data so insert the pending key/value at
+        // the free slot in the old arrays before rehashing.
+        lastSlot = -1;
+        assigned++;
+        prevAllocated[freeSlot] = true;
+        prevKeys[freeSlot] = pendingKey;
+        
+        // Rehash all stored keys into the new buffers.
+        final KType []   keys = this.keys;
+        final boolean [] allocated = this.allocated;
+        final int mask = this.mask;
+        for (int i = prevAllocated.length; --i >= 0;)
+        {
+            if (prevAllocated[i])
+            {
+                final KType k = prevKeys[i];
+    
+                int slot = hashKey(k) & mask;
+                while (allocated[slot])
+                {
+                    slot = (slot + 1) & mask;
+                }
+    
+                allocated[slot] = true;
+                keys[slot] = k;                
+            }
+        }
+    
+        // NOCOMMIT: Just release the reference, let the GC handle this?
+        /* #if ($TemplateOptions.KTypeGeneric) */ Arrays.fill(prevKeys,   null); /* #end */
+    }
+
+    /**
+     * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>. 
+     */
+    protected void shiftConflictingKeys(int slotCurr)
+    {
+        // Copied nearly verbatim from fastutil's impl.
+        final int mask = this.mask;
+        int slotPrev, slotOther;
+        while (true)
+        {
+            slotCurr = ((slotPrev = slotCurr) + 1) & mask;
+    
+            while (allocated[slotCurr])
+            {
+                slotOther = hashKey(keys[slotCurr]) & mask;
+                if (slotPrev <= slotCurr)
+                {
+                    // We are on the right of the original slot.
+                    if (slotPrev >= slotOther || slotOther > slotCurr) {
+                        break;
+                    }
+                }
+                else
+                {
+                    // We have wrapped around.
+                    if (slotPrev >= slotOther && slotOther > slotCurr) {
+                        break;
+                    }
+                }
+                slotCurr = (slotCurr + 1) & mask;
+            }
+    
+            if (!allocated[slotCurr]) { 
+                break;
+            }
+    
+            // Shift key/value pair.
+            keys[slotPrev] = keys[slotCurr];
+        }
+    
+        allocated[slotPrev] = false;
+    
+        /* #if ($TemplateOptions.KTypeGeneric) */ 
+        keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue(); 
+        /* #end */
+    }
+
+    /**
+     * Allocate internal buffers and thresholds to ensure they can hold 
+     * the given number of elements.
+     */
+    protected void allocateBuffers(int arraySize, double loadFactor)
+    {
+        // Compute new hash mixer before actually expanding
+        final int newKeyMixer = this.orderMixer.newKeyMixer(arraySize);
+    
+        // Ensure no change is done if we hit an OOM.
+        KType [] prevKeys = this.keys;
+        boolean [] prevAllocated = this.allocated;
+        try {
+          this.keys = Intrinsics.newKTypeArray(arraySize);
+          this.allocated = new boolean [arraySize];
+        } catch (OutOfMemoryError e) {
+          this.keys = prevKeys;
+          this.allocated = prevAllocated;
+          throw new BufferAllocationException(
+              "Not enough memory to allocate buffers for rehashing: %,d -> %,d", 
+              e,
+              this.keys,
+              arraySize);
+        }
+    
+        this.resizeAt = expandAtCount(arraySize, loadFactor);
+        this.keyMixer = newKeyMixer;
+        this.mask = arraySize - 1;
+    }
+
+    /**
+     * Additionally perturbs the hash of a given key with {@link #keyMixer}.
+     */
+    protected int hashKey(KType key) {
+      return Internals.rehash(key, this.keyMixer);
     }
 }
