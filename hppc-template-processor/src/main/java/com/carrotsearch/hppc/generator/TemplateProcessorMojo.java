@@ -156,7 +156,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
       if (!fileName.contains("VType") && fileName.contains("KType")) {
         for (Type ktype : Type.values()) {
           TemplateOptions options = new TemplateOptions(ktype);
-          options.sourceFile = f.path;
+          options.templateFile = f.path;
           generate(f, outputs, options);
         }
       }
@@ -164,7 +164,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
         for (Type ktype : Type.values()) {
           for (Type vtype : Type.values()) {
             TemplateOptions options = new TemplateOptions(ktype, vtype);
-            options.sourceFile = f.path;
+            options.templateFile = f.path;
             generate(f, outputs, options);
           }
         }
@@ -211,6 +211,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
     timeTypeClassRefs.start();
     template = filterTypeClassRefs(template, templateOptions);
+    template = filterStaticTokens(template, templateOptions);
     timeTypeClassRefs.stop();
 
     timeComments.start();
@@ -223,8 +224,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
     outputs.add(output);
   }
 
+  private String filterStaticTokens(String template, TemplateOptions templateOptions) {
+    return template.replace(TemplateOptions.TEMPLATE_FILE_TOKEN, templateOptions.getTemplateFile());
+  }
+
   private String filterIntrinsics(String input, TemplateOptions templateOptions) {
-    Pattern p = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
+    Pattern p = Pattern.compile(
+        "(Intrinsics.\\s*)" + 
+        "(<(?<generic>[^>]+)>\\s*)?" + 
+        "(?<method>[a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
     StringBuilder sb = new StringBuilder();
     while (true) {
@@ -232,7 +240,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
       if (m.find()) {
         sb.append(input.substring(0, m.start()));
 
-        String method = m.group(3);
+        String method = m.group("method");
 
         int bracketCount = 0;
         int last = m.end() + 1;
@@ -260,7 +268,17 @@ public class TemplateProcessorMojo extends AbstractMojo {
           }
         }
 
-        if ("defaultKTypeValue".equals(method)) {
+        if ("cast".equals(method)) {
+          if (templateOptions.isKTypeGeneric()) {
+            String generic = m.group("generic");
+            if (generic == null) {
+              throw new RuntimeException("Instrinsic requires an explicit generic type: " + m.group());
+            }
+            sb.append("(" + generic + ") " + params.get(0));
+          } else {
+            sb.append(params.get(0));
+          }
+        } else if ("defaultKTypeValue".equals(method)) {
           sb.append(templateOptions.isKTypeGeneric()
               ? "null"
               : "((" + templateOptions.getKType().getType() + ") 0)");
@@ -271,7 +289,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
         } else if ("newKTypeArray".equals(method)) {
           sb.append(
               templateOptions.isKTypeGeneric()
-                  ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
+                  ? "new Object [" + params.get(0) + "]"
                   : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
         } else if ("newVTypeArray".equals(method)) {
           sb.append(
@@ -433,22 +451,27 @@ public class TemplateProcessorMojo extends AbstractMojo {
       input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
               (k.isGeneric() ? "Object" : k.getBoxedType()) +
               (v.isGeneric() ? "Object" : v.getBoxedType()) +
-              "$2" +
+              "$2" + 
               (options.isAnyGeneric() ? "$3" : ""));
 
       input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
-          (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
+                               (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
 
-      if (!v.isGeneric())
+      if (!v.isGeneric()) {
         input = input.replaceAll("VType", v.getType());
+      }
     }
-    
-    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
-        k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
 
-     if (!k.isGeneric()) {
+    input = input.replaceAll("(KType)(\\s*)(\\[)([^]]*)(\\])", 
+                              k.isGeneric() ? "Object" + " [$4]" 
+                                            : k.getType() + "[$4]");
+
+    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<[^>]*>)?", 
+                             k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
+
+    if (!k.isGeneric()) {
       input = input.replaceAll("KType", k.getType());
-     }
+    }
 
     return input;
   }

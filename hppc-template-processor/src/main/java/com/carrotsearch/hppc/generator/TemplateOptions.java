@@ -9,12 +9,14 @@ import java.util.Locale;
  * Template options for velocity directives in templates.
  */
 public class TemplateOptions {
+  public static final String TEMPLATE_FILE_TOKEN = "__TEMPLATE_SOURCE__";
+
   private boolean ignore;
 
   public Type ktype;
   public Type vtype;
 
-  public Path sourceFile;
+  public Path templateFile;
 
   public TemplateOptions(Type ktype) {
     this(ktype, null);
@@ -70,7 +72,9 @@ public class TemplateOptions {
   }
 
   public Type getVType() {
-    if (vtype == null) throw new RuntimeException("VType is null.");
+    if (vtype == null) { 
+      throw new RuntimeException("VType is null.");
+    }
     return vtype;
   }
 
@@ -82,11 +86,16 @@ public class TemplateOptions {
     return format.format(new Date());
   }
 
-  public String getSourceFile() {
-    return sourceFile.getFileName().toString();
+  public String getTemplateFile() {
+    return templateFile.getFileName().toString();
   }
 
   public String getGeneratedAnnotation() {
-    return "@javax.annotation.Generated(date = \"" + getTimeNow() + "\", value = \"HPPC. Generated from: " + getSourceFile() + "\")";
+    return String.format(Locale.ROOT, 
+        "@javax.annotation.Generated(\n" + 
+        "    date = \"%s\",\n" +
+        "    value = \"%s\")",
+        getTimeNow(),
+        TEMPLATE_FILE_TOKEN);
   }
 }
