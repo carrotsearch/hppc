@@ -109,7 +109,7 @@ public class KTypeOpenHashSet<KType>
   public KTypeOpenHashSet(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
     this.orderMixer = orderMixer;
     this.loadFactor = verifyLoadFactor(loadFactor);
-    allocateBuffers(minBufferSize(expectedElements, this.loadFactor));
+    ensureCapacity(expectedElements);
   }
 
   /**
@@ -156,7 +156,7 @@ public class KTypeOpenHashSet<KType>
   @SafeVarargs
   /* #end */
   public final int addAll(KType... elements) {
-    // NOCOMMIT: http://issues.carrot2.org/browse/HPPC-112 (ensureCapacity)
+    ensureCapacity(elements.length);
     int count = 0;
     for (KType e : elements) {
       if (add(e)) {
@@ -173,7 +173,7 @@ public class KTypeOpenHashSet<KType>
    *         call (not previously present in the set).
    */
   public int addAll(KTypeContainer<? extends KType> container) {
-    // NOCOMMIT: http://issues.carrot2.org/browse/HPPC-112 (ensureCapacity)
+    ensureCapacity(container.size());
     return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
   }
 
@@ -291,7 +291,22 @@ public class KTypeOpenHashSet<KType>
    */
   @Override
   public boolean isEmpty() {
-    return size() == 0;
+    return assigned == 0;
+  }
+
+  /**
+   * Ensure the set can store the given number of elements (total, not
+   * in addition to any currently stored elements) without resizing.
+   */
+  public void ensureCapacity(int expectedElements) {
+    if (expectedElements > resizeAt || keys == null) {
+      final KType[] prevKeys = this.keys;
+      final boolean[] prevAllocated = this.allocated;
+      allocateBuffers(minBufferSize(expectedElements, loadFactor));
+      if (prevKeys != null && !isEmpty()) {
+        rehash(prevKeys, prevAllocated);
+      }
+    }
   }
 
   /**
@@ -467,6 +482,29 @@ public class KTypeOpenHashSet<KType>
   }
 
   /**
+   * Rehash from old buffers to new buffers. 
+   */
+  protected void rehash(KType[] fromKeys, boolean[] fromAllocated) {
+    // Rehash all stored keys into the new buffers.
+    final KType[] keys = this.keys;
+    final boolean[] allocated = this.allocated;
+    final int mask = this.mask;
+    for (int i = fromAllocated.length; --i >= 0;) {
+      if (fromAllocated[i]) {
+        final KType k = fromKeys[i];
+  
+        int slot = hashKey(k) & mask;
+        while (allocated[slot]) {
+          slot = (slot + 1) & mask;
+        }
+  
+        allocated[slot] = true;
+        keys[slot] = k;
+      }
+    }
+  }
+
+  /**
    * Allocate new internal buffers. This method attempts to allocate
    * and assign internal buffers atomically (either allocations succeed or not).
    */
@@ -487,7 +525,9 @@ public class KTypeOpenHashSet<KType>
       this.allocated = prevAllocated;
       throw new BufferAllocationException(
           "Not enough memory to allocate buffers for rehashing: %,d -> %,d", 
-          e, this.keys, arraySize);
+          e,
+          this.keys == null ? 0 : this.keys.length, 
+          arraySize);
     }
 
     this.resizeAt = expandAtCount(arraySize, loadFactor);
@@ -520,32 +560,6 @@ public class KTypeOpenHashSet<KType>
 
     // Rehash old keys, including the pending key.
     rehash(prevKeys, prevAllocated);
-
-    // NOCOMMIT: Just release the reference, let the GC handle this?
-    /* #if ($TemplateOptions.KTypeGeneric) */Arrays.fill(prevKeys, null); /* #end */
-  }
-
-  /**
-   * Rehash from old buffers to new buffers. 
-   */
-  protected void rehash(KType[] fromKeys, boolean[] fromAllocated) {
-    // Rehash all stored keys into the new buffers.
-    final KType[] keys = this.keys;
-    final boolean[] allocated = this.allocated;
-    final int mask = this.mask;
-    for (int i = fromAllocated.length; --i >= 0;) {
-      if (fromAllocated[i]) {
-        final KType k = fromKeys[i];
-
-        int slot = hashKey(k) & mask;
-        while (allocated[slot]) {
-          slot = (slot + 1) & mask;
-        }
-
-        allocated[slot] = true;
-        keys[slot] = k;
-      }
-    }
   }
 
   /**
