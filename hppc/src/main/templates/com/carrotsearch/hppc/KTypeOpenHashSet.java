@@ -581,7 +581,7 @@ public class KTypeOpenHashSet<KType>
         break;
       }
 
-      final int idealSlot = hashKey(keys[slot]) & mask;
+      final int idealSlot = hashKey(keys[slot]);
       final int shift = (slot - idealSlot) & mask;
       if (shift >= distance) {
         // Entry at this position was originally at or before the gap slot.
