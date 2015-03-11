@@ -569,42 +569,36 @@ public class KTypeOpenHashSet<KType>
   /**
    * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
    */
-  protected void shiftConflictingKeys(int slot) {
+  protected void shiftConflictingKeys(int gapSlot) {
     final KType[] keys = keys();
     final int mask = this.mask;
-    int slotPrev, slotOther;
+
+    // Perform shifts of conflicting keys to fill in the gap.
+    int distance = 0;
     while (true) {
-      slotPrev = slot;
-      slot = (slot + 1) & mask;
-
-      while (allocated[slot]) {
-        slotOther = hashKey(keys[slot]) & mask;
-        if (slotPrev <= slot) {
-          // We are on the right of the original slot.
-          if (slotPrev >= slotOther || slotOther > slot) {
-            break;
-          }
-        } else {
-          // We have wrapped around.
-          if (slotPrev >= slotOther && slotOther > slot) {
-            break;
-          }
-        }
-        slot = (slot + 1) & mask;
-      }
-
+      final int slot = (gapSlot + (++distance)) & mask;
       if (!allocated[slot]) {
         break;
       }
 
-      // Shift key/value pair.
-      keys[slotPrev] = keys[slot];
+      final int idealSlot = hashKey(keys[slot]) & mask;
+      final int shift = (slot - idealSlot) & mask;
+      if (shift >= distance) {
+        // Entry at this position was originally at or before the gap slot.
+        // Move the conflict-shifted entry to the gap's position and repeat the procedure
+        // for any entries to the right of the current position, treating it
+        // as the new gap.
+        keys[gapSlot] = keys[slot];
+        gapSlot = slot;
+        distance = 0;
+      }
     }
 
-    allocated[slotPrev] = false;
+    // Mark the last found gap slot without a conflict as empty.
+    allocated[gapSlot] = false;
     /* #if ($TemplateOptions.KTypeGeneric) */
-    keys[slotPrev] = Intrinsics.<KType> defaultKTypeValue();
-    /* #end */
+    keys[gapSlot] = Intrinsics.<KType> defaultKTypeValue();
+    /* #end */            
   }
 
   private KType[] keys() {
