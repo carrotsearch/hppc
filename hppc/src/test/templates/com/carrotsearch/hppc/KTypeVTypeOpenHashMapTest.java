@@ -96,6 +96,31 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     
     /* */
     @Test
+    @Ignore
+    public void testEnsureCapacity()
+    {
+        final IntHolder expands = new IntHolder();
+        KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<KType, VType>(0) {
+          // NOCOMMIT: write after map refactoring.
+        };
+
+        // Add some elements.
+        final int max = rarely() ? 0 : randomIntBetween(0, 250);
+        for (int i = 0; i < max; i++) {
+          map.put(cast(i), value0);
+        }
+
+        final int additions = randomIntBetween(max, max + 5000);
+        map.ensureCapacity(additions + map.size());
+        final int before = expands.value;
+        for (int i = 0; i < additions; i++) {
+          map.put(cast(i), value0);
+        }
+        assertEquals(before, expands.value);
+    }
+    
+    /* */
+    @Test
     public void testCloningConstructor()
     {
         map.put(key1, value1);

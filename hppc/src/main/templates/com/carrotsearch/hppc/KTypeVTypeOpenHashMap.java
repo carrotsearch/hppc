@@ -1130,7 +1130,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             throw new UnsupportedOperationException();                                                                                        
         }                                                                                                                                     
     }                                                                                                                                         
-                                                                                                                                              
+
+    public void ensureCapacity(int expectedKeys) {
+      throw new UnsupportedOperationException();
+    }
+
     /**                                                                                                                                       
      * An iterator over the set of assigned values.                                                                                           
      */                                                                                                                                       
