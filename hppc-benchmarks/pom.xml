@@ -13,7 +13,7 @@
   <artifactId>hppc-benchmarks</artifactId>
   <packaging>jar</packaging>
 
-  <name>HPPC Collections (Benchmarks)</name>
+  <name>HPPC Benchmarks</name>
 
   <dependencies>
     <dependency>
