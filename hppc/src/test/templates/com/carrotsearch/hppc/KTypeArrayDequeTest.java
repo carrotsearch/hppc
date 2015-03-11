@@ -84,7 +84,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < sequence.size(); i++)
         {
-            deque.addFirst(sequence.get(i));
+            deque.addFirst(sequence.buffer[i]);
         }
 
         assertListEquals(reverse(sequence.toArray()), deque.toArray());
@@ -95,7 +95,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     public void testAddLastWithGrowth()
     {
         for (int i = 0; i < sequence.size(); i++)
-            deque.addLast(sequence.get(i));
+            deque.addLast(sequence.buffer[i]);
 
         assertListEquals(sequence.toArray(), deque.toArray());
     }

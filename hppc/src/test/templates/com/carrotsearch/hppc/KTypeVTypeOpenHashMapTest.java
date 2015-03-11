@@ -73,7 +73,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     /* #if ($TemplateOptions.VTypeGeneric) */
     @SafeVarargs
     /* #end */
-    protected final VType/*keep*/[] newvArray(VType... elements)
+    protected final VType [] newvArray(VType... elements)
     {
         return elements;
     }

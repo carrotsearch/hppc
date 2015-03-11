@@ -16,16 +16,6 @@ final class Intrinsics
     }
     
     /**
-     * Redundant, eventually removed cast. We use this to get values from
-     * KType[] arrays.
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T cast(Object value)
-    {
-        return (T) value;
-    }
-
-    /**
      * Create and return an array of template objects (<code>Object</code>s in the generic
      * version, corresponding key-primitive type in the generated version).
      * 

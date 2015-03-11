@@ -66,9 +66,6 @@ import static com.carrotsearch.hppc.Containers.*;
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-/* #if ($TemplateOptions.AnyGeneric) */
-@SuppressWarnings("unchecked")
-/* #end */
 public class KTypeVTypeOpenHashMap<KType, VType>
     implements KTypeVTypeMap<KType, VType>, Cloneable
 {
@@ -217,7 +214,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
-                final VType oldValue = (VType) values[slot];
+                final VType oldValue = values[slot];
                 values[slot] = value;
                 return oldValue;
             }
@@ -408,8 +405,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (oldAllocated[i])
             {
-                final KType k = Intrinsics.<KType> cast(oldKeys[i]);
-                final VType v = (VType) oldValues[i];
+                final KType k = oldKeys[i];
+                final VType v = oldValues[i];
 
                 int slot = rehash(k, perturbation) & mask;
                 while (allocated[slot])
@@ -492,7 +489,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             if (Intrinsics.equalsKType(key, keys[slot]))
              {
                 assigned--;
-                VType v = (VType) values[slot];
+                VType v = values[slot];
                 shiftConflictingKeys(slot);
                 return v;
              }
@@ -581,7 +578,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (states[i])
             {
-                if (predicate.apply(Intrinsics.<KType> cast(keys[i])))
+                if (predicate.apply(keys[i]))
                 {
                     assigned--;
                     shiftConflictingKeys(i);
@@ -621,7 +618,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
-                return (VType) values[slot]; 
+                return values[slot]; 
             }
             
             slot = (slot + 1) & mask;
@@ -641,7 +638,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
             {
-                return (VType) values[slot]; 
+                return values[slot]; 
             }
             
             slot = (slot + 1) & mask;
@@ -669,7 +666,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
      */
     public KType lkey()
     {
-        return Intrinsics.<KType> cast(keys[lslot()]);
+        return keys[lslot()];
     }
     /* #end */
 
@@ -683,7 +680,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert lastSlot >= 0 : "Call containsKey() first.";
         assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
     
-        return (VType) values[lastSlot];
+        return values[lastSlot];
     }
 
     /**
@@ -699,7 +696,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert lastSlot >= 0 : "Call containsKey() first.";
         assert allocated[lastSlot] : "Last call to exists did not have any associated value.";
 
-        final VType previous = (VType) values[lastSlot];
+        final VType previous = values[lastSlot];
         values[lastSlot] = key;
         return previous;
     }
@@ -829,6 +826,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             if (obj instanceof KTypeVTypeMap)
             {
+                /* #if ($TemplateOptions.AnyGeneric) */
+                @SuppressWarnings("unchecked")
+                /* #end */
                 KTypeVTypeMap<KType, VType> other = (KTypeVTypeMap<KType, VType>) obj;
                 if (other.size() == this.size())
                 {
@@ -878,8 +878,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return done();
 
             cursor.index = i;
-            cursor.key = Intrinsics.<KType> cast(keys[i]);
-            cursor.value = (VType) values[i];
+            cursor.key = keys[i];
+            cursor.value = values[i];
 
             return cursor;
         }
@@ -906,13 +906,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         for (int i = 0; i < states.length; i++)
         {
-            if (states[i]) {
-                procedure.apply(
-                    Intrinsics.<KType> cast(keys[i]), 
-                    (VType) values[i]);
-            }
+            if (states[i])
+                procedure.apply(keys[i], values[i]);
         }
-
+        
         return procedure;
     }
 
@@ -949,7 +946,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int i = 0; i < localStates.length; i++)
             {
                 if (localStates[i])
-                    procedure.apply(Intrinsics.<KType> cast(localKeys[i]));
+                    procedure.apply(localKeys[i]);
             }
 
             return procedure;
@@ -965,7 +962,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             {
                 if (localStates[i])
                 {
-                    if (!predicate.apply(Intrinsics.<KType> cast(localKeys[i])))
+                    if (!predicate.apply(localKeys[i]))
                         break;
                 }
             }
@@ -1044,7 +1041,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return done();
 
             cursor.index = i;
-            cursor.value = Intrinsics.<KType> cast(keys[i]);
+            cursor.value = keys[i];
 
             return cursor;
         }
@@ -1102,7 +1099,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             for (int i = 0; i < allocated.length; i++)                                                                                        
             {                                                                                                                                 
                 if (allocated[i])                                                                                                             
-                    procedure.apply((VType) values[i]);                                                                                               
+                    procedure.apply(values[i]);                                                                                               
             }                                                                                                                                 
                                                                                                                                               
             return procedure;                                                                                                                 
@@ -1118,11 +1115,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
             {                                                                                                                                 
                 if (allocated[i])                                                                                                             
                 {                                                                                                                             
-                    if (!predicate.apply((VType) values[i]))                                                                                          
+                    if (!predicate.apply(values[i]))                                                                                          
                         break;                                                                                                                
-                }
-            }
-
+                }                                                                                                                             
+            }                                                                                                                                 
+                                                                                                                                              
             return predicate;                                                                                                                 
         }                                                                                                                                     
                                                                                                                                               
@@ -1178,7 +1175,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 return done();
 
             cursor.index = i;
-            cursor.value = (VType) values[i];
+            cursor.value = values[i];
 
             return cursor;
         }
@@ -1192,6 +1189,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     {
         try
         {
+            /* #if ($TemplateOptions.AnyGeneric) */
+            @SuppressWarnings("unchecked")
+            /* #end */
             KTypeVTypeOpenHashMap<KType, VType> cloned = 
                 (KTypeVTypeOpenHashMap<KType, VType>) super.clone();
             
@@ -1232,7 +1232,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Creates a hash map from two index-aligned arrays of key-value pairs. 
      */
-    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(KType/*keep*/[] keys, VType/*keep*/[] values)
+    public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(KType [] keys, VType [] values)
     {
         if (keys.length != values.length) 
             throw new IllegalArgumentException("Arrays of keys and values must have an identical length."); 

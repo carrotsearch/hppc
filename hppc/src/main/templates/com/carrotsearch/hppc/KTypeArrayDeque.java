@@ -271,7 +271,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        final KType result = Intrinsics.<KType> cast(buffer[head]);
+        final KType result = buffer[head];
         buffer[head] = Intrinsics.<KType>defaultKTypeValue();
         head = oneRight(head, buffer.length); 
         return result;
@@ -286,7 +286,7 @@ public class KTypeArrayDeque<KType>
         assert size() > 0 : "The deque is empty.";
 
         tail = oneLeft(tail, buffer.length); 
-        final KType result = Intrinsics.<KType> cast(buffer[tail]);
+        final KType result = buffer[tail];
         buffer[tail] = Intrinsics.<KType>defaultKTypeValue();
         return result;
     }
@@ -299,7 +299,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        return Intrinsics.<KType> cast(buffer[head]);
+        return buffer[head];
     }
 
     /**
@@ -310,7 +310,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        return Intrinsics.<KType> cast(buffer[oneLeft(tail, buffer.length)]);
+        return buffer[oneLeft(tail, buffer.length)];
     }
 
     /**
@@ -548,7 +548,11 @@ public class KTypeArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
+    /*! #if ($TemplateOptions.KTypePrimitive) 
     public KType [] toArray()
+        #else !*/
+    public Object [] toArray()
+    /*! #end !*/
     {
         final int size = size();
         return toArray(Intrinsics.<KType[]>newKTypeArray(size));
@@ -645,7 +649,7 @@ public class KTypeArrayDeque<KType>
                 return done();
 
             remaining--;
-            cursor.value = Intrinsics.<KType> cast(buffer[cursor.index = oneRight(cursor.index, buffer.length)]);
+            cursor.value = buffer[cursor.index = oneRight(cursor.index, buffer.length)];
             return cursor;
         }
     }
@@ -672,7 +676,7 @@ public class KTypeArrayDeque<KType>
                 return done();
 
             remaining--;
-            cursor.value = Intrinsics.<KType> cast(buffer[cursor.index = oneLeft(cursor.index, buffer.length)]);
+            cursor.value = buffer[cursor.index = oneLeft(cursor.index, buffer.length)];
             return cursor;
         }
     }
@@ -738,7 +742,7 @@ public class KTypeArrayDeque<KType>
         final KType [] buffer = this.buffer;
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
-            procedure.apply(Intrinsics.<KType> cast(buffer[i]));
+            procedure.apply(buffer[i]);
         }
     }
 
@@ -754,7 +758,7 @@ public class KTypeArrayDeque<KType>
         final KType [] buffer = this.buffer;
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
-            if (!predicate.apply(Intrinsics.<KType> cast(buffer[i])))
+            if (!predicate.apply(buffer[i]))
                 break;
         }
         
@@ -786,7 +790,7 @@ public class KTypeArrayDeque<KType>
         do
         {
             i = oneLeft(i, buffer.length);
-            procedure.apply(Intrinsics.<KType> cast(buffer[i]));
+            procedure.apply(buffer[i]);
         } while (i != fromIndex);
     }
 
@@ -816,7 +820,7 @@ public class KTypeArrayDeque<KType>
         do
         {
             i = oneLeft(i, buffer.length);
-            if (!predicate.apply(Intrinsics.<KType> cast(buffer[i])))
+            if (!predicate.apply(buffer[i]))
                 break;
         } while (i != fromIndex);
     }
@@ -836,8 +840,7 @@ public class KTypeArrayDeque<KType>
         {
             for (from = to = head; from != last; from = oneRight(from, bufLen))
             {
-                KType value = Intrinsics.<KType> cast(buffer[from]);
-                if (predicate.apply(value))
+                if (predicate.apply(buffer[from]))
                 {
                     buffer[from] = Intrinsics.<KType>defaultKTypeValue();
                     removed++;
@@ -846,7 +849,7 @@ public class KTypeArrayDeque<KType>
     
                 if (to != from)
                 {
-                    buffer[to] = value;
+                    buffer[to] = buffer[from];
                     buffer[from] = Intrinsics.<KType>defaultKTypeValue();
                 }
         
