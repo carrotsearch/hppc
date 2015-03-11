@@ -4,19 +4,16 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12421
 
 ** API-breaking changes
 
-HPPC-106: Drop Guava adapter (and dependency).
+HPPC-117: A summary of API changes resulting from other issues.
 
-HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
-          capacity is now the number of elements that can be stored without
-          hash container rehash.
-          
-          A few methods have been removed or renamed because the meaning of
-          "capacity" and presizing for the given number of expected elements
-          is now equivalent. See API changes below.
+          * (HPPC-118) Direct generic buffers are declared Object[].
+          Should not affect runtime code (Object[] casts were required 
+          anyway).
 
-HPPC-*:   (API changes)
+          * (HPPC-106) Guava adapters dropped. Copy to your own code
+          from previous HPPC release if required.
 
-          - 1.7 compatibility only. static factories removed, use diamonds.
+          * 1.7 compatibility only. static factories removed, use diamonds.
           T.newInstanceWithCapacity(*)     -> removed, use new T<>(*)
           T.newInstanceWithExpectedSize(*) -> removed, use new T<>(*)
           T.newInstance(*)                 -> removed, use new T<>(*)
@@ -24,11 +21,26 @@ HPPC-*:   (API changes)
 
 ** New features
 
+HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
+          capacity is now the number of elements that can be stored without
+          hash container rehash.
+          
+          A few methods have been removed or renamed because the meaning of
+          "capacity" and presizing for the given number of expected elements
+          is now equivalent. See API changes.
+
 ** Bug fixes
 
 ** Other changes
 
-HPPC-105: Cleanup project structure and IDE integration
+HPPC-106: Drop Guava adapter (and dependency).
+
+HPPC-118: Buffers for generic classes are now declared as Object[] and not as
+          generic type array. This prevents problems with compiler-injected
+          casts (it does not matter for the erased type but matters in user
+          code).
+
+HPPC-105: Cleanup project structure and IDE integration.
 
 
 [0.6.1]
