@@ -105,10 +105,8 @@ public class KTypeArrayDeque<KType>
     public KTypeArrayDeque(int expectedElements, ArraySizingStrategy resizer)
     {
         assert resizer != null;
-
         this.resizer = resizer;
-        expectedElements = resizer.round(expectedElements);
-        buffer = Intrinsics.newKTypeArray(expectedElements);
+        ensureCapacity(expectedElements);
     }
 
     /**
@@ -514,6 +512,18 @@ public class KTypeArrayDeque<KType>
     }
 
     /**
+     * Ensure enough buffer storage so that the given number of elements can be
+     * added without resizing (total, not in addition to any currently 
+     * stored elements).
+     */
+    public void ensureCapacity(int expectedElements) {
+      int additions = expectedElements - size();
+      if (additions > 0 || buffer == null) {
+        ensureBufferSpace(additions);
+      }
+    }
+
+    /**
      * Ensures the internal buffer has enough free slots to store
      * <code>expectedAdditions</code>. Increases internal buffer size if needed.
      */
@@ -521,13 +531,14 @@ public class KTypeArrayDeque<KType>
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);
         final int elementsCount = size();
-        // +1 because there is always one empty slot in a deque.
-        if (elementsCount >= bufferLen - expectedAdditions - 1)
+        
+        if (elementsCount + expectedAdditions >= bufferLen)
         {
-            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
-            assert newSize >= (elementsCount + expectedAdditions + 1) : "Resizer failed to" +
-                    " return sensible new size: " + newSize + " <= " 
-                    + (elementsCount + expectedAdditions);
+            final int emptySlot = 1; // deque invariant: always an empty slot.
+            final int newSize = resizer.grow(bufferLen, elementsCount + emptySlot, expectedAdditions);
+            assert newSize >= (elementsCount + expectedAdditions + emptySlot) : 
+                    "Resizer failed to" + " return sensible new size: " + newSize + " <= " + 
+                    (elementsCount + expectedAdditions);
 
             final KType [] newBuffer = Intrinsics.<KType[]>newKTypeArray(newSize);
             if (bufferLen > 0)

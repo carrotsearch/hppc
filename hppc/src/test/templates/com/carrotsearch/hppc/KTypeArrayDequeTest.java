@@ -2,9 +2,15 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 
-import java.util.*;
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+import java.util.ArrayDeque;
+/*! #end !*/
+import java.util.Iterator;
+import java.util.Random;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
@@ -388,6 +394,32 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
         deque.addLast(k1);
         assertListEquals(deque.toArray(), 1);
+    }
+
+    /* */
+    @Test
+    public void testEnsureCapacity()
+    {
+        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy();
+        KTypeArrayDeque<KType> deque = new KTypeArrayDeque<>(0, resizer);
+
+        // Add some elements.
+        final int max = rarely() ? 0 : randomIntBetween(0, 1000);
+        for (int i = 0; i < max; i++) {
+          deque.addLast(cast(i));
+        }
+
+        final int additions = randomIntBetween(0, 5000);
+        deque.ensureCapacity(additions + deque.size());
+        final int before = resizer.growCalls;
+        for (int i = 0; i < additions; i++) {
+          if (randomBoolean()) { 
+            deque.addLast(cast(i));
+          } else {
+            deque.addFirst(cast(i));
+          }
+        }
+        assertEquals(before, resizer.growCalls);
     }
 
     /* */
