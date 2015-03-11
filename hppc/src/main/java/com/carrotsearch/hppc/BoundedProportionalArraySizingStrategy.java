@@ -13,25 +13,22 @@ import java.util.ArrayList;
  */
 public final class BoundedProportionalArraySizingStrategy 
     implements ArraySizingStrategy
-{   
-    /** 
-     * Used by {@link ArrayList} internally to account for reference sizes. 
-     */
-    public static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE; 
+{
+    public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - /* aligned array header + slack */ 32;
 
     /** Minimum grow count. */
     public final static int DEFAULT_MIN_GROW_COUNT = 10;
 
     /** Maximum grow count (unbounded). */
-    public final static int DEFAULT_MAX_GROW_COUNT = MAX_ARRAY_SIZE;
+    public final static int DEFAULT_MAX_GROW_COUNT = MAX_ARRAY_LENGTH;
 
     /** Default resize is by half the current buffer's size. */
     public final static float DEFAULT_GROW_RATIO = 1.5f;
 
-    /** Minimum number of elements to grow, if capacity exceeded. */
+    /** Minimum number of elements to grow, if limit exceeded. */
     public final int minGrowCount;
 
-    /** Maximum number of elements to grow, if capacity exceeded. */
+    /** Maximum number of elements to grow, if limit exceeded. */
     public final int maxGrowCount;
 
     /** 
@@ -71,14 +68,15 @@ public final class BoundedProportionalArraySizingStrategy
         long growBy = (long) ((long) currentBufferLength * growRatio);
         growBy = Math.max(growBy, minGrowCount);
         growBy = Math.min(growBy, maxGrowCount);
-        long growTo = Math.min(MAX_ARRAY_SIZE, growBy + currentBufferLength);
-        
+        long growTo = Math.min(MAX_ARRAY_LENGTH, growBy + currentBufferLength);
         long newSize = Math.max((long) elementsCount + expectedAdditions, growTo); 
 
-        if (newSize > MAX_ARRAY_SIZE) {
-            throw new AssertionError(
-                "Cannot resize beyond " + MAX_ARRAY_SIZE + 
-                " (" + (elementsCount + expectedAdditions) + ")");
+        if (newSize > MAX_ARRAY_LENGTH) {
+            throw new BufferAllocationException(
+                "Java array size exceeded (current length: %d, elements: %d, expected additions: %d)",
+                currentBufferLength,
+                elementsCount,
+                expectedAdditions);
         }
 
         return (int) newSize;
@@ -87,9 +85,12 @@ public final class BoundedProportionalArraySizingStrategy
     /**
      * No specific requirements in case of this strategy - the argument is returned.
      */
-    public int round(int capacity)
+    public int round(int expectedElements)
     {
-        assert capacity >= 0 : "Capacity must be a positive number.";
-        return capacity;
+        if (expectedElements < 0) {
+            throw new BufferAllocationException(
+                "Expected number of elements must be positive: " + expectedElements);
+        }
+        return expectedElements;
     }
 }

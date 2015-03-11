@@ -4,6 +4,7 @@ import static com.carrotsearch.hppc.TestUtils.assertEquals2;
 
 import org.junit.Test;
 
+import com.carrotsearch.hppc.hash.MurmurHash3;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
@@ -99,9 +100,9 @@ public class APIExpectationsTest extends RandomizedTest
         ObjectStack<Integer> v5 = ObjectStack.newInstance();
         ObjectStack<Long> v6 = ObjectStack.newInstance();
         
-        IntOpenHashSet v7 = IntOpenHashSet.newInstance();
-        ObjectOpenHashSet<Integer> v8 = ObjectOpenHashSet.newInstance();
-        ObjectOpenHashSet<Long> v9 = ObjectOpenHashSet.newInstance();
+        IntOpenHashSet v7 = new IntOpenHashSet();
+        ObjectOpenHashSet<Integer> v8 = new ObjectOpenHashSet<>();
+        ObjectOpenHashSet<Long> v9 = new ObjectOpenHashSet<>();
         
         IntArrayDeque v10 = IntArrayDeque.newInstance();
         ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();
@@ -160,24 +161,25 @@ public class APIExpectationsTest extends RandomizedTest
         assertEquals2(3, map.putOrAdd(k1b, 1, 2));
     }    
 
-    /* */
+    /*
+     * Even with two different hash distribution keys the
+     * result of hashCode() should be the same. 
+     */
     @Test
     public void testHashCodeOverflowIdentical()
     {
         IntOpenHashSet l0 = new IntOpenHashSet() {
             @Override
-            protected int computePerturbationValue(int capacity)
-            {
-                return 0xDEADBEEF;
+            protected int hashKey(int key) {
+              return MurmurHash3.hash(key ^ 0xCAFEBABE);
             }
         };
 
         IntOpenHashSet l1 = new IntOpenHashSet() {
-            @Override
-            protected int computePerturbationValue(int capacity)
-            {
-                return 0xCAFEBABE;
-            }
+          @Override
+          protected int hashKey(int key) {
+            return MurmurHash3.hash(key ^ 0xBABECAFE);
+          }
         };
 
         for (int i = 1000000 + randomIntBetween(0, 1000000); i-- > 0;) {

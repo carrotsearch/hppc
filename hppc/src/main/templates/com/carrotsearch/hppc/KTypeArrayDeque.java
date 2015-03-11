@@ -7,6 +7,7 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
 import static com.carrotsearch.hppc.Internals.*;
+import static com.carrotsearch.hppc.Containers.*;
 
 /**
  * An array-backed deque (doubly linked queue) of KTypes. A single array is used to store and 
@@ -45,30 +46,21 @@ import static com.carrotsearch.hppc.Internals.*;
  * Collections.
 #end
  */
+/*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType> 
     extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, Cloneable
 {
     /**
-     * Default capacity if no other capacity is given in the constructor.
+     * Internal array for storing elements of the deque.
      */
-    public final static int DEFAULT_CAPACITY = 5;
-
-    /**
-     * Internal array for storing elements.
-     * 
-#if ($TemplateOptions.KTypeGeneric) 
-     * <p><strong>Important!</strong> 
-     * The actual value in this field is always an instance of <code>Object[]</code>.
-     * Be warned that <code>javac</code> emits additional casts when <code>buffer</code> 
-     * is directly accessed; <strong>these casts
-     * may result in exceptions at runtime</strong>. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements (although it is highly
-     * recommended to use a {@link #iterator()} instead.
-     * </pre>
-#end
-     */
-    public KType [] buffer;
+    public 
+      /*! #if ($TemplateOptions.KTypePrimitive) 
+          KType [] 
+          #else !*/ 
+          Object [] 
+      /*! #end !*/
+          buffer;
 
     /**
      * The index of the element at the head of the deque or an
@@ -88,37 +80,33 @@ public class KTypeArrayDeque<KType>
     protected final ArraySizingStrategy resizer;
 
     /**
-     * Create with default sizing strategy and initial capacity for storing 
-     * {@value #DEFAULT_CAPACITY} elements.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
     public KTypeArrayDeque()
     {
-        this(DEFAULT_CAPACITY);
+        this(DEFAULT_EXPECTED_ELEMENTS);
     }
 
     /**
-     * Create with default sizing strategy and the given initial capacity.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public KTypeArrayDeque(int initialCapacity)
+    public KTypeArrayDeque(int expectedElements)
     {
-        this(initialCapacity, new BoundedProportionalArraySizingStrategy());
+        this(expectedElements, new BoundedProportionalArraySizingStrategy());
     }
 
     /**
      * Create with a custom buffer resizing strategy.
      */
-    public KTypeArrayDeque(int initialCapacity, ArraySizingStrategy resizer)
+    public KTypeArrayDeque(int expectedElements, ArraySizingStrategy resizer)
     {
-        assert initialCapacity >= 0 : "initialCapacity must be >= 0: " + initialCapacity;
         assert resizer != null;
-
         this.resizer = resizer;
-        initialCapacity = resizer.round(initialCapacity);
-        buffer = Intrinsics.newKTypeArray(initialCapacity);
+        ensureCapacity(expectedElements);
     }
 
     /**
@@ -152,13 +140,17 @@ public class KTypeArrayDeque<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void addFirst(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final void addFirst(KType... elements)
     {
         ensureBufferSpace(elements.length);
 
         // For now, naive loop.
-        for (int i = 0; i < elements.length; i++)
+        for (int i = 0; i < elements.length; i++) {
             addFirst(elements[i]);
+        }
     }
 
     /**
@@ -218,7 +210,10 @@ public class KTypeArrayDeque<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void addLast(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final void addLast(KType... elements)
     {
         ensureBufferSpace(1);
 
@@ -270,7 +265,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        final KType result = buffer[head];
+        final KType result = Intrinsics.<KType> cast(buffer[head]);
         buffer[head] = Intrinsics.<KType>defaultKTypeValue();
         head = oneRight(head, buffer.length); 
         return result;
@@ -285,7 +280,7 @@ public class KTypeArrayDeque<KType>
         assert size() > 0 : "The deque is empty.";
 
         tail = oneLeft(tail, buffer.length); 
-        final KType result = buffer[tail];
+        final KType result = Intrinsics.<KType> cast(buffer[tail]);
         buffer[tail] = Intrinsics.<KType>defaultKTypeValue();
         return result;
     }
@@ -298,7 +293,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        return buffer[head];
+        return Intrinsics.<KType> cast(buffer[head]);
     }
 
     /**
@@ -309,7 +304,7 @@ public class KTypeArrayDeque<KType>
     {
         assert size() > 0 : "The deque is empty.";
 
-        return buffer[oneLeft(tail, buffer.length)];
+        return Intrinsics.<KType> cast(buffer[oneLeft(tail, buffer.length)]);
     }
 
     /**
@@ -423,8 +418,8 @@ public class KTypeArrayDeque<KType>
                 + head + ", tail=" + tail + ", index=" + index + ").";
 
         // Cache fields in locals (hopefully moved to registers).
-        final KType [] b = this.buffer;
-        final int bufLen = b.length;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
+        final int bufLen = buffer.length;
         final int lastIndex = bufLen - 1;
         final int head = this.head;
         final int tail = this.tail;
@@ -436,30 +431,30 @@ public class KTypeArrayDeque<KType>
         {
             if (index >= head)
             {
-                System.arraycopy(b, head, b, head + 1, leftChunk);
+                System.arraycopy(buffer, head, buffer, head + 1, leftChunk);
             }
             else
             {
-                System.arraycopy(b, 0, b, 1, index);
-                b[0] = b[lastIndex];
-                System.arraycopy(b, head, b, head + 1, lastIndex - head);
+                System.arraycopy(buffer, 0, buffer, 1, index);
+                buffer[0] = buffer[lastIndex];
+                System.arraycopy(buffer, head, buffer, head + 1, lastIndex - head);
             }
-            b[head] = Intrinsics.<KType>defaultKTypeValue();
+            buffer[head] = Intrinsics.<KType>defaultKTypeValue();
             this.head = oneRight(head, bufLen);
         }
         else
         {
             if (index < tail)
             {
-                System.arraycopy(b, index + 1, b, index, rightChunk);
+                System.arraycopy(buffer, index + 1, buffer, index, rightChunk);
             }
             else
             {
-                System.arraycopy(b, index + 1, b, index, lastIndex - index);
-                b[lastIndex] = b[0];
-                System.arraycopy(b, 1, b, 0, tail);
+                System.arraycopy(buffer, index + 1, buffer, index, lastIndex - index);
+                buffer[lastIndex] = buffer[0];
+                System.arraycopy(buffer, 1, buffer, 0, tail);
             }
-            b[tail] = Intrinsics.<KType>defaultKTypeValue();
+            buffer[tail] = Intrinsics.<KType>defaultKTypeValue();
             this.tail = oneLeft(tail, bufLen);
         }
     }
@@ -508,12 +503,24 @@ public class KTypeArrayDeque<KType>
     }
 
     /**
-     * Release internal buffers of this deque and reallocate the smallest buffer possible.
+     * Release internal buffers of this deque and reallocate with the default buffer.
      */
     public void release()
     {
         this.head = tail = 0;
-        buffer = Intrinsics.newKTypeArray(resizer.round(DEFAULT_CAPACITY));
+        buffer = Intrinsics.newKTypeArray(resizer.round(DEFAULT_EXPECTED_ELEMENTS));
+    }
+
+    /**
+     * Ensure enough buffer storage so that the given number of elements can be
+     * added without resizing (total, not in addition to any currently 
+     * stored elements).
+     */
+    public void ensureCapacity(int expectedElements) {
+      int additions = expectedElements - size();
+      if (additions > 0 || buffer == null) {
+        ensureBufferSpace(additions);
+      }
     }
 
     /**
@@ -524,13 +531,14 @@ public class KTypeArrayDeque<KType>
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);
         final int elementsCount = size();
-        // +1 because there is always one empty slot in a deque.
-        if (elementsCount >= bufferLen - expectedAdditions - 1)
+        
+        if (elementsCount + expectedAdditions >= bufferLen)
         {
-            final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions + 1);
-            assert newSize >= (elementsCount + expectedAdditions + 1) : "Resizer failed to" +
-                    " return sensible new size: " + newSize + " <= " 
-                    + (elementsCount + expectedAdditions);
+            final int emptySlot = 1; // deque invariant: always an empty slot.
+            final int newSize = resizer.grow(bufferLen, elementsCount + emptySlot, expectedAdditions);
+            assert newSize >= (elementsCount + expectedAdditions + emptySlot) : 
+                    "Resizer failed to" + " return sensible new size: " + newSize + " <= " + 
+                    (elementsCount + expectedAdditions);
 
             final KType [] newBuffer = Intrinsics.<KType[]>newKTypeArray(newSize);
             if (bufferLen > 0)
@@ -595,7 +603,7 @@ public class KTypeArrayDeque<KType>
     {
         try
         {
-            /* #if ($TemplateOptions.KTypeGeneric) */
+            /* #if ($templateOnly) */
             @SuppressWarnings("unchecked")
             /* #end */
             KTypeArrayDeque<KType> cloned = (KTypeArrayDeque<KType>) super.clone();
@@ -648,7 +656,7 @@ public class KTypeArrayDeque<KType>
                 return done();
 
             remaining--;
-            cursor.value = buffer[cursor.index = oneRight(cursor.index, buffer.length)];
+            cursor.value = Intrinsics.<KType> cast(buffer[cursor.index = oneRight(cursor.index, buffer.length)]);
             return cursor;
         }
     }
@@ -675,7 +683,7 @@ public class KTypeArrayDeque<KType>
                 return done();
 
             remaining--;
-            cursor.value = buffer[cursor.index = oneLeft(cursor.index, buffer.length)];
+            cursor.value = Intrinsics.<KType> cast(buffer[cursor.index = oneLeft(cursor.index, buffer.length)]);
             return cursor;
         }
     }
@@ -738,7 +746,7 @@ public class KTypeArrayDeque<KType>
      */
     private void forEach(KTypeProcedure<? super KType> procedure, int fromIndex, final int toIndex)
     {
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
             procedure.apply(buffer[i]);
@@ -754,7 +762,7 @@ public class KTypeArrayDeque<KType>
         int fromIndex = head;
         int toIndex = tail;
 
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
             if (!predicate.apply(buffer[i]))
@@ -784,7 +792,7 @@ public class KTypeArrayDeque<KType>
         if (fromIndex == toIndex)
             return;
 
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         int i = toIndex;
         do
         {
@@ -814,7 +822,7 @@ public class KTypeArrayDeque<KType>
         if (fromIndex == toIndex)
             return;
 
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         int i = toIndex;
         do
         {
@@ -830,6 +838,7 @@ public class KTypeArrayDeque<KType>
     @Override
     public int removeAll(KTypePredicate<? super KType> predicate)
     {
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         int removed = 0;
         final int last = tail;
         final int bufLen = buffer.length;
@@ -883,7 +892,7 @@ public class KTypeArrayDeque<KType>
         int fromIndex = head;
         int toIndex = tail;
 
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
             if (Intrinsics.equalsKType(e, buffer[i]))
@@ -903,7 +912,7 @@ public class KTypeArrayDeque<KType>
         int fromIndex = head;
         int toIndex = tail;
 
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
             h = 31 * h + rehash(this.buffer[i]);
@@ -915,7 +924,7 @@ public class KTypeArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
-    /* #if ($TemplateOptions.KTypeGeneric) */ 
+    /* #if ($templateOnly) */ 
     @SuppressWarnings("unchecked") 
     /* #end */
     public boolean equals(Object obj)
@@ -928,7 +937,7 @@ public class KTypeArrayDeque<KType>
                 if (other.size() == this.size())
                 {
                     int fromIndex = head;
-                    final KType [] buffer = this.buffer;
+                    final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
                     int i = fromIndex;
                     for (KTypeCursor<Object> c : other)
                     {
@@ -958,14 +967,17 @@ public class KTypeArrayDeque<KType>
      * instead of using a constructor).
      */
     public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
-        KTypeArrayDeque<KType> newInstanceWithCapacity(int initialCapacity)
+        KTypeArrayDeque<KType> newInstance(int expectedElements)
     {
-        return new KTypeArrayDeque<KType>(initialCapacity);
+        return new KTypeArrayDeque<KType>(expectedElements);
     }
 
     /**
      * Create a new deque by pushing a variable number of arguments to the end of it.
      */
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
     public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
         KTypeArrayDeque<KType> from(KType... elements)
     {

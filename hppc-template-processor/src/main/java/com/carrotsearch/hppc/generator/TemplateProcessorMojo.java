@@ -1,6 +1,26 @@
 package com.carrotsearch.hppc.generator;
 
-import com.google.common.base.Stopwatch;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -11,17 +31,16 @@ import org.apache.maven.project.MavenProject;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeInstance;
+import org.apache.velocity.runtime.log.NullLogChute;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.carrotsearch.hppc.generator.intrinsics.Cast;
+import com.carrotsearch.hppc.generator.intrinsics.DefaultKTypeValue;
+import com.carrotsearch.hppc.generator.intrinsics.DefaultVTypeValue;
+import com.carrotsearch.hppc.generator.intrinsics.EqualsKType;
+import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
+import com.carrotsearch.hppc.generator.intrinsics.NewKTypeArray;
+import com.carrotsearch.hppc.generator.intrinsics.NewVTypeArray;
+import com.google.common.base.Stopwatch;
 
 /**
  * Maven mojo applying preprocessor templates.
@@ -42,8 +61,8 @@ public class TemplateProcessorMojo extends AbstractMojo {
   @Parameter(defaultValue = "true")
   public boolean incremental;
 
-  @Parameter(defaultValue = "true")
-  public boolean attachSources;
+  @Parameter(required = true)
+  public String attachSources;
 
   @Parameter(required = true)
   public File templatesDir;
@@ -59,14 +78,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException {
     try {
       execute0();
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new MojoExecutionException("Couldn't process templates.", e);
     }
   }
 
-  private void execute0() throws Exception {
+  private void execute0() throws IOException, MojoExecutionException {
     velocity = new RuntimeInstance();
     final ExtendedProperties p = new ExtendedProperties();
+    p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, NullLogChute.class.getName());
     p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
     velocity.setConfiguration(p);
 
@@ -97,8 +117,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
         updated,
         removed.size()));
 
-    if (attachSources) {
-      project.addCompileSourceRoot(outputPath.toString());
+    switch (attachSources.toLowerCase(Locale.ROOT)) {
+      case "main":
+        project.addCompileSourceRoot(outputPath.toString());
+        break;
+      case "test":
+        project.addTestCompileSourceRoot(outputPath.toString());
+        break;
+      default:
+        throw new MojoExecutionException("Invalid source attachment option ('source' or 'test' allowed): " + attachSources);
     }
   }
 
@@ -146,7 +173,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
       if (!fileName.contains("VType") && fileName.contains("KType")) {
         for (Type ktype : Type.values()) {
           TemplateOptions options = new TemplateOptions(ktype);
-          options.sourceFile = f.path;
+          options.templateFile = f.path;
           generate(f, outputs, options);
         }
       }
@@ -154,7 +181,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
         for (Type ktype : Type.values()) {
           for (Type vtype : Type.values()) {
             TemplateOptions options = new TemplateOptions(ktype, vtype);
-            options.sourceFile = f.path;
+            options.templateFile = f.path;
             generate(f, outputs, options);
           }
         }
@@ -201,6 +228,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
     timeTypeClassRefs.start();
     template = filterTypeClassRefs(template, templateOptions);
+    template = filterStaticTokens(template, templateOptions);
     timeTypeClassRefs.stop();
 
     timeComments.start();
@@ -212,9 +240,25 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
     outputs.add(output);
   }
+  
+  private String filterStaticTokens(String template, TemplateOptions templateOptions) {
+    return template.replace(TemplateOptions.TEMPLATE_FILE_TOKEN, templateOptions.getTemplateFile());
+  }
 
   private String filterIntrinsics(String input, TemplateOptions templateOptions) {
-    Pattern p = Pattern.compile("(Intrinsics.\\s*)(<[^>]+>\\s*)?([a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
+    Pattern p = Pattern.compile(
+                "(Intrinsics.\\s*)" + 
+                "(<(?<generic>[^>]+)>\\s*)?" + 
+                "(?<method>[a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
+
+    HashMap<String, IntrinsicMethod> intrinsics = new HashMap<>();
+    intrinsics.put("defaultKTypeValue", new DefaultKTypeValue());
+    intrinsics.put("defaultVTypeValue", new DefaultVTypeValue());
+    intrinsics.put("newKTypeArray", new NewKTypeArray());
+    intrinsics.put("newVTypeArray", new NewVTypeArray());
+    intrinsics.put("equalsKType", new EqualsKType());
+    intrinsics.put("equalsVType", new EqualsVType());
+    intrinsics.put("cast", new Cast());
 
     StringBuilder sb = new StringBuilder();
     while (true) {
@@ -222,7 +266,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
       if (m.find()) {
         sb.append(input.substring(0, m.start()));
 
-        String method = m.group(3);
+        String method = m.group("method");
 
         int bracketCount = 0;
         int last = m.end() + 1;
@@ -250,62 +294,14 @@ public class TemplateProcessorMojo extends AbstractMojo {
           }
         }
 
-        if ("defaultKTypeValue".equals(method)) {
-          sb.append(templateOptions.isKTypeGeneric()
-              ? "null"
-              : "((" + templateOptions.getKType().getType() + ") 0)");
-        } else if ("defaultVTypeValue".equals(method)) {
-          sb.append(templateOptions.isVTypeGeneric()
-              ? "null"
-              : "((" + templateOptions.getVType().getType() + ") 0)");
-        } else if ("newKTypeArray".equals(method)) {
-          sb.append(
-              templateOptions.isKTypeGeneric()
-                  ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                  : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
-        } else if ("newVTypeArray".equals(method)) {
-          sb.append(
-              templateOptions.isVTypeGeneric()
-                  ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                  : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
-        } else if ("equalsKType".equals(method)) {
-          if (templateOptions.isKTypeGeneric()) {
-            sb.append(
-                String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
-                    params.toArray()));
-          } else if (templateOptions.ktype == Type.DOUBLE) {
-            sb.append(
-                String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))",
-                    params.toArray()));
-          } else if (templateOptions.ktype == Type.FLOAT) {
-            sb.append(
-                String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))",
-                    params.toArray()));
-          } else {
-            sb.append(
-                String.format("((%1$s) == (%2$s))",
-                    params.toArray()));
-          }
-        } else if ("equalsVType".equals(method)) {
-          if (templateOptions.isVTypeGeneric()) {
-            sb.append(
-                String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
-                    params.toArray()));
-          } else if (templateOptions.vtype == Type.DOUBLE) {
-            sb.append(
-                String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))",
-                    params.toArray()));
-          } else if (templateOptions.vtype == Type.FLOAT) {
-            sb.append(
-                String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))",
-                    params.toArray()));
-          } else {
-            sb.append(
-                String.format("((%1$s) == (%2$s))",
-                    params.toArray()));
-          }
+        IntrinsicMethod im = intrinsics.get(method);
+        if (im == null) {
+          throw new RuntimeException(String.format(Locale.ROOT,
+              "Unknown intrinsic method '%s' in call: %s",
+              method,
+              m.group()));
         } else {
-          throw new RuntimeException("Unrecognized Intrinsic call: " + method);
+          im.invoke(m, sb, templateOptions, m.group("generic"), params);
         }
       } else {
         sb.append(input);
@@ -420,8 +416,8 @@ public class TemplateProcessorMojo extends AbstractMojo {
     if (options.hasVType()) {
       Type v = options.getVType();
 
-      input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<.+?>)?",
-          (k.isGeneric() ? "Object" : k.getBoxedType()) +
+      input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
+              (k.isGeneric() ? "Object" : k.getBoxedType()) +
               (v.isGeneric() ? "Object" : v.getBoxedType()) +
               "$2" +
               (options.isAnyGeneric() ? "$3" : ""));
@@ -429,15 +425,17 @@ public class TemplateProcessorMojo extends AbstractMojo {
       input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
           (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
 
-      if (!v.isGeneric())
+      if (!v.isGeneric()) {
         input = input.replaceAll("VType", v.getType());
+      }
     }
-
-    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<.+?>)?",
+    
+    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
         k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
 
-    if (!k.isGeneric())
+     if (!k.isGeneric()) {
       input = input.replaceAll("KType", k.getType());
+     }
 
     return input;
   }
@@ -448,6 +446,9 @@ public class TemplateProcessorMojo extends AbstractMojo {
   private String filterVelocity(TemplateFile f, String template, TemplateOptions options) {
     final VelocityContext ctx = new VelocityContext();
     ctx.put("TemplateOptions", options);
+    ctx.put("true", true);
+    ctx.put("templateOnly", false);
+    ctx.put("false", false);
 
     StringWriter sw = new StringWriter();
     velocity.evaluate(ctx, sw, f.getFileName(), template);

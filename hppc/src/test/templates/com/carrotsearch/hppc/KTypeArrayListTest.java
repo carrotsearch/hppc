@@ -27,7 +27,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        list = KTypeArrayList.newInstance();
+        list = new KTypeArrayList<>();
     }
 
     @After
@@ -73,9 +73,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testAddVarArg()
     {
@@ -230,8 +227,8 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         list.add(asArray(0, 1, 2, 1, 0));
 
-        KTypeOpenHashSet<KType> list2 = KTypeOpenHashSet.newInstance();
-        list2.add(asArray(0, 2));
+        KTypeOpenHashSet<KType> list2 = new KTypeOpenHashSet<>();
+        list2.addAll(asArray(0, 2));
 
         assertEquals(3, list.removeAll(list2));
         assertEquals(0, list.removeAll(list2));
@@ -495,9 +492,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testFrom()
     {
@@ -507,9 +501,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testHashCodeEquals()
     {
@@ -526,9 +517,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testHashCodeEqualsWithOtherContainer()
     {
@@ -542,7 +530,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
-    @SuppressWarnings("unchecked")
     public void testHashCodeWithNulls()
     {
         KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, null, k3); 
@@ -564,7 +551,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     /*! #end !*/
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
     @Test
     public void testToArray()
     {
@@ -575,9 +561,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     /*! #end !*/
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testClone()
     {
@@ -591,9 +574,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testToString()
     {

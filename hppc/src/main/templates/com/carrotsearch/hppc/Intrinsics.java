@@ -14,7 +14,16 @@ final class Intrinsics
     {
         // no instances.
     }
-    
+
+    /**
+     * Provide a generic cast for. With type erasure it should work internally just
+     * fine and it simplifies code. The cast will be erased for primitive types.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T cast(Object value) {
+      return (T) value;
+    }
+
     /**
      * Create and return an array of template objects (<code>Object</code>s in the generic
      * version, corresponding key-primitive type in the generated version).

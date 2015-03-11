@@ -6,3 +6,12 @@ mvn clean verify
 
 # Package JAR files, no tests.
 mvn clean package -Pquick
+
+
+Eclipse workflow/ import
+------------------------
+
+# Install template processor and copy over initial IDE .settings
+mvn -Peclipse
+
+# Ready to use m2e: "File->Import->Existing Maven Projects".

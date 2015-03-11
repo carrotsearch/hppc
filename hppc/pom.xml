@@ -21,12 +21,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
@@ -56,6 +50,7 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <attachSources>main</attachSources>
               <templatesDir>${project.basedir}/src/main/templates</templatesDir>
               <outputDir>${project.build.directory}/generated-sources/main/java</outputDir>
             </configuration>
@@ -67,8 +62,9 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <attachSources>test</attachSources>
               <templatesDir>${project.basedir}/src/test/templates</templatesDir>
-              <outputDir>${project.build.directory}/generated-test-sources/test/java</outputDir>
+              <outputDir>${project.build.directory}/generated-sources/test/java</outputDir>
             </configuration>
           </execution>
         </executions>
@@ -108,7 +104,6 @@
 
                     showSuiteSummary="true"
                 />
-
                 <report-json file="${project.build.directory}/surefire-reports/test-results.html" />
                 <report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
               </listeners>
@@ -144,8 +139,58 @@
       </plugin>
     </plugins>
   </build>
-  
+
   <profiles>
+    <profile>
+      <id>eclipse</id>
+      <activation>
+        <property>
+          <name>m2e.version</name>
+        </property>
+      </activation>
+      <properties>
+        <!-- Skip compilation. -->
+        <maven.test.skip>true</maven.test.skip>
+        <maven.main.skip>true</maven.main.skip>
+        <maven.install.skip>true</maven.install.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>hppc-template-processor</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>add-templates</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>src/main/templates</source>
+                  </sources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-templates-tests</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>src/test/templates</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>sonatype-oss-release</id>
       <build>

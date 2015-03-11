@@ -2,9 +2,15 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 
-import java.util.*;
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+import java.util.ArrayDeque;
+/*! #end !*/
+import java.util.Iterator;
+import java.util.Random;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
@@ -84,7 +90,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < sequence.size(); i++)
         {
-            deque.addFirst(sequence.buffer[i]);
+            deque.addFirst(sequence.get(i));
         }
 
         assertListEquals(reverse(sequence.toArray()), deque.toArray());
@@ -95,7 +101,9 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     public void testAddLastWithGrowth()
     {
         for (int i = 0; i < sequence.size(); i++)
-            deque.addLast(sequence.buffer[i]);
+        {
+            deque.addLast(sequence.get(i));
+        }
 
         assertListEquals(sequence.toArray(), deque.toArray());
     }
@@ -315,8 +323,8 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         deque.addLast(asArray(0, 1, 2, 1, 0));
 
-        KTypeOpenHashSet<KType> set = KTypeOpenHashSet.newInstance();
-        set.add(asArray(0, 2));
+        KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<>();
+        set.addAll(asArray(0, 2));
 
         assertEquals(3, deque.removeAll(set));
         assertEquals(0, deque.removeAll(set));
@@ -386,6 +394,32 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
         deque.addLast(k1);
         assertListEquals(deque.toArray(), 1);
+    }
+
+    /* */
+    @Test
+    public void testEnsureCapacity()
+    {
+        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy();
+        KTypeArrayDeque<KType> deque = new KTypeArrayDeque<>(0, resizer);
+
+        // Add some elements.
+        final int max = rarely() ? 0 : randomIntBetween(0, 1000);
+        for (int i = 0; i < max; i++) {
+          deque.addLast(cast(i));
+        }
+
+        final int additions = randomIntBetween(0, 5000);
+        deque.ensureCapacity(additions + deque.size());
+        final int before = resizer.growCalls;
+        for (int i = 0; i < additions; i++) {
+          if (randomBoolean()) { 
+            deque.addLast(cast(i));
+          } else {
+            deque.addFirst(cast(i));
+          }
+        }
+        assertEquals(before, resizer.growCalls);
     }
 
     /* */
@@ -578,9 +612,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
     /*! #end !*/
     
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testHashCodeEquals()
     {
@@ -597,7 +628,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
     
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
     @Test
     public void testHashCodeWithNulls()
     {
@@ -619,7 +649,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     /*! #end !*/
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
     @Test
     public void testToArray()
     {
@@ -629,9 +658,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
     /*! #end !*/
     
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testClone()
     {
@@ -644,9 +670,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         assertSortedListEquals(cloned.toArray(), key2, key3);
     }
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @SuppressWarnings("unchecked")
-    /*! #end !*/
     @Test
     public void testToString()
     {

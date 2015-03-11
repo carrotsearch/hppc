@@ -59,12 +59,18 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     /**
      * Create a new array of a given type and copy the arguments to this array.
      */
-    public KType [] newArray(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final KType [] newArray(KType... elements)
     {
         return newArray0(elements);
     }
 
-    private KType [] newArray0(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    private final KType [] newArray0(KType... elements)
     {
         return elements;
     }

@@ -1,13 +1,12 @@
 package com.carrotsearch.hppc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.Test;
-
-import static com.google.common.collect.Lists.*;
 
 import static org.junit.Assert.*;
 
@@ -78,9 +77,9 @@ public class AbstractIteratorTest
     @Test
     public void testValuesAllRight()
     {
-        assertEquals(newArrayList(1), addAll(new RangeIterator(1, 1)));
-        assertEquals(newArrayList(1, 2), addAll(new RangeIterator(1, 2)));
-        assertEquals(newArrayList(1, 2, 3), addAll(new RangeIterator(1, 3)));
+        assertEquals(Arrays.asList(1), addAll(new RangeIterator(1, 1)));
+        assertEquals(Arrays.asList(1, 2), addAll(new RangeIterator(1, 2)));
+        assertEquals(Arrays.asList(1, 2, 3), addAll(new RangeIterator(1, 3)));
     }
 
     private static <T> List<T> addAll(Iterator<T> i)

@@ -32,11 +32,12 @@ import com.carrotsearch.hppc.cursors.KTypeCursor;
  * Collections.
 #end 
  */
+/*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeStack<KType> extends KTypeArrayList<KType>
 {
     /**
-     * Create with default sizing strategy and initial capacity.
+     * Create with defaults.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
@@ -46,21 +47,22 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     }
 
     /**
-     * Create with default sizing strategy and the given initial capacity.
+     * Create with default sizing strategy and the given initial number
+     * of expected elements.
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public KTypeStack(int initialCapacity)
+    public KTypeStack(int expectedElements)
     {
-        super(initialCapacity);
+        super(expectedElements);
     }
 
     /**
      * Create with a custom buffer resizing strategy.
      */
-    public KTypeStack(int initialCapacity, ArraySizingStrategy resizer)
+    public KTypeStack(int expectedElements, ArraySizingStrategy resizer)
     {
-        super(initialCapacity, resizer);
+        super(expectedElements, resizer);
     }
 
     /**
@@ -130,7 +132,10 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * <p><b>This method is handy, but costly if used in tight loops (anonymous 
      * array passing)</b></p>
      */
-    public void push(KType... elements)
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
+    public final void push(KType... elements)
     {
         push(elements, 0, elements.length);
     }
@@ -184,7 +189,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         assert elementsCount > 0;
 
-        final KType v = buffer[--elementsCount];
+        final KType v = Intrinsics.<KType> cast(buffer[--elementsCount]);
         /* #if ($TemplateOptions.KTypeGeneric) */
         buffer[elementsCount] = null; 
         /* #end */
@@ -198,7 +203,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
     {
         assert elementsCount > 0;
 
-        return buffer[elementsCount - 1];
+        return Intrinsics.<KType> cast(buffer[elementsCount - 1]);
     }
 
     /**
@@ -214,14 +219,17 @@ public class KTypeStack<KType> extends KTypeArrayList<KType>
      * Returns a new object of this list with no need to declare generic type (shortcut
      * instead of using a constructor).
      */
-    public static <KType> KTypeStack<KType> newInstanceWithCapacity(int initialCapacity)
+    public static <KType> KTypeStack<KType> newInstance(int expectedElements)
     {
-        return new KTypeStack<KType>(initialCapacity);
+        return new KTypeStack<KType>(expectedElements);
     }
 
     /**
      * Create a stack by pushing a variable number of arguments to it.
      */
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    @SafeVarargs
+    /* #end */
     public static <KType> KTypeStack<KType> from(KType... elements)
     {
         final KTypeStack<KType> stack = new KTypeStack<KType>(elements.length);
