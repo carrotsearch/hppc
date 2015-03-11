@@ -509,6 +509,7 @@ public class KTypeArrayDeque<KType>
     {
         this.head = tail = 0;
         buffer = KTypeArrayList.EMPTY_ARRAY;
+        ensureBufferSpace(0);
     }
 
     /**
