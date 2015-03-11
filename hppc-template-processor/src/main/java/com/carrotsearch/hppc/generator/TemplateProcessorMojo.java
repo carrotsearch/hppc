@@ -1,6 +1,25 @@
 package com.carrotsearch.hppc.generator;
 
-import com.google.common.base.Stopwatch;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.maven.plugin.AbstractMojo;
@@ -14,16 +33,14 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.log.NullLogChute;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.carrotsearch.hppc.generator.intrinsics.Cast;
+import com.carrotsearch.hppc.generator.intrinsics.DefaultKTypeValue;
+import com.carrotsearch.hppc.generator.intrinsics.DefaultVTypeValue;
+import com.carrotsearch.hppc.generator.intrinsics.EqualsKType;
+import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
+import com.carrotsearch.hppc.generator.intrinsics.NewKTypeArray;
+import com.carrotsearch.hppc.generator.intrinsics.NewVTypeArray;
+import com.google.common.base.Stopwatch;
 
 /**
  * Maven mojo applying preprocessor templates.
@@ -234,6 +251,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
                 "(<(?<generic>[^>]+)>\\s*)?" + 
                 "(?<method>[a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
+    HashMap<String, IntrinsicMethod> intrinsics = new HashMap<>();
+    intrinsics.put("defaultKTypeValue", new DefaultKTypeValue());
+    intrinsics.put("defaultVTypeValue", new DefaultVTypeValue());
+    intrinsics.put("newKTypeArray", new NewKTypeArray());
+    intrinsics.put("newVTypeArray", new NewVTypeArray());
+    intrinsics.put("equalsKType", new EqualsKType());
+    intrinsics.put("equalsVType", new EqualsVType());
+    intrinsics.put("cast", new Cast());
+
     StringBuilder sb = new StringBuilder();
     while (true) {
       Matcher m = p.matcher(input);
@@ -268,62 +294,14 @@ public class TemplateProcessorMojo extends AbstractMojo {
           }
         }
 
-        if ("defaultKTypeValue".equals(method)) {
-          sb.append(templateOptions.isKTypeGeneric()
-              ? "null"
-              : "((" + templateOptions.getKType().getType() + ") 0)");
-        } else if ("defaultVTypeValue".equals(method)) {
-          sb.append(templateOptions.isVTypeGeneric()
-              ? "null"
-              : "((" + templateOptions.getVType().getType() + ") 0)");
-        } else if ("newKTypeArray".equals(method)) {
-          sb.append(
-              templateOptions.isKTypeGeneric()
-                  ? "Internals.<KType[]>newArray(" + params.get(0) + ")"
-                  : "new " + templateOptions.getKType().getType() + " [" + params.get(0) + "]");
-        } else if ("newVTypeArray".equals(method)) {
-          sb.append(
-              templateOptions.isVTypeGeneric()
-                  ? "Internals.<VType[]>newArray(" + params.get(0) + ")"
-                  : "new " + templateOptions.getVType().getType() + " [" + params.get(0) + "]");
-        } else if ("equalsKType".equals(method)) {
-          if (templateOptions.isKTypeGeneric()) {
-            sb.append(
-                String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
-                    params.toArray()));
-          } else if (templateOptions.ktype == Type.DOUBLE) {
-            sb.append(
-                String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))",
-                    params.toArray()));
-          } else if (templateOptions.ktype == Type.FLOAT) {
-            sb.append(
-                String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))",
-                    params.toArray()));
-          } else {
-            sb.append(
-                String.format("((%1$s) == (%2$s))",
-                    params.toArray()));
-          }
-        } else if ("equalsVType".equals(method)) {
-          if (templateOptions.isVTypeGeneric()) {
-            sb.append(
-                String.format("((%1$s) == null ? (%2$s) == null : (%1$s).equals((%2$s)))",
-                    params.toArray()));
-          } else if (templateOptions.vtype == Type.DOUBLE) {
-            sb.append(
-                String.format("(Double.doubleToLongBits(%1$s) == Double.doubleToLongBits(%2$s))",
-                    params.toArray()));
-          } else if (templateOptions.vtype == Type.FLOAT) {
-            sb.append(
-                String.format("(Float.floatToIntBits(%1$s) == Float.floatToIntBits(%2$s))",
-                    params.toArray()));
-          } else {
-            sb.append(
-                String.format("((%1$s) == (%2$s))",
-                    params.toArray()));
-          }
+        IntrinsicMethod im = intrinsics.get(method);
+        if (im == null) {
+          throw new RuntimeException(String.format(Locale.ROOT,
+              "Unknown intrinsic method '%s' in call: %s",
+              method,
+              m.group()));
         } else {
-          throw new RuntimeException("Unrecognized Intrinsic call: " + method);
+          im.invoke(m, sb, templateOptions, m.group("generic"), params);
         }
       } else {
         sb.append(input);
@@ -468,6 +446,9 @@ public class TemplateProcessorMojo extends AbstractMojo {
   private String filterVelocity(TemplateFile f, String template, TemplateOptions options) {
     final VelocityContext ctx = new VelocityContext();
     ctx.put("TemplateOptions", options);
+    ctx.put("true", true);
+    ctx.put("templateOnly", false);
+    ctx.put("false", false);
 
     StringWriter sw = new StringWriter();
     velocity.evaluate(ctx, sw, f.getFileName(), template);

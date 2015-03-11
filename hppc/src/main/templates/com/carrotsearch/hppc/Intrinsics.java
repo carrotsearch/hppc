@@ -16,11 +16,12 @@ final class Intrinsics
     }
 
     /**
-     * Provide a cast to a generic array type. The type will be erased anyway.
+     * Provide a generic cast for. With type erasure it should work internally just
+     * fine and it simplifies code. The cast will be erased for primitive types.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T[] erasedCast(Object[] keys) {
-      return (T[]) keys;
+    public static <T> T cast(Object value) {
+      return (T) value;
     }
 
     /**
