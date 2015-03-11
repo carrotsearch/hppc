@@ -38,6 +38,8 @@ HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
 
 ** Other changes
 
+HPPC-120: Rework entry shifting routine to be less hairy.
+
 HPPC-106: Drop Guava adapter (and dependency).
 
 HPPC-118: Buffers for generic classes are now declared as Object[] and not as

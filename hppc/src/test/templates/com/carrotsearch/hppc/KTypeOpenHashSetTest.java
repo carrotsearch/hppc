@@ -2,11 +2,16 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 
-import org.junit.*;
+import java.util.Arrays;
+import java.util.Random;
 
-import java.util.*;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
 
-import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 
@@ -149,7 +154,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         assertEquals(0, set.size());
     }
-
+    
     /* */
     @Test
     public void testAdd()
