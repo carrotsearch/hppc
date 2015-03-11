@@ -47,45 +47,38 @@ import static com.carrotsearch.hppc.Containers.*;
  * Collections.  
 #end
  */
+/*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
     extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
 {
     /**
-     * Internal static instance of an empty buffer.
+     * An immutable empty buffer.
      */
-    private final static Object EMPTY = /*! 
-            #if ($TemplateOptions.KTypePrimitive) 
-              new KType [0];
-            #else !*/
-              new Object [0]; 
-        /*! #end !*/
+    public final static 
+        /*! #if ($TemplateOptions.KTypePrimitive) 
+            KType [] 
+            #else !*/ 
+            Object [] 
+        /*! #end !*/ 
+            EMPTY_ARRAY = 
+        /*! #if ($TemplateOptions.KTypePrimitive) 
+            new KType [0]; 
+            #else !*/ 
+            new Object [0]; 
+        /*! #end !*/; 
 
     /**
      * Internal array for storing the list. The array may be larger than the current size
      * ({@link #size()}).
-     * 
-#if ($TemplateOptions.KTypeGeneric) 
-     * <p><strong>Important!</strong> 
-     * The actual value in this field is always an instance of <code>Object[]</code>,
-     * regardless of the generic type used. The JDK is inconsistent here too:
-     * {@link ArrayList} declares internal <code>Object[]</code> buffer, but
-     * {@link ArrayDeque} declares an array of generic type objects like we do. The
-     * tradeoff is probably minimal, but you should be aware of additional casts generated
-     * by <code>javac</code> when <code>buffer</code> is directly accessed; <strong>these casts
-     * may also result in exceptions at runtime</strong>. A workaround is to cast directly to
-     * <code>Object[]</code> before accessing the buffer's elements, as shown
-     * in the following code snippet.</p>
-     * 
-     * <pre>
-     * Object[] buf = list.buffer;
-     * for (int i = list.size(); --i >= 0;) {
-     *   doSomething(buf[i]);
-     * }
-     * </pre>
-#end
      */
-    public KType [] buffer;
+    public 
+        /*! #if ($TemplateOptions.KTypePrimitive) 
+            KType [] 
+            #else !*/ 
+            Object [] 
+        /*! #end !*/
+            buffer;
 
     /**
      * Current number of elements stored in {@link #buffer}.
@@ -238,7 +231,7 @@ public class KTypeArrayList<KType>
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        return buffer[index];
+        return Intrinsics.<KType> cast(buffer[index]);
     }
 
     /**
@@ -250,7 +243,7 @@ public class KTypeArrayList<KType>
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        final KType v = buffer[index];
+        final KType v = Intrinsics.<KType> cast(buffer[index]);
         buffer[index] = e1;
         return v;
     }
@@ -264,9 +257,10 @@ public class KTypeArrayList<KType>
         assert (index >= 0 && index < size()) :
             "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
-        final KType v = buffer[index];
-        if (index + 1 < elementsCount)
+        final KType v = Intrinsics.<KType> cast(buffer[index]);
+        if (index + 1 < elementsCount) {
             System.arraycopy(buffer, index + 1, buffer, index, elementsCount - index - 1);
+        }
         elementsCount--;
         buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
         return v;
@@ -464,13 +458,11 @@ public class KTypeArrayList<KType>
     /**
      * Trim the internal buffer to the current size.
      */
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
-    /* #end */
     public void trimToSize()
     {
-        if (size() != this.buffer.length)
-            this.buffer = (KType[]) toArray();
+        if (size() != this.buffer.length) {
+            this.buffer = Intrinsics.<KType[]> cast(toArray());
+        }
     }
 
     /**
@@ -488,12 +480,9 @@ public class KTypeArrayList<KType>
     /**
      * Sets the number of stored elements to zero and releases the internal storage array.
      */
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked") 
-    /* #end */
     public void release()
     {
-        this.buffer = (KType []) EMPTY;
+        this.buffer = Intrinsics.<KType[]> cast(EMPTY_ARRAY);
         this.elementsCount = 0;
     }
 
@@ -522,7 +511,7 @@ public class KTypeArrayList<KType>
     {
         try
         {
-            /* #if ($TemplateOptions.KTypeGeneric) */
+            /* #if ($templateOnly) */
             @SuppressWarnings("unchecked")
             /* #end */
             final KTypeArrayList<KType> cloned = (KTypeArrayList<KType>) super.clone();
@@ -553,7 +542,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    /* #if ($TemplateOptions.KTypeGeneric) */
+    /* #if ($templateOnly) */
     @SuppressWarnings("unchecked") 
     /* #end */
     public boolean equals(Object obj)
@@ -652,7 +641,7 @@ public class KTypeArrayList<KType>
     @Override
     public Iterator<KTypeCursor<KType>> iterator()
     {
-        return new ValueIterator<KType>(buffer, size());
+        return new ValueIterator<KType>(Intrinsics.<KType[]> cast(buffer), size());
     }
 
     /**
@@ -681,7 +670,7 @@ public class KTypeArrayList<KType>
         assert fromIndex <= toIndex : "fromIndex must be <= toIndex: "
             + fromIndex + ", " + toIndex;
 
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i < toIndex; i++)
         {
             procedure.apply(buffer[i]);
@@ -696,6 +685,7 @@ public class KTypeArrayList<KType>
     @Override
     public int removeAll(KTypePredicate<? super KType> predicate)
     {
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         final int elementsCount = this.elementsCount;
         int to = 0;
         int from = 0;
@@ -762,7 +752,7 @@ public class KTypeArrayList<KType>
         assert fromIndex <= toIndex : "fromIndex must be <= toIndex: "
             + fromIndex + ", " + toIndex;
 
-        final KType [] buffer = this.buffer;
+        final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i < toIndex; i++)
         {
             if (!predicate.apply(buffer[i]))

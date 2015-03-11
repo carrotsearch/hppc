@@ -13,14 +13,19 @@ import static com.carrotsearch.hppc.Containers.*;
  * A hash set of <code>KType</code>s, implemented using using open addressing
  * with linear probing for collision resolution.
  */
+/*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
   extends AbstractKTypeCollection<KType> 
   implements KTypeLookupContainer<KType>, 
              KTypeSet<KType>, 
              Cloneable {
+
   /** The hash array holding keys. */
-  public /*! #if ($TemplateOptions.KTypeGeneric) !*/ Object [] /*! #else KType [] #end !*/ keys;
+  public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
+         Object [] 
+         /*! #else KType [] #end !*/ 
+         keys;
 
   /**
    * Information if an entry (slot) in the {@link #keys} table is allocated * or empty.
@@ -338,12 +343,10 @@ public class KTypeOpenHashSet<KType>
    * {@inheritDoc}
    */
   @Override
-  /* #if ($TemplateOptions.KTypeGeneric) */
-  @SuppressWarnings("unchecked")
-  /* #end */
   public boolean equals(Object obj) {
     if (obj != null &&
         obj instanceof KTypeSet<?>) {
+      /* #if ($templateOnly) */ @SuppressWarnings("unchecked") /* #end */
       KTypeSet<Object> other = (KTypeSet<Object>) obj;
       if (other.size() == this.size()) {
         for (KTypeCursor<KType> c : this) {
@@ -364,9 +367,7 @@ public class KTypeOpenHashSet<KType>
   @Override
   public KTypeOpenHashSet<KType> clone() {
     try {
-      /* #if ($TemplateOptions.KTypeGeneric) */
-      @SuppressWarnings("unchecked")
-      /* #end */
+      /* #if ($templateOnly) */ @SuppressWarnings("unchecked") /* #end */
       KTypeOpenHashSet<KType> cloned = (KTypeOpenHashSet<KType>) super.clone();
       cloned.keys = keys.clone();
       cloned.allocated = allocated.clone();
@@ -604,17 +605,11 @@ public class KTypeOpenHashSet<KType>
     /* #end */
   }
 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
-  @SuppressWarnings("unchecked")
-  /*! #end !*/
   private KType[] keys() {
-    return (KType[]) keys;
+    return Intrinsics.<KType[]> cast(keys);
   }
 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
-  @SuppressWarnings("unchecked")
-  /*! #end !*/
   private KType keyAt(int i) {
-    return (KType) keys[i];
+    return Intrinsics.<KType> cast(keys[i]);
   }
 }
