@@ -51,6 +51,34 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         }
     }
 
+    /* */
+    @Test
+    public void testEnsureCapacity()
+    {
+        final IntHolder expands = new IntHolder();
+        KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(0) {
+          @Override
+          protected void allocateBuffers(int arraySize) {
+            super.allocateBuffers(arraySize);
+            expands.value++;
+          }
+        };
+
+        // Add some elements.
+        final int max = rarely() ? 0 : randomIntBetween(0, 250);
+        for (int i = 0; i < max; i++) {
+          set.add(cast(i));
+        }
+
+        final int additions = randomIntBetween(max, max + 5000);
+        set.ensureCapacity(additions + set.size());
+        final int before = expands.value;
+        for (int i = 0; i < additions; i++) {
+          set.add(cast(i));
+        }
+        assertEquals(before, expands.value);
+    }
+
     @Test
     public void testAddRemoveSameHashCollision()
     {

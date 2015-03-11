@@ -18,8 +18,13 @@ HPPC-117: A summary of API changes resulting from other issues.
           T.newInstanceWithExpectedSize(*) -> removed, use new T<>(*)
           T.newInstance(*)                 -> removed, use new T<>(*)
           T.from(container)                -> removed, use new T<>(container)
+          
+          * EmptyArrays has been removed. Empty arrays are now a static
+            constant in each *ArrayList.
 
 ** New features
+
+HPPC-112: ensureCapacity(elements) added to all containers.
 
 HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
           capacity is now the number of elements that can be stored without

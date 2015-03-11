@@ -11,8 +11,9 @@ public interface ArraySizingStrategy
      * method must return the first size that fulfills these conditions
      * and is greater or equal to <code>expectedElements</code>.
      */
+    // NOCOMMIT: remove
     int round(int expectedElements);
-    
+
     /**
      * @param currentBufferLength Current size of the array (buffer). This number
      *  should comply with the strategy's policies (it is a result of initial rounding

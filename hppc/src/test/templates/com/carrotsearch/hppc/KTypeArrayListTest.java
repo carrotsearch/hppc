@@ -336,12 +336,22 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testEnsureCapacity()
     {
-        list.ensureCapacity(100);
-        assertTrue(list.buffer.length >= 100);
+        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy(0);
+        KTypeArrayList<KType> list = new KTypeArrayList<>(0, resizer);
 
-        list.ensureCapacity(1000);
-        list.ensureCapacity(1000);
-        assertTrue(list.buffer.length >= 1000);
+        // Add some elements.
+        final int max = rarely() ? 0 : randomIntBetween(0, 1000);
+        for (int i = 0; i < max; i++) {
+          list.add(cast(i));
+        }
+
+        final int additions = randomIntBetween(1, 5000);
+        list.ensureCapacity(additions + list.size());
+        final int before = resizer.growCalls;
+        for (int i = 0; i < additions; i++) {
+          list.add(cast(i));
+        }
+        assertEquals(before, resizer.growCalls);
     }
 
     @Test

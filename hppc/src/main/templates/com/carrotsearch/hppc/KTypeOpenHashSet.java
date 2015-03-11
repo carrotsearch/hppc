@@ -301,8 +301,10 @@ public class KTypeOpenHashSet<KType>
   }
 
   /**
-   * Ensure the set can store the given number of elements (total, not
-   * in addition to any currently stored elements) without resizing.
+   * Ensure this container can hold at least the
+   * given number of elements without resizing its buffers.
+   * 
+   * @param expectedElements The total number of elements, inclusive.
    */
   public void ensureCapacity(int expectedElements) {
     if (expectedElements > resizeAt || keys == null) {

@@ -23,12 +23,12 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
     /**
      * Dense array of set elements. 
      */
-    public int [] dense = EmptyArrays.EMPTY_INT_ARRAY;
+    public int [] dense = IntArrayList.EMPTY_ARRAY;
 
     /**
      * Sparse, element value-indexed array pointing back at {@link #dense}.
      */
-    public int [] sparse = EmptyArrays.EMPTY_INT_ARRAY;
+    public int [] sparse = IntArrayList.EMPTY_ARRAY;
 
     /**
      * Current number of elements stored in the set ({@link #dense}).
@@ -66,16 +66,17 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
 
     /**
      * Create with a custom dense array resizing strategy.
+     * 
+     * @see #ensureCapacity
      */
-    public IntDoubleLinkedSet(int denseCapacity, int sparseCapacity, ArraySizingStrategy resizer)
+    public IntDoubleLinkedSet(int expectedElements, int maxElementValue, ArraySizingStrategy resizer)
     {
-        assert denseCapacity >= 0 : "denseCapacity must be >= 0: " + denseCapacity;
-        assert sparseCapacity >= 0 : "sparseCapacity must be >= 0: " + sparseCapacity;
+        assert expectedElements >= 0 : "Expected elements must be >= 0: " + expectedElements;
+        assert maxElementValue >= 0 : "Max element value must be >= 0: " + maxElementValue;
         assert resizer != null;
 
         this.resizer = resizer;
-        ensureDenseCapacity(resizer.round(denseCapacity));
-        ensureSparseCapacity(sparseCapacity);
+        ensureCapacity(expectedElements, maxElementValue);
     }
 
     /**
@@ -89,14 +90,29 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
             addNoChecks(cursor.value);
         }
     }
+    
+    /**
+     * Ensure this container can hold at least the
+     * given number of elements without resizing its buffers.
+     * 
+     * The maximum expected element's value is required to size 
+     * sparse array accordingly. If unknown, leave at a good guess or zero.
+     * 
+     * @param expectedElements The total number of elements, inclusive.
+     * @param maxElementValue  Maximum value of any element added to the set, inclusive.
+     */
+    public void ensureCapacity(int expectedElements, int maxElementValue) {
+      ensureDenseBufferSpace(expectedElements - size());
+      ensureSparseBufferSpace(maxElementValue);
+    }
 
     /**
      * Ensures the internal dense buffer has enough free slots to store
      * <code>expectedAdditions</code>.
      */
-    protected void ensureDenseCapacity(int expectedAdditions)
+    protected void ensureDenseBufferSpace(int expectedAdditions)
     {
-        final int bufferLen = (dense == null ? 0 : dense.length);
+        final int bufferLen = dense.length;
         final int elementsCount = size();
         if (elementsCount > bufferLen - expectedAdditions)
         {
@@ -118,13 +134,13 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * Ensures the internal sparse buffer has enough free slots to store
      * index of <code>value</code>.
      */
-    protected void ensureSparseCapacity(int value)
+    protected void ensureSparseBufferSpace(int maxElementValue)
     {
-        assert value >= 0 : "value must be >= 0: " + value;
+        assert maxElementValue >= 0 : "Maximum element value must be >= 0: " + maxElementValue;
 
-        if (value >= sparse.length)
+        if (maxElementValue >= sparse.length)
         {
-            final int [] newBuffer = new int [value + 1];
+            final int [] newBuffer = new int [maxElementValue + 1];
             if (sparse.length > 0)
             {
                 System.arraycopy(sparse, 0, newBuffer, 0, sparse.length);
@@ -178,8 +194,8 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
         if (!containsAlready)
         {
             // TODO: check if a fixed-size set is (much) faster without these checks?
-            ensureDenseCapacity(1);
-            ensureSparseCapacity(value);
+            ensureDenseBufferSpace(1);
+            ensureSparseBufferSpace(value);
             
             sparse[value] = elementsCount;
             dense[elementsCount++] = value;
