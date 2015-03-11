@@ -60,7 +60,7 @@ public class KTypeArrayDeque<KType>
           #else !*/ 
           Object [] 
       /*! #end !*/
-          buffer;
+          buffer = KTypeArrayList.EMPTY_ARRAY;
 
     /**
      * The index of the element at the head of the deque or an
@@ -508,19 +508,17 @@ public class KTypeArrayDeque<KType>
     public void release()
     {
         this.head = tail = 0;
-        buffer = Intrinsics.newKTypeArray(resizer.round(DEFAULT_EXPECTED_ELEMENTS));
+        buffer = KTypeArrayList.EMPTY_ARRAY;
     }
 
     /**
-     * Ensure enough buffer storage so that the given number of elements can be
-     * added without resizing (total, not in addition to any currently 
-     * stored elements).
+     * Ensure this container can hold at least the
+     * given number of elements without resizing its buffers.
+     * 
+     * @param expectedElements The total number of elements, inclusive.
      */
     public void ensureCapacity(int expectedElements) {
-      int additions = expectedElements - size();
-      if (additions > 0 || buffer == null) {
-        ensureBufferSpace(additions);
-      }
+      ensureBufferSpace(expectedElements - size());
     }
 
     /**
@@ -529,9 +527,9 @@ public class KTypeArrayDeque<KType>
      */
     protected void ensureBufferSpace(int expectedAdditions)
     {
-        final int bufferLen = (buffer == null ? 0 : buffer.length);
+        final int bufferLen = buffer.length;
         final int elementsCount = size();
-        
+
         if (elementsCount + expectedAdditions >= bufferLen)
         {
             final int emptySlot = 1; // deque invariant: always an empty slot.

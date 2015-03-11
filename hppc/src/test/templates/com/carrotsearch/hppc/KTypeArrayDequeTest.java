@@ -409,7 +409,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
           deque.addLast(cast(i));
         }
 
-        final int additions = randomIntBetween(0, 5000);
+        final int additions = randomIntBetween(1, 5000);
         deque.ensureCapacity(additions + deque.size());
         final int before = resizer.growCalls;
         for (int i = 0; i < additions; i++) {

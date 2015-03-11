@@ -78,7 +78,7 @@ public class KTypeArrayList<KType>
             #else !*/ 
             Object [] 
         /*! #end !*/
-            buffer;
+            buffer = EMPTY_ARRAY;
 
     /**
      * Current number of elements stored in {@link #buffer}.
@@ -116,9 +116,8 @@ public class KTypeArrayList<KType>
     public KTypeArrayList(int expectedElements, ArraySizingStrategy resizer)
     {
         assert resizer != null;
-
         this.resizer = resizer;
-        ensureBufferSpace(resizer.round(expectedElements));
+        ensureCapacity(expectedElements);
     }
 
     /**
@@ -384,12 +383,15 @@ public class KTypeArrayList<KType>
     }
 
     /**
-     * Increases the buffers of this instance to ensure 
-     * that it can hold at least the number of elements specified by 
+     * Ensure this container can hold at least the
+     * given number of elements without resizing its buffers.
+     * 
+     * @param expectedElements The total number of elements, inclusive.
      */
     public void ensureCapacity(int expectedElements) 
     {
-        if (expectedElements > this.buffer.length) {
+        final int bufferLen = (buffer == null ? 0 : buffer.length);
+        if (expectedElements > bufferLen) {
             ensureBufferSpace(expectedElements - size());
         }
     }
@@ -401,7 +403,7 @@ public class KTypeArrayList<KType>
     protected void ensureBufferSpace(int expectedAdditions)
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);
-        if (elementsCount >= bufferLen - expectedAdditions)
+        if (elementsCount + expectedAdditions > bufferLen)
         {
             final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions);
             assert newSize >= elementsCount + expectedAdditions : "Resizer failed to" +

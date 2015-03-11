@@ -105,6 +105,32 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
 
     /* */
     @Test
+    public void testEnsureCapacity()
+    {
+        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy(0);
+        IntDoubleLinkedSet set = new IntDoubleLinkedSet(0, 0, resizer);
+
+        // Add some elements.
+        final int max = rarely() ? 0 : randomIntBetween(0, 1000);
+        for (int i = 0; i < max; i++) {
+          set.add(i);
+        }
+
+        final int additions = randomIntBetween(max, max + 5000);
+        set.ensureCapacity(additions + set.size(), additions - 1);
+        final int before = resizer.growCalls;
+        for (int i = 0; i < additions; i++) {
+          set.add(i);
+        }
+        assertEquals(before, resizer.growCalls);
+
+        // Should be outside of sparse capacity.
+        set.add(additions);
+        assertEquals(set.sparse.length, additions + 1);
+    }
+
+    /* */
+    @Test
     public void testInitialCapacityAndGrowth()
     {
         for (int i = 0; i < 256; i++)
