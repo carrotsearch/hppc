@@ -157,6 +157,29 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-clean</id>
+                <goals>
+                  <goal>clean</goal>
+                </goals>
+                <configuration>
+                  <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                  <filesets>
+                    <fileset>
+                      <directory>target/generated-sources/</directory>
+                      <includes>
+                        <include>**/*.java</include>
+                      </includes>
+                    </fileset>  
+                  </filesets>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
             <groupId>com.carrotsearch</groupId>
             <artifactId>hppc-template-processor</artifactId>
             <version>${project.version}</version>
