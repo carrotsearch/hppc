@@ -147,8 +147,7 @@ public class KTypeOpenHashSet<KType>
       int slot = hashKey(key) & mask;
       
       KType existing;
-      KType e = existing = keys[slot];
-      while (!Intrinsics.isEmptyKey(e)) {
+      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         if (Intrinsics.equalsKType(key, existing)) {
           return false;
         }
@@ -231,8 +230,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length; slot++) {
       KType existing;
-      KType e = existing = keys[slot];
-      if (!Intrinsics.isEmptyKey(e)) {
+      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         cloned[j++] = existing;
       }
     }
@@ -254,8 +252,7 @@ public class KTypeOpenHashSet<KType>
       int slot = hashKey(key) & mask;
       
       KType existing;
-      KType e = existing = keys[slot];
-      while (!Intrinsics.isEmptyKey(e)) {
+      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         if (Intrinsics.equalsKType(key, existing)) {
           shiftConflictingKeys(slot);
           assigned--;
@@ -291,8 +288,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
-      KType e = existing = keys[slot];
-      if (!Intrinsics.isEmptyKey(e)) {
+      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         if (predicate.apply(existing)) {
           shiftConflictingKeys(slot);
           assigned--;
@@ -317,8 +313,7 @@ public class KTypeOpenHashSet<KType>
       final int mask = this.mask;
       int slot = hashKey(key) & mask;
       KType existing;
-      KType e = existing = keys[slot];
-      while (!Intrinsics.isEmptyKey(e)) {
+      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         if (Intrinsics.equalsKType(key, existing)) {
           return true;
         }
@@ -379,8 +374,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = keys.length; --slot >= 0;) {
       KType existing;
-      KType e = existing = keys[slot];
-      if (!Intrinsics.isEmptyKey(e)) {
+      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         h += Internals.rehash(existing);
       }
     }
@@ -451,8 +445,7 @@ public class KTypeOpenHashSet<KType>
       if (slot < max) {
         KType existing;
         for (slot++; slot < max; slot++) {
-          KType e = existing = Intrinsics.<KType> cast(keys[slot]);
-          if (!Intrinsics.isEmptyKey(e)) {
+          if (!Intrinsics.isEmptyKey(existing = Intrinsics.<KType> cast(keys[slot]))) {
             cursor.index = slot;
             cursor.value = existing;
             return cursor;
@@ -483,8 +476,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
-      KType e = existing = keys[slot];
-      if (!Intrinsics.isEmptyKey(e)) {
+      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         procedure.apply(existing);
       }
     }
@@ -506,8 +498,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
-      KType e = existing = keys[slot];
-      if (!Intrinsics.isEmptyKey(e)) {
+      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
         if (!predicate.apply(existing)) {
           break;
         }
@@ -558,8 +549,7 @@ public class KTypeOpenHashSet<KType>
     final int mask = this.mask;
     KType existing;
     for (int i = fromKeys.length; --i >= 0;) {
-      KType e = existing = fromKeys[i];
-      if (!Intrinsics.isEmptyKey(e)) {
+      if (!Intrinsics.isEmptyKey(existing = fromKeys[i])) {
         int slot = hashKey(existing) & mask;
         while (!Intrinsics.isEmptyKey(keys[slot])) {
           slot = (slot + 1) & mask;
@@ -608,7 +598,7 @@ public class KTypeOpenHashSet<KType>
    */
   protected void allocateThenInsertThenRehash(int slot, KType pendingKey) {
     assert assigned == resizeAt 
-           && Intrinsics.isEmptyKey(keys[slot]);
+           && Intrinsics.isEmptyKey(Intrinsics.<KType> cast(keys[slot]));
 
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
     final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
