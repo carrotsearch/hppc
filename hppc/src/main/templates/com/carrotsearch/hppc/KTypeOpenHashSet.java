@@ -375,7 +375,7 @@ public class KTypeOpenHashSet<KType>
     for (int slot = keys.length; --slot >= 0;) {
       KType existing;
       if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        h += Internals.rehash(existing);
+        h += Intrinsics.mix(existing);
       }
     }
     return h;

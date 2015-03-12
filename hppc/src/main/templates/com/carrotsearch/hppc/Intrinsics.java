@@ -18,10 +18,41 @@ final class Intrinsics
     }
 
     /**
-     * Apply and return a hash of key, mixed with the given seed.
+     * Try to distribute the bits of key evenly across the int space, mixing
+     * it with the provided seed.
+     * 
+     * It is guaranteed that for generic types the key must not be null.  
      */
     public static int mix(Object key, int seed) {
       return MurmurHash3.hash(key.hashCode() ^ seed);
+    }
+
+    /**
+     * Try to distribute the bits of key evenly across the int space.
+     * 
+     * It is guaranteed that for generic types the key must not be null.  
+     */
+    public static int mix(Object key) {
+      return mix(key, 0);
+    }
+
+    /**
+     * Try to distribute the bits of key evenly across the int space, mixing
+     * it with the provided seed.
+     * 
+     * This method can accept null keys.   
+     */
+    public static int mix0(Object key, int seed) {
+      return MurmurHash3.hash((key == null ? 0 : key.hashCode()) ^ seed);
+    }
+
+    /**
+     * Try to distribute the bits of key evenly across the int space.
+     * 
+     * This method can accept null keys.   
+     */
+    public static int mix0(Object key) {
+      return mix0(key, 0);
     }
 
     /**
