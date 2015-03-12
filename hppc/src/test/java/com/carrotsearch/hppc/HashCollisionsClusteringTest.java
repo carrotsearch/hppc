@@ -1,16 +1,13 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
-import com.carrotsearch.randomizedtesting.annotations.Seed;
 
-@Seed("DF253C1E1C4B6983")
 public class HashCollisionsClusteringTest
 {
     /** @see "http://issues.carrot2.org/browse/HPPC-80" */
