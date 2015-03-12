@@ -469,7 +469,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         this.set.addAll(key1, key2, key3);
 
         KTypeOpenHashSet<KType> cloned = set.clone();
-        cloned.removeAllOccurrences(key1);
+        cloned.removeAll(key1);
 
         assertSortedListEquals(set.toArray(), key1, key2, key3);
         assertSortedListEquals(cloned.toArray(), key2, key3);

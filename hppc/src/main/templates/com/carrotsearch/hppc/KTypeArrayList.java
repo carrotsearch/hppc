@@ -30,8 +30,8 @@ import static com.carrotsearch.hppc.Containers.*;
  * <tr            ><td>get            </td><td>get            </td></tr>
  * <tr class="odd"><td>removeRange, 
  *                     removeElementAt</td><td>removeRange, remove</td></tr>                     
- * <tr            ><td>remove(Object) </td><td>removeFirstOccurrence, removeLastOccurrence, 
- *                                             removeAllOccurrences</td></tr>
+ * <tr            ><td>remove(Object) </td><td>removeFirst, removeLast, 
+ *                                             removeAll</td></tr>
  * <tr class="odd"><td>clear          </td><td>clear, release </td></tr>
  * <tr            ><td>size           </td><td>size           </td></tr>
  * <tr class="odd"><td>ensureCapacity </td><td>ensureCapacity, resize</td></tr>
@@ -292,7 +292,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeFirstOccurrence(KType e1)
+    public int removeFirst(KType e1)
     {
         final int index = indexOf(e1);
         if (index >= 0) remove(index);
@@ -303,7 +303,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc} 
      */
     @Override
-    public int removeLastOccurrence(KType e1)
+    public int removeLast(KType e1)
     {
         final int index = lastIndexOf(e1);
         if (index >= 0) remove(index);
@@ -314,7 +314,7 @@ public class KTypeArrayList<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAllOccurrences(KType e1)
+    public int removeAll(KType e1)
     {
         int to = 0;
         for (int from = 0; from < elementsCount; from++)

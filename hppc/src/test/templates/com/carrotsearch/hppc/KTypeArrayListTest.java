@@ -178,23 +178,23 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         list.add(asArray(0, 1, 2, 1, 0));
 
-        assertEquals(-1, list.removeFirstOccurrence(k5));
-        assertEquals(-1, list.removeLastOccurrence(k5));
+        assertEquals(-1, list.removeFirst(k5));
+        assertEquals(-1, list.removeLast(k5));
         assertListEquals(list.toArray(), 0, 1, 2, 1, 0);
 
-        assertEquals(1, list.removeFirstOccurrence(k1));
+        assertEquals(1, list.removeFirst(k1));
         assertListEquals(list.toArray(), 0, 2, 1, 0);
-        assertEquals(3, list.removeLastOccurrence(k0));
+        assertEquals(3, list.removeLast(k0));
         assertListEquals(list.toArray(), 0, 2, 1);
-        assertEquals(0, list.removeLastOccurrence(k0));
+        assertEquals(0, list.removeLast(k0));
         assertListEquals(list.toArray(), 2, 1);
-        assertEquals(-1, list.removeLastOccurrence(k0));
+        assertEquals(-1, list.removeLast(k0));
         
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         list.clear();
         list.add(newArray(k0, null, k2, null, k0));
-        assertEquals(1, list.removeFirstOccurrence(null));
-        assertEquals(2, list.removeLastOccurrence(null));
+        assertEquals(1, list.removeFirst(null));
+        assertEquals(2, list.removeLast(null));
         assertListEquals(list.toArray(), 0, 2, 0);
         /*! #end !*/
     }
@@ -205,18 +205,18 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         list.add(asArray(0, 1, 0, 1, 0));
 
-        assertEquals(0, list.removeAllOccurrences(k2));
-        assertEquals(3, list.removeAllOccurrences(k0));
+        assertEquals(0, list.removeAll(k2));
+        assertEquals(3, list.removeAll(k0));
         assertListEquals(list.toArray(), 1, 1);
 
-        assertEquals(2, list.removeAllOccurrences(k1));
+        assertEquals(2, list.removeAll(k1));
         assertTrue(list.isEmpty());
 
         /*! #if ($TemplateOptions.KTypeGeneric) !*/
         list.clear();
         list.add(newArray(k0, null, k2, null, k0));
-        assertEquals(2, list.removeAllOccurrences(null));
-        assertEquals(0, list.removeAllOccurrences(null));
+        assertEquals(2, list.removeAll((KType) null));
+        assertEquals(0, list.removeAll((KType) null));
         assertListEquals(list.toArray(), 0, 2, 0);
         /*! #end !*/
     }
@@ -577,7 +577,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         list.add(k1, k2, k3);
 
         KTypeArrayList<KType> cloned = list.clone();
-        cloned.removeAllOccurrences(key1);
+        cloned.removeAll(key1);
 
         assertSortedListEquals(list.toArray(), key1, key2, key3);
         assertSortedListEquals(cloned.toArray(), key2, key3);

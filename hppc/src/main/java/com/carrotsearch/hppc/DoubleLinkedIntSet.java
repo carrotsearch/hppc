@@ -281,7 +281,7 @@ public class DoubleLinkedIntSet implements IntLookupContainer, IntSet, Cloneable
      * 
      */
     @Override
-    public int removeAllOccurrences(int value)
+    public int removeAll(int value)
     {
         if (value >= 0 && value < sparse.length)
         {
@@ -301,11 +301,11 @@ public class DoubleLinkedIntSet implements IntLookupContainer, IntSet, Cloneable
     }
 
     /**
-     * An alias for the (preferred) {@link #removeAllOccurrences}.
+     * An alias for the (preferred) {@link #removeAll(int)}.
      */
     public boolean remove(int key)
     {
-        return removeAllOccurrences(key) == 1;
+        return removeAll(key) == 1;
     }
 
     @Override

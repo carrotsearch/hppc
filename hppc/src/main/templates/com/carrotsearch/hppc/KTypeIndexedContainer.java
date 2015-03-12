@@ -14,13 +14,13 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * Removes the first element that equals <code>e1</code>, returning its 
      * deleted position or <code>-1</code> if the element was not found.   
      */
-    public int removeFirstOccurrence(KType e1);
+    public int removeFirst(KType e1);
     
     /**
      * Removes the last element that equals <code>e1</code>, returning its 
      * deleted position or <code>-1</code> if the element was not found.   
      */
-    public int removeLastOccurrence(KType e1);
+    public int removeLast(KType e1);
     
     /**
      * Returns the index of the first occurrence of the specified element in this list, 
@@ -65,7 +65,7 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * 
      * <p><b>Careful.</b> Do not confuse this method with the overridden signature in
      * Java Collections ({@link List#remove(Object)}). Use: {@link #removeAll},
-     * {@link #removeFirstOccurrence} or {@link #removeLastOccurrence} depending 
+     * {@link #removeFirst} or {@link #removeLast} depending 
      * on the actual need.</p> 
      */
     public KType remove(int index);

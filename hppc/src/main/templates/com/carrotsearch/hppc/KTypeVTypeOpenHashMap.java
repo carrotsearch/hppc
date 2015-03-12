@@ -984,7 +984,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
 
         @Override
-        public int removeAllOccurrences(final KType e)
+        public int removeAll(final KType e)
         {
             final boolean hasKey = owner.containsKey(e);
             int result = 0;
@@ -1113,7 +1113,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }                                                                                                                                     
 
         @Override                                                                                                                             
-        public int removeAllOccurrences(VType e)                                                                                              
+        public int removeAll(VType e)                                                                                              
         {                                                                                                                                     
             throw new UnsupportedOperationException();                                                                                        
         }                                                                                                                                     

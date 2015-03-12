@@ -27,17 +27,17 @@ HPPC-117: A summary of API changes resulting from other issues.
           them to use cursors or other form of iteration instead (it will
           be simpler than taking care of the empty slot marker).
           
-          * (HPPC-115) Hash containers now, by default, use a random internal
-          mixing seed to reorder entries. This is done to prevent a potential
-          (but likely!) case of exponential costs of merging keys from two
-          or more containers. If you desperately need non-permuted order,
-          use and explicit constructor and pass HashOrderMixing.none()
-          as the mixing strategy. Carefully weigh the risk of stalling your
-          program with data-related deadlocks; this is only useful if you're 
-          using hash container as a scatter table (without merging it with
-          anything else). 
-          
           * (HPPC-108) Renamed IntDoubleLinkedSet to DoubleLinkedIntSet.
+
+          * (HPPC-115) Hash containers now, by default, use a random internal
+          mixing seed to reorder entries (so the order of keys is not 
+          constant from execution to execution). See detailed HPPC-115 entry
+          below.
+
+          * (HPPC-121) Renamed methods:
+          T.removeFirstOccurrences -> T.removeFirst
+          T.removeLastOccurrences  -> T.removeLast
+          T.removeAllOccurrences   -> T.removeAll(type) 
 
 ** New features
 
@@ -64,7 +64,25 @@ HPPC-114: Buffer resizing and allocation should be throwing non-assertion
 
 ** Bug fixes
 
+HPPC-115: Hash containers now, by default, use a random internal
+          mixing seed to reorder entries. This is done to prevent a potential
+          (but likely!) case of exponential costs of merging keys from two
+          or more containers. If you desperately need non-permuted order,
+          use an explicit constructor and pass HashOrderMixing.none()
+          as the mixing strategy. Carefully weigh the risk of stalling your
+          program with data-related deadlocks; this is only useful if you're 
+          using hash container as a scatter table (without merging it with
+          anything else). 
+          
+          You can also provide your own strategy to get predictable hash
+          key ordering. Just make sure the mix seed is different from container
+          to container (for example by using a thread local increment 
+          counter or something like that).
+
 ** Other changes
+
+HPPC-121: Rename remove{All|First|Last}Occurrence(s) to 
+          remove{All|First|Last}(key).
 
 HPPC-108: Rename IntDoubleLinkedSet to DoubleLinkedIntSet.
 
