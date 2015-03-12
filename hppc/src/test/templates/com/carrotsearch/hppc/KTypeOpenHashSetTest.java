@@ -10,7 +10,9 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
+/*! #if ($TemplateOptions.KType.type != "int") !*/
 import com.carrotsearch.hppc.cursors.IntCursor;
+/*! #end !*/
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.KTypePredicate;

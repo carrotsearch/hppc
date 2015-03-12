@@ -539,14 +539,22 @@ public class KTypeArrayDeque<KType>
                     "Resizer failed to" + " return sensible new size: " + newSize + " <= " + 
                     (elementsCount + expectedAdditions);
 
-            final KType [] newBuffer = Intrinsics.<KType[]>newKTypeArray(newSize);
-            if (bufferLen > 0)
-            {
-                toArray(newBuffer);
-                tail = elementsCount;
-                head = 0;
+            try {
+              final KType [] newBuffer = Intrinsics.<KType> newArray(newSize);
+              if (bufferLen > 0)
+              {
+                  toArray(newBuffer);
+                  tail = elementsCount;
+                  head = 0;
+              }
+              this.buffer = newBuffer;
+            } catch (OutOfMemoryError e) {
+              throw new BufferAllocationException(
+                  "Not enough memory to allocate new buffers: %,d -> %,d",
+                  e,
+                  bufferLen,
+                  newSize);
             }
-            this.buffer = newBuffer;
         }
     }
 
@@ -561,7 +569,7 @@ public class KTypeArrayDeque<KType>
     /*! #end !*/
     {
         final int size = size();
-        return toArray(Intrinsics.<KType[]>newKTypeArray(size));
+        return toArray(Intrinsics.<KType> newArray(size));
     }
 
     /**

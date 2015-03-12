@@ -25,27 +25,11 @@ final class Intrinsics
     }
 
     /**
-     * Create and return an array of template objects (<code>Object</code>s in the generic
-     * version, corresponding key-primitive type in the generated version).
-     * 
-     * @param arraySize The size of the array to return.
+     * Create an array for the given type.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T newKTypeArray(int arraySize)
-    {
-        return (T) new Object [arraySize];
-    }
-
-    /**
-     * Create and return an array of template objects (<code>Object</code>s in the generic
-     * version, corresponding value-primitive type in the generated version).
-     * 
-     * @param arraySize The size of the array to return.
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T newVTypeArray(int arraySize)
-    {
-        return (T) new Object [arraySize];
+    public static <T> T[] newArray(int arraySize) {
+      return (T[]) new Object [arraySize];
     }
 
     /**

@@ -50,7 +50,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
     public KType [] asArray(int... ints)
     {
-        KType [] values = Intrinsics.newKTypeArray(ints.length);
+        KType [] values = Intrinsics.<KType> newArray(ints.length);
         for (int i = 0; i < ints.length; i++)
             values[i] = (KType) /*! #if ($TemplateOptions.KTypeGeneric) !*/ (Object) /*! #end !*/ ints[i];
         return values;

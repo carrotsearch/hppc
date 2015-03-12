@@ -221,7 +221,7 @@ public class KTypeOpenHashSet<KType>
       #else !*/
   public Object[] toArray() {
   /*! #end !*/
-    final KType[] cloned = Intrinsics.newKTypeArray(size());
+    final KType[] cloned = Intrinsics.<KType> newArray(size());
     int j = 0;
     if (hasEmptyKey) {
       cloned[j++] = Intrinsics.<KType> cast(EMPTY_KEY);
@@ -572,7 +572,7 @@ public class KTypeOpenHashSet<KType>
     // Ensure no change is done if we hit an OOM.
     KType[] prevKeys = keys();
     try {
-      this.keys = Intrinsics.newKTypeArray(arraySize);
+      this.keys = Intrinsics.<KType> newArray(arraySize);
     } catch (OutOfMemoryError e) {
       this.keys = prevKeys;
       throw new BufferAllocationException(
