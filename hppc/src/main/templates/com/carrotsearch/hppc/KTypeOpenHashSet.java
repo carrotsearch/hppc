@@ -526,9 +526,13 @@ public class KTypeOpenHashSet<KType>
    * Mix the hash of a given key with {@link #keyMixer} to differentiate hash
    * order of keys between hash containers. Helps alleviate problems resulting
    * from linear conflict resolution in open addressing.
+   * 
+   * The output from this function should evenly distribute keys across the entire 
+   * integer range. 
    */
   protected int hashKey(KType key) {
-    return Internals.rehash(key, this.keyMixer);
+    assert !Intrinsics.isEmptyKey(key); // Handled as a special case (empty slot marker).
+    return Intrinsics.mix(key, this.keyMixer);
   }
 
   /**

@@ -1,5 +1,7 @@
 package com.carrotsearch.hppc;
 
+import com.carrotsearch.hppc.hash.MurmurHash3;
+
 /**
  * Intrinsic methods that are fully functional for the generic ({@link Object}) versions
  * of collection classes, but are replaced with low-level corresponding structures for
@@ -13,6 +15,13 @@ final class Intrinsics
     private Intrinsics()
     {
         // no instances.
+    }
+
+    /**
+     * Apply and return a hash of key, mixed with the given seed.
+     */
+    public static int mix(Object key, int seed) {
+      return MurmurHash3.hash(key.hashCode() ^ seed);
     }
 
     /**
