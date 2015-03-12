@@ -12,14 +12,14 @@ import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
- * Unit tests for {@link IntDoubleLinkedSet}.
+ * Unit tests for {@link DoubleLinkedIntSet}.
  */
 public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
 {
     /**
      * Per-test fresh initialized instance.
      */
-    public IntDoubleLinkedSet set;
+    public DoubleLinkedIntSet set;
 
     int key1 = 1;
     int key2 = 2;
@@ -35,7 +35,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     @Before
     public void initialize()
     {
-        set = new IntDoubleLinkedSet();
+        set = new DoubleLinkedIntSet();
     }
 
     /* */
@@ -80,7 +80,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     @Test
     public void testAddAll()
     {
-        IntDoubleLinkedSet set2 = new IntDoubleLinkedSet();
+        DoubleLinkedIntSet set2 = new DoubleLinkedIntSet();
         set2.add(1, 2);
         set.add(0, 1);
 
@@ -108,7 +108,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     public void testEnsureCapacity()
     {
         TightRandomResizingStrategy resizer = new TightRandomResizingStrategy(0);
-        IntDoubleLinkedSet set = new IntDoubleLinkedSet(0, 0, resizer);
+        DoubleLinkedIntSet set = new DoubleLinkedIntSet(0, 0, resizer);
 
         // Add some elements.
         final int max = rarely() ? 0 : randomIntBetween(0, 1000);
@@ -135,7 +135,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     {
         for (int i = 0; i < 256; i++)
         {
-            IntDoubleLinkedSet set = new IntDoubleLinkedSet(i, i);
+            DoubleLinkedIntSet set = new DoubleLinkedIntSet(i, i);
 
             for (int j = 0; j < i; j++)
             {
@@ -231,7 +231,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
         IntOpenHashSet list2 = new IntOpenHashSet();
         list2.addAll(1, 3, 5);
 
-        set = new IntDoubleLinkedSet(list2);
+        set = new DoubleLinkedIntSet(list2);
         assertEquals(3, set.size());
         assertSortedListEquals(list2.toArray(), set.toArray());
     }
@@ -243,8 +243,8 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
         IntOpenHashSet list2 = new IntOpenHashSet();
         list2.addAll(1, 3, 5);
 
-        IntDoubleLinkedSet s1 = IntDoubleLinkedSet.from(1, 3, 5);
-        IntDoubleLinkedSet s2 = IntDoubleLinkedSet.from(1, 3, 5);
+        DoubleLinkedIntSet s1 = DoubleLinkedIntSet.from(1, 3, 5);
+        DoubleLinkedIntSet s2 = DoubleLinkedIntSet.from(1, 3, 5);
 
         assertSortedListEquals(list2.toArray(), s1.toArray());
         assertSortedListEquals(list2.toArray(), s2.toArray());
@@ -254,7 +254,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     @Test
     public void testToString()
     {
-        assertEquals("[1, 3, 5]", IntDoubleLinkedSet.from(1, 3, 5).toString());
+        assertEquals("[1, 3, 5]", DoubleLinkedIntSet.from(1, 3, 5).toString());
     }
     
     /* */
@@ -263,7 +263,7 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
     {
         set.add(1, 2, 3);
         
-        IntDoubleLinkedSet cloned = set.clone();
+        DoubleLinkedIntSet cloned = set.clone();
         cloned.remove(1);
 
         assertSortedListEquals(set.toArray(), 1, 2, 3);

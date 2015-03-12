@@ -18,7 +18,7 @@ import static com.carrotsearch.hppc.Containers.*;
  * <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.30.7319">
  * Preston Briggs and Linda Torczon's paper "An Efficient Representation for Sparse Sets"</a></p>
  */
-public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
+public class DoubleLinkedIntSet implements IntLookupContainer, IntSet, Cloneable
 {
     /**
      * Dense array of set elements. 
@@ -45,7 +45,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public IntDoubleLinkedSet()
+    public DoubleLinkedIntSet()
     {
         this(DEFAULT_EXPECTED_ELEMENTS, 0);
     }
@@ -59,7 +59,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * 
      * @see BoundedProportionalArraySizingStrategy
      */
-    public IntDoubleLinkedSet(int denseCapacity, int sparseCapacity)
+    public DoubleLinkedIntSet(int denseCapacity, int sparseCapacity)
     {
         this(denseCapacity, sparseCapacity, new BoundedProportionalArraySizingStrategy());
     }
@@ -69,7 +69,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * 
      * @see #ensureCapacity
      */
-    public IntDoubleLinkedSet(int expectedElements, int maxElementValue, ArraySizingStrategy resizer)
+    public DoubleLinkedIntSet(int expectedElements, int maxElementValue, ArraySizingStrategy resizer)
     {
         assert expectedElements >= 0 : "Expected elements must be >= 0: " + expectedElements;
         assert maxElementValue >= 0 : "Max element value must be >= 0: " + maxElementValue;
@@ -82,7 +82,7 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
     /**
      * Creates a set from elements of another container.
      */
-    public IntDoubleLinkedSet(IntContainer container)
+    public DoubleLinkedIntSet(IntContainer container)
     {
         this(container.size(), 1 + maxElement(container));
         for (IntCursor cursor : container)
@@ -420,10 +420,10 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * Create a set from a variable number of arguments or an array of <code>int</code>.
      * The elements are copied from the argument to the internal buffer.
      */
-    public static IntDoubleLinkedSet from(int... elements)
+    public static DoubleLinkedIntSet from(int... elements)
     {
-        final IntDoubleLinkedSet set = 
-            new IntDoubleLinkedSet(elements.length, 1 + maxElement(elements));
+        final DoubleLinkedIntSet set = 
+            new DoubleLinkedIntSet(elements.length, 1 + maxElement(elements));
         for (int i : elements)
             set.addNoChecks(i);
         return set;
@@ -432,17 +432,17 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
     /**
      * Create a set from elements of another container.
      */
-    public static IntDoubleLinkedSet from(IntContainer container)
+    public static DoubleLinkedIntSet from(IntContainer container)
     {
-        return new IntDoubleLinkedSet(container);
+        return new DoubleLinkedIntSet(container);
     }
 
     /**
      * Static constructor-like method similar to other (generic) collections. 
      */
-    public static IntDoubleLinkedSet newInstance()
+    public static DoubleLinkedIntSet newInstance()
     {
-        return new IntDoubleLinkedSet();
+        return new DoubleLinkedIntSet();
     }
     
     /**
@@ -471,11 +471,11 @@ public class IntDoubleLinkedSet implements IntLookupContainer, IntSet, Cloneable
      * Clone this object.
      */
     @Override
-    public IntDoubleLinkedSet clone()
+    public DoubleLinkedIntSet clone()
     {
         try
         {
-            IntDoubleLinkedSet cloned = (IntDoubleLinkedSet) super.clone();
+            DoubleLinkedIntSet cloned = (DoubleLinkedIntSet) super.clone();
             cloned.dense = dense.clone();
             cloned.sparse = sparse.clone();
             return cloned;
