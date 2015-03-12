@@ -61,7 +61,8 @@ public class TemplateProcessorMojo extends AbstractMojo {
     intrinsics.put("equalsVType", new EqualsVType());
     intrinsics.put("cast", new Cast());
     intrinsics.put("isEmptyKey", new IsEmptyKey());
-    intrinsics.put("mix", new Mix("MixerMurmurHash3.mix(%s)"));
+    intrinsics.put("mix",  new Mix("MixerMurmurHash3.mix(%s)", /* allowNull */ false));
+    intrinsics.put("mix0", new Mix("MixerMurmurHash3.mix(%s)", /* allowNull */ true));
   }
 
   @Parameter(property = "project",

@@ -9,9 +9,11 @@ import com.carrotsearch.hppc.generator.TemplateOptions;
 
 public class Mix implements IntrinsicMethod {
   private String function;
+  private boolean allowNull;
 
-  public Mix(String function) {
+  public Mix(String function, boolean allowNull) {
     this.function = function;
+    this.allowNull = allowNull;
   }
 
   @Override
@@ -20,30 +22,44 @@ public class Mix implements IntrinsicMethod {
       throw new RuntimeException("Instrinsic mix doesn't use any generic type: " + m.group());
     }
 
-    if (params.size() != 2) {
-      throw new RuntimeException("Expected exactly two arguments: " + m.group());
+    if (params.size() != 1 &&
+        params.size() != 2) {
+      throw new RuntimeException("Expected one or two arguments: " + m.group());
     }
 
-    final String mix;
+    final String bits;
     switch (templateOptions.getKType()) {
       case FLOAT:
-        mix = String.format(Locale.ROOT, "Float.floatToIntBits(%s) ^ (%s)", params.get(0), params.get(1));
+        bits = f("Float.floatToIntBits(%s)", params.get(0));
         break;
 
       case DOUBLE:
-        mix = String.format(Locale.ROOT, "Double.doubleToLongBits(%s) ^ (%s)", params.get(0), params.get(1));
+        bits = f("Double.doubleToLongBits(%s)", params.get(0));
         break;
-      
+
       case GENERIC:
-        // Null keys are handled separately so this is safe.
-        mix = String.format(Locale.ROOT, "%s.hashCode() ^ (%s)", params.get(0), params.get(1));
+        if (allowNull) {
+          bits = f("((%s) == null ? 0 : (%s).hashCode())", params.get(0), params.get(0));
+        } else {
+          bits = f("%s.hashCode()", params.get(0));
+        }
         break;
 
       default:
-        mix = String.format(Locale.ROOT, "%s ^ (%s)", params.get(0), params.get(1));
+        bits = f("%s", params.get(0));
         break;
     }
 
-    sb.append(String.format(Locale.ROOT, function, mix));
+    if (params.size() == 1) {
+      sb.append(f(function, f("%s", bits)));
+    } else if (params.size() == 2) {
+      sb.append(f(function, f("(%s) ^ (%s)", bits, params.get(1))));
+    } else {
+      throw new RuntimeException();
+    }
+  }
+
+  public static String f(String format, Object... args) {
+    return String.format(Locale.ROOT, format, args);
   }
 }
