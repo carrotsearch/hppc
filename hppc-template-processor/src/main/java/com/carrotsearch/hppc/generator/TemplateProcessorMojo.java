@@ -38,6 +38,7 @@ import com.carrotsearch.hppc.generator.intrinsics.DefaultKTypeValue;
 import com.carrotsearch.hppc.generator.intrinsics.DefaultVTypeValue;
 import com.carrotsearch.hppc.generator.intrinsics.EqualsKType;
 import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
+import com.carrotsearch.hppc.generator.intrinsics.IsEmptyKey;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
 import com.google.common.base.Stopwatch;
 
@@ -49,6 +50,18 @@ import com.google.common.base.Stopwatch;
     threadSafe = true,
     requiresProject = true)
 public class TemplateProcessorMojo extends AbstractMojo {
+  private final HashMap<String, IntrinsicMethod> intrinsics;
+  {
+    intrinsics = new HashMap<>();
+    intrinsics.put("defaultKTypeValue", new DefaultKTypeValue());
+    intrinsics.put("defaultVTypeValue", new DefaultVTypeValue());
+    intrinsics.put("newArray", new NewArray());
+    intrinsics.put("equalsKType", new EqualsKType());
+    intrinsics.put("equalsVType", new EqualsVType());
+    intrinsics.put("cast", new Cast());
+    intrinsics.put("isEmptyKey", new IsEmptyKey());
+  }
+
   @Parameter(property = "project",
       readonly = true,
       required = true)
@@ -250,14 +263,6 @@ public class TemplateProcessorMojo extends AbstractMojo {
                 "(<(?<generic>[^>]+)>\\s*)?" + 
                 "(?<method>[a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
-    HashMap<String, IntrinsicMethod> intrinsics = new HashMap<>();
-    intrinsics.put("defaultKTypeValue", new DefaultKTypeValue());
-    intrinsics.put("defaultVTypeValue", new DefaultVTypeValue());
-    intrinsics.put("newArray", new NewArray());
-    intrinsics.put("equalsKType", new EqualsKType());
-    intrinsics.put("equalsVType", new EqualsVType());
-    intrinsics.put("cast", new Cast());
-
     StringBuilder sb = new StringBuilder();
     while (true) {
       Matcher m = p.matcher(input);
@@ -290,6 +295,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
               }
               break;
           }
+        }
+
+        getLog().debug("Intrinsic call: " + m.group() + "; method: " + 
+            method + ", generic: " + m.group("generic") + ", args: " + 
+            params);
+
+        // Allow recursion of intrinsics into arguments.
+        for (int i = 0; i < params.size(); i++) {
+          params.set(i, filterIntrinsics(params.get(i), templateOptions));
         }
 
         IntrinsicMethod im = intrinsics.get(method);

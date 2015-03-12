@@ -16,6 +16,21 @@ final class Intrinsics
     }
 
     /**
+     * Returns <code>true</code> if the provided key is an "empty slot"
+     * marker. For generic types the empty slot is <code>null</code>,
+     * for any other type it is an equivalent of zero.
+     * 
+     * For floating-point types {@link Float#floatToIntBits(float)} and 
+     * {@link Double#doubleToLongBits(double)} is invoked to normalize different
+     * representations of zero.  
+     * 
+     * Testing for zeros should be compiled into fast machine code. 
+     */
+    public static boolean isEmptyKey(Object key) {
+      return key == null;
+    }
+    
+    /**
      * Provide a generic cast for. With type erasure it should work internally just
      * fine and it simplifies code. The cast will be erased for primitive types.
      */
