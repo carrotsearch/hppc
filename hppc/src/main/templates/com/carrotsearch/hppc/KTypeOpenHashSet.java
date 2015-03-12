@@ -142,7 +142,7 @@ public class KTypeOpenHashSet<KType>
       hasEmptyKey = true;
       return hadEmptyKey;
     } else {
-      final KType [] keys = keys();
+      final KType [] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
       int slot = hashKey(key) & mask;
       
@@ -227,7 +227,7 @@ public class KTypeOpenHashSet<KType>
       cloned[j++] = Intrinsics.<KType> cast(EMPTY_KEY);
     }
 
-    final KType[] keys = keys();
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length; slot++) {
       KType existing;
       if (!isEmptyKey(existing = keys[slot])) {
@@ -247,7 +247,7 @@ public class KTypeOpenHashSet<KType>
       hasEmptyKey = false;
       return hadEmptyKey;
     } else {
-      final KType [] keys = keys();
+      final KType [] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
       int slot = hashKey(key) & mask;
       
@@ -285,7 +285,7 @@ public class KTypeOpenHashSet<KType>
       }
     }
 
-    final KType[] keys = keys();
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
       if (!isEmptyKey(existing = keys[slot])) {
@@ -309,7 +309,7 @@ public class KTypeOpenHashSet<KType>
     if (isEmptyKey(key)) {
       return hasEmptyKey;
     } else {
-      final KType [] keys = keys();
+      final KType [] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
       int slot = hashKey(key) & mask;
       KType existing;
@@ -349,7 +349,7 @@ public class KTypeOpenHashSet<KType>
    */
   public void ensureCapacity(int expectedElements) {
     if (expectedElements > resizeAt || keys == null) {
-      final KType[] prevKeys = keys();
+      final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
       allocateBuffers(minBufferSize(expectedElements, loadFactor));
       if (prevKeys != null && !isEmpty()) {
         rehash(prevKeys);
@@ -371,7 +371,7 @@ public class KTypeOpenHashSet<KType>
   @Override
   public int hashCode() {
     int h = hasEmptyKey ? 0xDEADBEEF : 0;
-    final KType[] keys = keys();
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = keys.length; --slot >= 0;) {
       KType existing;
       if (!isEmptyKey(existing = keys[slot])) {
@@ -473,7 +473,7 @@ public class KTypeOpenHashSet<KType>
       procedure.apply(Intrinsics.<KType> cast(EMPTY_KEY));
     }
 
-    final KType[] keys = keys();
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
       if (!isEmptyKey(existing = keys[slot])) {
@@ -495,7 +495,7 @@ public class KTypeOpenHashSet<KType>
       }
     }
 
-    final KType[] keys = keys();
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
       if (!isEmptyKey(existing = keys[slot])) {
@@ -545,7 +545,7 @@ public class KTypeOpenHashSet<KType>
    */
   protected void rehash(KType[] fromKeys) {
     // Rehash all stored keys into the new buffers.
-    final KType[] keys = keys();
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final int mask = this.mask;
     KType existing;
     for (int i = fromKeys.length; --i >= 0;) {
@@ -570,7 +570,7 @@ public class KTypeOpenHashSet<KType>
     final int newKeyMixer = this.orderMixer.newKeyMixer(arraySize);
 
     // Ensure no change is done if we hit an OOM.
-    KType[] prevKeys = keys();
+    KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     try {
       this.keys = Intrinsics.<KType> newArray(arraySize);
     } catch (OutOfMemoryError e) {
@@ -601,7 +601,7 @@ public class KTypeOpenHashSet<KType>
            && isEmptyKey(Intrinsics.<KType> cast(keys[slot]));
 
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
-    final KType[] prevKeys = keys();
+    final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
     assert this.keys.length > prevKeys.length;
 
@@ -617,7 +617,7 @@ public class KTypeOpenHashSet<KType>
    * Shift all the slot-conflicting keys allocated to (and including) <code>slot</code>.
    */
   protected void shiftConflictingKeys(int gapSlot) {
-    final KType[] keys = keys();
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final int mask = this.mask;
 
     // Perform shifts of conflicting keys to fill in the gap.
@@ -650,10 +650,6 @@ public class KTypeOpenHashSet<KType>
   
 
   // NOCOMMIT: turn into intrinsic calls and line (check if there's any observable performance regression?)
-
-  private KType[] keys() {
-    return Intrinsics.<KType[]> cast(keys);
-  }
 
   private boolean isEmptyKey(KType e) {
     // return Intrinsic.isEmptyKey(e)
