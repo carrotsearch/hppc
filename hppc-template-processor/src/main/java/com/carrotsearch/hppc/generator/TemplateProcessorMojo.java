@@ -38,8 +38,7 @@ import com.carrotsearch.hppc.generator.intrinsics.DefaultKTypeValue;
 import com.carrotsearch.hppc.generator.intrinsics.DefaultVTypeValue;
 import com.carrotsearch.hppc.generator.intrinsics.EqualsKType;
 import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
-import com.carrotsearch.hppc.generator.intrinsics.NewKTypeArray;
-import com.carrotsearch.hppc.generator.intrinsics.NewVTypeArray;
+import com.carrotsearch.hppc.generator.intrinsics.NewArray;
 import com.google.common.base.Stopwatch;
 
 /**
@@ -254,8 +253,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
     HashMap<String, IntrinsicMethod> intrinsics = new HashMap<>();
     intrinsics.put("defaultKTypeValue", new DefaultKTypeValue());
     intrinsics.put("defaultVTypeValue", new DefaultVTypeValue());
-    intrinsics.put("newKTypeArray", new NewKTypeArray());
-    intrinsics.put("newVTypeArray", new NewVTypeArray());
+    intrinsics.put("newArray", new NewArray());
     intrinsics.put("equalsKType", new EqualsKType());
     intrinsics.put("equalsVType", new EqualsVType());
     intrinsics.put("cast", new Cast());

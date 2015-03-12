@@ -412,8 +412,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         VType [] values = values_();
         boolean [] allocated = this.allocated;
         try {
-          this.keys = Intrinsics.newKTypeArray(arraySize);
-          this.values = Intrinsics.newVTypeArray(arraySize);
+          this.keys = Intrinsics.<KType> newArray(arraySize);
+          this.values = Intrinsics.<VType> newArray(arraySize);
           this.allocated = new boolean [arraySize];
         } catch (OutOfMemoryError e) {
           this.keys = keys;
