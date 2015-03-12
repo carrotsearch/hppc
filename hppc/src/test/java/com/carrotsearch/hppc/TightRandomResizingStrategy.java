@@ -23,7 +23,7 @@ public final class TightRandomResizingStrategy implements ArraySizingStrategy {
   @Override
   public int grow(int currentBufferLength, int elementsCount, int expectedAdditions) {
     growCalls++;
-    // System.out.println(String.format(Locale.ROOT, "%d %d %d", currentBufferLength, elementsCount, expectedAdditions));
+
     int r = 0;
     if (maxRandomIncrement > 0) {
       r += RandomizedContext.current().getRandom().nextInt(maxRandomIncrement);
