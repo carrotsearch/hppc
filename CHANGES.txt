@@ -58,6 +58,10 @@ HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
           "capacity" and presizing for the given number of expected elements
           is now equivalent. See API changes.
 
+HPPC-114: Buffer resizing and allocation should be throwing non-assertion 
+          mode exceptions. This is an unchecked exception. It will also
+          leave the data structure in a consistent state.
+
 ** Bug fixes
 
 ** Other changes
