@@ -36,6 +36,8 @@ HPPC-117: A summary of API changes resulting from other issues.
           program with data-related deadlocks; this is only useful if you're 
           using hash container as a scatter table (without merging it with
           anything else). 
+          
+          * (HPPC-108) Renamed IntDoubleLinkedSet to DoubleLinkedIntSet.
 
 ** New features
 
@@ -59,6 +61,8 @@ HPPC-113: Clean up the definition of "capacity" vs. buffer size. Initial
 ** Bug fixes
 
 ** Other changes
+
+HPPC-108: Rename IntDoubleLinkedSet to DoubleLinkedIntSet.
 
 HPPC-120: Rework entry shifting routine to be less hairy.
 
