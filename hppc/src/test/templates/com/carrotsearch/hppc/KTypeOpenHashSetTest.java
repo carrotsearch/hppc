@@ -5,7 +5,7 @@ import static com.carrotsearch.hppc.TestUtils.*;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.junit.After;
+import org.assertj.core.api.Assertions;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +26,11 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
      */
     public KTypeOpenHashSet<KType> set;
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
+    @SuppressWarnings("unchecked") 
+    /*! #end !*/
+    public final KType EMPTY_KEY = (KType) KTypeOpenHashSet.EMPTY_KEY;
+    
     /* */
     @Before
     public void initialize()
@@ -33,27 +38,24 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         set = new KTypeOpenHashSet<>();
     }
 
-    @After
-    public void checkTrailingSpaceUninitialized()
+    /* */
+    @Test
+    public void testZeroElementTreatment()
     {
-        if (set != null)
-        {
-            int occupied = 0;
-            for (int i = 0; i < set.keys.length; i++)
-            {
-                if (!set.allocated[i])
-                {
-                    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    assertEquals2(Intrinsics.defaultKTypeValue(), set.keys[i]);
-                    /*! #end !*/
-                }
-                else
-                {
-                    occupied++;
-                }
-            }
-            assertEquals(occupied, set.assigned);
-        }
+        KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>();
+        set.add(EMPTY_KEY);
+
+        Assertions.assertThat(set.size()).isEqualTo(1);
+        Assertions.assertThat(set.isEmpty()).isFalse();
+        Assertions.assertThat(set.toArray()).containsOnly(EMPTY_KEY);
+        Assertions.assertThat(set.contains(EMPTY_KEY)).isTrue();
+
+        set.remove(EMPTY_KEY);
+
+        Assertions.assertThat(set.size()).isEqualTo(0);
+        Assertions.assertThat(set.isEmpty()).isTrue();
+        Assertions.assertThat(set.toArray()).isEmpty();
+        Assertions.assertThat(set.contains(EMPTY_KEY)).isFalse();
     }
 
     /* */
@@ -249,27 +251,28 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         int reallocationsBefore = reallocations.value;
         assertEquals(reallocationsBefore, 1);
-        for (int i = 0; i < elements; i++)
+        for (int i = 1; i <= elements; i++)
         {
             set.add(cast(i));
         }
 
         // Non-existent key.
-        set.remove(cast(elements + 1));
-        assertFalse(set.contains(cast(elements + 1)));
+        KType outOfSet = cast(elements + 1);
+        set.remove(outOfSet);
+        assertFalse(set.contains(outOfSet));
         assertEquals(reallocationsBefore, reallocations.value);
 
         // Should not expand because we're replacing an existing element.
-        assertFalse(set.add(cast(0)));
+        assertFalse(set.add(k1));
         assertEquals(reallocationsBefore, reallocations.value);
 
         // Remove from a full set.
-        set.remove(cast(0));
+        set.remove(k1);
         assertEquals(reallocationsBefore, reallocations.value);
-        
+        set.add(k1);
+
         // Check expand on "last slot of a full map" condition.
-        set.add(cast(0));
-        set.add(cast(elements));
+        set.add(outOfSet);
         assertEquals(reallocationsBefore + 1, reallocations.value);
     }
 
@@ -328,7 +331,6 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         set.addAll(asArray(1, 2, 3));
         set.clear();
-        checkTrailingSpaceUninitialized();
         assertEquals(0, set.size());
     }
 
