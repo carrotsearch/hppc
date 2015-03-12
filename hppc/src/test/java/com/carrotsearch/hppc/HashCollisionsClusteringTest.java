@@ -1,7 +1,6 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,11 +21,12 @@ public class HashCollisionsClusteringTest
 
         IntOpenHashSet target = new IntOpenHashSet(0, 0.9d);
         int i = 0;
-        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(3);
+        long start = System.currentTimeMillis();
+        long deadline = start + TimeUnit.SECONDS.toMillis(3);
         for (IntCursor c : source) {
           target.add(c.value);
           if ((i++ % 1000) == 0) {
-            System.out.println("Added keys: " + i);
+            System.out.println("Added keys: " + i + " in " + (System.currentTimeMillis() - start) + " ms.");
             if (System.currentTimeMillis() >= deadline) {
               fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
             }
@@ -75,13 +75,14 @@ public class HashCollisionsClusteringTest
         System.out.println("Target filled up.");
 
         assertEquals(source.keys.length, target.keys.length);
-        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(3);
+        long start = System.currentTimeMillis();
+        long deadline = start + TimeUnit.SECONDS.toMillis(3);
         int i = 0;
         for (IntCursor c : source) {
           target.add(c.value);
           if ((i++ % 1000) == 0) {
             if (source.keys.length == target.keys.length) {
-              System.out.println("Added keys: " + i);
+              System.out.println("Added keys: " + i + " in " + (System.currentTimeMillis() - start) + " ms.");
             }
             if (System.currentTimeMillis() >= deadline) {
               fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
