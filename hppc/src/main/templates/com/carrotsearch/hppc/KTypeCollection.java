@@ -15,8 +15,7 @@ public interface KTypeCollection<KType> extends KTypeContainer<KType>
      * @param e Element to be removed from this collection, if present.
      * @return The number of removed elements as a result of this call.
      */
-    // NOCOMMIT: simplify to removeAll
-    public int removeAllOccurrences(KType e);
+    public int removeAll(KType e);
 
     /**
      * Removes all elements in this collection that are present

@@ -191,7 +191,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         stack.push(key1, key2, key3);
 
         KTypeStack<KType> cloned = stack.clone();
-        cloned.removeAllOccurrences(key1);
+        cloned.removeAll(key1);
 
         assertSortedListEquals(stack.toArray(), key1, key2, key3);
         assertSortedListEquals(cloned.toArray(), key2, key3);

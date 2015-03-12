@@ -239,7 +239,7 @@ public class KTypeOpenHashSet<KType>
   }
 
   /**
-   * An alias for the (preferred) {@link #removeAllOccurrences}.
+   * An alias for the (preferred) {@link #removeAll(KType)}.
    */
   public boolean remove(KType key) {
     if (isEmptyKey(key)) {
@@ -268,7 +268,7 @@ public class KTypeOpenHashSet<KType>
    * {@inheritDoc}
    */
   @Override
-  public int removeAllOccurrences(KType key) {
+  public int removeAll(KType key) {
     return remove(key) ? 1 : 0;
   }
 

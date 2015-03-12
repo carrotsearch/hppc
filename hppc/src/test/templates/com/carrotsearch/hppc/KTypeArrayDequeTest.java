@@ -261,7 +261,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             KType k = cast(rnd.nextInt(modulo));
             assertEquals(
                 deque.removeFirstOccurrence(k) >= 0, 
-                sequence.removeFirstOccurrence(k) >= 0);
+                sequence.removeFirst(k) >= 0);
         }
 
         assertListEquals(deque.toArray(), sequence.toArray());
@@ -290,7 +290,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             KType k = cast(rnd.nextInt(modulo));
             assertEquals(
                 deque.removeLastOccurrence(k) >= 0, 
-                sequence.removeLastOccurrence(k) >= 0);
+                sequence.removeLast(k) >= 0);
         }
 
         assertListEquals(deque.toArray(), sequence.toArray());
@@ -302,18 +302,18 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     
     /* */
     @Test
-    public void testRemoveAllOccurrences()
+    public void testRemoveAll()
     {
         deque.addLast(asArray(0, 1, 2, 1, 0, 3, 0));
         
-        assertEquals(0, deque.removeAllOccurrences(k4));
-        assertEquals(3, deque.removeAllOccurrences(k0));
+        assertEquals(0, deque.removeAll(k4));
+        assertEquals(3, deque.removeAll(k0));
         assertListEquals(deque.toArray(), 1, 2, 1, 3);
-        assertEquals(1, deque.removeAllOccurrences(k3));
+        assertEquals(1, deque.removeAll(k3));
         assertListEquals(deque.toArray(), 1, 2, 1);
-        assertEquals(2, deque.removeAllOccurrences(k1));
+        assertEquals(2, deque.removeAll(k1));
         assertListEquals(deque.toArray(), 2);
-        assertEquals(1, deque.removeAllOccurrences(k2));
+        assertEquals(1, deque.removeAll(k2));
         assertEquals(0, deque.size());
     }
 
@@ -664,7 +664,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         this.deque.addLast(key1, key2, key3);
 
         KTypeArrayDeque<KType> cloned = deque.clone();
-        cloned.removeAllOccurrences(key1);
+        cloned.removeAll(key1);
 
         assertSortedListEquals(deque.toArray(), key1, key2, key3);
         assertSortedListEquals(cloned.toArray(), key2, key3);

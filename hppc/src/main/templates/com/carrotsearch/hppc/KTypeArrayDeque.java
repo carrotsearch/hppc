@@ -375,7 +375,7 @@ public class KTypeArrayDeque<KType>
      * {@inheritDoc}
      */
     @Override
-    public int removeAllOccurrences(KType e1)
+    public int removeAll(KType e1)
     {
         int removed = 0;
         final int last = tail;
