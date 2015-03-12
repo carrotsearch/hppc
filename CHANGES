@@ -21,8 +21,17 @@ HPPC-117: A summary of API changes resulting from other issues.
           
           * EmptyArrays has been removed. Empty arrays are now a static
             constant in each *ArrayList.
+            
+          * (HPPC-97) Removed allocated[] fields from hash containers. If
+          you used explicit loops utilizing allocated[] you should rewrite
+          them to use cursors or other form of iteration instead (it will
+          be simpler than taking care of the empty slot marker).
 
 ** New features
+
+HPPC-97:  Use unallocated slot marker key instead of an explicit 
+          allocation table for hash containers. This should result in memory
+          savings and even speedups resulting from fewer memory accesses.
 
 HPPC-112: ensureCapacity(elements) added to all containers.
 
