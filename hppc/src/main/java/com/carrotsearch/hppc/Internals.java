@@ -24,16 +24,4 @@ final class Internals
     static int rehash(char v)   { return MurmurHash3.hash(v); }
     static int rehash(float v)  { return MurmurHash3.hash(Float.floatToIntBits(v)); }
     static int rehash(double v) { return (int) MurmurHash3.hash(Double.doubleToLongBits(v)); }
-
-    /**
-     * Create and return an array of template objects (<code>Object</code>s in the generic
-     * version, corresponding key-primitive type in the generated version).
-     * 
-     * @param arraySize The size of the array to return.
-     */
-    @SuppressWarnings("unchecked")
-    static <T> T newArray(int arraySize)
-    {
-        return (T) new Object [arraySize];
-    }    
 }
