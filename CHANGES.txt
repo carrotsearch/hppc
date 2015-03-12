@@ -71,6 +71,8 @@ HPPC-118: Buffers for generic classes are now declared as Object[] and not as
 
 HPPC-105: Cleanup project structure and IDE integration.
 
+HPPC-109: Moved @author tags to NOTICE.txt.
+
 
 [0.6.1]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12420
