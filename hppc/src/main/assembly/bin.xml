@@ -13,10 +13,11 @@
       <directory>../</directory>
       <outputDirectory />
       <includes>
-        <include>ALTERNATIVES</include>
-        <include>CHANGES</include>
-        <include>LICENSE</include>
-        <include>README</include>
+        <include>ALTERNATIVES.txt</include>
+        <include>CHANGES.txt</include>
+        <include>LICENSE.txt</include>
+        <include>NOTICE.txt</include>
+        <include>README.txt</include>
       </includes>
     </fileSet>
 
