@@ -26,8 +26,21 @@ HPPC-117: A summary of API changes resulting from other issues.
           you used explicit loops utilizing allocated[] you should rewrite
           them to use cursors or other form of iteration instead (it will
           be simpler than taking care of the empty slot marker).
+          
+          * (HPPC-115) Hash containers now, by default, use a random internal
+          mixing seed to reorder entries. This is done to prevent a potential
+          (but likely!) case of exponential costs of merging keys from two
+          or more containers. If you desperately need non-permuted order,
+          use and explicit constructor and pass HashOrderMixing.none()
+          as the mixing strategy. Carefully weigh the risk of stalling your
+          program with data-related deadlocks; this is only useful if you're 
+          using hash container as a scatter table (without merging it with
+          anything else). 
 
 ** New features
+
+HPPC-115: Provide better guard against key clustering leading to 
+          exponential times.
 
 HPPC-97:  Use unallocated slot marker key instead of an explicit 
           allocation table for hash containers. This should result in memory
