@@ -39,6 +39,7 @@ import com.carrotsearch.hppc.generator.intrinsics.DefaultVTypeValue;
 import com.carrotsearch.hppc.generator.intrinsics.EqualsKType;
 import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
 import com.carrotsearch.hppc.generator.intrinsics.IsEmptyKey;
+import com.carrotsearch.hppc.generator.intrinsics.Mix;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
 import com.google.common.base.Stopwatch;
 
@@ -60,6 +61,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
     intrinsics.put("equalsVType", new EqualsVType());
     intrinsics.put("cast", new Cast());
     intrinsics.put("isEmptyKey", new IsEmptyKey());
+    intrinsics.put("mix", new Mix("MixerMurmurHash3.mix(%s)"));
   }
 
   @Parameter(property = "project",
