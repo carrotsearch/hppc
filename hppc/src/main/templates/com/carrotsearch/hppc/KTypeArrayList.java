@@ -534,7 +534,7 @@ public class KTypeArrayList<KType>
         int h = 1, max = elementsCount;
         for (int i = 0; i < max; i++)
         {
-            h = 31 * h + Intrinsics.<KType> mix0(this.buffer[i]);
+            h = 31 * h + BitMixer.mix0(this.buffer[i]);
         }
         return h;
     }
