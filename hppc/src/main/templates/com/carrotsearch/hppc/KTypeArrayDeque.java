@@ -901,8 +901,9 @@ public class KTypeArrayDeque<KType>
         final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
-            if (Intrinsics.equalsKType(e, buffer[i]))
+            if (Intrinsics.equalsKType(e, buffer[i])) {
                 return true;
+            }
         }
 
         return false;

@@ -116,4 +116,18 @@ abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
     {
         return Arrays.toString(this.toArray());
     }
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /**
+     * Compares two keys for equality. Override if custom equality behavior 
+     * is required (remember about overriding {@link #hashCode()} and {@link #equals(Object)}
+     * to keep the contract consistent).
+     * 
+     * @see Object#equals(Object)
+     * @see Object#hashCode()
+     */
+    protected boolean sameKeys(KType k1, KType k2) {
+      return Intrinsics.<KType> same(k1, k2); 
+    }
+    /*! #end !*/
 }

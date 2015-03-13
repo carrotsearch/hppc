@@ -1190,6 +1190,18 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         }
     }
     
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    /**
+     * Compares two keys for equality. Override if custom equality behavior 
+     * is required.
+     * 
+     * @see #hashKey
+     */
+    protected boolean sameKeys(KType k1, KType k2) {
+      return Intrinsics.<KType> same(k1, k2); 
+    }
+    /*! #end !*/
+
     /**
      * Convert the contents of this map to a human-friendly string. 
      */
