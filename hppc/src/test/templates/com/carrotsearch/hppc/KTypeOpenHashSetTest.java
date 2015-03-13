@@ -3,16 +3,12 @@ package com.carrotsearch.hppc;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-/*! #if ($TemplateOptions.KType.type != "int") !*/
-import com.carrotsearch.hppc.cursors.IntCursor;
-/*! #end !*/
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
@@ -86,70 +82,6 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
           set.add(cast(i));
         }
         assertEquals(before, expands.value);
-    }
-
-    @Test
-    public void testAddRemoveSameHashCollision()
-    {
-        // This test is only applicable to selected key types.
-        Assume.assumeTrue(
-            int[].class.isInstance(set.keys) ||
-            long[].class.isInstance(set.keys) ||
-            Object[].class.isInstance(set.keys));
-
-        IntArrayList hashChain = TestUtils.generateMurmurHash3CollisionChain(0x1fff, 0x7e, 0x1fff /3);
-
-        /*
-         * Add all of the conflicting keys to a map. 
-         */
-        for (IntCursor c : hashChain)
-            set.add(cast(c.value));
-
-        assertEquals(hashChain.size(), set.size());
-
-        /*
-         * Add some more keys (random).
-         */
-        Random rnd = getRandom();
-        IntSet chainKeys = new IntOpenHashSet(hashChain);
-        IntSet differentKeys = new IntOpenHashSet();
-        while (differentKeys.size() < 500)
-        {
-            int k = rnd.nextInt();
-            if (!chainKeys.contains(k) && !differentKeys.contains(k))
-                differentKeys.add(k);
-        }
-
-        for (IntCursor c : differentKeys)
-            set.add(cast(c.value));
-
-        assertEquals(hashChain.size() + differentKeys.size(), set.size());
-
-        /* 
-         * Verify the map contains all of the conflicting keys.
-         */
-        for (IntCursor c : hashChain)
-            assertTrue(set.contains(cast(c.value)));
-
-        /*
-         * Verify the map contains all the other keys.
-         */
-        for (IntCursor c : differentKeys)
-            assertTrue(set.contains(cast(c.value)));
-
-        /*
-         * Iteratively remove the keys, from first to last.
-         */
-        for (IntCursor c : hashChain)
-            assertTrue(set.remove(cast(c.value)));
-
-        assertEquals(differentKeys.size(), set.size());
-
-        /*
-         * Verify the map contains all the other keys.
-         */
-        for (IntCursor c : differentKeys)
-            assertTrue(set.contains(cast(c.value)));        
     }
 
     /* */

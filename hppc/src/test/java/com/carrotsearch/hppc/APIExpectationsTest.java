@@ -4,7 +4,6 @@ import static com.carrotsearch.hppc.TestUtils.assertEquals2;
 
 import org.junit.Test;
 
-import com.carrotsearch.hppc.hash.MurmurHash3;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 /**
@@ -171,14 +170,14 @@ public class APIExpectationsTest extends RandomizedTest
         IntOpenHashSet l0 = new IntOpenHashSet() {
             @Override
             protected int hashKey(int key) {
-              return MurmurHash3.hash(key ^ 0xCAFEBABE);
+              return BitMixer.mix(key, 0xCAFE);
             }
         };
 
         IntOpenHashSet l1 = new IntOpenHashSet() {
           @Override
           protected int hashKey(int key) {
-            return MurmurHash3.hash(key ^ 0xBABECAFE);
+            return BitMixer.mix(key, 0xBABE);
           }
         };
 
