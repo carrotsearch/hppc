@@ -801,35 +801,34 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public boolean equals(Object obj)
     {
-        if (obj != null)
-        {
-            if (obj == this) return true;
+        return obj != null &&
+               getClass() == obj.getClass() &&
+               sameEntries(getClass().cast(obj));
+    }
 
-            if (obj instanceof KTypeVTypeMap)
-            {
-                /* #if ($templateOnly) */
-                @SuppressWarnings("unchecked")
-                /* #end */
-                KTypeVTypeMap<KType, VType> other = (KTypeVTypeMap<KType, VType>) obj;
-                if (other.size() == this.size())
-                {
-                    for (KTypeVTypeCursor<KType, VType> c : this)
-                    {
-                        if (other.containsKey(c.key))
-                        {
-                            VType v = other.get(c.key);
-                            if (Intrinsics.equalsVType(c.value, v))
-                            {
-                                continue;
-                            }
-                        }
-                        return false;
-                    }
-                    return true;
-                }
-            }
+    /**
+     * Return true if all keys of some other container exist in this container.
+     * Equality comparison is performed with this object's {@link #sameKeys}
+     * method.
+     */
+    @SuppressWarnings("all") // TODO: HPPC-126
+    private boolean sameEntries(KTypeVTypeOpenHashMap other) {
+      if (other.size() != size()) {
+        return false;
+      }
+
+      Iterator<KTypeVTypeCursor> i = other.iterator();
+      while (i.hasNext()) {
+        KTypeVTypeCursor c = i.next();
+        KType key = Intrinsics.<KType> cast(c.key);
+        if (containsKey(key) &&
+            Intrinsics.equalsVType(c.value, get(key))) {
+          continue;
         }
         return false;
+      }
+
+      return true;
     }
 
     /**

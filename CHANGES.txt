@@ -39,7 +39,11 @@ HPPC-117: A summary of API changes resulting from other issues.
           T.removeLastOccurrences  -> T.removeLast
           T.removeAllOccurrences   -> T.removeAll(type)
           
-          * (HPPC-123) Dropped MurmurHash3 class entirely. 
+          * (HPPC-123) Dropped MurmurHash3 class entirely.
+          
+          * (HPPC-125) The semantics of how equals works has changed (a container
+          can be equal only if the comparison's target is of the same
+          class and contains the same entries.
 
 ** New features
 
@@ -87,6 +91,11 @@ HPPC-115: Hash containers now, by default, use a random internal
           counter or something like that).
 
 ** Other changes
+
+HPPC-125: The equals method should not return true when comparing against
+          subclasses of the current object. This can be very misleading, 
+          especially when the subclass has a different implementation of
+          key comparisons, etc. 
 
 HPPC-123: Dropped MurmurHash3 class entirely.
 

@@ -357,22 +357,11 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testHashCodeEqualsForDifferentKeyHash()
+    public void testHashCodeEqualsForDifferentMix()
     {
-        KTypeOpenHashSet<KType> l0 = new KTypeOpenHashSet<KType>() {
-          @Override
-          protected int hashKey(KType key) {
-            return super.hashKey(key);
-          }
-        };
+        KTypeOpenHashSet<KType> l0 = new KTypeOpenHashSet<KType>(0, 0.5d, HashOrderMixing.constant(1));
+        KTypeOpenHashSet<KType> l1 = new KTypeOpenHashSet<KType>(0, 0.5d, HashOrderMixing.constant(2));
 
-        KTypeOpenHashSet<KType> l1 = new KTypeOpenHashSet<KType>() {
-          @Override
-          protected int hashKey(KType key) {
-            return super.hashKey(key) ^ 0xCAFEBABE;
-          }
-        };
-        
         assertEquals(0, l0.hashCode());
         assertEquals(l0.hashCode(), l1.hashCode());
         assertEquals(l0, l1);
@@ -429,4 +418,34 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         Arrays.sort(asCharArray);
         assertEquals("12", new String(asCharArray));
     }
+    
+    /* */
+    @Test
+    public void testEqualsSameClass()
+    {
+      KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, k2, k3);
+      KTypeOpenHashSet<KType> l2 = KTypeOpenHashSet.from(k1, k2, k3);
+      KTypeOpenHashSet<KType> l3 = KTypeOpenHashSet.from(k1, k2, k4);
+
+        Assertions.assertThat(l1).isEqualTo(l2);
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1).isNotEqualTo(l3);
+    }
+
+    /* */
+    @Test
+    public void testEqualsSubClass()
+    {
+        class Sub extends KTypeOpenHashSet<KType> {
+        };
+
+        KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, k2, k3);
+        KTypeOpenHashSet<KType> l2 = new Sub();
+        KTypeOpenHashSet<KType> l3 = new Sub();
+        l2.addAll(l1);
+        l3.addAll(l1);
+
+        Assertions.assertThat(l2).isEqualTo(l3);
+        Assertions.assertThat(l1).isNotEqualTo(l2);
+    }    
 }

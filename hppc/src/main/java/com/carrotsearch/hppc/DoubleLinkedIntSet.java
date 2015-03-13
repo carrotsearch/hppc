@@ -494,4 +494,38 @@ public class DoubleLinkedIntSet implements IntLookupContainer, IntSet, Cloneable
     {
         return Arrays.toString(this.toArray());
     }
+    
+    @Override
+    public int hashCode() {
+      int h = 1, max = size();
+      for (int i = 0; i < max; i++)
+      {
+          h = 31 * h + BitMixer.mix0(dense[i]);
+      }
+      return h;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return other != null &&
+             getClass() == other.getClass() &&
+             sameKeys(getClass().cast(other));
+    }
+
+    /**
+     * Return true if all keys of some other container exist in this container.
+     */
+    public boolean sameKeys(IntSet other) {
+      if (other.size() != size()) {
+        return false;
+      }
+      
+      for (IntCursor c : other) {
+        if (!contains(c.value)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
 }

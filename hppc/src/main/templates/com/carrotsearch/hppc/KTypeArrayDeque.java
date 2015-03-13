@@ -928,36 +928,44 @@ public class KTypeArrayDeque<KType>
     }
 
     /**
-     * {@inheritDoc}
+     * Returns <code>true</code> only if the other object is an instance of 
+     * the same class and with the same elements (as compared using {@link #sameKeys}).
      */
     @Override
-    /* #if ($templateOnly) */ 
-    @SuppressWarnings("unchecked") 
-    /* #end */
     public boolean equals(Object obj)
     {
-        if (obj != null)
-        {
-            if (obj instanceof KTypeDeque<?>)
-            {
-                KTypeDeque<Object> other = (KTypeDeque<Object>) obj;
-                if (other.size() == this.size())
-                {
-                    int fromIndex = head;
-                    final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
-                    int i = fromIndex;
-                    for (KTypeCursor<Object> c : other)
-                    {
-                        if (!Intrinsics.equalsKType(c.value, buffer[i]))
-                            return false;
-                        i = oneRight(i, buffer.length);                        
-                    }
-                    return true;
-                }
-            }
-        }
-        return false;
+        return obj != null &&
+               getClass() == obj.getClass() &&
+               equalElements(getClass().cast(obj));
     }
+
+    /**
+     * Compare order-aligned elements against another {@link KTypeDeque<KType>}.
+     * Equality comparison is performed with this object's {@link #sameKeys}
+     * method.
+     */
+    @SuppressWarnings({"all"})
+    public boolean equalElements(KTypeDeque<?> other)
+    {
+        int max = size();
+        if (other.size() != max) {
+          return false;
+        }
+
+        // TODO: HPPC-126
+        // Iterator<? extends KTypeCursor<?>> ... 
+        Iterator<KTypeCursor> i1 = (Iterator) this.iterator();
+        Iterator<KTypeCursor> i2 = (Iterator) other.iterator();
+
+        while (i1.hasNext() && i2.hasNext()) {
+          if (!Intrinsics.equalsKType(i1.next().value, i2.next().value)) {
+            return false;
+          }
+        }
+
+        return !i1.hasNext() && 
+               !i2.hasNext();
+    }    
 
     /**
      * Returns a new object of this class with no need to declare generic type (shortcut

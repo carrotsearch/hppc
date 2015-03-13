@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -677,5 +678,36 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             + key1 + ", "
             + key2 + ", "
             + key3 + "]", KTypeArrayDeque.from(key1, key2, key3).toString());
+    }    
+    
+    /* */
+    @Test
+    public void testEqualsSameClass()
+    {
+      KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(k1, k2, k3);
+      KTypeArrayDeque<KType> l2 = KTypeArrayDeque.from(k1, k2, k3);
+      KTypeArrayDeque<KType> l3 = KTypeArrayDeque.from(k1, k3, k2);
+
+        Assertions.assertThat(l1).isEqualTo(l2);
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1).isNotEqualTo(l3);
+    }
+
+    /* */
+    @Test
+    public void testEqualsSubClass()
+    {
+        class Sub extends KTypeArrayDeque<KType> {
+        };
+
+        KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(k1, k2, k3);
+        KTypeArrayDeque<KType> l2 = new Sub();
+        KTypeArrayDeque<KType> l3 = new Sub();
+        l2.addLast(k1); l2.removeFirst(); // no-op
+        l2.addLast(l1);
+        l3.addLast(l1);
+
+        Assertions.assertThat(l2).isEqualTo(l3);
+        Assertions.assertThat(l1).isNotEqualTo(l2);
     }    
 }

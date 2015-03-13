@@ -5,7 +5,10 @@ import static com.carrotsearch.hppc.TestUtils.*;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.junit.*;
+import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.mutables.IntHolder;
@@ -528,14 +531,14 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testHashCodeEqualsWithOtherContainer()
+    public void testEqualElements()
     {
         KTypeStack<KType> l1 = KTypeStack.from(k1, k2, k3);
         KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, k2);
         l2.add(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
-        assertEquals(l1, l2);
+        assertTrue(l2.equalElements(l1));
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -591,5 +594,35 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
             + key1 + ", "
             + key2 + ", "
             + key3 + "]", KTypeArrayList.from(k1, k2, k3).toString());
+    }
+
+    /* */
+    @Test
+    public void testEqualsSameClass()
+    {
+        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, k2, k3);
+        KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, k2, k3);
+        KTypeArrayList<KType> l3 = KTypeArrayList.from(k1, k3, k2);
+
+        Assertions.assertThat(l1).isEqualTo(l2);
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1).isNotEqualTo(l3);
+    }
+
+    /* */
+    @Test
+    public void testEqualsSubClass()
+    {
+        class Sub extends KTypeArrayList<KType> {
+        };
+
+        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, k2, k3);
+        KTypeArrayList<KType> l2 = new Sub();
+        KTypeArrayList<KType> l3 = new Sub();
+        l2.addAll(l1);
+        l3.addAll(l1);
+
+        Assertions.assertThat(l2).isEqualTo(l3);
+        Assertions.assertThat(l1).isNotEqualTo(l2);
     }    
 }

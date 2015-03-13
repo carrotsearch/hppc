@@ -540,66 +540,32 @@ public class KTypeArrayList<KType>
     }
 
     /**
-     * {@inheritDoc}
+     * Returns <code>true</code> only if the other object is an instance of 
+     * the same class and with the same elements (as compared using {@link #sameKeys}).
      */
     @Override
-    /* #if ($templateOnly) */
-    @SuppressWarnings("unchecked") 
-    /* #end */
     public boolean equals(Object obj)
     {
-        if (obj != null)
-        {
-            if (obj instanceof KTypeArrayList<?>)
-            {
-                KTypeArrayList<?> other = (KTypeArrayList<?>) obj;
-                return other.size() == this.size() &&
-                    rangeEquals(other.buffer, this.buffer, size());
-            }
-            else if (obj instanceof KTypeIndexedContainer<?>)
-            {
-                KTypeIndexedContainer<?> other = (KTypeIndexedContainer<?>) obj;
-                return other.size() == this.size() &&
-                    allIndexesEqual(this, (KTypeIndexedContainer<KType>) other, this.size());
-            }
-        }
-        return false;
+        return obj != null &&
+               getClass() == obj.getClass() &&
+               equalElements(getClass().cast(obj));
     }
 
     /**
-     * Compare a range of values in two arrays. 
+     * Compare index-aligned elements against another 
+     * {@link KTypeIndexedContainer<KType>}. Equality
+     * comparison is performed with this object's {@link #sameKeys} 
+     * method.
      */
-    /*! #if ($TemplateOptions.KTypePrimitive) 
-    private boolean rangeEquals(KType [] b1, KType [] b2, int length)
-        #else !*/
-    private boolean rangeEquals(Object [] b1, Object [] b2, int length)
-    /*! #end !*/
+    public boolean equalElements(KTypeIndexedContainer<?> other)
     {
-        for (int i = 0; i < length; i++)
-        {
-            if (!Intrinsics.equalsKType(b1[i], b2[i]))
-            {
-                return false;
-            }
+        int max = size();
+        if (other.size() != max) {
+          return false;
         }
 
-        return true;
-    }
-
-    /**
-     * Compare index-aligned objects. 
-     */
-    private boolean allIndexesEqual(
-        KTypeIndexedContainer<KType> b1, 
-        KTypeIndexedContainer<KType> b2, int length)
-    {
-        for (int i = 0; i < length; i++)
-        {
-            KType o1 = b1.get(i); 
-            KType o2 = b2.get(i);
-
-            if (!Intrinsics.equalsKType(o1, o2))
-            {
+        for (int i = 0; i < max; i++) {
+            if (!Intrinsics.equalsKType(get(i), other.get(i))) {
                 return false;
             }
         }
