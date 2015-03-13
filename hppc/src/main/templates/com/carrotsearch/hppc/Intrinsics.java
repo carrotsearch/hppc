@@ -16,44 +16,6 @@ final class Intrinsics
     }
 
     /**
-     * Try to distribute the bits of key evenly across the int space, mixing
-     * it with the provided seed.
-     * 
-     * It is guaranteed that for generic types the key must not be null.  
-     */
-    public static <T> int mix(Object key, int seed) {
-      return MixerMurmurHash3.mix(key.hashCode() ^ seed);
-    }
-
-    /**
-     * Try to distribute the bits of key evenly across the int space.
-     * 
-     * It is guaranteed that for generic types the key must not be null.  
-     */
-    public static <T> int mix(Object key) {
-      return mix(key, 0);
-    }
-
-    /**
-     * Try to distribute the bits of key evenly across the int space, mixing
-     * it with the provided seed.
-     * 
-     * This method can accept null keys.   
-     */
-    public static <T> int mix0(Object key, int seed) {
-      return MixerMurmurHash3.mix((key == null ? 0 : key.hashCode()) ^ seed);
-    }
-
-    /**
-     * Try to distribute the bits of key evenly across the int space.
-     * 
-     * This method can accept null keys.   
-     */
-    public static <T> int mix0(Object key) {
-      return mix0(key, 0);
-    }
-
-    /**
      * Returns <code>true</code> if the provided key is an "empty slot"
      * marker. For generic types the empty slot is <code>null</code>,
      * for any other type it is an equivalent of zero.
