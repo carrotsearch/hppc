@@ -386,21 +386,33 @@ public class KTypeOpenHashSet<KType>
    */
   @Override
   public boolean equals(Object obj) {
-    if (obj != null &&
-        obj instanceof KTypeSet<?>) {
-      /* #if ($templateOnly) */ @SuppressWarnings("unchecked") /* #end */
-      KTypeSet<Object> other = (KTypeSet<Object>) obj;
-      if (other.size() == this.size()) {
-        for (KTypeCursor<KType> c : this) {
-          if (!other.contains(c.value)) {
-            return false;
-          }
-        }
-        return true;
-      }
+    return obj != null &&
+           getClass() == obj.getClass() &&
+           sameKeys(getClass().cast(obj));
+  }
+
+  /**
+   * Return true if all keys of some other container exist in this container.
+   * Equality comparison is performed with this object's {@link #sameKeys}
+   * method.
+   */
+  @SuppressWarnings("all") // TODO: HPPC-126
+  private boolean sameKeys(KTypeSet other) {
+    if (other.size() != size()) {
+      return false;
     }
 
-    return false;
+    Iterator<KTypeCursor> i = other.iterator();
+    while (i.hasNext()) {
+      KTypeCursor c = i.next();
+      KType key = Intrinsics.<KType> cast(c.value);
+      if (contains(key)) {
+        continue;
+      }
+      return false;
+    }
+
+    return true;
   }
 
   /**

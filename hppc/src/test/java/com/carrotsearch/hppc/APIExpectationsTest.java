@@ -1,7 +1,8 @@
 package com.carrotsearch.hppc;
 
-import static com.carrotsearch.hppc.TestUtils.assertEquals2;
+import static com.carrotsearch.hppc.TestUtils.*;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
@@ -12,6 +13,64 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 public class APIExpectationsTest extends RandomizedTest
 {
     public volatile int [] t1;
+
+    @Test
+    public void testEqualElementsDifferentGenericType()
+    {
+        ObjectArrayList<Integer> l1 = new ObjectArrayList<Integer>();
+        ObjectArrayList<Number> l2 = new ObjectArrayList<Number>();
+        
+        Assertions.assertThat(l1.equalElements(l2)).isTrue();
+        Assertions.assertThat(l2.equalElements(l1)).isTrue();
+    }
+
+    @Test
+    public void testArrayListEqualsWithOverridenComparisonMethod()
+    {
+        class IntegerIdentityList extends ObjectArrayList<Integer> {
+          @Override
+          protected boolean sameKeys(Integer k1, Integer k2) {
+            return k1 == k2;
+          }
+        };
+
+        IntegerIdentityList l1 = new IntegerIdentityList();
+        IntegerIdentityList l2 = new IntegerIdentityList();
+        IntegerIdentityList l3 = new IntegerIdentityList();
+
+        l1.add(1, 2, 3);
+        l2.add(1, 2, 3);
+        l3.add(1, 2, new Integer(3));
+
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l3.hashCode());
+        Assertions.assertThat(l1.equalElements(l2)).isTrue();
+        Assertions.assertThat(l1.equalElements(l3)).isFalse();
+    }
+
+    @Test
+    public void testArrayDequeEqualsWithOverridenComparisonMethod()
+    {
+        class IntegerIdentityDeque extends ObjectArrayDeque<Integer> {
+          @Override
+          protected boolean sameKeys(Integer k1, Integer k2) {
+            return k1 == k2;
+          }
+        };
+
+        IntegerIdentityDeque l1 = new IntegerIdentityDeque();
+        IntegerIdentityDeque l2 = new IntegerIdentityDeque();
+        IntegerIdentityDeque l3 = new IntegerIdentityDeque();
+
+        l1.addLast(1, 2, 3);
+        l2.addLast(1, 2, 3);
+        l3.addLast(1, 2, new Integer(3));
+
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l3.hashCode());
+        Assertions.assertThat(l1.equalElements(l2)).isTrue();
+        Assertions.assertThat(l1.equalElements(l3)).isFalse();
+    }
 
     @Test
     public void testPrimitiveToArray()
@@ -167,21 +226,10 @@ public class APIExpectationsTest extends RandomizedTest
     @Test
     public void testHashCodeOverflowIdentical()
     {
-        IntOpenHashSet l0 = new IntOpenHashSet() {
-            @Override
-            protected int hashKey(int key) {
-              return BitMixer.mix(key, 0xCAFE);
-            }
-        };
+        IntOpenHashSet l0 = new IntOpenHashSet(0, 0.5, HashOrderMixing.constant(0xcafe));
+        IntOpenHashSet l1 = new IntOpenHashSet(0, 0.5, HashOrderMixing.constant(0xbabe));
 
-        IntOpenHashSet l1 = new IntOpenHashSet() {
-          @Override
-          protected int hashKey(int key) {
-            return BitMixer.mix(key, 0xBABE);
-          }
-        };
-
-        for (int i = 1000000 + randomIntBetween(0, 1000000); i-- > 0;) {
+        for (int i = 100000 + randomIntBetween(0, 100000); i-- > 0;) {
             l0.add(i);
             l1.add(i);
         }

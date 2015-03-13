@@ -4,8 +4,10 @@ import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.*;
 
+import org.assertj.core.api.Assertions;
 import org.junit.*;
 
+import com.carrotsearch.hppc.annotations.AwaitsFix;
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.*;
@@ -539,7 +541,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     }
 
     /* */
-    @Test
+    @Test @AwaitsFix("HPPC-127") // NOCOMMIT: HPPC-127 
     public void testHashCodeEqualsDifferentPerturbance()
     {
         KTypeVTypeOpenHashMap<KType, VType> l0 = 
@@ -790,4 +792,49 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             });
         assertSortedListEquals(map.values().toArray(), value1, value2, value2);
     }
+    
+    /* */
+    @Test
+    public void testEqualsSameClass()
+    {
+        KTypeVTypeOpenHashMap<KType, VType> l1 = new KTypeVTypeOpenHashMap<>();
+        l1.put(k1, value0);
+        l1.put(k2, value1);
+        l1.put(k3, value2);
+  
+        KTypeVTypeOpenHashMap<KType, VType> l2 = new KTypeVTypeOpenHashMap<>(l1);
+        l2.putAll(l1);
+  
+        KTypeVTypeOpenHashMap<KType, VType> l3 = new KTypeVTypeOpenHashMap<>(l2);
+        l3.putAll(l2);
+        l3.put(k4, value0);
+
+        Assertions.assertThat(l1).isEqualTo(l2);
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1).isNotEqualTo(l3);
+    }
+
+    /* */
+    @Test
+    public void testEqualsSubClass()
+    {
+        class Sub extends KTypeVTypeOpenHashMap<KType, VType> {
+        };
+
+        KTypeVTypeOpenHashMap<KType, VType> l1 = new KTypeVTypeOpenHashMap<>();
+        l1.put(k1, value0);
+        l1.put(k2, value1);
+        l1.put(k3, value2);
+  
+        KTypeVTypeOpenHashMap<KType, VType> l2 = new Sub();
+        l2.putAll(l1);
+        l2.put(k4, value3);
+  
+        KTypeVTypeOpenHashMap<KType, VType> l3 = new Sub();
+        l3.putAll(l2);
+
+        Assertions.assertThat(l1).isNotEqualTo(l2);
+        Assertions.assertThat(l2.hashCode()).isEqualTo(l3.hashCode());
+        Assertions.assertThat(l2).isEqualTo(l3);
+    }    
 }

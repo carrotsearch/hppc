@@ -1,10 +1,13 @@
 package com.carrotsearch.hppc;
 
-import static com.carrotsearch.hppc.TestUtils.assertSortedListEquals;
+import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.Arrays;
 
-import org.junit.*;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
@@ -14,7 +17,7 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 /**
  * Unit tests for {@link DoubleLinkedIntSet}.
  */
-public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
+public class DoubleLinkedIntSetTest<KType> extends RandomizedTest
 {
     /**
      * Per-test fresh initialized instance.
@@ -311,5 +314,45 @@ public class IntDoubleLinkedSetTest<KType> extends RandomizedTest
             Arrays.sort(actual);
             assertArrayEquals(expected, actual);
         }
+    }
+
+    /* */
+    @Test
+    public void testSameKeys()
+    {
+        DoubleLinkedIntSet l1 = DoubleLinkedIntSet.from(1, 2, 3);
+        IntOpenHashSet l2 = IntOpenHashSet.from(2, 3, 1);
+
+        Assertions.assertThat(l1.sameKeys(l2));
+    }
+
+    /* */
+    @Test
+    public void testEqualsSameClass()
+    {
+        DoubleLinkedIntSet l1 = DoubleLinkedIntSet.from(1, 2, 3);
+        DoubleLinkedIntSet l2 = DoubleLinkedIntSet.from(1, 2, 3);
+        DoubleLinkedIntSet l3 = DoubleLinkedIntSet.from(1, 2, 4);
+
+        Assertions.assertThat(l1).isEqualTo(l2);
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1).isNotEqualTo(l3);
+    }
+
+    /* */
+    @Test
+    public void testEqualsSubClass()
+    {
+        class Sub extends DoubleLinkedIntSet {
+        };
+
+        DoubleLinkedIntSet l1 = DoubleLinkedIntSet.from(1, 2, 3);
+        DoubleLinkedIntSet l2 = new Sub();
+        DoubleLinkedIntSet l3 = new Sub();
+        l2.addAll(l1);
+        l3.addAll(l1);
+
+        Assertions.assertThat(l2).isEqualTo(l3);
+        Assertions.assertThat(l1).isNotEqualTo(l2);
     }
 }

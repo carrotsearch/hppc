@@ -2,6 +2,7 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 
+import org.assertj.core.api.Assertions;
 import org.junit.*;
 
 /**
@@ -141,7 +142,6 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     {
         KTypeStack<KType> s0 = KTypeStack.newInstance();
         assertEquals(1, s0.hashCode());
-        assertEquals(s0, KTypeArrayList.newInstance());
 
         KTypeStack<KType> s1 = KTypeStack.from(key1, key2, key3);
         KTypeStack<KType> s2 = KTypeStack.from(key1, key2, key3);
@@ -161,7 +161,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
         KTypeArrayList<KType> s2 = KTypeArrayList.from(key1, key2, key3);
 
         assertEquals(s1.hashCode(), s2.hashCode());
-        assertEquals(s1, s2);
+        assertTrue(s1.equalElements(s2));
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -205,5 +205,40 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
             + key1 + ", "
             + key2 + ", "
             + key3 + "]", KTypeStack.from(key1, key2, key3).toString());
-    }    
+    }
+    
+    /* */
+    @Test
+    public void testEqualsSameClass()
+    {
+        KTypeStack<KType> l1 = KTypeStack.from(k1, k2, k3);
+        KTypeStack<KType> l2 = KTypeStack.from(k1, k2, k3);
+        KTypeStack<KType> l3 = KTypeStack.from(k1, k3, k2);
+
+        Assertions.assertThat(l1).isEqualTo(l2);
+        Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
+        Assertions.assertThat(l1).isNotEqualTo(l3);
+    }
+
+    /* */
+    @Test
+    public void testEqualsSubClass()
+    {
+        class Sub extends KTypeStack<KType> {
+        };
+
+        KTypeStack<KType> l1 = KTypeStack.from(k1, k2, k3);
+        KTypeStack<KType> l2 = new Sub();
+        KTypeStack<KType> l3 = new Sub();
+        l2.addAll(l1);
+        l3.addAll(l1);
+
+        Assertions.assertThat(l2).isEqualTo(l3);
+        Assertions.assertThat(l1).isNotEqualTo(l2);
+        
+        KTypeArrayList<KType> l4 = new KTypeArrayList<>();
+        l4.addAll(l1);
+        Assertions.assertThat(l1).isNotEqualTo(l4);
+        Assertions.assertThat(l1.equalElements(l4)).isTrue();
+    }        
 }
