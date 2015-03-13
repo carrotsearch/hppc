@@ -37,7 +37,9 @@ HPPC-117: A summary of API changes resulting from other issues.
           * (HPPC-121) Renamed methods:
           T.removeFirstOccurrences -> T.removeFirst
           T.removeLastOccurrences  -> T.removeLast
-          T.removeAllOccurrences   -> T.removeAll(type) 
+          T.removeAllOccurrences   -> T.removeAll(type)
+          
+          * (HPPC-123) Dropped MurmurHash3 class entirely. 
 
 ** New features
 
@@ -80,6 +82,8 @@ HPPC-115: Hash containers now, by default, use a random internal
           counter or something like that).
 
 ** Other changes
+
+HPPC-123: Dropped MurmurHash3 class entirely.
 
 HPPC-121: Rename remove{All|First|Last}Occurrence(s) to 
           remove{All|First|Last}(key).
