@@ -375,7 +375,7 @@ public class KTypeOpenHashSet<KType>
     for (int slot = keys.length; --slot >= 0;) {
       KType existing;
       if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        h += Intrinsics.mix(existing);
+        h += Intrinsics.<KType> mix(existing);
       }
     }
     return h;
@@ -532,7 +532,7 @@ public class KTypeOpenHashSet<KType>
    */
   protected int hashKey(KType key) {
     assert !Intrinsics.isEmptyKey(key); // Handled as a special case (empty slot marker).
-    return Intrinsics.mix(key, this.keyMixer);
+    return Intrinsics.<KType> mix(key, this.keyMixer);
   }
 
   /**

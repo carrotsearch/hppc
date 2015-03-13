@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 
 import com.carrotsearch.hppc.generator.IntrinsicMethod;
 import com.carrotsearch.hppc.generator.TemplateOptions;
+import com.carrotsearch.hppc.generator.Type;
 
 public class Mix implements IntrinsicMethod {
   private String function;
@@ -18,8 +19,8 @@ public class Mix implements IntrinsicMethod {
 
   @Override
   public void invoke(Matcher m, StringBuilder sb, TemplateOptions templateOptions, String genericCast, ArrayList<String> params) {
-    if (genericCast != null) {
-      throw new RuntimeException("Instrinsic mix doesn't use any generic type: " + m.group());
+    if (genericCast == null) {
+      throw new RuntimeException("Instrinsic mix requires generic type: " + m.group());
     }
 
     if (params.size() != 1 &&
@@ -27,8 +28,20 @@ public class Mix implements IntrinsicMethod {
       throw new RuntimeException("Expected one or two arguments: " + m.group());
     }
 
+    final Type type;
+    switch (genericCast) {
+      case "KType":
+        type = templateOptions.getKType();
+        break;
+      case "VType":
+        type = templateOptions.getVType();
+        break;
+      default:
+        throw new RuntimeException("Only KType or VType supported.");
+    }
+
     final String bits;
-    switch (templateOptions.getKType()) {
+    switch (type) {
       case FLOAT:
         bits = f("Float.floatToIntBits(%s)", params.get(0));
         break;

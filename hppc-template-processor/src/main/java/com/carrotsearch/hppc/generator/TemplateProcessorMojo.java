@@ -264,7 +264,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
     Pattern p = Pattern.compile(
                 "(Intrinsics.\\s*)" + 
                 "(<(?<generic>[^>]+)>\\s*)?" + 
-                "(?<method>[a-zA-Z]+)", Pattern.MULTILINE | Pattern.DOTALL);
+                "(?<method>[a-zA-Z0-9]+)", Pattern.MULTILINE | Pattern.DOTALL);
 
     StringBuilder sb = new StringBuilder();
     while (true) {

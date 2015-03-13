@@ -1,9 +1,8 @@
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.hppc.hash.MurmurHash3;
-
 /**
- * Key hash mixing based on {@link MurmurHash3}.
+ * Key hash mixing based on the final step of 
+ * <a href="http://en.wikipedia.org/wiki/MurmurHash">MurmurHash3</a>.
  */
 final class MixerMurmurHash3 {
   /**

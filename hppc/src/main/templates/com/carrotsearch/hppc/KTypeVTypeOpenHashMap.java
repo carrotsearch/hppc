@@ -7,7 +7,6 @@ import com.carrotsearch.hppc.hash.MurmurHash3;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
-import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.HashContainers.*;
 import static com.carrotsearch.hppc.Containers.*;
 
@@ -185,7 +184,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
         final KType[] keys = keys_();
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = Intrinsics.<KType> mix0(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -295,7 +294,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         assert assigned < allocated.length;
 
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = Intrinsics.<KType> mix0(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -384,7 +383,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
                 final KType k = oldKeys[i];
                 final VType v = oldValues[i];
 
-                int slot = rehash(k, perturbation) & mask;
+                int slot = Intrinsics.<KType> mix0(k, perturbation) & mask;
                 while (allocated[slot])
                 {
                     slot = (slot + 1) & mask;
@@ -461,7 +460,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         final KType [] keys = keys_();
         final VType [] values = values_();
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask; 
+        int slot = Intrinsics.<KType> mix0(key, perturbation) & mask; 
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -491,7 +490,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
             while (allocated[slotCurr])
             {
-                slotOther = rehash(keys[slotCurr], perturbation) & mask;
+                slotOther = Intrinsics.<KType> mix0(keys[slotCurr], perturbation) & mask;
                 if (slotPrev <= slotCurr)
                 {
                     // We are on the right of the original slot.
@@ -593,7 +592,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         // getOrDefault(key, Intrinsics.<VType> defaultVTypeValue())
         // but let's keep it duplicated for VMs that don't have advanced inlining.
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = Intrinsics.<KType> mix0(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -616,7 +615,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         final VType [] values = values_();
       
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = Intrinsics.<KType> mix0(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -727,7 +726,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public boolean containsKey(KType key)
     {
         final int mask = allocated.length - 1;
-        int slot = rehash(key, perturbation) & mask;
+        int slot = Intrinsics.<KType> mix0(key, perturbation) & mask;
         while (allocated[slot])
         {
             if (Intrinsics.equalsKType(key, keys[slot]))
@@ -792,7 +791,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         int h = 0;
         for (KTypeVTypeCursor<KType, VType> c : this)
         {
-            h += rehash(c.key) + rehash(c.value);
+            h += Intrinsics.<KType> mix0(c.key) + Intrinsics.<VType> mix0(c.value);
         }
         return h;
     }
