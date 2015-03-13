@@ -40,6 +40,7 @@ import com.carrotsearch.hppc.generator.intrinsics.EqualsKType;
 import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
 import com.carrotsearch.hppc.generator.intrinsics.IsEmptyKey;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
+import com.carrotsearch.hppc.generator.intrinsics.Same;
 import com.google.common.base.Stopwatch;
 
 /**
@@ -58,6 +59,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
     intrinsics.put("newArray", new NewArray());
     intrinsics.put("equalsKType", new EqualsKType());
     intrinsics.put("equalsVType", new EqualsVType());
+    intrinsics.put("same", new Same());
     intrinsics.put("cast", new Cast());
     intrinsics.put("isEmptyKey", new IsEmptyKey());
   }

@@ -88,4 +88,20 @@ final class Intrinsics
     {
         return e1 == null ? e2 == null : e1.equals(e2);
     }
+    
+
+    /**
+     * Returns <code>true</code> if the provided key is an "empty slot"
+     * marker. For generic types the empty slot is <code>null</code>,
+     * for any other type it is an equivalent of zero.
+     * 
+     * For floating-point types {@link Float#floatToIntBits(float)} and 
+     * {@link Double#doubleToLongBits(double)} is invoked to normalize different
+     * representations of zero.  
+     * 
+     * Testing for zeros should be compiled into fast machine code. 
+     */
+    public static <T> boolean same(Object k1, Object k2) {
+      return k1 == null ? k2 == null : k1.equals(k2);
+    }    
 }

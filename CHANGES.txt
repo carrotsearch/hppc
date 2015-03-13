@@ -43,6 +43,11 @@ HPPC-117: A summary of API changes resulting from other issues.
 
 ** New features
 
+HPPC-111: Dropped identity maps and sets in favor of one protected 
+          method on each container: sameKeys. Override and
+          enforce reference equality. Remember to implement equals
+          and hashCode for consistency.
+
 HPPC-115: Provide better guard against key clustering leading to 
           exponential times.
 
