@@ -1,7 +1,5 @@
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.hppc.hash.MurmurHash3;
-
 /**
  * Intrinsic methods that are fully functional for the generic ({@link Object}) versions
  * of collection classes, but are replaced with low-level corresponding structures for
@@ -23,8 +21,8 @@ final class Intrinsics
      * 
      * It is guaranteed that for generic types the key must not be null.  
      */
-    public static int mix(Object key, int seed) {
-      return MurmurHash3.hash(key.hashCode() ^ seed);
+    public static <T> int mix(Object key, int seed) {
+      return MixerMurmurHash3.mix(key.hashCode() ^ seed);
     }
 
     /**
@@ -32,7 +30,7 @@ final class Intrinsics
      * 
      * It is guaranteed that for generic types the key must not be null.  
      */
-    public static int mix(Object key) {
+    public static <T> int mix(Object key) {
       return mix(key, 0);
     }
 
@@ -42,8 +40,8 @@ final class Intrinsics
      * 
      * This method can accept null keys.   
      */
-    public static int mix0(Object key, int seed) {
-      return MurmurHash3.hash((key == null ? 0 : key.hashCode()) ^ seed);
+    public static <T> int mix0(Object key, int seed) {
+      return MixerMurmurHash3.mix((key == null ? 0 : key.hashCode()) ^ seed);
     }
 
     /**
@@ -51,7 +49,7 @@ final class Intrinsics
      * 
      * This method can accept null keys.   
      */
-    public static int mix0(Object key) {
+    public static <T> int mix0(Object key) {
       return mix0(key, 0);
     }
 

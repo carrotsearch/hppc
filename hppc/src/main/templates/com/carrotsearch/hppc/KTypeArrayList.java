@@ -6,7 +6,6 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.*;
 
-import static com.carrotsearch.hppc.Internals.*;
 import static com.carrotsearch.hppc.Containers.*;
 
 /**
@@ -535,7 +534,7 @@ public class KTypeArrayList<KType>
         int h = 1, max = elementsCount;
         for (int i = 0; i < max; i++)
         {
-            h = 31 * h + rehash(this.buffer[i]);
+            h = 31 * h + Intrinsics.<KType> mix0(this.buffer[i]);
         }
         return h;
     }
