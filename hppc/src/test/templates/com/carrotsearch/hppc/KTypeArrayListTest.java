@@ -97,27 +97,6 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         assertListEquals(list.toArray(), 0, 1, 2, 0, 1, 2);
     }
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @Test
-    public void testAddAll_subclass()
-    {
-        class A {
-        }
-
-        class B extends A {
-        }
-
-        KTypeArrayList<B> list2 = new KTypeArrayList<B>();
-        list2.add(new B());
-
-        KTypeArrayList<A> list3 = new KTypeArrayList<A>();
-        list3.add(new B());
-        list3.add(new A());
-        list3.addAll(list2);
-        assertEquals(3, list3.size());
-    }
-    /*! #end !*/
-
     /* */
     @Test
     public void testInsert()
@@ -517,9 +496,9 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeEquals()
     {
-        ObjectArrayList<Integer> l0 = ObjectArrayList.from();
+        KTypeArrayList<KType> l0 = KTypeArrayList.from();
         assertEquals(1, l0.hashCode());
-        assertEquals(l0, ObjectArrayList.from());
+        assertEquals(l0, KTypeArrayList.from());
 
         KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, k2, k3);
         KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, k2);
