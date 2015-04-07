@@ -15,25 +15,6 @@ public class APIExpectationsTest extends RandomizedTest
     public volatile int [] t1;
 
     @Test
-    public void testAddAll_subclass()
-    {
-        class A {
-        }
-
-        class B extends A {
-        }
-
-        ObjectArrayList<B> list2 = new ObjectArrayList<B>();
-        list2.add(new B());
-
-        ObjectArrayList<A> list3 = new ObjectArrayList<A>();
-        list3.add(new B());
-        list3.add(new A());
-        list3.addAll(list2);
-        assertEquals(3, list3.size());
-    }
-
-    @Test
     public void testToArrayWithClass()
     {
         ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);

@@ -94,7 +94,7 @@ class SignatureReplacementVisitor extends Java7BaseVisitor<List<Replacement>> {
     if (t.isTemplateType()) {
       return new TypeBound(t.templateBound(), getSourceText(c));
     } else {
-      return new TypeBound(wildcards.removeFirst(), getSourceText(c));
+      return new TypeBound(null, getSourceText(c));
     }
   }
 
