@@ -3,7 +3,7 @@ HPPC: High Performance Primitive Collections
 --------------------------------------------
 
 Collections of primitive types (maps, sets, stacks, lists) with open internals
-and an unusual API twist (not Java Collections compatible).
+and an API twist (it is not Java Collections compatible).
 
 More information:
   http://labs.carrotsearch.com/hppc.html

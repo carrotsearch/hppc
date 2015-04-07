@@ -952,7 +952,7 @@ public class KTypeArrayDeque<KType>
           return false;
         }
 
-        // TODO: HPPC-126
+        // NOCOMMIT: HPPC-126
         // Iterator<? extends KTypeCursor<?>> ... 
         Iterator<KTypeCursor> i1 = (Iterator) this.iterator();
         Iterator<KTypeCursor> i2 = (Iterator) other.iterator();

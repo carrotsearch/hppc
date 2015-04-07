@@ -641,16 +641,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
-    public void testToArrayWithClass()
-    {
-        KTypeArrayDeque<Integer> l1 = KTypeArrayDeque.from(1, 2, 3);
-        Integer[] result = l1.toArray(Integer.class);
-        assertArrayEquals(new Integer [] {1, 2, 3}, result); // dummy
-    }
-    /*! #end !*/
-
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @Test
     public void testToArray()
     {
         KTypeArrayDeque<KType> l1 = KTypeArrayDeque.from(k1, k2, k3);
