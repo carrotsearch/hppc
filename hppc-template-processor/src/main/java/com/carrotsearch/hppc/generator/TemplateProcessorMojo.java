@@ -236,6 +236,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
       return;
     }
 
+    getLog().debug("Processing: " + input.getFileName() + " => " + output.path);
     timeIntrinsics.start();
     template = filterIntrinsics(template, templateOptions);
     timeIntrinsics.stop();
@@ -245,7 +246,6 @@ public class TemplateProcessorMojo extends AbstractMojo {
     timeComments.stop();
 
     timeTypeClassRefs.start();
-    getLog().info("Processing: " + input.getFileName() + " => " + output.path);
     template = filterTypeClassRefs(template, templateOptions);
     template = filterStaticTokens(template, templateOptions);
     timeTypeClassRefs.stop();

@@ -172,7 +172,15 @@ public class TestSignatureProcessor {
     check(Type.GENERIC, sp, "class ObjectFoo<KType> { public <T extends ObjectBar<? super KType>> T forEach(T v) { throw new R(); } }");
   }
 
-  // public <T extends KTypeProcedure<? super KType>> T forEach(T procedure)
+  @Test
+  public void testBug_ErasesObjectConstructor() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor(
+        "class KTypeVTypeFoo<KType, VType> { static { HashSet<Object> values = new HashSet<Object>(); }}");
+
+    check(Type.FLOAT,   Type.INT, sp, "class FloatIntFoo { static { HashSet<Object> values = new HashSet<Object>(); }}");
+  }
+
+  // final HashSet<Object> values = new HashSet<Object>();
 
   @Test
   public void testFullClass() throws IOException {

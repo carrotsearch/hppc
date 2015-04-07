@@ -534,6 +534,27 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
+    public void testAddAll_subclass()
+    {
+        class A {
+        }
+
+        class B extends A {
+        }
+
+        KTypeArrayList<B> list2 = new KTypeArrayList<B>();
+        list2.add(new B());
+
+        KTypeArrayList<A> list3 = new KTypeArrayList<A>();
+        list3.add(new B());
+        list3.add(new A());
+        list3.addAll(list2);
+        assertEquals(3, list3.size());
+    }
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Test
     public void testToArrayWithClass()
     {
         KTypeArrayList<Integer> l1 = KTypeArrayList.from(1, 2, 3);
