@@ -41,7 +41,7 @@ import com.carrotsearch.hppc.procedures.LongProcedure;
  * Unlike java.util.bitset, the fact that bits are packed into an array of longs is part
  * of the interface. This allows efficient implementation of other algorithms by someone
  * other than the author. It also allows one to efficiently implement alternate
- * serialization or interchange formats.<p/>
+ * serialization or interchange formats.</p>
  * <p>
  * The index range for a bitset can easily exceed positive <code>int</code> range in Java
  * (0x7fffffff), so many methods in this class accept or return a <code>long</code>. There
@@ -86,11 +86,12 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Constructs an BitSet from an existing long[]. <br/>
+     * Constructs an BitSet from an existing long[].
+     * 
      * The first 64 bits are in long[0], with bit index 0 at the least significant bit,
      * and bit index 63 at the most significant. Given a bit index, the word containing it
      * is long[index/64], and it is at bit number index%64 within that word.
-     * <p>
+     * 
      * numWords are the number of elements in the array that contain set bits (non-zero
      * longs). numWords should be &lt;= bits.length, and any existing words in the array at
      * position &gt;= numWords should be zero.

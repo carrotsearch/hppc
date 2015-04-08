@@ -944,7 +944,7 @@ public class KTypeArrayDeque<KType>
     }
 
     /**
-     * Compare order-aligned elements against another {@link KTypeDeque<KType>}.
+     * Compare order-aligned elements against another {@link KTypeDeque}.
 #if ($TemplateOptions.KTypeGeneric) 
      * Equality comparison is performed with this object's {@link #sameKeys} 
      * method.
