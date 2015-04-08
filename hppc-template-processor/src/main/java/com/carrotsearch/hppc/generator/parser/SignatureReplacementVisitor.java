@@ -18,7 +18,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
-import com.carrotsearch.hppc.generator.parser.Java7BaseVisitor;
 import com.carrotsearch.hppc.generator.parser.Java7Parser.ClassDeclarationContext;
 import com.carrotsearch.hppc.generator.parser.Java7Parser.ClassOrInterfaceTypeContext;
 import com.carrotsearch.hppc.generator.parser.Java7Parser.ConstructorDeclarationContext;
@@ -36,7 +35,7 @@ import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeBoundContext;
 import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeContext;
 import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeParameterContext;
 
-class SignatureReplacementVisitor extends Java7BaseVisitor<List<Replacement>> {
+class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacement>> {
   private final static List<Replacement> NONE = Collections.emptyList();
   private final TemplateOptions templateOptions;
   private final SignatureProcessor processor;
@@ -228,12 +227,13 @@ class SignatureReplacementVisitor extends Java7BaseVisitor<List<Replacement>> {
             TypeContext tctx = tbc.type().get(0);
             Interval sourceInterval = tbc.getSourceInterval();
             try {
-              StringWriter sw = SignatureProcessor.reconstruct(
+              StringWriter sw = processor.reconstruct(
                   new StringWriter(), 
                   processor.tokenStream, 
                   sourceInterval.a, 
                   sourceInterval.b, 
-                  visitType(tctx));
+                  visitType(tctx),
+                  templateOptions);
               bounds.add(c.Identifier() + " extends " + sw.toString());
             } catch (IOException e) {
               throw new RuntimeException(e);

@@ -200,9 +200,27 @@ public class TestSignatureProcessor {
   }
 
   @Test
+  public void testJavaDoc_k() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor(
+        "/** KTypeFoo KTypes */");
+
+    check(Type.FLOAT,   sp, "/** FloatFoo floats */");
+    check(Type.GENERIC, sp, "/** ObjectFoo Objects */");
+  }
+
+  @Test
+  public void testJavaDoc_kv() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor(
+        "/** KTypeFoo KTypes KTypeVTypeFoo VTypes */");
+
+    check(Type.FLOAT,   Type.DOUBLE,  sp, "/** FloatFoo floats FloatDoubleFoo doubles */");
+    check(Type.GENERIC, Type.GENERIC, sp, "/** ObjectFoo Objects ObjectObjectFoo Objects */");
+  }
+
+  @Test
   public void testFullClass() throws IOException {
-    // Path path = Paths.get("src/test/java/com/carrotsearch/hppc/generator/parser/KTypeVTypeClass.java");
-    Path path = Paths.get("c:\\carrot2\\gh.carrotsearch\\hppc\\hppc\\src\\main\\templates\\com\\carrotsearch\\hppc\\KTypeArrayDeque.java");
+    Path path = Paths.get("src/test/java/com/carrotsearch/hppc/generator/parser/KTypeVTypeClass.java");
+    // Path path = Paths.get("c:\\carrot2\\gh.carrotsearch\\hppc\\hppc\\src\\main\\templates\\com\\carrotsearch\\hppc\\KTypeArrayDeque.java");
 
     Assume.assumeTrue(Files.isRegularFile(path));
     SignatureProcessor sp = new SignatureProcessor(new String(Files.readAllBytes(path), StandardCharsets.UTF_8));

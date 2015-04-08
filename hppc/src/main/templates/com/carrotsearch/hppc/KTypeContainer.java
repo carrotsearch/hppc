@@ -10,8 +10,7 @@ import com.carrotsearch.hppc.procedures.KTypeProcedure;
  * A generic container holding <code>KType</code>s. An overview of interface relationships
  * is given in the figure below:
  * 
- * <p><img src="doc-files/interfaces.png"
- *      alt="HPPC interfaces" /></p>
+ * <p><img src="doc-files/interfaces.png" alt="HPPC interfaces"></p>
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>

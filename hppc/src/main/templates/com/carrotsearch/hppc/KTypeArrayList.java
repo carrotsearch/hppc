@@ -72,7 +72,6 @@ public class KTypeArrayList<KType>
      * ({@link #size()}).
      */
     public 
-        // NOCOMMIT: HPPC-126: can we replace these now with KType [] buffer?
         /*! #if ($TemplateOptions.KTypePrimitive) 
             KType [] 
             #else !*/ 
@@ -542,7 +541,11 @@ public class KTypeArrayList<KType>
 
     /**
      * Returns <code>true</code> only if the other object is an instance of 
-     * the same class and with the same elements (as compared using {@link #sameKeys}).
+     * the same class and with the same elements. 
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * method.
+#end
      */
     @Override
     public boolean equals(Object obj)
@@ -554,9 +557,11 @@ public class KTypeArrayList<KType>
 
     /**
      * Compare index-aligned elements against another 
-     * {@link KTypeIndexedContainer<KType>}. Equality
-     * comparison is performed with this object's {@link #sameKeys} 
+     * {@link KTypeIndexedContainer}. 
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
      * method.
+#end
      */
     public boolean equalElements(KTypeIndexedContainer<?> other)
     {

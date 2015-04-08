@@ -7,7 +7,7 @@ import java.util.Comparator;
  * Compare objects at two given indices and return the result of their comparison
  * consistent with {@link Comparator}'s contract.
  * <p>
- * <b>Beware of the <code>return (int - int) idiom</code>, it is usually broken if
+ * <b>Beware of the <code>return (int - int) idiom</code></b>, it is usually broken if
  * arbitrary numbers can appear on input. Use regular comparison operations - they are
  * very fast anyway.
  */

@@ -2,6 +2,9 @@ package com.carrotsearch.hppc.generator.parser;
 
 import com.carrotsearch.hppc.generator.parser.subpackage.KTypeVTypeInterfaceImported;
 
+/**
+ * A list of KTypes. 
+ */
 public class KTypeVTypeClass<KType, VType> 
        extends    KTypeVTypeSuper<KType, VType>
        implements KTypeVTypeInterface<KType, VType>,

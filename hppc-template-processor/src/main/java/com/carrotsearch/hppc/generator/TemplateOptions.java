@@ -83,7 +83,7 @@ public class TemplateOptions {
     return vtype;
   }
 
-  /**
+  /*
    * Returns the current time in ISO format.
    */
   public String getTimeNow() {
