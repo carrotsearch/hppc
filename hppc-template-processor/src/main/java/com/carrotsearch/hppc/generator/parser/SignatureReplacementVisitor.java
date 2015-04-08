@@ -131,15 +131,17 @@ class SignatureReplacementVisitor extends Java7BaseVisitor<List<Replacement>> {
   }
 
   public List<Replacement> visitClassDeclaration(ClassDeclarationContext ctx) {
-    List<Replacement> result = super.visitClassDeclaration(ctx);
+    List<Replacement> result = new ArrayList<>(super.visitClassDeclaration(ctx));
 
     String className = ctx.Identifier().getText();
-    if (isTemplateIdentifier(className)) {
+    if (isTemplateIdentifier(className) || true) {
       List<TypeBound> typeBounds = new ArrayList<>();
-      for (TypeParameterContext c : ctx.typeParameters().typeParameter()) {
-        typeBounds.add(typeBoundOf(c));
+      if (ctx.typeParameters() != null) {
+        for (TypeParameterContext c : ctx.typeParameters().typeParameter()) {
+          typeBounds.add(typeBoundOf(c));
+        }
+        result.add(new Replacement(ctx.typeParameters(), toString(typeBounds)));
       }
-      Replacement replaceGenericTypes = new Replacement(ctx.typeParameters(), toString(typeBounds));
 
       int typeBoundIndex = 0;
       if (className.contains("KType")) {
@@ -148,12 +150,7 @@ class SignatureReplacementVisitor extends Java7BaseVisitor<List<Replacement>> {
       if (className.contains("VType")) {
         className = className.replace("VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
       }
-      Replacement replaceIdentifier = new Replacement(ctx.Identifier(), className);
-
-      result = new ArrayList<>(result);
-      result.addAll(Arrays.asList(
-          replaceIdentifier,
-          replaceGenericTypes));
+      result.add(new Replacement(ctx.Identifier(), className));
     }
 
     return result;

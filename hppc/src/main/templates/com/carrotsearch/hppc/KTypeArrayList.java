@@ -43,7 +43,7 @@ import static com.carrotsearch.hppc.Containers.*;
  * </table>
 #else
  * <p>See {@link ObjectArrayList} class for API similarities and differences against Java
- * Collections.  
+ * Collections.
 #end
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
@@ -72,6 +72,7 @@ public class KTypeArrayList<KType>
      * ({@link #size()}).
      */
     public 
+        // NOCOMMIT: HPPC-126: can we replace these now with KType [] buffer?
         /*! #if ($TemplateOptions.KTypePrimitive) 
             KType [] 
             #else !*/ 
