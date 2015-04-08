@@ -57,8 +57,7 @@ import static com.carrotsearch.hppc.Containers.*;
  * 
  * <p><b>Important node.</b> The implementation uses power-of-two tables and linear
  * probing, which may cause poor performance (many collisions) if hash values are
- * not properly distributed. This implementation uses rehashing 
- * using {@link MurmurHash3}.</p>
+ * not properly distributed.</p>
  * 
  * @author This code is inspired by the collaboration and implementation in the <a
  *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
@@ -1193,8 +1192,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /**
      * Compares two keys for equality. Override if custom equality behavior 
      * is required.
-     * 
-     * @see #hashKey
      */
     protected boolean sameKeys(KType k1, KType k2) {
       return Intrinsics.<KType> same(k1, k2); 
