@@ -103,6 +103,16 @@ public class TemplateProcessorMojo extends AbstractMojo {
     p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, NullLogChute.class.getName());
     p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
     velocity.setConfiguration(p);
+    
+    // Cater for Eclipse's insanity -- we can't just specify a separate launch config that'd run
+    // after a manual 'clean'.
+    String eclipseLauncherBuildType = System.getenv("ECLIPSE_BUILD_TYPE");
+    if ("full".equals(eclipseLauncherBuildType)) {
+      if (incremental) {
+        getLog().info("Disabling incremental processing (Eclipse built type: " + eclipseLauncherBuildType + ")");
+        incremental = false;
+      }
+    }
 
     this.templatesPath = templatesDir.toPath().toAbsolutePath().normalize();
     this.outputPath = outputDir.toPath().toAbsolutePath().normalize();

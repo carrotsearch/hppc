@@ -299,10 +299,20 @@ class SignatureReplacementVisitor extends Java7BaseVisitor<List<Replacement>> {
         
         int typeBoundIndex = 0;
         if (identifier.contains("KType")) {
-          identifier = identifier.replace("KType", typeBounds.get(typeBoundIndex++).getBoxedType());
+          TypeBound bb = typeBounds.get(typeBoundIndex++);
+          if (bb.isTemplateType()) {
+            identifier = identifier.replace("KType", bb.getBoxedType());
+          } else {
+            identifier = identifier.replace("KType", "Object");
+          }
         }
         if (identifier.contains("VType")) {
-          identifier = identifier.replace("VType", typeBounds.get(typeBoundIndex++).getBoxedType());
+          TypeBound bb = typeBounds.get(typeBoundIndex++);
+          if (bb.isTemplateType()) {
+            identifier = identifier.replace("VType", bb.getBoxedType());
+          } else {
+            identifier = identifier.replace("VType", "Object");
+          }
         }
         replacements.add(new Replacement(ctx.Identifier(), identifier));
       }
@@ -331,10 +341,20 @@ class SignatureReplacementVisitor extends Java7BaseVisitor<List<Replacement>> {
 
         int typeBoundIndex = 0;
         if (identifier.contains("KType")) {
-          identifier = identifier.replace("KType", typeBounds.get(typeBoundIndex++).getBoxedType());
+          TypeBound bb = typeBounds.get(typeBoundIndex++);
+          if (bb.isTemplateType()) {
+            identifier = identifier.replace("KType", bb.getBoxedType());
+          } else {
+            identifier = identifier.replace("KType", "Object");
+          }
         }
         if (identifier.contains("VType")) {
-          identifier = identifier.replace("VType", typeBounds.get(typeBoundIndex++).getBoxedType());
+          TypeBound bb = typeBounds.get(typeBoundIndex++);
+          if (bb.isTemplateType()) {
+            identifier = identifier.replace("VType", bb.getBoxedType());
+          } else {
+            identifier = identifier.replace("VType", "Object");
+          }
         }
         replacements.add(new Replacement(ctx.Identifier(), identifier));
         return replacements;

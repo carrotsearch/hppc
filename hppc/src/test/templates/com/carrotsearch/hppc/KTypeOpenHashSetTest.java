@@ -343,7 +343,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeEquals()
     {
-        KTypeOpenHashSet<Integer> l0 = new KTypeOpenHashSet<>();
+        KTypeOpenHashSet<KType> l0 = new KTypeOpenHashSet<>();
         assertEquals(0, l0.hashCode());
         assertEquals(l0, new KTypeOpenHashSet<>());
 
