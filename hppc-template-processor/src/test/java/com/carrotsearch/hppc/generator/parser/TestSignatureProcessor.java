@@ -177,10 +177,18 @@ public class TestSignatureProcessor {
     SignatureProcessor sp = new SignatureProcessor(
         "class KTypeVTypeFoo<KType, VType> { static { HashSet<Object> values = new HashSet<Object>(); }}");
 
-    check(Type.FLOAT,   Type.INT, sp, "class FloatIntFoo { static { HashSet<Object> values = new HashSet<Object>(); }}");
+    check(Type.FLOAT,   Type.INT,     sp, "class FloatIntFoo { static { HashSet<Object> values = new HashSet<Object>(); }}");
+    check(Type.GENERIC, Type.GENERIC, sp, "class ObjectObjectFoo<KType, VType> { static { HashSet<Object> values = new HashSet<Object>(); }}");
   }
 
-  // final HashSet<Object> values = new HashSet<Object>();
+  @Test
+  public void testBug_ErasesUntemplated() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor(
+        "class KTypeFoo<KType> { void foo() { KTypeBar<B> x = new KTypeBar<B>(); } }");
+
+    check(Type.FLOAT,   sp, "class FloatFoo { void foo() { ObjectBar<B> x = new ObjectBar<B>(); } }");
+    check(Type.GENERIC, sp, "class ObjectFoo<KType> { void foo() { ObjectBar<B> x = new ObjectBar<B>(); } }");
+  }
 
   @Test
   public void testFullClass() throws IOException {

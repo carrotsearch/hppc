@@ -11,16 +11,6 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/hppc.templates-clean.launch</value>
-				</dictionary>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>auto,</triggers>
-			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
 					<value>&lt;project&gt;/.externalToolBuilders/hppc.templates-generate.launch</value>
 				</dictionary>
 			</arguments>
