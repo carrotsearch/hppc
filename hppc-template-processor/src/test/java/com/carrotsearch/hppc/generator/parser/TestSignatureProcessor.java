@@ -191,6 +191,15 @@ public class TestSignatureProcessor {
   }
 
   @Test
+  public void testBug_EraseNestedPrimitive() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor(
+        "class KTypeFoo<KType> { static class Nested<KType> extends KTypeBar<KType> {} }");
+
+    check(Type.FLOAT,   sp, "class FloatFoo { static class Nested extends FloatBar {} }");
+    check(Type.GENERIC, sp, "class ObjectFoo<KType> { static class Nested<KType> extends ObjectBar<KType> {} }");
+  }
+
+  @Test
   public void testFullClass() throws IOException {
     // Path path = Paths.get("src/test/java/com/carrotsearch/hppc/generator/parser/KTypeVTypeClass.java");
     Path path = Paths.get("c:\\carrot2\\gh.carrotsearch\\hppc\\hppc\\src\\main\\templates\\com\\carrotsearch\\hppc\\KTypeArrayDeque.java");
