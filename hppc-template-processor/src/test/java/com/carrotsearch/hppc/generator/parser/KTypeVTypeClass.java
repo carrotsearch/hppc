@@ -19,7 +19,6 @@ public class KTypeVTypeClass<KType, VType>
   public KTypeVTypeClass(KTypeVTypeSuper<KType, VType> foo) {}
   public VType foo(KType key, VType value) { throw new RuntimeException(); }
   
-  // TODO: below
   public void foo(KTypeVTypeSuper<? extends KType, ? extends VType> foo) {}
 }
 

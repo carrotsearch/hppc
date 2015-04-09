@@ -193,7 +193,6 @@ public class DoubleLinkedIntSet implements IntLookupContainer, IntSet, Cloneable
         final boolean containsAlready = contains(value);  
         if (!containsAlready)
         {
-            // TODO: check if a fixed-size set is (much) faster without these checks?
             ensureDenseBufferSpace(1);
             ensureSparseBufferSpace(value);
             

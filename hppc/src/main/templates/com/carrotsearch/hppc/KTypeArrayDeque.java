@@ -950,7 +950,6 @@ public class KTypeArrayDeque<KType>
      * method.
 #end 
      */
-    @SuppressWarnings({"all"})
     public boolean equalElements(KTypeDeque<?> other)
     {
         int max = size();
@@ -958,10 +957,8 @@ public class KTypeArrayDeque<KType>
           return false;
         }
 
-        // NOCOMMIT: HPPC-126
-        // Iterator<? extends KTypeCursor<?>> ... 
-        Iterator<KTypeCursor> i1 = (Iterator) this.iterator();
-        Iterator<KTypeCursor> i2 = (Iterator) other.iterator();
+        Iterator<KTypeCursor<KType>> i1 = this.iterator();
+        Iterator<? extends KTypeCursor<?>> i2 = other.iterator();
 
         while (i1.hasNext() && i2.hasNext()) {
           if (!Intrinsics.equalsKType(i1.next().value, i2.next().value)) {

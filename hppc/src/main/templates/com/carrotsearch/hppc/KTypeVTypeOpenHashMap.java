@@ -807,18 +807,19 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
     /**
      * Return true if all keys of some other container exist in this container.
-     * Equality comparison is performed with this object's {@link #sameKeys}
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
      * method.
+#end 
      */
-    @SuppressWarnings("all") // TODO: HPPC-126
-    private boolean sameEntries(KTypeVTypeOpenHashMap other) {
+    private boolean sameEntries(KTypeVTypeOpenHashMap<?, ?> other) {
       if (other.size() != size()) {
         return false;
       }
 
-      Iterator<KTypeVTypeCursor> i = other.iterator();
+      Iterator<? extends KTypeVTypeCursor<?, ?>> i = other.iterator();
       while (i.hasNext()) {
-        KTypeVTypeCursor c = i.next();
+        KTypeVTypeCursor<?, ?> c = i.next();
         KType key = Intrinsics.<KType> cast(c.key);
         if (containsKey(key) &&
             Intrinsics.equalsVType(c.value, get(key))) {
