@@ -15,6 +15,14 @@ public class APIExpectationsTest extends RandomizedTest
     public volatile int [] t1;
 
     @Test
+    public void testToArrayWithClass()
+    {
+        ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
+        Integer[] result = l1.toArray(Integer.class);
+        assertArrayEquals(new Integer [] {1, 2, 3}, result); // dummy
+    }
+
+    @Test
     public void testEqualElementsDifferentGenericType()
     {
         ObjectArrayList<Integer> l1 = new ObjectArrayList<Integer>();

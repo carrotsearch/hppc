@@ -43,7 +43,7 @@ import static com.carrotsearch.hppc.Containers.*;
  * </table>
 #else
  * <p>See {@link ObjectArrayList} class for API similarities and differences against Java
- * Collections.  
+ * Collections.
 #end
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
@@ -541,7 +541,11 @@ public class KTypeArrayList<KType>
 
     /**
      * Returns <code>true</code> only if the other object is an instance of 
-     * the same class and with the same elements (as compared using {@link #sameKeys}).
+     * the same class and with the same elements. 
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * method.
+#end
      */
     @Override
     public boolean equals(Object obj)
@@ -553,9 +557,11 @@ public class KTypeArrayList<KType>
 
     /**
      * Compare index-aligned elements against another 
-     * {@link KTypeIndexedContainer<KType>}. Equality
-     * comparison is performed with this object's {@link #sameKeys} 
+     * {@link KTypeIndexedContainer}. 
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
      * method.
+#end
      */
     public boolean equalElements(KTypeIndexedContainer<?> other)
     {

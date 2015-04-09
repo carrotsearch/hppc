@@ -722,7 +722,7 @@ public class KTypeArrayDeque<KType>
      * fields. An example is shown below.
      * 
      * <pre>
-     * for (Iterator<IntCursor> i = intDeque.descendingIterator(); i.hasNext(); )
+     * for (Iterator&lt;IntCursor&gt; i = intDeque.descendingIterator(); i.hasNext(); )
      * {
      *     final IntCursor c = i.next();
      *     System.out.println(&quot;buffer index=&quot; 
@@ -929,7 +929,11 @@ public class KTypeArrayDeque<KType>
 
     /**
      * Returns <code>true</code> only if the other object is an instance of 
-     * the same class and with the same elements (as compared using {@link #sameKeys}).
+     * the same class and with the same elements.
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * method.
+#end 
      */
     @Override
     public boolean equals(Object obj)
@@ -940,9 +944,11 @@ public class KTypeArrayDeque<KType>
     }
 
     /**
-     * Compare order-aligned elements against another {@link KTypeDeque<KType>}.
-     * Equality comparison is performed with this object's {@link #sameKeys}
+     * Compare order-aligned elements against another {@link KTypeDeque}.
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
      * method.
+#end 
      */
     @SuppressWarnings({"all"})
     public boolean equalElements(KTypeDeque<?> other)
@@ -952,7 +958,7 @@ public class KTypeArrayDeque<KType>
           return false;
         }
 
-        // TODO: HPPC-126
+        // NOCOMMIT: HPPC-126
         // Iterator<? extends KTypeCursor<?>> ... 
         Iterator<KTypeCursor> i1 = (Iterator) this.iterator();
         Iterator<KTypeCursor> i2 = (Iterator) other.iterator();

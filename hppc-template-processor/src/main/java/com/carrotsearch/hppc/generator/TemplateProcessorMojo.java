@@ -11,7 +11,6 @@ import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +40,7 @@ import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
 import com.carrotsearch.hppc.generator.intrinsics.IsEmptyKey;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
 import com.carrotsearch.hppc.generator.intrinsics.Same;
+import com.carrotsearch.hppc.generator.parser.SignatureProcessor;
 import com.google.common.base.Stopwatch;
 
 /**
@@ -103,6 +103,16 @@ public class TemplateProcessorMojo extends AbstractMojo {
     p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, NullLogChute.class.getName());
     p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
     velocity.setConfiguration(p);
+    
+    // Cater for Eclipse's insanity -- we can't just specify a separate launch config that'd run
+    // after a manual 'clean'.
+    String eclipseLauncherBuildType = System.getenv("ECLIPSE_BUILD_TYPE");
+    if ("full".equals(eclipseLauncherBuildType)) {
+      if (incremental) {
+        getLog().info("Disabling incremental processing (Eclipse built type: " + eclipseLauncherBuildType + ")");
+        incremental = false;
+      }
+    }
 
     this.templatesPath = templatesDir.toPath().toAbsolutePath().normalize();
     this.outputPath = outputDir.toPath().toAbsolutePath().normalize();
@@ -236,18 +246,19 @@ public class TemplateProcessorMojo extends AbstractMojo {
       return;
     }
 
+    getLog().debug("Processing: " + input.getFileName() + " => " + output.path);
     timeIntrinsics.start();
     template = filterIntrinsics(template, templateOptions);
     timeIntrinsics.stop();
+
+    timeComments.start();
+    template = filterComments(template);
+    timeComments.stop();
 
     timeTypeClassRefs.start();
     template = filterTypeClassRefs(template, templateOptions);
     template = filterStaticTokens(template, templateOptions);
     timeTypeClassRefs.stop();
-
-    timeComments.start();
-    template = filterComments(template);
-    timeComments.stop();
 
     Files.createDirectories(output.path.getParent());
     Files.write(output.path, template.getBytes(StandardCharsets.UTF_8));
@@ -332,127 +343,15 @@ public class TemplateProcessorMojo extends AbstractMojo {
   }
 
   private String filterTypeClassRefs(String input, TemplateOptions options) {
-    input = unifyTypeWithSignature(input);
-    input = rewriteSignatures(input, options);
-    input = rewriteLiterals(input, options);
-    return input;
-  }
-
-  private String unifyTypeWithSignature(String input) {
-    // This is a hack. A better way would be a full source AST and
-    // rewrite at the actual typeDecl level.
-    // KTypePredicate<? super VType> => VTypePredicate<? super VType>
-    return input.replaceAll("(KType)(?!VType)([A-Za-z]+)(<(?:(\\? super ))?VType>)", "VType$2$3");
-  }
-
-  private String rewriteSignatures(String input, TemplateOptions options) {
-    Pattern p = Pattern.compile("<[\\?A-Z]");
-    Matcher m = p.matcher(input);
-
-    StringBuilder sb = new StringBuilder();
-    int fromIndex = 0;
-    while (m.find(fromIndex)) {
-      int next = m.start();
-      int end = next + 1;
-      int bracketCount = 1;
-      while (bracketCount > 0 && end < input.length()) {
-        switch (input.charAt(end++)) {
-          case '<':
-            bracketCount++;
-            break;
-          case '>':
-            bracketCount--;
-            break;
-        }
-      }
-      sb.append(input.substring(fromIndex, next));
-      sb.append(rewriteSignature(input.substring(next, end), options));
-      fromIndex = end;
+    try {
+      SignatureProcessor signatureProcessor = new SignatureProcessor(input);
+      return signatureProcessor.process(options);
+    } catch (Exception e) {
+      getLog().error("Signature processor failure: " + options.getTemplateFile(), e);
+      throw new RuntimeException(e);
     }
-    sb.append(input.substring(fromIndex, input.length()));
-    return sb.toString();
   }
 
-  private String rewriteSignature(String signature, TemplateOptions options) {
-    if (!signature.contains("KType") && !signature.contains("VType"))
-      return signature;
-
-    Pattern p = Pattern.compile("<[^<>]*>", Pattern.MULTILINE | Pattern.DOTALL);
-
-    StringBuilder sb = new StringBuilder(signature);
-    Matcher m = p.matcher(sb);
-    while (m.find()) {
-      String group = m.group();
-      group = group.substring(1, group.length() - 1);
-      List<String> args = new ArrayList<>(Arrays.asList(group.split(",")));
-      StringBuilder b = new StringBuilder();
-      for (String arg : args) {
-        arg = arg.trim();
-
-        if (options.isKTypePrimitive()) {
-          if (isGenericOnly(arg, "KType"))
-            arg = "";
-          else
-            arg = arg.replace("KType", options.getKType().getBoxedType());
-        }
-
-        if (options.hasVType() && options.isVTypePrimitive()) {
-          if (isGenericOnly(arg, "VType"))
-            arg = "";
-          else
-            arg = arg.replace("VType", options.getVType().getBoxedType());
-        }
-
-        if (arg.length() > 0) {
-          if (b.length() > 0) b.append(", ");
-          b.append(arg.trim());
-        }
-      }
-
-      if (b.length() > 0) {
-        b.insert(0, '{');
-        b.append('}');
-      }
-
-      sb.replace(m.start(), m.end(), b.toString());
-      m = p.matcher(sb);
-    }
-    return sb.toString().replace('{', '<').replace('}', '>');
-  }
-
-  private boolean isGenericOnly(String arg, String type) {
-    return arg.equals(type) || arg.equals("? super " + type) || arg.equals("? extends " + type);
-  }
-
-  private String rewriteLiterals(String input, TemplateOptions options) {
-    Type k = options.getKType();
-
-    if (options.hasVType()) {
-      Type v = options.getVType();
-
-      input = input.replaceAll("(KTypeVType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
-              (k.isGeneric() ? "Object" : k.getBoxedType()) +
-              (v.isGeneric() ? "Object" : v.getBoxedType()) +
-              "$2" +
-              (options.isAnyGeneric() ? "$3" : ""));
-
-      input = input.replaceAll("(VType)([A-Z][a-zA-Z]*)",
-          (v.isGeneric() ? "Object" : v.getBoxedType()) + "$2");
-
-      if (!v.isGeneric()) {
-        input = input.replaceAll("VType", v.getType());
-      }
-    }
-    
-    input = input.replaceAll("(KType)([A-Z][a-zA-Z]*)(<[^>]*>)?",
-        k.isGeneric() ? "Object" + "$2$3" : k.getBoxedType() + "$2");
-
-     if (!k.isGeneric()) {
-      input = input.replaceAll("KType", k.getType());
-     }
-
-    return input;
-  }
 
   /**
    * Apply velocity to the input.

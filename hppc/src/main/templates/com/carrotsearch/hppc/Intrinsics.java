@@ -31,7 +31,7 @@ final class Intrinsics
     }
     
     /**
-     * Provide a generic cast for. With type erasure it should work internally just
+     * A template cast to the given type T. With type erasure it should work internally just
      * fine and it simplifies code. The cast will be erased for primitive types.
      */
     @SuppressWarnings("unchecked")

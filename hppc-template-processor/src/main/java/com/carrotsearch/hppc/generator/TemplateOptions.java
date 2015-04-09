@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Template options for velocity directives in templates.
  */
@@ -67,18 +69,21 @@ public class TemplateOptions {
     return vtype != null;
   }
 
+  public boolean hasKType() {
+    return true;
+  }
+
   public Type getKType() {
+    Preconditions.checkArgument(hasKType(), "Template does not specify KType.");
     return ktype;
   }
 
   public Type getVType() {
-    if (vtype == null) { 
-      throw new RuntimeException("VType is null.");
-    }
+    Preconditions.checkArgument(hasVType(), "Template does not specify VType.");
     return vtype;
   }
 
-  /**
+  /*
    * Returns the current time in ISO format.
    */
   public String getTimeNow() {
