@@ -103,7 +103,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     {
         final IntHolder expands = new IntHolder();
         KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<KType, VType>(0) {
-          // NOCOMMIT: write after map refactoring.
+          /*! #if (false) NOCOMMIT: write after map refactoring.  #end !*/
         };
 
         // Add some elements.
@@ -541,7 +541,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     }
 
     /* */
-    @Test @AwaitsFix("HPPC-127") // NOCOMMIT: HPPC-127 
+    @Test @AwaitsFix("HPPC-127") /*! #if (false) NOCOMMIT: HPPC-127 #end !*/ 
     public void testHashCodeEqualsDifferentPerturbance()
     {
         KTypeVTypeOpenHashMap<KType, VType> l0 = 

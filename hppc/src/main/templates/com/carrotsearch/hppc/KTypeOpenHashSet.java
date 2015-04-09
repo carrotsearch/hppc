@@ -393,18 +393,19 @@ public class KTypeOpenHashSet<KType>
 
   /**
    * Return true if all keys of some other container exist in this container.
-   * Equality comparison is performed with this object's {@link #sameKeys}
-   * method.
+#if ($TemplateOptions.KTypeGeneric) 
+     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * method.
+#end 
    */
-  @SuppressWarnings("all") // TODO: HPPC-126
-  private boolean sameKeys(KTypeSet other) {
+  private boolean sameKeys(KTypeSet<?> other) {
     if (other.size() != size()) {
       return false;
     }
 
-    Iterator<KTypeCursor> i = other.iterator();
+    Iterator<? extends KTypeCursor<?>> i = other.iterator();
     while (i.hasNext()) {
-      KTypeCursor c = i.next();
+      KTypeCursor<?> c = i.next();
       KType key = Intrinsics.<KType> cast(c.value);
       if (contains(key)) {
         continue;
