@@ -39,7 +39,7 @@ public interface KTypeCollection<KType> extends KTypeContainer<KType>
      * 
      * @return Returns the number of removed elements.
      */
-    public int retainAll(KTypeLookupContainer<? extends KType> c);
+    public int retainAll(KTypeLookupContainer<? super KType> c);
 
     /**
      * Keeps all elements in this collection for which the

@@ -47,12 +47,19 @@ HPPC-117: A summary of API changes resulting from other issues.
           
           * (HPPC-129) ArraySizingStrategy#round() method has been removed
           completely.
-          
+
           * (HPPC-130) removeAll(KTypeLookupContainer) had an incorrect 
           generic signature of:
             public int removeAll(final KTypeLookupContainer<? extends KType> c)
           now corrected to:
             public int removeAll(final KTypeLookupContainer<? super KType> c)
+          (for primitive types this does not apply).
+
+          * (HPPC-131) retainAll(KTypeLookupContainer) had an incorrect 
+          generic signature of:
+            public int retainAll(final KTypeLookupContainer<? extends KType> c)
+          now corrected to:
+            public int retainAll(final KTypeLookupContainer<? super KType> c)
           (for primitive types this does not apply).
 
 ** New features
@@ -84,6 +91,9 @@ HPPC-114: Buffer resizing and allocation should be throwing non-assertion
           leave the data structure in a consistent state.
 
 ** Bug fixes
+
+HPPC-131: retainAll(KTypeLookupContainer) had an incorrect generic 
+          signature.
 
 HPPC-130: removeAll(KTypeLookupContainer) had an incorrect generic 
           signature.
