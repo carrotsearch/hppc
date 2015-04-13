@@ -14,19 +14,15 @@ abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
     /**
      * Default implementation uses a predicate for removal.
      */
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @SuppressWarnings("unchecked")
-    /* #end */
     @Override
-    public int removeAll(final KTypeLookupContainer<? extends KType> c)
+    public int removeAll(final KTypeLookupContainer<? super KType> c)
     {
         // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
-        final KTypeContainer<KType> c2 = (KTypeContainer<KType>) c;
         return this.removeAll(new KTypePredicate<KType>()
         {
             public boolean apply(KType k)
             {
-                return c2.contains(k);
+                return c.contains(k);
             }
         });
     }
