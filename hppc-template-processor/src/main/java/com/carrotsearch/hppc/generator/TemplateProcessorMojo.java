@@ -32,6 +32,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.log.NullLogChute;
 
+import com.carrotsearch.hppc.generator.intrinsics.Add;
 import com.carrotsearch.hppc.generator.intrinsics.Cast;
 import com.carrotsearch.hppc.generator.intrinsics.DefaultKTypeValue;
 import com.carrotsearch.hppc.generator.intrinsics.DefaultVTypeValue;
@@ -61,6 +62,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
     intrinsics.put("equalsVType", new EqualsVType());
     intrinsics.put("same", new Same());
     intrinsics.put("cast", new Cast());
+    intrinsics.put("add", new Add());
     intrinsics.put("isEmptyKey", new IsEmptyKey());
   }
 

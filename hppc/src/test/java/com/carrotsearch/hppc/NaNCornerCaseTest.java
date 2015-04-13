@@ -9,7 +9,7 @@ public class NaNCornerCaseTest
     @Test
     public void testNaNAsDoubleKey()
     {
-        DoubleObjectMap<String> map = DoubleObjectOpenHashMap.newInstance();
+        DoubleObjectMap<String> map = new DoubleObjectOpenHashMap<>();
         map.put(Double.NaN, "a");
         map.put(Double.NaN, "b");
 
@@ -37,7 +37,7 @@ public class NaNCornerCaseTest
     @Test
     public void testNaNAsFloatKey()
     {
-        FloatObjectMap<String> map = FloatObjectOpenHashMap.newInstance();
+        FloatObjectMap<String> map = new FloatObjectOpenHashMap<>();
         map.put(Float.NaN, "a");
         map.put(Float.NaN, "b");
 
@@ -66,17 +66,17 @@ public class NaNCornerCaseTest
     public void testNaNAsValue()
     {
       {
-        IntDoubleMap m1 = IntDoubleOpenHashMap.newInstance();
+        IntDoubleMap m1 = new IntDoubleOpenHashMap();
         m1.put(1, Double.NaN);
-        IntDoubleMap m2 = IntDoubleOpenHashMap.newInstance();
+        IntDoubleMap m2 = new IntDoubleOpenHashMap();
         m2.put(1, Double.NaN);
         Assert.assertEquals(m1, m2);
       }
       
       {
-        IntFloatMap m1 = IntFloatOpenHashMap.newInstance();
+        IntFloatMap m1 = new IntFloatOpenHashMap();
         m1.put(1, Float.NaN);
-        IntFloatMap m2 = IntFloatOpenHashMap.newInstance();
+        IntFloatMap m2 = new IntFloatOpenHashMap();
         m2.put(1, Float.NaN);
         Assert.assertEquals(m1, m2);
       }

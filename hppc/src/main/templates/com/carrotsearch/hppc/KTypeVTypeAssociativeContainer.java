@@ -65,7 +65,7 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
      * 
      * @return Returns the number of elements actually removed as a result of this call.
      */
-    public int removeAll(KTypeContainer<? extends KType> container);
+    public int removeAll(KTypeContainer<? super KType> container);
     
     /**
      * Removes all keys (and associated values) for which the predicate returns <code>true</code>.
@@ -86,6 +86,16 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
      * for example. 
      */
     public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(T procedure);
+
+    /**
+     * Applies a given predicate to all keys-value pairs in this container. Returns the argument (any
+     * subclass of {@link KTypeVTypePredicate}. This lets the caller to call methods of the argument
+     * by chaining the call (even if the argument is an anonymous type) to retrieve computed values,
+     * for example.
+     * 
+     * The iteration is continued as long as the predicate returns <code>true</code>.
+     */
+    public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(T predicate);
 
     /**
      * Clear all keys and values in the container.

@@ -121,55 +121,6 @@ public class APIExpectationsTest extends RandomizedTest
     }
 
     @Test
-    @RequiresLargeMemory
-    public void testSizeLimitByteArrayList() {
-        ByteArrayList list = new ByteArrayList(0, new ArraySizingStrategy()
-        {
-            final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
-            @Override
-            public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
-            {
-                int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
-                // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
-                return grow;
-            }
-        });
-
-        try {
-            while (true) {
-                list.add((byte) 0);
-            }
-        } catch (AssertionError e) {
-            assertEquals(0x7fffffff, list.size());
-        }
-    }
-
-    @Test
-    @RequiresLargeMemory
-    public void testSizeLimitByteQueue() {
-        ByteArrayDeque queue = new ByteArrayDeque(1, new ArraySizingStrategy()
-        {
-            final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
-
-            @Override
-            public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
-            {
-                int grow = delegate.grow(currentBufferLength, elementsCount, expectedAdditions);
-                // System.out.println("Resizing to: " + Integer.toHexString(grow) + " " + grow);
-                return grow;
-            }
-        });
-
-        try {
-            while (true) {
-                queue.addLast((byte) 0);
-            }
-        } catch (AssertionError e) {
-            assertEquals(0x7fffffff /* Account for an empty slot. */ - 1, queue.size());
-        }
-    }
-
-    @Test
     @SuppressWarnings("unused")
     public void testNewInstance()
     {
@@ -189,9 +140,9 @@ public class APIExpectationsTest extends RandomizedTest
         ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();
         ObjectArrayDeque<Long> v12 = ObjectArrayDeque.newInstance();
 
-        IntIntOpenHashMap v13 = IntIntOpenHashMap.newInstance();
-        ObjectIntOpenHashMap<Integer> v14 = ObjectIntOpenHashMap.newInstance();
-        IntObjectOpenHashMap<Integer> v15 = IntObjectOpenHashMap.newInstance();
+        IntIntOpenHashMap v13 = new IntIntOpenHashMap();
+        ObjectIntOpenHashMap<Integer> v14 = new ObjectIntOpenHashMap<>();
+        IntObjectOpenHashMap<Integer> v15 = new IntObjectOpenHashMap<>();
     }
 
     @Test
@@ -231,7 +182,7 @@ public class APIExpectationsTest extends RandomizedTest
     @Test
     public void testPutOrAddOnEqualKeys()
     {
-    	ObjectIntOpenHashMap<Integer> map = ObjectIntOpenHashMap.newInstance();
+    	ObjectIntOpenHashMap<Integer> map = new ObjectIntOpenHashMap<>();
 
     	Integer k1  = 1;
     	Integer k1b = new Integer(k1.intValue()); 
