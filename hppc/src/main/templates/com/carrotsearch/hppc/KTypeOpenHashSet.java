@@ -127,7 +127,7 @@ public class KTypeOpenHashSet<KType>
   /**
    * New instance copying elements from another {@link KTypeContainer}.
    */
-  public KTypeOpenHashSet(KTypeContainer<KType> container) {
+  public KTypeOpenHashSet(KTypeContainer<? extends KType> container) {
     this(container.size());
     addAll(container);
   }
@@ -618,7 +618,8 @@ public class KTypeOpenHashSet<KType>
    */
   protected void allocateThenInsertThenRehash(int slot, KType pendingKey) {
     assert assigned == resizeAt 
-           && Intrinsics.isEmptyKey(Intrinsics.<KType> cast(keys[slot]));
+           && Intrinsics.isEmptyKey(Intrinsics.<KType> cast(keys[slot]))
+           && !Intrinsics.isEmptyKey(pendingKey);
 
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
     final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);

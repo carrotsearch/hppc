@@ -12,202 +12,172 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
- * 
- * <p>
- * The internal buffers of this implementation
- * are always allocated to the nearest size that is a power of two. When
- * the fill ratio of these buffers is exceeded, their size is doubled.
- * </p>
- *
-#if ($TemplateOptions.AllGeneric)
- * <p>
- * A brief comparison of the API against the Java Collections framework:
- * </p>
- * <table class="nice" summary="Java Collections HashMap and HPPC ObjectObjectOpenHashMap, related methods.">
- * <caption>Java Collections HashMap and HPPC {@link ObjectObjectOpenHashMap}, related methods.</caption>
- * <thead>
- *     <tr class="odd">
- *         <th scope="col">{@linkplain HashMap java.util.HashMap}</th>
- *         <th scope="col">{@link ObjectObjectOpenHashMap}</th>  
- *     </tr>
- * </thead>
- * <tbody>
- * <tr            ><td>V put(K)       </td><td>V put(K)      </td></tr>
- * <tr class="odd"><td>V get(K)       </td><td>V get(K)      </td></tr>
- * <tr            ><td>V remove(K)    </td><td>V remove(K)   </td></tr>
- * <tr class="odd"><td>size, clear, 
- *                     isEmpty</td><td>size, clear, isEmpty</td></tr>                     
- * <tr            ><td>containsKey(K) </td><td>containsKey(K), lget()</td></tr>
- * <tr class="odd"><td>containsValue(K) </td><td>(no efficient equivalent)</td></tr>
- * <tr            ><td>keySet, entrySet </td><td>{@linkplain #iterator() iterator} over map entries,
- *                                               keySet, pseudo-closures</td></tr>
- * </tbody>
- * </table>
-#else
- * <p>See {@link ObjectObjectOpenHashMap} class for API similarities and differences against Java
- * Collections.  
-#end
- * 
-#if ($TemplateOptions.KTypeGeneric)
- * <p>This implementation supports <code>null</code> keys.</p>
-#end
-#if ($TemplateOptions.VTypeGeneric)
- * <p>This implementation supports <code>null</code> values.</p>
-#end
- * 
- * <p><b>Important node.</b> The implementation uses power-of-two tables and linear
- * probing, which may cause poor performance (many collisions) if hash values are
- * not properly distributed.</p>
- * 
- * @author This code is inspired by the collaboration and implementation in the <a
- *         href="http://fastutil.dsi.unimi.it/">fastutil</a> project.
  */
-/*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
+/*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-    implements KTypeVTypeMap<KType, VType>, Cloneable
+  implements KTypeVTypeMap<KType, VType>, 
+             Cloneable
 {
-    /** The hash array holding keys. */
-    public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
-           Object [] 
-           /*! #else KType [] #end !*/ 
-           keys;
+  protected static final 
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ Object /*! #else KType #end !*/
+      EMPTY_KEY =
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ null   /*! #else 0     #end !*/;
 
-    public /*! #if ($TemplateOptions.VTypeGeneric) !*/ 
-           Object [] 
-           /*! #else VType [] #end !*/ 
-           values;
+  /** The hash array holding keys. */
+  public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
+         Object [] 
+         /*! #else KType [] #end !*/ 
+         keys;
 
-    /**
-     * Information if an entry (slot) in the {@link #values} table is allocated
-     * or empty.
-     * 
-     * @see #assigned
-     */
-    public boolean [] allocated;
+  public /*! #if ($TemplateOptions.VTypeGeneric) !*/ 
+         Object [] 
+         /*! #else VType [] #end !*/ 
+         values;
+  
+  /**
+   * The number of stored keys (assigned key slots), excluding the special 
+   * "empty" key, if any.
+   * 
+   * @see #size()
+   * @see #hasEmptyKey
+   */
+  protected int assigned;
 
-    /**
-     * The load factor for this map (fraction of allocated slots
-     * before the buffers must be rehashed or reallocated) passed at 
-     * construction time.
-     * 
-     * @see #getLoadFactor()
-     */
-    public final double initialLoadFactor;
+  /**
+   * Mask for slot scans in {@link #keys}.
+   */
+  protected int mask;
 
-    /**
-     * Cached number of assigned slots in {@link #allocated}.
-     */
-    public int assigned;
+  /**
+   * We perturb hash values with a container-unique
+   * seed to avoid problems with nearly-sorted-by-hash 
+   * values on iterations.
+   * 
+   * @see #hashKey
+   * @see "http://issues.carrot2.org/browse/HPPC-80"
+   * @see "http://issues.carrot2.org/browse/HPPC-103"
+   */
+  protected int keyMixer;
 
-    /**
-     * We perturb hashed values with the array size to avoid problems with
-     * nearly-sorted-by-hash values on iterations.
-     * 
-     * @see "http://issues.carrot2.org/browse/HPPC-80"
-     * @see "http://issues.carrot2.org/browse/HPPC-103"
-     */
-    protected int perturbation;
+  /**
+   * Expand (rehash) {@link #keys} when {@link #assigned} hits this value. 
+   */
+  protected int resizeAt;
 
-    /**
-     * Resize buffers when {@link #assigned} hits this value. 
-     */
-    protected int resizeAt;
+  /**
+   * Special treatment for the "empty slot" key marker.
+   */
+  protected boolean hasEmptyKey;
 
-    /**
-     * The most recent slot accessed in {@link #containsKey} (required for
-     * {@link #lget}).
-     * 
-     * @see #containsKey
-     * @see #lget
-     */
-    protected int lastSlot;
+  /**
+   * Value associated with the "empty" key.
+   * 
+   * @see #hasEmptyKey
+   */
+  protected VType emptyKeyValue;
+  
+  /**
+   * The load factor for {@link #keys}.
+   */
+  protected double loadFactor;
 
-    /**
-     * Creates a hash map with the default number of expected elements
-     * and load factor.
-     */
-    public KTypeVTypeOpenHashMap()
-    {
-        this(DEFAULT_EXPECTED_ELEMENTS);
-    }
+  /**
+   * Per-instance hash order mixing strategy.
+   * @see #keyMixer
+   */
+  protected HashOrderMixingStrategy orderMixer;
 
-    /**
-     * Creates a hash map with the given number of expected elements and
-     * the default load factor.
-     */
-    public KTypeVTypeOpenHashMap(int expectedElements)
-    {
-        this(expectedElements, DEFAULT_LOAD_FACTOR);
-    }
+  /**
+   * New instance with sane defaults.
+   */
+  public KTypeVTypeOpenHashMap() {
+    this(DEFAULT_EXPECTED_ELEMENTS);
+  }
 
-    /**
-     * Creates a hash map capable of storing the given number of keys without
-     * resizing and with the given load factor.
-     * 
-     * @param expectedElements The expected number of keys that won't cause a rehash (inclusive).  
-     * @param loadFactor The load factor for internal buffers in (0, 1) range.  
-     */
-    public KTypeVTypeOpenHashMap(int expectedElements, double loadFactor)
-    {
-        this.initialLoadFactor = loadFactor;
-        loadFactor = getLoadFactor();
-        allocateBuffers(minBufferSize(expectedElements, loadFactor), loadFactor);
-    }
-    
-    /**
-     * Create a hash map from all key-value pairs of another container.
-     */
-    public KTypeVTypeOpenHashMap(KTypeVTypeAssociativeContainer<KType, VType> container)
-    {
-        this(container.size());
-        putAll(container);
-    }
+  /**
+   * New instance with sane defaults.
+   */
+  public KTypeVTypeOpenHashMap(int expectedElements) {
+    this(expectedElements, DEFAULT_LOAD_FACTOR);
+  }
 
-    /**
-     * Validate load factor range and return it.
-     */
-    protected double getLoadFactor() {
-      checkLoadFactor(initialLoadFactor, MIN_LOAD_FACTOR, MAX_LOAD_FACTOR);
-      return initialLoadFactor;
-    }
+  /**
+   * New instance with sane defaults.
+   */
+  public KTypeVTypeOpenHashMap(int expectedElements, double loadFactor) {
+    this(expectedElements, loadFactor, HashOrderMixing.randomized());
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public VType put(KType key, VType value)
-    {
-        assert assigned < allocated.length;
+  /**
+   * New instance with the provided defaults.
+   * 
+   * @param expectedElements
+   *          The expected number of elements guaranteed not to cause a rehash (inclusive).
+   * @param loadFactor
+   *          The load factor for internal buffers. Insane load factors (zero, full capacity)
+   *          are rejected by {@link #verifyLoadFactor(double)}.
+   * @param orderMixer
+   *          Hash key order mixing strategy. See {@link HashOrderMixing} for predefined
+   *          implementations. Use constant mixers only if you understand the potential
+   *          consequences.
+   */
+  public KTypeVTypeOpenHashMap(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
+    this.orderMixer = orderMixer;
+    this.loadFactor = verifyLoadFactor(loadFactor);
+    ensureCapacity(expectedElements);
+  }
 
-        final KType[] keys = keys_();
-        final int mask = allocated.length - 1;
-        int slot = BitMixer.mix0(key, perturbation) & mask;
-        while (allocated[slot])
-        {
-            if (Intrinsics.equalsKType(key, keys[slot]))
-            {
-                final VType oldValue = Intrinsics.<VType> cast(values[slot]);
-                values[slot] = value;
-                return oldValue;
-            }
+  /**
+   * Create a hash map from all key-value pairs of another container.
+   */
+  public KTypeVTypeOpenHashMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
+    this(container.size());
+    putAll(container);
+  }
 
-            slot = (slot + 1) & mask;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public VType put(KType key, VType value) {
+    assert assigned < keys.length;
+
+    if (Intrinsics.isEmptyKey(key)) {
+      boolean hadEmptyKey = hasEmptyKey;
+      VType previousValue = (hadEmptyKey ? emptyKeyValue : Intrinsics.<VType> defaultVTypeValue());
+      hasEmptyKey = true;
+      emptyKeyValue = value;
+      return previousValue;
+    } else {
+      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+      final int mask = this.mask;
+      int slot = hashKey(key) & mask;
+
+      KType existing;
+      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
+        if (Intrinsics.equalsKType(key, existing)) {
+          final VType oldValue = Intrinsics.<VType> cast(values[slot]);
+          values[slot] = value;
+          return oldValue;
         }
+        slot = (slot + 1) & mask;
+      }
 
-        // Check if we need to grow. If so, reallocate new data, fill in the last element 
-        // and rehash.
-        if (assigned == resizeAt) {
-            expandAndPut(key, value, slot);
-        } else {
-            assigned++;
-            allocated[slot] = true;
-            keys[slot] = key;                
-            values[slot] = value;
-        }
-        return Intrinsics.<VType> defaultVTypeValue();
+      if (assigned == resizeAt) {
+        allocateThenInsertThenRehash(slot, key, value);
+      } else {
+        keys[slot] = key;
+      }
+
+      assigned++;
+      return Intrinsics.<VType> defaultVTypeValue();
     }
+  }
 
+  
+  
+  
     /**
      * {@inheritDoc}
      */
@@ -1286,6 +1256,112 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         };
     }
     
+    /**
+     * Returns a hash code for the given key.
+     * 
+     * The default implementation mixes the hash of the key with {@link #keyMixer}
+     * to differentiate hash order of keys between hash containers. Helps
+     * alleviate problems resulting from linear conflict resolution in open
+     * addressing.
+     * 
+     * The output from this function should evenly distribute keys across the
+     * entire integer range.
+     */
+    protected int hashKey(KType key) {
+      assert !Intrinsics.isEmptyKey(key); // Handled as a special case (empty slot marker).
+      return BitMixer.mix(key, this.keyMixer);
+    }
+
+    /**
+     * Validate load factor range and return it. Override and suppress if you need
+     * insane load factors.
+     */
+    protected double verifyLoadFactor(double loadFactor) {
+      checkLoadFactor(loadFactor, MIN_LOAD_FACTOR, MAX_LOAD_FACTOR);
+      return loadFactor;
+    }
+
+    /**
+     * Rehash from old buffers to new buffers. 
+     */
+    protected void rehash(KType[] fromKeys, VType[] fromValues) {
+      // Rehash all stored key/value pairs into the new buffers.
+      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+      final VType[] values = Intrinsics.<VType[]> cast(this.values);
+      final int mask = this.mask;
+      KType existing;
+      for (int i = fromKeys.length; --i >= 0;) {
+        if (!Intrinsics.isEmptyKey(existing = fromKeys[i])) {
+          int slot = hashKey(existing) & mask;
+          while (!Intrinsics.isEmptyKey(keys[slot])) {
+            slot = (slot + 1) & mask;
+          }
+          keys[slot] = existing;
+          values[slot] = fromValues[i];
+        }
+      }
+    }
+
+    /**
+     * Allocate new internal buffers. This method attempts to allocate
+     * and assign internal buffers atomically (either allocations succeed or not).
+     */
+    protected void allocateBuffers(int arraySize) {
+      assert Integer.bitCount(arraySize) == 1;
+
+      // Compute new hash mixer candidate before expanding.
+      final int newKeyMixer = this.orderMixer.newKeyMixer(arraySize);
+
+      // Ensure no change is done if we hit an OOM.
+      KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
+      VType[] prevValues = Intrinsics.<VType[]> cast(this.values);
+      try {
+        this.keys = Intrinsics.<KType> newArray(arraySize);
+        this.values = Intrinsics.<VType> newArray(arraySize);
+      } catch (OutOfMemoryError e) {
+        this.keys = prevKeys;
+        this.values = prevValues;
+        throw new BufferAllocationException(
+            "Not enough memory to allocate buffers for rehashing: %,d -> %,d", 
+            e,
+            this.keys == null ? 0 : this.keys.length, 
+            arraySize);
+      }
+
+      this.resizeAt = expandAtCount(arraySize, loadFactor);
+      this.keyMixer = newKeyMixer;
+      this.mask = arraySize - 1;
+    }
+
+    /**
+     * This method is invoked when there is a new key/ value pair to be inserted into
+     * the buffers but there is not enough empty slots to do so.
+     * 
+     * New buffers are allocated. If this succeeds, we know we can proceed
+     * with rehashing so we assign the pending element to the previous buffer
+     * (possibly violating the invariant of having at least one empty slot)
+     * and rehash all keys, substituting new buffers at the end.  
+     */
+    protected void allocateThenInsertThenRehash(int slot, KType pendingKey, VType pendingValue) {
+      assert assigned == resizeAt
+             && Intrinsics.isEmptyKey(Intrinsics.<KType> cast(keys[slot]))
+             && !Intrinsics.isEmptyKey(pendingKey);
+
+      // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
+      final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
+      final VType[] prevValues = Intrinsics.<VType[]> cast(this.values);
+      allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
+      assert this.keys.length > prevKeys.length;
+
+      // We have succeeded at allocating new data so insert the pending key/value at
+      // the free slot in the old arrays before rehashing.
+      prevKeys[slot] = pendingKey;
+      prevValues[slot] = pendingValue;
+
+      // Rehash old keys, including the pending key.
+      rehash(prevKeys, prevValues);
+    }
+
     /*! #if ($templateOnly) !*/ 
     @SuppressWarnings("unchecked")
     /*! #end !*/
