@@ -98,13 +98,6 @@ public class APIExpectationsTest extends RandomizedTest
         ByteArrayList list = new ByteArrayList(0, new ArraySizingStrategy()
         {
             final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
-
-            @Override
-            public int round(int capacity)
-            {
-                return delegate.round(capacity);
-            }
-            
             @Override
             public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
             {
@@ -130,12 +123,6 @@ public class APIExpectationsTest extends RandomizedTest
         {
             final BoundedProportionalArraySizingStrategy delegate = new BoundedProportionalArraySizingStrategy();
 
-            @Override
-            public int round(int capacity)
-            {
-                return delegate.round(capacity);
-            }
-            
             @Override
             public int grow(int currentBufferLength, int elementsCount, int expectedAdditions)
             {

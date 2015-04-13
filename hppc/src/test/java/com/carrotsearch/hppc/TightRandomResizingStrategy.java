@@ -16,11 +16,6 @@ public final class TightRandomResizingStrategy implements ArraySizingStrategy {
   }
   
   @Override
-  public int round(int expectedElements) {
-    return expectedElements;
-  }
-
-  @Override
   public int grow(int currentBufferLength, int elementsCount, int expectedAdditions) {
     growCalls++;
 

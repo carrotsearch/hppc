@@ -34,7 +34,7 @@ public class KTypeOpenHashSet<KType>
 
   /**
    * The number of stored keys (assigned key slots), excluding the special 
-   * "zero" key, if any.
+   * "empty" key, if any.
    * 
    * @see #size()
    * @see #hasEmptyKey
