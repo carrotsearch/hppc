@@ -8,6 +8,9 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
 /**
  * Common superclass for collections. 
  */
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+@SuppressWarnings("unchecked")
+/*! #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
 {
@@ -66,39 +69,30 @@ abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
     /*!#if ($TemplateOptions.KTypePrimitive)
     public KType [] toArray()
        #else !*/
-    @SuppressWarnings("unchecked")
-    public KType [] toArray(Class<? super KType> clazz)
+    public Object[] toArray()
     /*! #end !*/
     {
-        final int size = size();
-        final KType [] array = 
-        /*!#if ($TemplateOptions.KTypePrimitive) 
-           new KType [size];   
-           #else !*/
-           (KType []) java.lang.reflect.Array.newInstance(clazz, size);
-        /*!#end !*/
-
-        int i = 0;
-        for (KTypeCursor<KType> c : this)
-        {
-            array[i++] = c.value;
-        }
-        return array;
+      KType[] array = Intrinsics.<KType> newArray(size());
+      int i = 0;
+      for (KTypeCursor<KType> c : this) {
+        array[i++] = c.value;
+      }
+      return array;
     }
 
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    @Override
-    public Object[] toArray()
+    /*!#if ($TemplateOptions.KTypeGeneric) !*/
+    public <T> T [] toArray(Class<T> componentClass)
     {
-        final Object [] array = new Object [size()];
+        final int size = size();
+        final T [] array = (T[]) java.lang.reflect.Array.newInstance(componentClass, size);
         int i = 0;
         for (KTypeCursor<KType> c : this)
         {
-            array[i++] = c.value;
+            array[i++] = (T) c.value;
         }
         return array;
     }
-    /* #end */
+    /*! #end !*/
 
     /**
      * Convert the contents of this container to a human-friendly string.
