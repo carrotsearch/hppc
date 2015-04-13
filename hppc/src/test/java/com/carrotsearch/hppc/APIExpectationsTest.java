@@ -42,8 +42,12 @@ public class APIExpectationsTest extends RandomizedTest
     public void testToArrayWithClass()
     {
         ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
-        Integer[] result = l1.toArray(Integer.class);
-        assertArrayEquals(new Integer [] {1, 2, 3}, result); // dummy
+        Integer[] result1 = l1.toArray(Integer.class);
+        assertArrayEquals(new Integer [] {1, 2, 3}, result1);
+        
+        Number[] result2 = l1.toArray(Number.class);
+        Assertions.assertThat(result2).isExactlyInstanceOf(Number[].class);
+        assertArrayEquals(new Number [] {1, 2, 3}, result2);
     }
 
     @Test

@@ -61,6 +61,10 @@ HPPC-117: A summary of API changes resulting from other issues.
           now corrected to:
             public int retainAll(final KTypeLookupContainer<? super KType> c)
           (for primitive types this does not apply).
+          
+          * (HPPC-133) KTypeContainer.toArray(Class<T>) now accepts any array
+          component type; runtime checks will throw ArrayStoreException if not
+          compatible.
 
 ** New features
 
@@ -91,6 +95,8 @@ HPPC-114: Buffer resizing and allocation should be throwing non-assertion
           leave the data structure in a consistent state.
 
 ** Bug fixes
+
+HPPC-133: KTypeContainer.toArray(Class) can return incorrect array type.
 
 HPPC-131: retainAll(KTypeLookupContainer) had an incorrect generic 
           signature.

@@ -56,23 +56,27 @@ public interface KTypeContainer<KType> extends Iterable<KTypeCursor<KType>>
     public boolean isEmpty();
 
     /**
-     * Copies all elements from this container to an array of this container's component
-     * type. The returned array is always a copy, regardless of the storage used by the container.
+     * Copies all elements of this container to an array.
+     *  
+     * The returned array is always a copy, regardless of the storage used by the container.
      */
     /*!#if ($TemplateOptions.KTypePrimitive)   
     public KType [] toArray();
        #else !*/
-    public KType [] toArray(Class<? super KType> clazz);
+    public Object[] toArray();
     /*! #end !*/
 
     /* #if ($TemplateOptions.KTypeGeneric) */
     /**
-     * Copies all elements from this container to an Object array. If you need an array
-     * of the type identical with this container's generic type, use {@link #toArray(Class)}.
+     * Copies all elements of this container to a dynamically created array of the given
+     * component type. An {@link ArrayStoreException} may be thrown if this container's elements
+     * are not assignable to the array's component type.
+     *
+     * The returned array is always a copy, regardless of the storage used by the container.
      * 
-     * @see #toArray(Class) 
+     * @throws ArrayStoreException
      */
-    public Object[] toArray();    
+    public <T> T [] toArray(Class<T> componentClass);
     /* #end */
 
     /**
