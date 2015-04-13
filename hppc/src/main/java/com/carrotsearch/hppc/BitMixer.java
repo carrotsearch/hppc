@@ -2,8 +2,11 @@ package com.carrotsearch.hppc;
 
 /**
  * Key hash bit mixing.
+ * 
+ * {@link #mix0(Object, int)} allows a <code>null</code> key, other methods are used
+ * from generated code and are simply delegations. 
  */
-final class BitMixer {
+public final class BitMixer {
   // Don't bother mixing very small key domains much.
   static int mix (byte key)   { return key * 0x85ebca6b; }
   static int mix0(byte key)   { return key * 0x85ebca6b; }
