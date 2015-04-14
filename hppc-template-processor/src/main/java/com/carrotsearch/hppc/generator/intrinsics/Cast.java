@@ -21,6 +21,9 @@ public class Cast implements IntrinsicMethod {
     switch (genericCast) {
       case "KType[]":
       case "KType":
+        if (!templateOptions.hasKType()) {
+          throw new RuntimeException("KType is not available for casting in this template?: " + m.group());
+        }
         if (templateOptions.isKTypeGeneric()) {
           cast = "(" + genericCast + ")";
         } else {
@@ -34,7 +37,7 @@ public class Cast implements IntrinsicMethod {
           throw new RuntimeException("VType is not available for casting in this template?: " + m.group());
         }
         if (templateOptions.isVTypeGeneric()) {
-          cast = "(VType)";
+          cast = "(" + genericCast + ")";
         } else {
           cast = ""; // dropped
         }

@@ -2,10 +2,7 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 
-import java.util.Arrays;
-
 import org.assertj.core.api.Assertions;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -396,27 +393,6 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         assertSortedListEquals(set.toArray(), key1, key2, key3);
         assertSortedListEquals(cloned.toArray(), key2, key3);
-    }
-    
-    /*
-     * 
-     */
-    @Test
-    public void testToString()
-    {
-        Assume.assumeTrue(
-             int[].class.isInstance(set.keys)     ||
-             short[].class.isInstance(set.keys)   ||
-             byte[].class.isInstance(set.keys)    ||
-             long[].class.isInstance(set.keys)    ||
-             Object[].class.isInstance(set.keys));
-
-        this.set.addAll(key1, key2);
-        String asString = set.toString();
-        asString = asString.replaceAll("[\\[\\],\\ ]", "");
-        char [] asCharArray = asString.toCharArray();
-        Arrays.sort(asCharArray);
-        assertEquals("12", new String(asCharArray));
     }
     
     /* */

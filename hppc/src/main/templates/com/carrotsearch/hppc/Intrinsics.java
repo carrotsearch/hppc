@@ -103,5 +103,13 @@ final class Intrinsics
      */
     public static <T> boolean same(Object k1, Object k2) {
       return k1 == null ? k2 == null : k1.equals(k2);
+    }
+    
+    /**
+     * An intrinsic that is replaced with plain addition between operators. Only
+     * valid for primitive types.
+     */
+    public static <T> T add(T op1, T op2) {
+      throw new UnsupportedOperationException("Invalid for template or generic types.");
     }    
 }
