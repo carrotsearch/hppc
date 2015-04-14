@@ -405,14 +405,10 @@ public class KTypeOpenHashSet<KType>
       return false;
     }
 
-    Iterator<? extends KTypeCursor<?>> i = other.iterator();
-    while (i.hasNext()) {
-      KTypeCursor<?> c = i.next();
-      KType key = Intrinsics.<KType> cast(c.value);
-      if (contains(key)) {
-        continue;
+    for (KTypeCursor<?> c : other) {
+      if (!contains(Intrinsics.<KType> cast(c.value))) {
+        return false;
       }
-      return false;
     }
 
     return true;
