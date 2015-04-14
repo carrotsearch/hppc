@@ -88,26 +88,17 @@ final class Intrinsics
     {
         return e1 == null ? e2 == null : e1.equals(e2);
     }
-    
 
     /**
-     * Returns <code>true</code> if the provided key is an "empty slot"
-     * marker. For generic types the empty slot is <code>null</code>,
-     * for any other type it is an equivalent of zero.
-     * 
-     * For floating-point types {@link Float#floatToIntBits(float)} and 
-     * {@link Double#doubleToLongBits(double)} is invoked to normalize different
-     * representations of zero.  
-     * 
-     * Testing for zeros should be compiled into fast machine code. 
+     * Compares two keys for equivalence.
      */
     public static <T> boolean same(Object k1, Object k2) {
       return k1 == null ? k2 == null : k1.equals(k2);
     }
-    
+
     /**
-     * An intrinsic that is replaced with plain addition between operators. Only
-     * valid for primitive types.
+     * An intrinsic that is replaced with plain addition of arguments for primitive
+     * template types. Invalid for generic types.
      */
     public static <T> T add(T op1, T op2) {
       throw new UnsupportedOperationException("Invalid for template or generic types.");
