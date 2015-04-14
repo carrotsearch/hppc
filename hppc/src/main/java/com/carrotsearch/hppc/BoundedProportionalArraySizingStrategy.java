@@ -81,16 +81,4 @@ public final class BoundedProportionalArraySizingStrategy
 
         return (int) newSize;
     }
-
-    /**
-     * No specific requirements in case of this strategy - the argument is returned.
-     */
-    public int round(int expectedElements)
-    {
-        if (expectedElements < 0) {
-            throw new BufferAllocationException(
-                "Expected number of elements must be positive: " + expectedElements);
-        }
-        return expectedElements;
-    }
 }
