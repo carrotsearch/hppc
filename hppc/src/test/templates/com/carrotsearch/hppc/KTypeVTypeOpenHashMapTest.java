@@ -6,8 +6,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.*;
 
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.mutables.IntHolder;
@@ -244,23 +243,25 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals2(value1, map.get(key1));
     }
 
-    /*! #if ($TemplateOptions.VTypePrimitive)
+    /*! #if ($templateOnly) */ @Ignore /* #end !*/
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     @Test
     public void testPutOrAdd()
     {
         assertEquals2(value1, map.putOrAdd(key1, value1, value2));
-        assertEquals2(value1 + value2, map.putOrAdd(key1, value1, value2));
+        assertEquals2(value3, map.putOrAdd(key1, value1, value2));
     }
-    #end !*/
+    /*! #end !*/
 
-    /*! #if ($TemplateOptions.VTypePrimitive)
+    /*! #if ($templateOnly) */ @Ignore /* #end !*/ 
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     @Test
     public void testAddTo()
     {
         assertEquals2(value1, map.addTo(key1, value1));
-        assertEquals2(value1 + value2, map.addTo(key1, value2));
+        assertEquals2(value3, map.addTo(key1, value2));
     }
-    #end !*/
+    /*! #end !*/
 
     /* */
     @Test
