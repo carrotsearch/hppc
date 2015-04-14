@@ -15,6 +15,30 @@ public class APIExpectationsTest extends RandomizedTest
     public volatile int [] t1;
 
     @Test
+    public void testRemoveAllFromMap()
+    {
+        ObjectIntOpenHashMap<Integer> list = new ObjectIntOpenHashMap<>();
+        list.put(1, 1);
+        list.put(2, 2);
+        list.put(3, 3);
+
+        // Same type.
+        ObjectOpenHashSet<Integer> other1 = new ObjectOpenHashSet<>();
+        other1.add(1);
+        list.removeAll(other1);
+
+        // Supertype.
+        ObjectArrayList<Integer> other2 = new ObjectArrayList<>();
+        other2.add(1);
+        list.removeAll(other2);
+
+        // Object
+        ObjectArrayList<Object> other3 = new ObjectArrayList<>();
+        other3.add(1);
+        list.removeAll(other3);        
+    }
+
+    @Test
     public void testRemoveAllWithLookupContainer()
     {
         ObjectArrayList<Integer> list = new ObjectArrayList<>();

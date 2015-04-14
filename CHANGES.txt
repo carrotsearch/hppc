@@ -65,6 +65,12 @@ HPPC-117: A summary of API changes resulting from other issues.
           * (HPPC-133) KTypeContainer.toArray(Class<T>) now accepts any array
           component type; runtime checks will throw ArrayStoreException if not
           compatible.
+          
+          * (HPPC-135) KTypeVTypeAssociativeContainer#removeAll had an incorrect 
+          generic signature of:
+            public int removeAll(KTypeContainer<? extends KType> container)
+          now corrected to:
+            public int removeAll(KTypeContainer<? super KType> container)
 
 ** New features
 
@@ -95,6 +101,9 @@ HPPC-114: Buffer resizing and allocation should be throwing non-assertion
           leave the data structure in a consistent state.
 
 ** Bug fixes
+
+HPPC-135: KTypeVTypeAssociativeContainer#removeAll had an incorrect generic 
+          signature.
 
 HPPC-133: KTypeContainer.toArray(Class) can return incorrect array type.
 
