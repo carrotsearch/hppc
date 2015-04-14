@@ -18,7 +18,8 @@ import static com.carrotsearch.hppc.Containers.*;
 public class KTypeOpenHashSet<KType>
   extends AbstractKTypeCollection<KType> 
   implements KTypeLookupContainer<KType>, 
-             KTypeSet<KType>, 
+             KTypeSet<KType>,
+             Preallocatable,
              Cloneable {
 
   protected static final 
@@ -347,6 +348,7 @@ public class KTypeOpenHashSet<KType>
    * 
    * @param expectedElements The total number of elements, inclusive.
    */
+  @Override
   public void ensureCapacity(int expectedElements) {
     if (expectedElements > resizeAt || keys == null) {
       final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
