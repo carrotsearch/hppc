@@ -222,7 +222,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
   }
 
-  // NOCOMMIT: HPPC-110: this method should only be present in primitive versions of this class
   /*! #if ($TemplateOptions.VTypePrimitive) !*/
   /**
    * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
@@ -236,7 +235,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
     assert assigned < keys.length;
 
-    // TODO: change to slot-based routine.
     if (containsKey(key)) {
       putValue = get(key);
       putValue = (VType) (Intrinsics.<VType> add(putValue, incrementValue));
