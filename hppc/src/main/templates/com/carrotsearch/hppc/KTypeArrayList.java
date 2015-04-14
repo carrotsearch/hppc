@@ -283,8 +283,7 @@ public class KTypeArrayList<KType>
 
         final int count = toIndex - fromIndex;
         elementsCount -= count;
-        Arrays.fill(buffer, elementsCount, elementsCount + count, 
-            Intrinsics.<KType>defaultKTypeValue());
+        Arrays.fill(buffer, elementsCount, elementsCount + count, Intrinsics.<KType>defaultKTypeValue());
     }
 
     /**
