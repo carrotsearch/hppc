@@ -212,7 +212,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
    * was placed in the map.
    */
-  // NOCOMMIT: remove this method?
   public boolean putIfAbsent(KType key, VType value) {
     if (!containsKey(key)) {
       put(key, value);
@@ -304,7 +303,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       }
     }
 
-    // TODO: this should iterate over the smaller set of values. But then what to do with supers of KType?
+    /*! #if ($templateOnly)
+     *  TODO: this should iterate over the smaller set of values. But then what to do with supers of KType?
+     *  #end !*/
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0, max = this.mask; slot <= max;) {
