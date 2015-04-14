@@ -49,7 +49,10 @@ import static com.carrotsearch.hppc.Containers.*;
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayList<KType>
-    extends AbstractKTypeCollection<KType> implements KTypeIndexedContainer<KType>, Cloneable
+  extends AbstractKTypeCollection<KType> 
+  implements KTypeIndexedContainer<KType>,
+             Preallocatable,
+             Cloneable
 {
     /**
      * An immutable empty buffer.
@@ -386,6 +389,7 @@ public class KTypeArrayList<KType>
      * 
      * @param expectedElements The total number of elements, inclusive.
      */
+    @Override
     public void ensureCapacity(int expectedElements) 
     {
         final int bufferLen = (buffer == null ? 0 : buffer.length);

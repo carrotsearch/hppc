@@ -16,7 +16,8 @@ import static com.carrotsearch.hppc.Containers.*;
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-  implements KTypeVTypeMap<KType, VType>, 
+  implements KTypeVTypeMap<KType, VType>,
+             Preallocatable,
              Cloneable
 {
   protected static final 
@@ -489,6 +490,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * 
    * @param expectedElements The total number of keys, inclusive.
    */
+  @Override
   public void ensureCapacity(int expectedElements) {
     if (expectedElements > resizeAt || keys == null) {
       final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);

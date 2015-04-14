@@ -18,7 +18,10 @@ import static com.carrotsearch.hppc.Containers.*;
  * <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.30.7319">
  * Preston Briggs and Linda Torczon's paper "An Efficient Representation for Sparse Sets"</a></p>
  */
-public class DoubleLinkedIntSet implements IntLookupContainer, IntSet, Cloneable
+public class DoubleLinkedIntSet 
+  implements IntLookupContainer, 
+             IntSet,
+             Cloneable
 {
     /**
      * Dense array of set elements. 

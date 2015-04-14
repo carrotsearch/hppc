@@ -48,8 +48,10 @@ import static com.carrotsearch.hppc.Containers.*;
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeArrayDeque<KType> 
-    extends AbstractKTypeCollection<KType> implements KTypeDeque<KType>, Cloneable
-{
+  extends AbstractKTypeCollection<KType> 
+  implements KTypeDeque<KType>,
+             Preallocatable, 
+             Cloneable {
     /**
      * Internal array for storing elements of the deque.
      */
@@ -517,6 +519,7 @@ public class KTypeArrayDeque<KType>
      * 
      * @param expectedElements The total number of elements, inclusive.
      */
+    @Override
     public void ensureCapacity(int expectedElements) {
       ensureBufferSpace(expectedElements - size());
     }
