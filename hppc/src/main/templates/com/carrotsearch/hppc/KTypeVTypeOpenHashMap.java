@@ -16,15 +16,11 @@ import static com.carrotsearch.hppc.Containers.*;
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeOpenHashMap<KType, VType>
-  implements KTypeVTypeMap<KType, VType>,
+  implements /*! #if ($templateonly) !*/ Intrinsics.EqualityFunction, /*! #end !*/
+             KTypeVTypeMap<KType, VType>,
              Preallocatable,
              Cloneable
 {
-  protected static final 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ Object /*! #else KType #end !*/
-      EMPTY_KEY =
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ null   /*! #else 0     #end !*/;
-
   /** The hash array holding keys. */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
          Object [] 
@@ -144,9 +140,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   public VType put(KType key, VType value) {
     assert assigned < keys.length;
 
-    if (Intrinsics.isEmptyKey(key)) {
-      boolean hadEmptyKey = hasEmptyKey;
-      VType previousValue = (hadEmptyKey ? emptyKeyValue : Intrinsics.<VType> defaultVTypeValue());
+    if (Intrinsics.<KType> isEmpty(key)) {
+      VType previousValue = emptyKeyValue;
       hasEmptyKey = true;
       emptyKeyValue = value;
       return previousValue;
@@ -156,8 +151,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       int slot = hashKey(key) & mask;
 
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+        if (Intrinsics.<KType> equals(this, key, existing)) {
           final VType oldValue = Intrinsics.<VType> cast(values[slot]);
           values[slot] = value;
           return oldValue;
@@ -173,7 +168,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       }
 
       assigned++;
-      return Intrinsics.<VType> defaultVTypeValue();
+      return Intrinsics.<VType> empty();
     }
   }
 
@@ -265,10 +260,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public VType remove(KType key) {
-    if (Intrinsics.isEmptyKey(key)) {
-      VType previousValue = (hasEmptyKey ? emptyKeyValue : Intrinsics.<VType> defaultVTypeValue());
+    if (Intrinsics.<KType> isEmpty(key)) {
       hasEmptyKey = false;
-      emptyKeyValue = Intrinsics.defaultVTypeValue();
+      VType previousValue = emptyKeyValue;
+      emptyKeyValue = Intrinsics.<VType> empty();
       return previousValue;
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
@@ -276,8 +271,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       int slot = hashKey(key) & mask;
 
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+        if (Intrinsics.<KType> equals(this, key, existing)) {
           final VType oldValue = Intrinsics.<VType> cast(values[slot]);
           assigned--;
           shiftConflictingKeys(slot);
@@ -286,7 +281,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
         slot = (slot + 1) & mask;
       }
 
-      return Intrinsics.<VType> defaultVTypeValue();
+      return Intrinsics.<VType> empty();
     }
   }
 
@@ -298,9 +293,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final int before = this.assigned;
 
     if (hasEmptyKey) {
-      if (container.contains(Intrinsics.<KType> cast(EMPTY_KEY))) {
+      if (container.contains(Intrinsics.<KType> empty())) {
         hasEmptyKey = false;
-        emptyKeyValue = Intrinsics.defaultVTypeValue();
+        emptyKeyValue = Intrinsics.<VType> empty();
       }
     }
 
@@ -311,7 +306,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0, max = this.mask; slot <= max;) {
       KType existing;
-      if (!Intrinsics.isEmptyKey(existing = keys[slot]) &&
+      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) &&
           container.contains(existing)) {
         // Shift, do not increment slot.
         assigned--;
@@ -332,16 +327,16 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final int before = this.assigned;
 
     if (hasEmptyKey) {
-      if (predicate.apply(Intrinsics.<KType> cast(EMPTY_KEY))) {
+      if (predicate.apply(Intrinsics.<KType> empty())) {
         hasEmptyKey = false;
-        emptyKeyValue = Intrinsics.defaultVTypeValue();
+        emptyKeyValue = Intrinsics.<VType> empty();
       }
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0, max = this.mask; slot <= max;) {
       KType existing;
-      if (!Intrinsics.isEmptyKey(existing = keys[slot]) &&
+      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) &&
           predicate.apply(existing)) {
         // Shift, do not increment slot.
         assigned--;
@@ -359,22 +354,22 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public VType get(KType key) {
-    if (Intrinsics.isEmptyKey(key)) {
-      return hasEmptyKey ? emptyKeyValue : Intrinsics.<VType> defaultVTypeValue();
+    if (Intrinsics.<KType> isEmpty(key)) {
+      return hasEmptyKey ? emptyKeyValue : Intrinsics.<VType> empty();
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
       int slot = hashKey(key) & mask;
 
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+        if (Intrinsics.<KType> equals(this, key, existing)) {
           return Intrinsics.<VType> cast(values[slot]);
         }
         slot = (slot + 1) & mask;
       }
 
-      return Intrinsics.<VType> defaultVTypeValue();
+      return Intrinsics.<VType> empty();
     }
   }
 
@@ -383,16 +378,16 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public VType getOrDefault(KType key, VType defaultValue) {
-    if (Intrinsics.isEmptyKey(key)) {
-      return hasEmptyKey ? emptyKeyValue : Intrinsics.<VType> defaultVTypeValue();
+    if (Intrinsics.<KType> isEmpty(key)) {
+      return hasEmptyKey ? emptyKeyValue : defaultValue;
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
       int slot = hashKey(key) & mask;
 
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+        if (Intrinsics.<KType> equals(this, key, existing)) {
           return Intrinsics.<VType> cast(values[slot]);
         }
         slot = (slot + 1) & mask;
@@ -407,7 +402,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public boolean containsKey(KType key) {
-    if (Intrinsics.isEmptyKey(key)) {
+    if (Intrinsics.<KType> isEmpty(key)) {
       return hasEmptyKey;
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
@@ -415,8 +410,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       int slot = hashKey(key) & mask;
 
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+        if (Intrinsics.<KType> equals(this, key, existing)) {
           return true;
         }
         slot = (slot + 1) & mask;
@@ -438,7 +433,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     assigned = 0;
     hasEmptyKey = false;
 
-    Arrays.fill(keys, Intrinsics.<KType> cast(EMPTY_KEY));
+    Arrays.fill(keys, Intrinsics.<KType> empty());
 
     /* #if ($TemplateOptions.VTypeGeneric) */ 
     Arrays.fill(values, null);
@@ -481,7 +476,32 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   public boolean equals(Object obj) {
     return obj != null &&
            getClass() == obj.getClass() &&
-           sameEntries(getClass().cast(obj));
+           equalElements(getClass().cast(obj));
+  }
+
+  /**
+   * Return true if all keys of some other container exist in this container.
+#if ($TemplateOptions.KTypeGeneric) 
+   * Equality comparison is performed with this object's {@link #equals(Object, Object)} 
+   * method.
+#end 
+   */
+  protected boolean equalElements(KTypeVTypeOpenHashMap<?, ?> other) {
+    if (other.size() != size()) {
+      return false;
+    }
+
+    Iterator<? extends KTypeVTypeCursor<?, ?>> i = other.iterator();
+    while (i.hasNext()) {
+      KTypeVTypeCursor<?, ?> c = i.next();
+      KType key = Intrinsics.<KType> cast(c.key);
+      if (!containsKey(key) ||
+          !Intrinsics.<VType> equals(c.value, get(key))) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -503,31 +523,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   }
 
   /**
-   * Return true if all keys of some other container exist in this container.
-#if ($TemplateOptions.KTypeGeneric) 
-   * Equality comparison is performed with this object's {@link #sameKeys} 
-   * method.
-#end 
-   */
-  private boolean sameEntries(KTypeVTypeOpenHashMap<?, ?> other) {
-    if (other.size() != size()) {
-      return false;
-    }
-
-    Iterator<? extends KTypeVTypeCursor<?, ?>> i = other.iterator();
-    while (i.hasNext()) {
-      KTypeVTypeCursor<?, ?> c = i.next();
-      KType key = Intrinsics.<KType> cast(c.key);
-      if (!containsKey(key) ||
-          !Intrinsics.equalsVType(c.value, get(key))) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /**
    * An iterator implementation for {@link #iterator}.
    */
   private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
@@ -544,7 +539,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       if (slot < max) {
         KType existing;
         for (slot++; slot < max; slot++) {
-          if (!Intrinsics.isEmptyKey(existing = Intrinsics.<KType> cast(keys[slot]))) {
+          if (!Intrinsics.<KType> isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
             cursor.index = slot;
             cursor.key = existing;
             cursor.value = Intrinsics.<VType> cast(values[slot]);
@@ -555,7 +550,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
       if (slot == max && hasEmptyKey) {
         cursor.index = slot;
-        cursor.key = Intrinsics.<KType> cast(EMPTY_KEY);
+        cursor.key = Intrinsics.<KType> empty();
         cursor.value = Intrinsics.<VType> cast(emptyKeyValue);
         slot++;
         return cursor;
@@ -582,11 +577,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
     if (hasEmptyKey) {
-      procedure.apply(Intrinsics.<KType> cast(EMPTY_KEY), emptyKeyValue);
+      procedure.apply(Intrinsics.<KType> empty(), emptyKeyValue);
     }
 
     for (int slot = 0, max = this.mask; slot <= max; slot++) {
-      if (!Intrinsics.isEmptyKey(keys[slot])) {
+      if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         procedure.apply(keys[slot], values[slot]);
       }
     }
@@ -603,13 +598,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
     if (hasEmptyKey) {
-      if (!predicate.apply(Intrinsics.<KType> cast(EMPTY_KEY), emptyKeyValue)) {
+      if (!predicate.apply(Intrinsics.<KType> empty(), emptyKeyValue)) {
         return predicate;
       }
     }
 
     for (int slot = 0, max = this.mask; slot <= max; slot++) {
-      if (!Intrinsics.isEmptyKey(keys[slot])) {
+      if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         if (!predicate.apply(keys[slot], values[slot])) {
           break;
         }
@@ -717,7 +712,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       if (slot < max) {
         KType existing;
         for (slot++; slot < max; slot++) {
-          if (!Intrinsics.isEmptyKey(existing = Intrinsics.<KType> cast(keys[slot]))) {
+          if (!Intrinsics.<KType> isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
             cursor.index = slot;
             cursor.value = existing;
             return cursor;
@@ -727,7 +722,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
       if (slot == max && hasEmptyKey) {
         cursor.index = slot;
-        cursor.value = Intrinsics.<KType> cast(EMPTY_KEY);
+        cursor.value = Intrinsics.<KType> empty();
         slot++;
         return cursor;
       }
@@ -763,7 +758,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     @Override
     public boolean contains(VType value) {
       for (KTypeVTypeCursor<KType, VType> c : owner) {
-        if (Intrinsics.equalsVType(value, c.value)) {
+        if (Intrinsics.<VType> equals(value, c.value)) {
           return true;
         }
       }
@@ -825,7 +820,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     protected KTypeCursor<VType> fetch() {
       if (slot < max) {
         for (slot++; slot < max; slot++) {
-          if (!Intrinsics.isEmptyKey(Intrinsics.<KType> cast(keys[slot]))) {
+          if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))) {
             cursor.index = slot;
             cursor.value = Intrinsics.<VType> cast(values[slot]);
             return cursor;
@@ -861,16 +856,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       throw new RuntimeException(e);
     }
   }
-
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/
-  /**
-   * Compares two keys for equality. Override if custom equality behavior is
-   * required.
-   */
-  protected boolean sameKeys(KType k1, KType k2) {
-    return Intrinsics.<KType> same(k1, k2);
-  }
-  /*! #end !*/
 
   /**
    * Convert the contents of this map to a human-friendly string.
@@ -922,7 +907,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * entire integer range.
    */
   protected int hashKey(KType key) {
-    assert !Intrinsics.isEmptyKey(key); // Handled as a special case (empty slot marker).
+    assert !Intrinsics.<KType> isEmpty(key); // Handled as a special case (empty slot marker).
     return BitMixer.mix(key, this.keyMixer);
   }
 
@@ -945,9 +930,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final int mask = this.mask;
     KType existing;
     for (int i = fromKeys.length; --i >= 0;) {
-      if (!Intrinsics.isEmptyKey(existing = fromKeys[i])) {
+      if (!Intrinsics.<KType> isEmpty(existing = fromKeys[i])) {
         int slot = hashKey(existing) & mask;
-        while (!Intrinsics.isEmptyKey(keys[slot])) {
+        while (!Intrinsics.<KType> isEmpty(keys[slot])) {
           slot = (slot + 1) & mask;
         }
         keys[slot] = existing;
@@ -998,8 +983,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   protected void allocateThenInsertThenRehash(int slot, KType pendingKey, VType pendingValue) {
     assert assigned == resizeAt
-           && Intrinsics.isEmptyKey(Intrinsics.<KType> cast(keys[slot]))
-           && !Intrinsics.isEmptyKey(pendingKey);
+           && Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))
+           && !Intrinsics.<KType> isEmpty(pendingKey);
 
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
     final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
@@ -1030,7 +1015,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     while (true) {
       final int slot = (gapSlot + (++distance)) & mask;
       final KType existing = keys[slot];
-      if (Intrinsics.isEmptyKey(existing)) {
+      if (Intrinsics.<KType> isEmpty(existing)) {
         break;
       }
 
@@ -1049,7 +1034,16 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     // Mark the last found gap slot without a conflict as empty.
-    keys[gapSlot] = Intrinsics.<KType> cast(EMPTY_KEY);
-    values[gapSlot] = Intrinsics.defaultVTypeValue();
+    keys[gapSlot] = Intrinsics.<KType> empty();
+    values[gapSlot] = Intrinsics.<VType> empty();
   }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  /*! #if ($templateonly) !*/
+  @Override
+  public
+  /*! #else protected #end !*/ boolean equals(Object v1, Object v2) {
+    return (v1 == v2) || (v1 != null && v1.equals(v2));
+  }
+  /*! #end !*/    
 }

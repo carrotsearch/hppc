@@ -94,7 +94,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
          */
         for (int i = 0; i < stack.buffer.length; i++)
         {
-            assertEquals2(Intrinsics.defaultKTypeValue(), stack.buffer[i]);
+            assertEquals2(Intrinsics.<KType> empty(), stack.buffer[i]);
         }
     }
     /*! #end !*/

@@ -39,6 +39,10 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <template.processor.incremental>true</template.processor.incremental>
+  </properties>
+
   <build>
     <defaultGoal>install</defaultGoal>
 
@@ -55,6 +59,7 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <incremental>${template.processor.incremental}</incremental>
               <attachSources>main</attachSources>
               <templatesDir>${project.basedir}/src/main/templates</templatesDir>
               <outputDir>${project.build.directory}/generated-sources/main/java</outputDir>
@@ -67,6 +72,7 @@
               <goal>template-processor</goal>
             </goals>
             <configuration>
+              <incremental>${template.processor.incremental}</incremental>
               <attachSources>test</attachSources>
               <templatesDir>${project.basedir}/src/test/templates</templatesDir>
               <outputDir>${project.build.directory}/generated-sources/test/java</outputDir>

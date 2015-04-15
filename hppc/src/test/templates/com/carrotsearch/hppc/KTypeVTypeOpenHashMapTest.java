@@ -37,13 +37,13 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             int occupied = 0;
             for (int i = 0; i < map.keys.length; i++)
             {
-                if (Intrinsics.isEmptyKey(map.keys[i]))
+                if (Intrinsics.<KType> isEmpty(map.keys[i]))
                 {
                     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-                    assertEquals2(Intrinsics.defaultKTypeValue(), map.keys[i]);
+                    assertEquals2(Intrinsics.<KType> empty(), map.keys[i]);
                     /*! #end !*/
                     /*! #if ($TemplateOptions.VTypeGeneric) !*/
-                    assertEquals2(Intrinsics.defaultVTypeValue(), map.values[i]);
+                    assertEquals2(Intrinsics.<VType> empty(), map.values[i]);
                     /*! #end !*/
                 }
                 else
@@ -56,7 +56,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             if (!map.hasEmptyKey)
             {
               /*! #if ($TemplateOptions.VTypeGeneric) !*/
-              assertEquals2(Intrinsics.defaultVTypeValue(), map.emptyKeyValue);
+              assertEquals2(Intrinsics.<VType> empty(), map.emptyKeyValue);
               /*! #end !*/
             }
         }
@@ -269,7 +269,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     {
         map.put(key1, value1);
         assertEquals2(value1, map.remove(key1));
-        assertEquals2(Intrinsics.defaultVTypeValue(), map.remove(key1));
+        assertEquals2(Intrinsics.<VType> empty(), map.remove(key1));
         assertEquals(0, map.size());
 
         // These are internals, but perhaps worth asserting too.

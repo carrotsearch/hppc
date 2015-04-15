@@ -39,7 +39,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         if (list != null)
         {
             for (int i = list.elementsCount; i < list.buffer.length; i++)
-                assertTrue(Intrinsics.<KType> defaultKTypeValue() == list.buffer[i]);
+                assertTrue(Intrinsics.<KType> empty() == list.buffer[i]);
         }
     }
 
@@ -344,16 +344,19 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
         list.resize(10);
         assertEquals(10, list.size());
-        for (int i = 0; i < list.size(); i++) 
-            assertEquals2(Intrinsics.<KType>defaultKTypeValue(), list.get(i));
+        for (int i = 0; i < list.size(); i++) { 
+            assertEquals2(Intrinsics.<KType> empty(), list.get(i));
+        }
 
-        Arrays.fill(list.buffer, Intrinsics.<KType>defaultKTypeValue());
-        for (int i = 5; i < list.size(); i++)
+        Arrays.fill(list.buffer, Intrinsics.<KType> empty());
+        for (int i = 5; i < list.size(); i++) {
             list.set(i, k1);
+        }
         list.resize(5);
         assertEquals(5, list.size());
-        for (int i = list.size(); i < list.buffer.length; i++) 
-            assertEquals2(Intrinsics.<KType>defaultKTypeValue(), list.buffer[i]);
+        for (int i = list.size(); i < list.buffer.length; i++) {
+            assertEquals2(Intrinsics.<KType> empty(), list.buffer[i]);
+        }
     }
 
     /* */
