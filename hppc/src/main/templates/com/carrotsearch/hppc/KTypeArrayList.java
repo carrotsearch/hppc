@@ -263,7 +263,7 @@ public class KTypeArrayList<KType>
             System.arraycopy(buffer, index + 1, buffer, index, elementsCount - index - 1);
         }
         elementsCount--;
-        buffer[elementsCount] = Intrinsics.<KType> defaultKTypeValue();
+        buffer[elementsCount] = Intrinsics.empty();
         return v;
     }
 
@@ -286,7 +286,7 @@ public class KTypeArrayList<KType>
 
         final int count = toIndex - fromIndex;
         elementsCount -= count;
-        Arrays.fill(buffer, elementsCount, elementsCount + count, Intrinsics.<KType>defaultKTypeValue());
+        Arrays.fill(buffer, elementsCount, elementsCount + count, Intrinsics.empty());
     }
 
     /**
@@ -320,16 +320,16 @@ public class KTypeArrayList<KType>
         int to = 0;
         for (int from = 0; from < elementsCount; from++)
         {
-            if (Intrinsics.equalsKType(e1, buffer[from]))
+            if (Intrinsics.equals(this, e1, buffer[from]))
             {
-                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                buffer[from] = Intrinsics.empty();
                 continue;
             }
 
             if (to != from)
             {
                 buffer[to] = buffer[from];
-                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                buffer[from] = Intrinsics.empty();
             }
             to++;
         }
@@ -354,9 +354,11 @@ public class KTypeArrayList<KType>
     @Override
     public int indexOf(KType e1)
     {
-        for (int i = 0; i < elementsCount; i++)
-            if (Intrinsics.equalsKType(e1, buffer[i]))
+        for (int i = 0; i < elementsCount; i++) {
+            if (Intrinsics.equals(this, e1, buffer[i])) {
                 return i;
+            }
+        }
 
         return -1;
     }
@@ -367,9 +369,11 @@ public class KTypeArrayList<KType>
     @Override
     public int lastIndexOf(KType e1)
     {
-        for (int i = elementsCount - 1; i >= 0; i--)
-            if (Intrinsics.equalsKType(e1, buffer[i]))
+        for (int i = elementsCount - 1; i >= 0; i--) {
+            if (Intrinsics.equals(this, e1, buffer[i])) {
                 return i;
+            }
+        }
 
         return -1;
     }
@@ -434,13 +438,11 @@ public class KTypeArrayList<KType>
         {
             if (newSize < elementsCount)
             {
-                Arrays.fill(buffer, newSize, elementsCount, 
-                    Intrinsics.<KType>defaultKTypeValue());
+                Arrays.fill(buffer, newSize, elementsCount, Intrinsics.empty());
             }
             else
             {
-                Arrays.fill(buffer, elementsCount, newSize, 
-                    Intrinsics.<KType>defaultKTypeValue());
+                Arrays.fill(buffer, elementsCount, newSize, Intrinsics.empty());
             }
         }
         else
@@ -477,7 +479,7 @@ public class KTypeArrayList<KType>
     @Override
     public void clear()
     {
-        Arrays.fill(buffer, 0, elementsCount, Intrinsics.<KType> defaultKTypeValue()); 
+        Arrays.fill(buffer, 0, elementsCount, Intrinsics.empty()); 
         this.elementsCount = 0;
     }
 
@@ -546,7 +548,7 @@ public class KTypeArrayList<KType>
      * Returns <code>true</code> only if the other object is an instance of 
      * the same class and with the same elements. 
 #if ($TemplateOptions.KTypeGeneric) 
-     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * Equality comparison is performed with this object's {@link #equal} 
      * method.
 #end
      */
@@ -562,11 +564,11 @@ public class KTypeArrayList<KType>
      * Compare index-aligned elements against another 
      * {@link KTypeIndexedContainer}. 
 #if ($TemplateOptions.KTypeGeneric) 
-     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * Equality comparison is performed with this object's {@link #equal} 
      * method.
 #end
      */
-    public boolean equalElements(KTypeIndexedContainer<?> other)
+    protected boolean equalElements(KTypeArrayList<?> other)
     {
         int max = size();
         if (other.size() != max) {
@@ -574,7 +576,7 @@ public class KTypeArrayList<KType>
         }
 
         for (int i = 0; i < max; i++) {
-            if (!Intrinsics.equalsKType(get(i), other.get(i))) {
+            if (!Intrinsics.equals(this, get(i), other.get(i))) {
                 return false;
             }
         }
@@ -671,14 +673,14 @@ public class KTypeArrayList<KType>
             {
                 if (predicate.apply(buffer[from]))
                 {
-                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    buffer[from] = Intrinsics.empty();
                     continue;
                 }
     
                 if (to != from)
                 {
                     buffer[to] = buffer[from];
-                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    buffer[from] = Intrinsics.empty();
                 }
                 to++;
             }
@@ -691,7 +693,7 @@ public class KTypeArrayList<KType>
                 if (to != from)
                 {
                     buffer[to] = buffer[from];
-                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    buffer[from] = Intrinsics.empty();
                 }
                 to++;
             }

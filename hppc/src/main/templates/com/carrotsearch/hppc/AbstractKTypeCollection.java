@@ -12,7 +12,9 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
 @SuppressWarnings("unchecked")
 /*! #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
+abstract class AbstractKTypeCollection<KType> 
+  implements /*! #if ($templateonly) !*/ Intrinsics.EqualityFunction, /*! #end !*/
+             KTypeCollection<KType>
 {
     /**
      * Default implementation uses a predicate for removal.
@@ -104,16 +106,11 @@ abstract class AbstractKTypeCollection<KType> implements KTypeCollection<KType>
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    /**
-     * Compares two keys for equality. Override if custom equality behavior 
-     * is required (remember about overriding {@link #hashCode()} and {@link #equals(Object)}
-     * to keep the contract consistent).
-     * 
-     * @see Object#equals(Object)
-     * @see Object#hashCode()
-     */
-    protected boolean sameKeys(KType k1, KType k2) {
-      return Intrinsics.<KType> same(k1, k2); 
+    /*! #if ($templateonly) !*/
+    @Override
+    public
+    /*! #else protected #end !*/ boolean equals(Object v1, Object v2) {
+      return (v1 == v2) || (v1 != null && v1.equals(v2));
     }
-    /*! #end !*/
+    /*! #end !*/    
 }

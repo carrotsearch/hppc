@@ -3,21 +3,14 @@ package com.carrotsearch.hppc.generator.intrinsics;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-import com.carrotsearch.hppc.generator.IntrinsicMethod;
 import com.carrotsearch.hppc.generator.TemplateOptions;
 
-public class Cast implements IntrinsicMethod {
+public class Cast extends AbstractIntrinsicMethod {
   @Override
   public void invoke(Matcher m, StringBuilder sb, TemplateOptions templateOptions, String genericCast, ArrayList<String> params) {
-    if (genericCast == null) {
-      throw new RuntimeException("Instrinsic cast requires an explicit generic type: " + m.group());
-    }
-    
-    if (params.size() != 1) {
-      throw new RuntimeException("Expected exactly one argument: " + m.group());
-    }
+    expectArgumentCount(m, params, 1);
 
-    final String cast;
+    String cast = inferTemplateCastName(m, templateOptions, genericCast);
     switch (genericCast) {
       case "KType[]":
       case "KType":
@@ -44,7 +37,7 @@ public class Cast implements IntrinsicMethod {
         break;
 
       default:
-        throw new RuntimeException("Can't resolve generic cast in: " + m.group());
+        throw unreachable();
     }
 
     sb.append(cast + " " + params.get(0));

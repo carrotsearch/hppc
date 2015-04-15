@@ -21,12 +21,6 @@ public class KTypeOpenHashSet<KType>
              KTypeSet<KType>,
              Preallocatable,
              Cloneable {
-
-  protected static final 
-      /*! #if ($TemplateOptions.KTypeGeneric) !*/ Object /*! #else KType #end !*/
-          EMPTY_KEY =
-      /*! #if ($TemplateOptions.KTypeGeneric) !*/ null   /*! #else 0     #end !*/;
-
   /** The hash array holding keys. */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
                    Object [] 
@@ -138,7 +132,7 @@ public class KTypeOpenHashSet<KType>
    */
   @Override
   public boolean add(KType key) {
-    if (Intrinsics.isEmptyKey(key)) {
+    if (Intrinsics.isEmpty(key)) {
       boolean hadEmptyKey = hasEmptyKey;
       hasEmptyKey = true;
       return hadEmptyKey;
@@ -148,8 +142,8 @@ public class KTypeOpenHashSet<KType>
       int slot = hashKey(key) & mask;
       
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.isEmpty(existing = keys[slot])) {
+        if (Intrinsics.equals(this, key, existing)) {
           return false;
         }
         slot = (slot + 1) & mask;
@@ -225,13 +219,13 @@ public class KTypeOpenHashSet<KType>
     final KType[] cloned = Intrinsics.<KType> newArray(size());
     int j = 0;
     if (hasEmptyKey) {
-      cloned[j++] = Intrinsics.<KType> cast(EMPTY_KEY);
+      cloned[j++] = Intrinsics.empty();
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length; slot++) {
       KType existing;
-      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
+      if (!Intrinsics.isEmpty(existing = keys[slot])) {
         cloned[j++] = existing;
       }
     }
@@ -243,7 +237,7 @@ public class KTypeOpenHashSet<KType>
    * An alias for the (preferred) {@link #removeAll(KType)}.
    */
   public boolean remove(KType key) {
-    if (Intrinsics.isEmptyKey(key)) {
+    if (Intrinsics.isEmpty(key)) {
       boolean hadEmptyKey = hasEmptyKey;
       hasEmptyKey = false;
       return hadEmptyKey;
@@ -253,8 +247,8 @@ public class KTypeOpenHashSet<KType>
       int slot = hashKey(key) & mask;
       
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.isEmpty(existing = keys[slot])) {
+        if (Intrinsics.equals(this, key, existing)) {
           shiftConflictingKeys(slot);
           assigned--;
           return true;
@@ -281,7 +275,7 @@ public class KTypeOpenHashSet<KType>
     int before = size();
 
     if (hasEmptyKey) {
-      if (predicate.apply(Intrinsics.<KType> cast(EMPTY_KEY))) {
+      if (predicate.apply(Intrinsics.<KType> empty())) {
         hasEmptyKey = false;
       }
     }
@@ -289,7 +283,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
-      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
+      if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (predicate.apply(existing)) {
           shiftConflictingKeys(slot);
           assigned--;
@@ -307,15 +301,15 @@ public class KTypeOpenHashSet<KType>
    */
   @Override
   public boolean contains(KType key) {
-    if (Intrinsics.isEmptyKey(key)) {
+    if (Intrinsics.isEmpty(key)) {
       return hasEmptyKey;
     } else {
       final KType [] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
       int slot = hashKey(key) & mask;
       KType existing;
-      while (!Intrinsics.isEmptyKey(existing = keys[slot])) {
-        if (Intrinsics.equalsKType(key, existing)) {
+      while (!Intrinsics.isEmpty(existing = keys[slot])) {
+        if (Intrinsics.equals(this, key, existing)) {
           return true;
         }
         slot = (slot + 1) & mask;
@@ -331,7 +325,7 @@ public class KTypeOpenHashSet<KType>
   public void clear() {
     assigned = 0;
     hasEmptyKey = false;
-    Arrays.fill(keys, Intrinsics.<KType> cast(EMPTY_KEY));
+    Arrays.fill(keys, Intrinsics.<KType> empty());
   }
 
   /**
@@ -376,7 +370,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = keys.length; --slot >= 0;) {
       KType existing;
-      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
+      if (!Intrinsics.isEmpty(existing = keys[slot])) {
         h += BitMixer.mix(existing);
       }
     }
@@ -396,7 +390,7 @@ public class KTypeOpenHashSet<KType>
   /**
    * Return true if all keys of some other container exist in this container.
 #if ($TemplateOptions.KTypeGeneric) 
-     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * Equality comparison is performed with this object's {@link #equals(Object, Object)} 
      * method.
 #end 
    */
@@ -456,7 +450,7 @@ public class KTypeOpenHashSet<KType>
       if (slot < max) {
         KType existing;
         for (slot++; slot < max; slot++) {
-          if (!Intrinsics.isEmptyKey(existing = Intrinsics.<KType> cast(keys[slot]))) {
+          if (!Intrinsics.isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
             cursor.index = slot;
             cursor.value = existing;
             return cursor;
@@ -466,7 +460,7 @@ public class KTypeOpenHashSet<KType>
 
       if (slot == max && hasEmptyKey) {
         cursor.index = slot;
-        cursor.value = Intrinsics.<KType> cast(EMPTY_KEY);
+        cursor.value = Intrinsics.empty();
         slot++;
         return cursor;
       }
@@ -481,13 +475,13 @@ public class KTypeOpenHashSet<KType>
   @Override
   public <T extends KTypeProcedure<? super KType>> T forEach(T procedure) {
     if (hasEmptyKey) {
-      procedure.apply(Intrinsics.<KType> cast(EMPTY_KEY));
+      procedure.apply(Intrinsics.<KType> empty());
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
-      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
+      if (!Intrinsics.isEmpty(existing = keys[slot])) {
         procedure.apply(existing);
       }
     }
@@ -501,7 +495,7 @@ public class KTypeOpenHashSet<KType>
   @Override
   public <T extends KTypePredicate<? super KType>> T forEach(T predicate) {
     if (hasEmptyKey) {
-      if (!predicate.apply(Intrinsics.<KType> cast(EMPTY_KEY))) {
+      if (!predicate.apply(Intrinsics.<KType> empty())) {
         return predicate;
       }
     }
@@ -509,7 +503,7 @@ public class KTypeOpenHashSet<KType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0; slot < keys.length;) {
       KType existing;
-      if (!Intrinsics.isEmptyKey(existing = keys[slot])) {
+      if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (!predicate.apply(existing)) {
           break;
         }
@@ -545,7 +539,7 @@ public class KTypeOpenHashSet<KType>
    * entire integer range.
    */
   protected int hashKey(KType key) {
-    assert !Intrinsics.isEmptyKey(key); // Handled as a special case (empty slot marker).
+    assert !Intrinsics.isEmpty(key); // Handled as a special case (empty slot marker).
     return BitMixer.mix(key, this.keyMixer);
   }
 
@@ -567,9 +561,9 @@ public class KTypeOpenHashSet<KType>
     final int mask = this.mask;
     KType existing;
     for (int i = fromKeys.length; --i >= 0;) {
-      if (!Intrinsics.isEmptyKey(existing = fromKeys[i])) {
+      if (!Intrinsics.isEmpty(existing = fromKeys[i])) {
         int slot = hashKey(existing) & mask;
-        while (!Intrinsics.isEmptyKey(keys[slot])) {
+        while (!Intrinsics.isEmpty(keys[slot])) {
           slot = (slot + 1) & mask;
         }
         keys[slot] = existing;
@@ -616,8 +610,8 @@ public class KTypeOpenHashSet<KType>
    */
   protected void allocateThenInsertThenRehash(int slot, KType pendingKey) {
     assert assigned == resizeAt 
-           && Intrinsics.isEmptyKey(Intrinsics.<KType> cast(keys[slot]))
-           && !Intrinsics.isEmptyKey(pendingKey);
+           && Intrinsics.isEmpty(Intrinsics.<KType> cast(keys[slot]))
+           && !Intrinsics.isEmpty(pendingKey);
 
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
     final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
@@ -644,7 +638,7 @@ public class KTypeOpenHashSet<KType>
     while (true) {
       final int slot = (gapSlot + (++distance)) & mask;
       final KType existing = keys[slot];
-      if (Intrinsics.isEmptyKey(existing)) {
+      if (Intrinsics.isEmpty(existing)) {
         break;
       }
 
@@ -662,6 +656,6 @@ public class KTypeOpenHashSet<KType>
     }
 
     // Mark the last found gap slot without a conflict as empty.
-    keys[gapSlot] = Intrinsics.<KType> cast(EMPTY_KEY);
+    keys[gapSlot] = Intrinsics.empty();
   }
 }

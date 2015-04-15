@@ -21,11 +21,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
      */
     public KTypeOpenHashSet<KType> set;
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
-    @SuppressWarnings("unchecked") 
-    /*! #end !*/
-    public final KType EMPTY_KEY = (KType) KTypeOpenHashSet.EMPTY_KEY;
-    
+    public final KType EMPTY_KEY = Intrinsics.<KType> empty();
+
     /* */
     @Before
     public void initialize()

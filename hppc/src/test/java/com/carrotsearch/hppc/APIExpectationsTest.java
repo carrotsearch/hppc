@@ -89,7 +89,7 @@ public class APIExpectationsTest extends RandomizedTest
     {
         class IntegerIdentityList extends ObjectArrayList<Integer> {
           @Override
-          protected boolean sameKeys(Integer k1, Integer k2) {
+          protected boolean equals(Object k1, Object k2) {
             return k1 == k2;
           }
         };
@@ -113,7 +113,7 @@ public class APIExpectationsTest extends RandomizedTest
     {
         class IntegerIdentityDeque extends ObjectArrayDeque<Integer> {
           @Override
-          protected boolean sameKeys(Integer k1, Integer k2) {
+          protected boolean equals(Object k1, Object k2) {
             return k1 == k2;
           }
         };

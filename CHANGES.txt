@@ -130,6 +130,9 @@ HPPC-115: Hash containers now, by default, use a random internal
 
 ** Other changes
 
+HPPC-137: An overhaul of intrinsics (equality comparisons, no vtype/ ktype 
+          distinction, etc.)
+
 HPPC-129: ArraySizingStrategy#round() method has been removed completely.
 
 HPPC-125: The equals method should not return true when comparing against

@@ -34,13 +34,10 @@ import org.apache.velocity.runtime.log.NullLogChute;
 
 import com.carrotsearch.hppc.generator.intrinsics.Add;
 import com.carrotsearch.hppc.generator.intrinsics.Cast;
-import com.carrotsearch.hppc.generator.intrinsics.DefaultKTypeValue;
-import com.carrotsearch.hppc.generator.intrinsics.DefaultVTypeValue;
-import com.carrotsearch.hppc.generator.intrinsics.EqualsKType;
-import com.carrotsearch.hppc.generator.intrinsics.EqualsVType;
-import com.carrotsearch.hppc.generator.intrinsics.IsEmptyKey;
+import com.carrotsearch.hppc.generator.intrinsics.Empty;
+import com.carrotsearch.hppc.generator.intrinsics.Equals;
+import com.carrotsearch.hppc.generator.intrinsics.IsEmpty;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
-import com.carrotsearch.hppc.generator.intrinsics.Same;
 import com.carrotsearch.hppc.generator.parser.SignatureProcessor;
 import com.google.common.base.Stopwatch;
 
@@ -55,15 +52,12 @@ public class TemplateProcessorMojo extends AbstractMojo {
   private final HashMap<String, IntrinsicMethod> intrinsics;
   {
     intrinsics = new HashMap<>();
-    intrinsics.put("defaultKTypeValue", new DefaultKTypeValue());
-    intrinsics.put("defaultVTypeValue", new DefaultVTypeValue());
+    intrinsics.put("empty", new Empty());
+    intrinsics.put("isEmpty", new IsEmpty());
     intrinsics.put("newArray", new NewArray());
-    intrinsics.put("equalsKType", new EqualsKType());
-    intrinsics.put("equalsVType", new EqualsVType());
-    intrinsics.put("same", new Same());
     intrinsics.put("cast", new Cast());
     intrinsics.put("add", new Add());
-    intrinsics.put("isEmptyKey", new IsEmptyKey());
+    intrinsics.put("equals", new Equals());
   }
 
   @Parameter(property = "project",
@@ -74,7 +68,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
   @Parameter(defaultValue = "false")
   public boolean verbose;
 
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "template.processor.incremental", defaultValue = "true")
   public boolean incremental;
 
   @Parameter(required = true)
@@ -249,18 +243,23 @@ public class TemplateProcessorMojo extends AbstractMojo {
     }
 
     getLog().debug("Processing: " + input.getFileName() + " => " + output.path);
-    timeIntrinsics.start();
-    template = filterIntrinsics(template, templateOptions);
-    timeIntrinsics.stop();
-
-    timeComments.start();
-    template = filterComments(template);
-    timeComments.stop();
-
-    timeTypeClassRefs.start();
-    template = filterTypeClassRefs(template, templateOptions);
-    template = filterStaticTokens(template, templateOptions);
-    timeTypeClassRefs.stop();
+    try {
+      timeIntrinsics.start();
+      template = filterIntrinsics(template, templateOptions);
+      timeIntrinsics.stop();
+  
+      timeComments.start();
+      template = filterComments(template);
+      timeComments.stop();
+  
+      timeTypeClassRefs.start();
+      template = filterTypeClassRefs(template, templateOptions);
+      template = filterStaticTokens(template, templateOptions);
+      timeTypeClassRefs.stop();
+    } catch (RuntimeException e) {
+      getLog().error("Error processing: " + input.getFileName() + " => " + output.path + ":\n\t" + e.getMessage());
+      throw e;
+    }
 
     Files.createDirectories(output.path.getParent());
     Files.write(output.path, template.getBytes(StandardCharsets.UTF_8));
@@ -273,6 +272,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
   }
 
   private String filterIntrinsics(String input, TemplateOptions templateOptions) {
+   // TODO: this should be eventually moved to AST processor.
     Pattern p = Pattern.compile(
                 "(Intrinsics.\\s*)" + 
                 "(<(?<generic>[^>]+)>\\s*)?" + 
@@ -298,7 +298,9 @@ public class TemplateProcessorMojo extends AbstractMojo {
             case ')':
               bracketCount--;
               if (bracketCount == 0) {
-                params.add(input.substring(last, i).trim());
+                if (last != i) {
+                  params.add(input.substring(last, i).trim());
+                }
                 input = input.substring(i + 1);
                 break outer;
               }

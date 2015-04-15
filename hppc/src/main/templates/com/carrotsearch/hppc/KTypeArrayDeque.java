@@ -267,7 +267,7 @@ public class KTypeArrayDeque<KType>
         assert size() > 0 : "The deque is empty.";
 
         final KType result = Intrinsics.<KType> cast(buffer[head]);
-        buffer[head] = Intrinsics.<KType>defaultKTypeValue();
+        buffer[head] = Intrinsics.empty();
         head = oneRight(head, buffer.length); 
         return result;
     }
@@ -282,7 +282,7 @@ public class KTypeArrayDeque<KType>
 
         tail = oneLeft(tail, buffer.length); 
         final KType result = Intrinsics.<KType> cast(buffer[tail]);
-        buffer[tail] = Intrinsics.<KType>defaultKTypeValue();
+        buffer[tail] = Intrinsics.empty();
         return result;
     }
 
@@ -333,7 +333,7 @@ public class KTypeArrayDeque<KType>
         final int bufLen = buffer.length;
         for (int i = head; i != last; i = oneRight(i, bufLen))
         {
-            if (Intrinsics.equalsKType(e1, buffer[i]))
+            if (Intrinsics.equals(this, e1, buffer[i]))
                 return i;
         }
 
@@ -365,7 +365,7 @@ public class KTypeArrayDeque<KType>
         final int last = oneLeft(head, bufLen);
         for (int i = oneLeft(tail, bufLen); i != last; i = oneLeft(i, bufLen))
         {
-            if (Intrinsics.equalsKType(e1, buffer[i]))
+            if (Intrinsics.equals(this, e1, buffer[i]))
                 return i;
         }
 
@@ -384,17 +384,17 @@ public class KTypeArrayDeque<KType>
         int from, to;
         for (from = to = head; from != last; from = oneRight(from, bufLen))
         {
-            if (Intrinsics.equalsKType(e1, buffer[from]))
+            if (Intrinsics.equals(this, e1, buffer[from]))
             {
-                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                buffer[from] = Intrinsics.empty();
                 removed++;
                 continue;
             }
-    
+
             if (to != from)
             {
                 buffer[to] = buffer[from];
-                buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                buffer[from] = Intrinsics.empty();
             }
     
             to = oneRight(to, bufLen);
@@ -440,7 +440,7 @@ public class KTypeArrayDeque<KType>
                 buffer[0] = buffer[lastIndex];
                 System.arraycopy(buffer, head, buffer, head + 1, lastIndex - head);
             }
-            buffer[head] = Intrinsics.<KType>defaultKTypeValue();
+            buffer[head] = Intrinsics.empty();
             this.head = oneRight(head, bufLen);
         }
         else
@@ -455,7 +455,7 @@ public class KTypeArrayDeque<KType>
                 buffer[lastIndex] = buffer[0];
                 System.arraycopy(buffer, 1, buffer, 0, tail);
             }
-            buffer[tail] = Intrinsics.<KType>defaultKTypeValue();
+            buffer[tail] = Intrinsics.empty();
             this.tail = oneLeft(tail, bufLen);
         }
     }
@@ -493,12 +493,12 @@ public class KTypeArrayDeque<KType>
     {
         if (head < tail)
         {
-            Arrays.fill(buffer, head, tail, Intrinsics.<KType>defaultKTypeValue());
+            Arrays.fill(buffer, head, tail, Intrinsics.empty());
         }
         else
         {
-            Arrays.fill(buffer, 0, tail, Intrinsics.<KType>defaultKTypeValue());
-            Arrays.fill(buffer, head, buffer.length, Intrinsics.<KType>defaultKTypeValue());
+            Arrays.fill(buffer, 0, tail, Intrinsics.empty());
+            Arrays.fill(buffer, head, buffer.length, Intrinsics.empty());
         }
         this.head = tail = 0;
     }
@@ -859,7 +859,7 @@ public class KTypeArrayDeque<KType>
             {
                 if (predicate.apply(buffer[from]))
                 {
-                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    buffer[from] = Intrinsics.empty();
                     removed++;
                     continue;
                 }
@@ -867,7 +867,7 @@ public class KTypeArrayDeque<KType>
                 if (to != from)
                 {
                     buffer[to] = buffer[from];
-                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    buffer[from] = Intrinsics.empty();
                 }
         
                 to = oneRight(to, bufLen);
@@ -881,7 +881,7 @@ public class KTypeArrayDeque<KType>
                 if (to != from)
                 {
                     buffer[to] = buffer[from];
-                    buffer[from] = Intrinsics.<KType>defaultKTypeValue();
+                    buffer[from] = Intrinsics.empty();
                 }
         
                 to = oneRight(to, bufLen);
@@ -904,7 +904,7 @@ public class KTypeArrayDeque<KType>
         final KType [] buffer = Intrinsics.<KType[]> cast(this.buffer);
         for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length))
         {
-            if (Intrinsics.equalsKType(e, buffer[i])) {
+            if (Intrinsics.equals(this, e, buffer[i])) {
                 return true;
             }
         }
@@ -934,7 +934,7 @@ public class KTypeArrayDeque<KType>
      * Returns <code>true</code> only if the other object is an instance of 
      * the same class and with the same elements.
 #if ($TemplateOptions.KTypeGeneric) 
-     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * Equality comparison is performed with this object's {@link #equals(Object, Object)} 
      * method.
 #end 
      */
@@ -949,11 +949,11 @@ public class KTypeArrayDeque<KType>
     /**
      * Compare order-aligned elements against another {@link KTypeDeque}.
 #if ($TemplateOptions.KTypeGeneric) 
-     * Equality comparison is performed with this object's {@link #sameKeys} 
+     * Equality comparison is performed with this object's {@link #equals(Object, Object)} 
      * method.
 #end 
      */
-    public boolean equalElements(KTypeDeque<?> other)
+    protected boolean equalElements(KTypeArrayDeque<?> other)
     {
         int max = size();
         if (other.size() != max) {
@@ -964,7 +964,7 @@ public class KTypeArrayDeque<KType>
         Iterator<? extends KTypeCursor<?>> i2 = other.iterator();
 
         while (i1.hasNext() && i2.hasNext()) {
-          if (!Intrinsics.equalsKType(i1.next().value, i2.next().value)) {
+          if (!Intrinsics.equals(this, i1.next().value, i2.next().value)) {
             return false;
           }
         }
