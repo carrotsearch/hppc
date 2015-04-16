@@ -437,8 +437,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     Arrays.fill(keys, Intrinsics.<KType> empty());
 
     /* #if ($TemplateOptions.VTypeGeneric) */ 
-    Arrays.fill(values, Intrinsics.<KType> empty());
-    values[mask + 1] = Intrinsics.<VType> empty();
+    Arrays.fill(values, Intrinsics.<VType> empty());
     /* #end */
   }
 
