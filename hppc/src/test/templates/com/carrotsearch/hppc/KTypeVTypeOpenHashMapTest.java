@@ -243,7 +243,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals2(value1, map.get(key1));
     }
 
-    /*! #if ($templateOnly) */ @Ignore /* #end !*/
     /*! #if ($TemplateOptions.VTypePrimitive) !*/
     @Test
     public void testPutOrAdd()
@@ -253,7 +252,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     }
     /*! #end !*/
 
-    /*! #if ($templateOnly) */ @Ignore /* #end !*/ 
     /*! #if ($TemplateOptions.VTypePrimitive) !*/
     @Test
     public void testAddTo()
