@@ -4,9 +4,10 @@
 <stringAttribute key="M2_GOALS" value="process-test-classes"/>
 <booleanAttribute key="M2_NON_RECURSIVE" value="false"/>
 <booleanAttribute key="M2_OFFLINE" value="false"/>
-<stringAttribute key="M2_PROFILES" value=""/>
+<stringAttribute key="M2_PROFILES" value="eclipse-builds"/>
 <listAttribute key="M2_PROPERTIES">
 <listEntry value="template.processor.incremental=false"/>
+<listEntry value="forbiddenapis.skip=true"/>
 </listAttribute>
 <stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
 <booleanAttribute key="M2_SKIP_TESTS" value="false"/>
@@ -14,7 +15,7 @@
 <booleanAttribute key="M2_UPDATE_SNAPSHOTS" value="false"/>
 <stringAttribute key="M2_USER_SETTINGS" value=""/>
 <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
-<stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE" value="${working_set:&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&lt;resources&gt;&#13;&#10;&lt;item path=&quot;/hppc/target/generated-sources&quot; type=&quot;2&quot;/&gt;&#13;&#10;&lt;item path=&quot;/hppc/target/generated-test-sources&quot; type=&quot;2&quot;/&gt;&#13;&#10;&lt;/resources&gt;}"/>
+<stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE" value="${working_set:&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&lt;resources&gt;&#13;&#10;&lt;item path=&quot;/hppc/target/eclipse/generated-sources&quot; type=&quot;2&quot;/&gt;&#13;&#10;&lt;item path=&quot;/hppc/target/eclipse/generated-test-sources&quot; type=&quot;2&quot;/&gt;&#13;&#10;&lt;/resources&gt;}"/>
 <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:/hppc}"/>

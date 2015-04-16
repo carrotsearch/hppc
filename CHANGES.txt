@@ -130,6 +130,9 @@ HPPC-115: Hash containers now, by default, use a random internal
 
 ** Other changes
 
+HPPC-138: Move Intrinsics class to the generator project. Add forbidden-API 
+          checks to ensure intrinsics are replaced.
+
 HPPC-137: An overhaul of intrinsics (equality comparisons, no vtype/ ktype 
           distinction, etc.)
 
