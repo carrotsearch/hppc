@@ -227,6 +227,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * @param additionValue The value to add to the existing value if <code>key</code> exists.
    * @return Returns the current value associated with <code>key</code> (after changes).
    */
+  @Override
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
     assert assigned < keys.length;
 
@@ -249,6 +250,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
    * @return Returns the current value associated with <code>key</code> (after changes).
    */
+  @Override
   public VType addTo(KType key, VType incrementValue)
   {
     return putOrAdd(key, incrementValue, incrementValue);
