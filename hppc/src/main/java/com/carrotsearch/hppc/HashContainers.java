@@ -61,7 +61,7 @@ public final class HashContainers {
 
   /** */
   static int nextBufferSize(int arraySize, int elements, double loadFactor) {
-    checkValidArraySize(arraySize);
+    assert checkPowerOfTwo(arraySize);
     if (arraySize == MAX_HASH_ARRAY_LENGTH) {
       throw new BufferAllocationException(
           "Maximum array size exceeded for this load factor (elements: %d, load factor: %f)",
@@ -74,7 +74,7 @@ public final class HashContainers {
 
   /** */
   static int expandAtCount(int arraySize, double loadFactor) {
-    checkValidArraySize(arraySize);
+    assert checkPowerOfTwo(arraySize);
     // Take care of hash container invariant (there has to be at least one empty slot to ensure
     // the lookup loop finds either the element or an empty slot).
     return Math.min(arraySize - 1, (int) Math.ceil(arraySize * loadFactor));
@@ -92,9 +92,10 @@ public final class HashContainers {
   }
   
   /** */
-  private static void checkValidArraySize(int arraySize) {
+  static boolean checkPowerOfTwo(int arraySize) {
     // These are internals, we can just assert without retrying.
     assert arraySize > 1;
     assert BitUtil.nextHighestPowerOfTwo(arraySize) == arraySize;
+    return true;
   }  
 }

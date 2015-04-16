@@ -35,7 +35,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         if (map != null)
         {
             int occupied = 0;
-            for (int i = 0; i < map.keys.length; i++)
+            for (int i = 0; i <= map.mask; i++)
             {
                 if (Intrinsics.<KType> isEmpty(map.keys[i]))
                 {
@@ -56,7 +56,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             if (!map.hasEmptyKey)
             {
               /*! #if ($TemplateOptions.VTypeGeneric) !*/
-              assertEquals2(Intrinsics.<VType> empty(), map.emptyKeyValue);
+              assertEquals2(Intrinsics.<VType> empty(), map.values[map.mask + 1]);
               /*! #end !*/
             }
         }
@@ -317,6 +317,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals(true, map.values().contains(value1));
         assertEquals2(value1, map.values().iterator().next().value);
         Assertions.assertThat(map.values().toArray()).containsOnly(value1);
+
+        map.remove(empty);
+        assertEquals2(Intrinsics.<VType> empty(), map.get(empty));
     }
 
     /* */
@@ -572,18 +575,6 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertFalse(l2.equals(l1));
     }    
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @Test
-    public void testNullKey()
-    {
-        map.put(null, vcast(10));
-        assertEquals2(vcast(10), map.get(null));
-        assertTrue(map.containsKey(null));
-        map.remove(null);
-        assertEquals(0, map.size());
-    }
-    /*! #end !*/
-
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @Test
     public void testNullValue()
@@ -633,6 +624,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
                 }
                 else
                 {
+                    assertEquals(other.containsKey(key), map.containsKey(key));
                     assertEquals(other.remove(key), map.remove(key));
                 }
 

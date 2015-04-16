@@ -84,8 +84,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   protected HashOrderMixingStrategy orderMixer;
 
-  protected VType emptyKeyValue;
-
   /**
    * New instance with sane defaults.
    */
@@ -139,16 +137,16 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public VType put(KType key, VType value) {
-    assert assigned < keys.length;
+    assert assigned < mask + 1;
 
+    final int mask = this.mask;
     if (Intrinsics.<KType> isEmpty(key)) {
-      VType previousValue = emptyKeyValue;
+      VType previousValue = Intrinsics.<VType> cast(values[mask + 1]);
+      values[mask + 1] = value;
       hasEmptyKey = true;
-      emptyKeyValue = value;
       return previousValue;
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      final int mask = this.mask;
       int slot = hashKey(key) & mask;
 
       KType existing;
@@ -230,7 +228,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
-    assert assigned < keys.length;
+    assert assigned < mask + 1;
 
     if (containsKey(key)) {
       putValue = get(key);
@@ -263,14 +261,14 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public VType remove(KType key) {
+    final int mask = this.mask;
     if (Intrinsics.<KType> isEmpty(key)) {
       hasEmptyKey = false;
-      VType previousValue = emptyKeyValue;
-      emptyKeyValue = Intrinsics.<VType> empty();
+      VType previousValue = Intrinsics.<VType> cast(values[mask + 1]);
+      values[mask + 1] = Intrinsics.<VType> empty();
       return previousValue;
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      final int mask = this.mask;
       int slot = hashKey(key) & mask;
 
       KType existing;
@@ -298,7 +296,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     if (hasEmptyKey) {
       if (container.contains(Intrinsics.<KType> empty())) {
         hasEmptyKey = false;
-        emptyKeyValue = Intrinsics.<VType> empty();
+        values[mask + 1] = Intrinsics.<VType> empty();
       }
     }
 
@@ -332,7 +330,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     if (hasEmptyKey) {
       if (predicate.apply(Intrinsics.<KType> empty())) {
         hasEmptyKey = false;
-        emptyKeyValue = Intrinsics.<VType> empty();
+        values[mask + 1] = Intrinsics.<VType> empty();
       }
     }
 
@@ -358,7 +356,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   @Override
   public VType get(KType key) {
     if (Intrinsics.<KType> isEmpty(key)) {
-      return hasEmptyKey ? emptyKeyValue : Intrinsics.<VType> empty();
+      return hasEmptyKey ? Intrinsics.<VType> cast(values[mask + 1]) : Intrinsics.<VType> empty();
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
@@ -382,7 +380,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   @Override
   public VType getOrDefault(KType key, VType defaultValue) {
     if (Intrinsics.<KType> isEmpty(key)) {
-      return hasEmptyKey ? emptyKeyValue : defaultValue;
+      return hasEmptyKey ? Intrinsics.<VType> cast(values[mask + 1]) : defaultValue;
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
@@ -439,8 +437,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     Arrays.fill(keys, Intrinsics.<KType> empty());
 
     /* #if ($TemplateOptions.VTypeGeneric) */ 
-    Arrays.fill(values, null);
-    emptyKeyValue = null;
+    Arrays.fill(values, Intrinsics.<KType> empty());
+    values[mask + 1] = Intrinsics.<VType> empty();
     /* #end */
   }
 
@@ -530,7 +528,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
     private final KTypeVTypeCursor<KType, VType> cursor;
-    private final int max = keys.length;
+    private final int max = mask + 1;
     private int slot = -1;
 
     public EntryIterator() {
@@ -554,7 +552,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       if (slot == max && hasEmptyKey) {
         cursor.index = slot;
         cursor.key = Intrinsics.<KType> empty();
-        cursor.value = Intrinsics.<VType> cast(emptyKeyValue);
+        cursor.value = Intrinsics.<VType> cast(values[max]);
         slot++;
         return cursor;
       }
@@ -580,7 +578,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
     if (hasEmptyKey) {
-      procedure.apply(Intrinsics.<KType> empty(), emptyKeyValue);
+      procedure.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]));
     }
 
     for (int slot = 0, max = this.mask; slot <= max; slot++) {
@@ -601,7 +599,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
 
     if (hasEmptyKey) {
-      if (!predicate.apply(Intrinsics.<KType> empty(), emptyKeyValue)) {
+      if (!predicate.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]))) {
         return predicate;
       }
     }
@@ -703,7 +701,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
-    private final int max = keys.length;
+    private final int max = mask + 1;
     private int slot = -1;
 
     public KeysIterator() {
@@ -812,7 +810,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   private final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>> {
     private final KTypeCursor<VType> cursor;
-    private final int max = keys.length;
+    private final int max = mask + 1;
     private int slot = -1;
 
     public ValuesIterator() {
@@ -833,7 +831,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
       if (slot == max && hasEmptyKey) {
         cursor.index = slot;
-        cursor.value = Intrinsics.<VType> cast(emptyKeyValue);
+        cursor.value = Intrinsics.<VType> cast(values[max]);
         slot++;
         return cursor;
       }
@@ -931,19 +929,27 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * Rehash from old buffers to new buffers. 
    */
   protected void rehash(KType[] fromKeys, VType[] fromValues) {
+    assert fromKeys.length == fromValues.length &&
+           HashContainers.checkPowerOfTwo(fromKeys.length - 1);
+    
     // Rehash all stored key/value pairs into the new buffers.
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
     final int mask = this.mask;
     KType existing;
-    for (int i = fromKeys.length; --i >= 0;) {
-      if (!Intrinsics.<KType> isEmpty(existing = fromKeys[i])) {
+
+    // Copy the zero element's slot, then rehash everything else.
+    int from = fromKeys.length - 1;
+    keys[keys.length - 1] = fromKeys[from];
+    values[values.length - 1] = fromValues[from];
+    while (--from >= 0) {
+      if (!Intrinsics.<KType> isEmpty(existing = fromKeys[from])) {
         int slot = hashKey(existing) & mask;
         while (!Intrinsics.<KType> isEmpty(keys[slot])) {
           slot = (slot + 1) & mask;
         }
         keys[slot] = existing;
-        values[slot] = fromValues[i];
+        values[slot] = fromValues[from];
       }
     }
   }
@@ -962,15 +968,16 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     VType[] prevValues = Intrinsics.<VType[]> cast(this.values);
     try {
-      this.keys = Intrinsics.<KType> newArray(arraySize);
-      this.values = Intrinsics.<VType> newArray(arraySize);
+      int emptyElementSlot = 1;
+      this.keys = Intrinsics.<KType> newArray(arraySize + emptyElementSlot);
+      this.values = Intrinsics.<VType> newArray(arraySize + emptyElementSlot);
     } catch (OutOfMemoryError e) {
       this.keys = prevKeys;
       this.values = prevValues;
       throw new BufferAllocationException(
           "Not enough memory to allocate buffers for rehashing: %,d -> %,d", 
           e,
-          this.keys == null ? 0 : this.keys.length, 
+          this.mask + 1, 
           arraySize);
     }
 
@@ -996,7 +1003,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
     final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] prevValues = Intrinsics.<VType[]> cast(this.values);
-    allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
+    allocateBuffers(nextBufferSize(mask + 1, assigned, loadFactor));
     assert this.keys.length > prevKeys.length;
 
     // We have succeeded at allocating new data so insert the pending key/value at
