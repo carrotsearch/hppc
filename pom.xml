@@ -75,6 +75,7 @@
     <version.randomizedtesting>2.1.12</version.randomizedtesting>
     <version.antlr>4.5</version.antlr>
     <version.velocity>1.7</version.velocity>
+    <version.forbiddenapis>1.8</version.forbiddenapis>
     <version.maven-assembly-plugin>2.5.2</version.maven-assembly-plugin>
     <version.maven-clean-plugin>2.5</version.maven-clean-plugin>
     <version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>
@@ -222,6 +223,50 @@
           <artifactId>junit4-maven-plugin</artifactId>
           <version>${version.randomizedtesting}</version>
         </plugin>
+        
+        <plugin>
+          <groupId>de.thetaphi</groupId>
+          <artifactId>forbiddenapis</artifactId>
+          <version>${version.forbiddenapis}</version>
+
+          <executions>
+            <execution>
+              <id>check-forbidden-apis</id>
+              <configuration>
+                <targetVersion>1.7</targetVersion>
+                <internalRuntimeForbidden>true</internalRuntimeForbidden>
+                <failOnUnsupportedJava>false</failOnUnsupportedJava>
+                <failOnMissingClasses>false</failOnMissingClasses>
+                <excludes><!-- Override in subprojects. --></excludes>
+                <bundledSignatures>
+                  <bundledSignature>jdk-unsafe</bundledSignature>
+                  <bundledSignature>jdk-deprecated</bundledSignature>
+                  <bundledSignature>jdk-system-out</bundledSignature>
+                </bundledSignatures>
+              </configuration>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>check-forbidden-apis-tests</id>
+              <configuration>
+                <targetVersion>1.7</targetVersion>
+                <internalRuntimeForbidden>true</internalRuntimeForbidden>
+                <failOnUnsupportedJava>false</failOnUnsupportedJava>
+                <failOnMissingClasses>false</failOnMissingClasses>
+                <excludes><!-- Override in subprojects. --></excludes>
+                <bundledSignatures>
+                  <bundledSignature>jdk-unsafe</bundledSignature>
+                  <bundledSignature>jdk-deprecated</bundledSignature>
+                </bundledSignatures>
+              </configuration>
+              <goals>
+                <goal>testCheck</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>        
       </plugins>
     </pluginManagement>
     
@@ -267,6 +312,18 @@
       <properties>
         <skipTests>true</skipTests>
       </properties>
+    </profile>
+
+    <profile>
+      <id>eclipse-builds</id>
+      <activation>
+        <property>
+          <name>m2e.version</name>
+        </property>
+      </activation>
+      <build>
+        <directory>target/eclipse</directory>
+      </build>
     </profile>
 
     <profile>
@@ -337,6 +394,20 @@
               <configuration>
                 <lifecycleMappingMetadata>
                   <pluginExecutions>
+                    <pluginExecution>
+                      <pluginExecutionFilter>
+                        <groupId>de.thetaphi</groupId>
+                        <artifactId>forbiddenapis</artifactId>
+                        <versionRange>[0.0.0,)</versionRange>
+                        <goals>
+                          <goal>check</goal>
+                          <goal>testCheck</goal>
+                        </goals>
+                      </pluginExecutionFilter>
+                      <action>
+                        <ignore/>
+                      </action>
+                    </pluginExecution>
                     <pluginExecution>
                       <pluginExecutionFilter>
                         <groupId>com.carrotsearch</groupId>

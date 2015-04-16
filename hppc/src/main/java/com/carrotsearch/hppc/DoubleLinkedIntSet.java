@@ -80,6 +80,7 @@ public class DoubleLinkedIntSet
 
         this.resizer = resizer;
         ensureCapacity(expectedElements, maxElementValue);
+        Intrinsics.empty();
     }
 
     /**
