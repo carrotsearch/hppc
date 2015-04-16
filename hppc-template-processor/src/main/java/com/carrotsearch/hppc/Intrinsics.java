@@ -22,10 +22,20 @@ public final class Intrinsics {
    * {@link #equals} intrinsic.
    * 
    * Not a public interface because we want the implementing methods to be
-   * effectively protected.
+   * effectively protected, but used for API consistency in templates.
    */
   public interface EqualityFunction {
     boolean equals(Object v1, Object v2);
+  }
+
+  /**
+   * Anything that distributes keys by their hash value.
+   * 
+   * Not a public interface because we want the implementing methods to be
+   * effectively protected, but used for API consistency in templates.   * 
+   */
+  public interface KeyHasher<T> {
+    int hashKey(T key);
   }
 
   /**

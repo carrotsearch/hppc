@@ -17,7 +17,8 @@ import static com.carrotsearch.hppc.Containers.*;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSet<KType>
   extends AbstractKTypeCollection<KType> 
-  implements KTypeLookupContainer<KType>, 
+  implements /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
+             KTypeLookupContainer<KType>, 
              KTypeSet<KType>,
              Preallocatable,
              Cloneable {
@@ -538,7 +539,11 @@ public class KTypeOpenHashSet<KType>
    * The output from this function should evenly distribute keys across the
    * entire integer range.
    */
-  protected int hashKey(KType key) {
+  /*! #if ($templateonly) !*/
+  @Override
+  public
+  /*! #else protected #end !*/
+  int hashKey(KType key) {
     assert !Intrinsics.isEmpty(key); // Handled as a special case (empty slot marker).
     return BitMixer.mix(key, this.keyMixer);
   }
