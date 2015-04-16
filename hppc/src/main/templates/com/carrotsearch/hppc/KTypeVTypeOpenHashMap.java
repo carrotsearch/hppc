@@ -22,12 +22,17 @@ public class KTypeVTypeOpenHashMap<KType, VType>
              Preallocatable,
              Cloneable
 {
-  /** The hash array holding keys. */
+  /** 
+   * The array holding keys.
+   */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
          Object [] 
          /*! #else KType [] #end !*/ 
          keys;
 
+  /**
+   * The array holding values. 
+   */
   public /*! #if ($TemplateOptions.VTypeGeneric) !*/ 
          Object [] 
          /*! #else VType [] #end !*/ 
@@ -67,13 +72,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * Special treatment for the "empty slot" key marker.
    */
   protected boolean hasEmptyKey;
-
-  /**
-   * Value associated with the "empty" key.
-   * 
-   * @see #hasEmptyKey
-   */
-  protected VType emptyKeyValue;
   
   /**
    * The load factor for {@link #keys}.
@@ -85,6 +83,8 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * @see #keyMixer
    */
   protected HashOrderMixingStrategy orderMixer;
+
+  protected VType emptyKeyValue;
 
   /**
    * New instance with sane defaults.

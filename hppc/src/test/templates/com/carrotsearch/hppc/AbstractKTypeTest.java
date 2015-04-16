@@ -37,10 +37,10 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     /**
      * Convert to target type from an integer used to test stuff. 
      */
-    public KType cast(int v)
+    public KType cast(Integer v)
     {
         /*! #if ($TemplateOptions.KTypePrimitive)
-            return (KType) v;
+            return (KType) v.intValue();
             #else !*/ 
             // @SuppressWarnings("unchecked")        
             KType k = (KType)(Object) v;
