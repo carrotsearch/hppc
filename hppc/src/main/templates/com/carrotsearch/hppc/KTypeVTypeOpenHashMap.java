@@ -998,7 +998,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
     final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] prevValues = Intrinsics.<VType[]> cast(this.values);
-    allocateBuffers(nextBufferSize(mask + 1, assigned, loadFactor));
+    allocateBuffers(nextBufferSize(mask + 1, size(), loadFactor));
     assert this.keys.length > prevKeys.length;
 
     // We have succeeded at allocating new data so insert the pending key/value at
