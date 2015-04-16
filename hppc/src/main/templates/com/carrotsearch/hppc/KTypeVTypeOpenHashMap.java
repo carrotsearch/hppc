@@ -37,20 +37,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
          Object [] 
          /*! #else VType [] #end !*/ 
          values;
-  
-  /**
-   * The number of stored keys (assigned key slots), excluding the special 
-   * "empty" key, if any.
-   * 
-   * @see #size()
-   * @see #hasEmptyKey
-   */
-  protected int assigned;
-
-  /**
-   * Mask for slot scans in {@link #keys}.
-   */
-  protected int mask;
 
   /**
    * We perturb hash values with a container-unique
@@ -62,6 +48,19 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * @see "http://issues.carrot2.org/browse/HPPC-103"
    */
   protected int keyMixer;
+
+  /**
+   * The number of stored keys (assigned key slots), excluding the special 
+   * "empty" key, if any (use {@link #size()} instead).
+   * 
+   * @see #size()
+   */
+  protected int assigned;
+
+  /**
+   * Mask for slot scans in {@link #keys}.
+   */
+  protected int mask;
 
   /**
    * Expand (rehash) {@link #keys} when {@link #assigned} hits this value. 
@@ -141,9 +140,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
     final int mask = this.mask;
     if (Intrinsics.<KType> isEmpty(key)) {
+      hasEmptyKey = true;
       VType previousValue = Intrinsics.<VType> cast(values[mask + 1]);
       values[mask + 1] = value;
-      hasEmptyKey = true;
       return previousValue;
     } else {
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
@@ -152,9 +151,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       KType existing;
       while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
         if (Intrinsics.<KType> equals(this, key, existing)) {
-          final VType oldValue = Intrinsics.<VType> cast(values[slot]);
+          final VType previousValue = Intrinsics.<VType> cast(values[slot]);
           values[slot] = value;
-          return oldValue;
+          return previousValue;
         }
         slot = (slot + 1) & mask;
       }
@@ -176,11 +175,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public int putAll(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
-    final int count = this.assigned;
+    final int count = size();
     for (KTypeVTypeCursor<? extends KType, ? extends VType> c : container) {
       put(c.key, c.value);
     }
-    return this.assigned - count;
+    return size() - count;
   }
 
   /**
@@ -188,11 +187,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public int putAll(Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable){
-    final int count = this.assigned;
+    final int count = size();
     for (KTypeVTypeCursor<? extends KType, ? extends VType> c : iterable) {
       put(c.key, c.value);
     }
-    return this.assigned - count;
+    return size() - count;
   }
 
   /**
@@ -274,10 +273,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       KType existing;
       while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
         if (Intrinsics.<KType> equals(this, key, existing)) {
-          final VType oldValue = Intrinsics.<VType> cast(values[slot]);
-          assigned--;
+          final VType previousValue = Intrinsics.<VType> cast(values[slot]);
           shiftConflictingKeys(slot);
-          return oldValue;
+          return previousValue;
         }
         slot = (slot + 1) & mask;
       }
@@ -291,7 +289,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public int removeAll(KTypeContainer<? super KType> container) {
-    final int before = this.assigned;
+    final int before = size();
 
     if (hasEmptyKey) {
       if (container.contains(Intrinsics.<KType> empty())) {
@@ -310,14 +308,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) &&
           container.contains(existing)) {
         // Shift, do not increment slot.
-        assigned--;
         shiftConflictingKeys(slot);
       } else {
         slot++;
       }
     }
 
-    return before - this.assigned;
+    return before - size();
   }
 
   /**
@@ -325,7 +322,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   @Override
   public int removeAll(KTypePredicate<? super KType> predicate) {
-    final int before = this.assigned;
+    final int before = size();
 
     if (hasEmptyKey) {
       if (predicate.apply(Intrinsics.<KType> empty())) {
@@ -340,14 +337,13 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) &&
           predicate.apply(existing)) {
         // Shift, do not increment slot.
-        assigned--;
         shiftConflictingKeys(slot);
       } else {
         slot++;
       }
     }
 
-    return before - this.assigned;
+    return before - size();
   }
 
   /**
@@ -1049,6 +1045,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     // Mark the last found gap slot without a conflict as empty.
     keys[gapSlot] = Intrinsics.<KType> empty();
     values[gapSlot] = Intrinsics.<VType> empty();
+    assigned--;
   }
 
   /*! #if ($TemplateOptions.KTypeGeneric) !*/

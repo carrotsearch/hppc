@@ -221,16 +221,16 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             new KTypeVTypeOpenHashMap<KType, VType>();
 
         map2.put(key2, value2);
-        map2.put(key3, value1);
+        map2.put(keyE, value1);
 
-        // One new key (key3).
+        // One new key (keyE).
         assertEquals(1, map.putAll(map2));
         
         // Assert the value under key2 has been replaced.
         assertEquals2(value2, map.get(key2));
 
         // And key3 has been added.
-        assertEquals2(value1, map.get(key3));
+        assertEquals2(value1, map.get(keyE));
         assertEquals(3, map.size());
     }
     
@@ -328,12 +328,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     {
         map.put(key1, value1);
         map.put(key2, value1);
-        map.put(key3, value1);
+        map.put(keyE, value1);
 
         KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
-        list2.add(newArray(key2, key3, key4));
+        list2.add(newArray(key2, keyE, key4));
 
-        map.removeAll(list2);
+        assertEquals(2, map.removeAll(list2));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(key1));
     }
