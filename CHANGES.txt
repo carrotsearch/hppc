@@ -130,6 +130,9 @@ HPPC-115: Hash containers now, by default, use a random internal
 
 ** Other changes
 
+HPPC-128: The preprocessor (intrinsics, preprocessor) is now deployed as part 
+          of the official release.
+
 HPPC-138: Move Intrinsics class to the generator project. Add forbidden-API 
           checks to ensure intrinsics are replaced.
 
