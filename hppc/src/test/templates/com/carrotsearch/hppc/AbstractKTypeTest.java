@@ -23,6 +23,7 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
 
     /* Ready to use key values. */
 
+    protected KType keyE = Intrinsics.<KType> empty();
     protected KType key0 = cast(0), k0 = key0;
     protected KType key1 = cast(1), k1 = key1;
     protected KType key2 = cast(2), k2 = key2;
