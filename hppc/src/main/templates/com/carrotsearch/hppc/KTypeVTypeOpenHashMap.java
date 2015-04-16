@@ -418,6 +418,79 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
   }
 
+  /** TODO: javadoc */
+  public int indexOf(KType key) {
+    final int mask = this.mask;
+    if (Intrinsics.<KType> isEmpty(key)) {
+      return hasEmptyKey ? mask + 1 : ~(mask + 1);
+    } else {
+      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+      int slot = hashKey(key) & mask;
+
+      KType existing;
+      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+        if (Intrinsics.<KType> equals(this, key, existing)) {
+          return slot;
+        }
+        slot = (slot + 1) & mask;
+      }
+
+      return ~slot;
+    }
+  }
+
+  /** TODO: javadoc */
+  public VType indexReplace(int index, VType newValue) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+           (index == mask + 1 && hasEmptyKey);
+
+    VType previousValue = Intrinsics.<VType> cast(values[index]);
+    values[index] = newValue;
+    return previousValue;
+  }
+
+  /** TODO: javadoc */
+  public VType indexGet(int index) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+           (index == mask + 1 && hasEmptyKey);
+
+    return Intrinsics.<VType> cast(values[index]);
+  }
+
+  /** TODO: javadoc */
+  public boolean indexExists(int index) {
+    assert index < 0 || 
+           (index >= 0 && index <= mask) ||
+           (index == mask + 1 && hasEmptyKey);
+
+    return index >= 0; 
+  }
+
+  /** TODO: javadoc */
+  public void indexInsert(int index, KType key, VType value) {
+    assert index < 0 : "The index must not point at an existing key.";
+
+    index = ~index;
+    if (Intrinsics.<KType> isEmpty(key)) {
+      assert index == mask + 1;
+      values[index] = value;
+      hasEmptyKey = true;
+    } else {
+      assert Intrinsics.<KType> isEmpty(keys[index]);
+
+      if (assigned == resizeAt) {
+        allocateThenInsertThenRehash(index, key, value);
+      } else {
+        keys[index] = key;
+        values[index] = value;
+      }
+
+      assigned++;
+    }
+  }
+
   /**
    * {@inheritDoc}
    * 
