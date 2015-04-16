@@ -172,9 +172,6 @@
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>${version.maven-deploy-plugin}</version>
-          <configuration>
-            <skip>${deployed}</skip>
-          </configuration>
         </plugin>
 
         <plugin>
