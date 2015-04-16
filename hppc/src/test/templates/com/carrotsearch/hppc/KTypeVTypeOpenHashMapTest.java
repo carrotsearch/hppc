@@ -276,6 +276,51 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
     /* */
     @Test
+    public void testEmptyKey()
+    {
+        final KType empty = Intrinsics.<KType> empty(); 
+
+        map.put(empty, value1);
+        assertEquals(1, map.size());
+        assertEquals(false, map.isEmpty());
+        assertEquals2(value1, map.get(empty));
+        assertEquals2(value1, map.getOrDefault(empty, value2));
+        assertEquals(true, map.iterator().hasNext());
+        assertEquals2(empty, map.iterator().next().key);
+        assertEquals2(value1, map.iterator().next().value);
+        
+        assertEquals(true, map.forEach(new KTypeVTypeProcedure<KType, VType>() {
+            boolean hadKeyValue; 
+  
+            @Override
+            public void apply(KType key, VType value) {
+              hadKeyValue |= (key == empty && value == value1); 
+            }
+          }).hadKeyValue);
+
+        assertEquals(true, map.forEach(new KTypeVTypePredicate<KType, VType>() {
+          boolean hadKeyValue; 
+
+          @Override
+          public boolean apply(KType key, VType value) {
+            hadKeyValue |= (key == empty && value == value1);
+            return true;
+          }
+        }).hadKeyValue);
+
+        assertEquals(1, map.keys().size());
+        assertEquals(true, map.keys().contains(empty));
+        assertEquals2(empty, map.keys().iterator().next().value);
+        Assertions.assertThat(map.keys().toArray()).containsOnly(empty);
+
+        assertEquals(1, map.values().size());
+        assertEquals(true, map.values().contains(value1));
+        assertEquals2(value1, map.values().iterator().next().value);
+        Assertions.assertThat(map.values().toArray()).containsOnly(value1);
+    }
+
+    /* */
+    @Test
     public void testRemoveAllWithContainer()
     {
         map.put(key1, value1);
@@ -572,6 +617,10 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             for (int round = 0; round < size * 20; round++)
             {
                 KType key = cast(rnd.nextInt(size));
+                if (rnd.nextInt(50) == 0) {
+                  key = Intrinsics.<KType> empty();
+                }
+
                 VType value = vcast(rnd.nextInt());
 
                 if (rnd.nextBoolean())

@@ -32,7 +32,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testZeroElementTreatment()
+    public void testEmptyKey()
     {
         KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>();
         set.add(EMPTY_KEY);
@@ -314,6 +314,9 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
             for (int round = 0; round < size * 20; round++)
             {
                 Integer key = rnd.nextInt(size);
+                if (rnd.nextInt(50) == 0) {
+                  key = Intrinsics.empty();
+                }
 
                 if (rnd.nextBoolean())
                 {
