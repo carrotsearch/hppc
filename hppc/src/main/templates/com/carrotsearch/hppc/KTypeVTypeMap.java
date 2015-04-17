@@ -121,4 +121,75 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    *         elements in a set does not affect the hash code.
    */
   public int hashCode();
+  
+  /**
+   * Returns a logical "index" of a given key that can be used to speed up
+   * follow-up value setters or getters in certain scenarios (conditional
+   * logic).
+   * 
+   * The semantics of "indexes" are not strictly defined. Indexes may 
+   * (and typically won't be) contiguous. 
+   * 
+   * The index is valid only between map modifications (it will not be affected
+   * by read-only operations like iteration or value retrievals). 
+   * 
+   * @see #indexExists
+   * @see #indexGet
+   * @see #indexInsert
+   * @see #indexReplace
+   * 
+   * @param key
+   *          The key to locate in the map.
+   * @return A non-negative value of the logical "index" of the key in the map
+   *         or a negative value if the key did not exist.
+   */
+  public int indexOf(KType key);
+
+  /**
+   * @see #indexOf
+   * 
+   * @param index The index of a given key, as returned from {@link #indexOf}.
+   * @return Returns <code>true</code> if the index corresponds to an existing key
+   *         or false otherwise. This is equivalent to checking whether the index is
+   *         a positive value (existing keys) or a negative value (non-existing keys).
+   */
+  public boolean indexExists(int index);
+
+  /**
+   * Returns the value associated with an existing key.
+   * 
+   * @see #indexOf
+   * 
+   * @param index The index of an existing key.
+   * @return Returns the value currently associated with the key.
+   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
+   *         not correspond to an existing key.
+   */
+  public VType indexGet(int index);
+
+  /**
+   * Replaces the value associated with an existing key and returns any previous value
+   * stored for that key.
+   * 
+   * @see #indexOf
+   * 
+   * @param index The index of an existing key.
+   * @return Returns the previous value associated with the key.
+   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
+   *         not correspond to an existing key.
+   */
+  public VType indexReplace(int index, VType newValue);
+  
+  /**
+   * Inserts a key-value pair for a key that is not present in the map. This method 
+   * may help in avoiding double recalculation of the key's hash.
+   *    
+   * @see #indexOf
+   * 
+   * @param index The index of a previously non-existing key, as returned from 
+   *              {@link #indexOf}.
+   * @throws Throws {@link AssertionError} if assertions are enabled and the index 
+   *         corresponds to an existing key.
+   */
+  public void indexInsert(int index, KType key, VType value);
 }

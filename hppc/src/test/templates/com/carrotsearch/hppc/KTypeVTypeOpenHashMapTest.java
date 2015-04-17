@@ -23,6 +23,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     protected VType value1 = vcast(1);
     protected VType value2 = vcast(2);
     protected VType value3 = vcast(3);
+    protected VType value4 = vcast(4);
 
     /**
      * Per-test fresh initialized instance.
@@ -131,6 +132,38 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals(before, expands.value);
     }
     
+    public void testIndexMethods()
+    {
+      map.put(keyE, value1);
+      map.put(key1, value2);
+      
+      Assertions.assertThat(map.indexOf(keyE)).isGreaterThan(0);
+      Assertions.assertThat(map.indexOf(key1)).isGreaterThan(0);
+      Assertions.assertThat(map.indexOf(key2)).isLessThan(0);
+
+      Assertions.assertThat(map.indexExists(map.indexOf(keyE))).isTrue();
+      Assertions.assertThat(map.indexExists(map.indexOf(key1))).isTrue();
+      Assertions.assertThat(map.indexExists(map.indexOf(key2))).isTrue();
+
+      Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value1);
+      Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value2);
+      try {
+        map.indexGet(map.indexOf(key2));
+        fail();
+      } catch (AssertionError e) {
+        // Expected.
+      }
+
+      Assertions.assertThat(map.indexReplace(map.indexOf(keyE), value3)).isEqualTo(value1);
+      Assertions.assertThat(map.indexReplace(map.indexOf(key1), value4)).isEqualTo(value2);
+      Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value3);
+      Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value4);
+
+      map.indexInsert(map.indexOf(key2), key2, value1);
+      Assertions.assertThat(map.indexGet(map.indexOf(key2))).isEqualTo(value1);
+      Assertions.assertThat(map.size()).isEqualTo(3);
+    }
+
     /* */
     @Test
     public void testCloningConstructor()
