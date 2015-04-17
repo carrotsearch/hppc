@@ -131,19 +131,20 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         }
         assertEquals(before, expands.value);
     }
-    
+
+    @Test
     public void testIndexMethods()
     {
       map.put(keyE, value1);
       map.put(key1, value2);
       
-      Assertions.assertThat(map.indexOf(keyE)).isGreaterThan(0);
-      Assertions.assertThat(map.indexOf(key1)).isGreaterThan(0);
-      Assertions.assertThat(map.indexOf(key2)).isLessThan(0);
+      Assertions.assertThat(map.indexOf(keyE)).isNotNegative();
+      Assertions.assertThat(map.indexOf(key1)).isNotNegative();
+      Assertions.assertThat(map.indexOf(key2)).isNegative();
 
       Assertions.assertThat(map.indexExists(map.indexOf(keyE))).isTrue();
       Assertions.assertThat(map.indexExists(map.indexOf(key1))).isTrue();
-      Assertions.assertThat(map.indexExists(map.indexOf(key2))).isTrue();
+      Assertions.assertThat(map.indexExists(map.indexOf(key2))).isFalse();
 
       Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value1);
       Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value2);

@@ -59,7 +59,7 @@ public class HashCollisionsClusteringTest
           }
         };
 
-        int expandAtCount = HashContainers.expandAtCount(target.keys.length, 0.9);
+        int expandAtCount = HashContainers.expandAtCount(target.keys.length - 1, 0.9);
         int fillUntil = expandAtCount - 100000;
 
         IntOpenHashSet source = new IntOpenHashSet(keys, 0.9);
