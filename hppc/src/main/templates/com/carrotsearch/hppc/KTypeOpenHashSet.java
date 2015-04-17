@@ -134,6 +134,7 @@ public class KTypeOpenHashSet<KType>
   @Override
   public boolean add(KType key) {
     if (Intrinsics.isEmpty(key)) {
+      assert Intrinsics.isEmpty(keys[mask + 1]);
       boolean hadEmptyKey = hasEmptyKey;
       hasEmptyKey = true;
       return hadEmptyKey;
@@ -224,7 +225,7 @@ public class KTypeOpenHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0; slot < keys.length; slot++) {
+    for (int slot = 0, max = mask; slot <= max; slot++) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         cloned[j++] = existing;
@@ -251,7 +252,6 @@ public class KTypeOpenHashSet<KType>
       while (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (Intrinsics.equals(this, key, existing)) {
           shiftConflictingKeys(slot);
-          assigned--;
           return true;
         }
         slot = (slot + 1) & mask;
@@ -282,12 +282,11 @@ public class KTypeOpenHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0; slot < keys.length;) {
+    for (int slot = 0, max = this.mask; slot <= max;) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (predicate.apply(existing)) {
           shiftConflictingKeys(slot);
-          assigned--;
           continue; // Repeat the check for the same slot i (shifted).
         }
       }
@@ -369,7 +368,7 @@ public class KTypeOpenHashSet<KType>
   public int hashCode() {
     int h = hasEmptyKey ? 0xDEADBEEF : 0;
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = keys.length; --slot >= 0;) {
+    for (int slot = mask; slot >= 0; slot--) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         h += BitMixer.mix(existing);
@@ -439,7 +438,7 @@ public class KTypeOpenHashSet<KType>
    */
   protected final class EntryIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
-    private final int max = keys.length;
+    private final int max = mask + 1;
     private int slot = -1;
 
     public EntryIterator() {
@@ -480,7 +479,7 @@ public class KTypeOpenHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0; slot < keys.length;) {
+    for (int slot = 0, max = this.mask; slot <= max;) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         procedure.apply(existing);
@@ -502,7 +501,7 @@ public class KTypeOpenHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0; slot < keys.length;) {
+    for (int slot = 0, max = this.mask; slot <= max;) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (!predicate.apply(existing)) {
@@ -549,6 +548,137 @@ public class KTypeOpenHashSet<KType>
   }
 
   /**
+   * Returns a logical "index" of a given key that can be used to speed up
+   * follow-up logic in certain scenarios (conditional logic).
+   * 
+   * The semantics of "indexes" are not strictly defined. Indexes may 
+   * (and typically won't be) contiguous. 
+   * 
+   * The index is valid only between modifications (it will not be affected
+   * by read-only operations). 
+   * 
+   * @see #indexExists
+   * @see #indexGet
+   * @see #indexInsert
+   * @see #indexReplace
+   * 
+   * @param key
+   *          The key to locate in the set.
+   * @return A non-negative value of the logical "index" of the key in the set
+   *         or a negative value if the key did not exist.
+   */
+  public int indexOf(KType key) {
+    final int mask = this.mask;
+    if (Intrinsics.<KType> isEmpty(key)) {
+      return hasEmptyKey ? mask + 1 : ~(mask + 1);
+    } else {
+      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+      int slot = hashKey(key) & mask;
+
+      KType existing;
+      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
+        if (Intrinsics.<KType> equals(this, key, existing)) {
+          return slot;
+        }
+        slot = (slot + 1) & mask;
+      }
+
+      return ~slot;
+    }
+  }
+
+  /**
+   * @see #indexOf
+   * 
+   * @param index The index of a given key, as returned from {@link #indexOf}.
+   * @return Returns <code>true</code> if the index corresponds to an existing key
+   *         or false otherwise. This is equivalent to checking whether the index is
+   *         a positive value (existing keys) or a negative value (non-existing keys).
+   */
+  public boolean indexExists(int index) {
+    assert index < 0 || 
+    (index >= 0 && index <= mask) ||
+    (index == mask + 1 && hasEmptyKey);
+
+    return index >= 0; 
+  }
+
+  /**
+   * Returns the exact value of the existing key. This method makes sense for sets
+   * of objects which define custom key-equality relationship.  
+   * 
+   * @see #indexOf
+   * 
+   * @param index The index of an existing key.
+   * @return Returns the equivalent key currently stored in the set.
+   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
+   *         not correspond to an existing key.
+   */
+  public KType indexGet(int index) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+           (index == mask + 1 && hasEmptyKey);
+
+    return Intrinsics.<KType> cast(keys[index]);
+  }
+
+  /**
+   * Replaces the existing equivalent key with the given one and returns any previous value
+   * stored for that key.
+   * 
+   * @see #indexOf
+   * 
+   * @param index The index of an existing key.
+   * @param equivalentKey The key to put in the set as a replacement. Must be equivalent to
+   *        the key currently stored at the provided index. 
+   * @return Returns the previous key stored in the set.
+   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
+   *         not correspond to an existing key or is not equal to the existing key.
+   */
+  public KType indexReplace(int index, KType equivalentKey) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+           (index == mask + 1 && hasEmptyKey);
+    assert Intrinsics.equals(this, keys[index], equivalentKey);
+
+    KType previousValue = Intrinsics.<KType> cast(keys[index]);
+    keys[index] = equivalentKey;
+    return previousValue;
+  }
+  
+  /**
+   * Inserts a key for an index that is not present in the set. This method 
+   * may help in avoiding double recalculation of the key's hash.
+   *    
+   * @see #indexOf
+   * 
+   * @param index The index of a previously non-existing key, as returned from 
+   *              {@link #indexOf}.
+   * @throws Throws {@link AssertionError} if assertions are enabled and the index 
+   *         corresponds to an existing key.
+   */
+  public void indexInsert(int index, KType key) {
+    assert index < 0 : "The index must not point at an existing key.";
+
+    index = ~index;
+    if (Intrinsics.isEmpty(key)) {
+      assert index == mask + 1;
+      assert Intrinsics.isEmpty(keys[index]);
+      hasEmptyKey = true;
+    } else {
+      assert Intrinsics.isEmpty(keys[index]);
+
+      if (assigned == resizeAt) {
+        allocateThenInsertThenRehash(index, key);
+      } else {
+        keys[index] = key;
+      }
+
+      assigned++;
+    }
+  }
+
+  /**
    * Validate load factor range and return it. Override and suppress if you need
    * insane load factors.
    */
@@ -561,11 +691,13 @@ public class KTypeOpenHashSet<KType>
    * Rehash from old buffers to new buffers. 
    */
   protected void rehash(KType[] fromKeys) {
+    assert HashContainers.checkPowerOfTwo(fromKeys.length - 1);
+
     // Rehash all stored keys into the new buffers.
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final int mask = this.mask;
     KType existing;
-    for (int i = fromKeys.length; --i >= 0;) {
+    for (int i = fromKeys.length - 1; --i >= 0;) {
       if (!Intrinsics.isEmpty(existing = fromKeys[i])) {
         int slot = hashKey(existing) & mask;
         while (!Intrinsics.isEmpty(keys[slot])) {
@@ -589,13 +721,14 @@ public class KTypeOpenHashSet<KType>
     // Ensure no change is done if we hit an OOM.
     KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     try {
-      this.keys = Intrinsics.<KType> newArray(arraySize);
+      int emptyElementSlot = 1;
+      this.keys = Intrinsics.<KType> newArray(arraySize + emptyElementSlot);
     } catch (OutOfMemoryError e) {
       this.keys = prevKeys;
       throw new BufferAllocationException(
           "Not enough memory to allocate buffers for rehashing: %,d -> %,d", 
           e,
-          this.keys == null ? 0 : this.keys.length, 
+          this.keys == null ? 0 : size(), 
           arraySize);
     }
 
@@ -620,7 +753,7 @@ public class KTypeOpenHashSet<KType>
 
     // Try to allocate new buffers first. If we OOM, we leave in a consistent state.
     final KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
-    allocateBuffers(nextBufferSize(keys.length, assigned, loadFactor));
+    allocateBuffers(nextBufferSize(mask + 1, size(), loadFactor));
     assert this.keys.length > prevKeys.length;
 
     // We have succeeded at allocating new data so insert the pending key/value at
@@ -662,5 +795,6 @@ public class KTypeOpenHashSet<KType>
 
     // Mark the last found gap slot without a conflict as empty.
     keys[gapSlot] = Intrinsics.empty();
+    assigned--;
   }
 }

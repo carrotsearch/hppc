@@ -30,6 +30,37 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
         set = new KTypeOpenHashSet<>();
     }
 
+    @Test
+    public void testIndexMethods()
+    {
+      set.add(keyE);
+      set.add(key1);
+
+      Assertions.assertThat(set.indexOf(keyE)).isNotNegative();
+      Assertions.assertThat(set.indexOf(key1)).isNotNegative();
+      Assertions.assertThat(set.indexOf(key2)).isNegative();
+
+      Assertions.assertThat(set.indexExists(set.indexOf(keyE))).isTrue();
+      Assertions.assertThat(set.indexExists(set.indexOf(key1))).isTrue();
+      Assertions.assertThat(set.indexExists(set.indexOf(key2))).isFalse();
+
+      Assertions.assertThat(set.indexGet(set.indexOf(keyE))).isEqualTo(keyE);
+      Assertions.assertThat(set.indexGet(set.indexOf(key1))).isEqualTo(key1);
+      try {
+        set.indexGet(set.indexOf(key2));
+        fail();
+      } catch (AssertionError e) {
+        // Expected.
+      }
+
+      Assertions.assertThat(set.indexReplace(set.indexOf(keyE), keyE)).isEqualTo(keyE);
+      Assertions.assertThat(set.indexReplace(set.indexOf(key1), key1)).isEqualTo(key1);
+
+      set.indexInsert(set.indexOf(key2), key2);
+      Assertions.assertThat(set.indexGet(set.indexOf(key2))).isEqualTo(key2);
+      Assertions.assertThat(set.size()).isEqualTo(3);
+    }
+
     /* */
     @Test
     public void testEmptyKey()
