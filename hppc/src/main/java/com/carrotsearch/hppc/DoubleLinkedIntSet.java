@@ -177,6 +177,13 @@ public class DoubleLinkedIntSet
     {
         this.elementsCount = 0;
     }
+    
+    @Override
+    public void release()
+    {
+      clear();
+      this.dense = this.sparse = IntArrayList.EMPTY_ARRAY;
+    }
 
     @Override
     public boolean contains(int value)

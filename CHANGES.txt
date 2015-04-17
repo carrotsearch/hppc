@@ -92,6 +92,8 @@ HPPC-117: A summary of API changes resulting from other issues.
 
 ** New features
 
+HPPC-139: Added release() to the API (clears and releases internal buffers).
+
 HPPC-116: Drop methods that require memory write (lset, lget, lkey) and replace
           them with methods that take a logical "index" of a key.
 

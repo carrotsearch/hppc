@@ -486,6 +486,7 @@ public class KTypeArrayList<KType>
     /**
      * Sets the number of stored elements to zero and releases the internal storage array.
      */
+    @Override
     public void release()
     {
         this.buffer = Intrinsics.<KType[]> cast(EMPTY_ARRAY);

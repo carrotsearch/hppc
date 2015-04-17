@@ -48,7 +48,19 @@ public interface KTypeCollection<KType> extends KTypeContainer<KType>
     public int retainAll(KTypePredicate<? super KType> predicate);
 
     /**
-     * Removes all elements from this collection.
+     * Removes all elements from this collection. 
+     * 
+     * @see #release()
      */
     public void clear();
+
+    /**
+     * Removes all elements from the collection and additionally 
+     * releases any internal buffers. Typically, if the object is to be reused,
+     * a simple {@link #clear()} should be a better alternative since it'll 
+     * avoid reallocation.
+     * 
+     * @see #clear()
+     */
+    public void release();
 }
