@@ -192,4 +192,21 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    *         corresponds to an existing key.
    */
   public void indexInsert(int index, KType key, VType value);
+
+  /**
+   * Clear all keys and values in the container. 
+   * 
+   * @see #release()
+   */
+  public void clear();
+
+  /**
+   * Removes all elements from the collection and additionally 
+   * releases any internal buffers. Typically, if the object is to be reused,
+   * a simple {@link #clear()} should be a better alternative since it'll 
+   * avoid reallocation.
+   * 
+   * @see #clear()
+   */
+  public void release();  
 }

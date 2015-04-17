@@ -295,6 +295,17 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
+    public void testRelease()
+    {
+        set.addAll(asArray(1, 2, 3));
+        set.release();
+        assertEquals(0, set.size());
+        set.addAll(asArray(1, 2, 3));
+        assertEquals(3, set.size());
+    }
+
+    /* */
+    @Test
     public void testIterable()
     {
         set.addAll(asArray(1, 2, 2, 3, 4));

@@ -374,7 +374,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
     /* */
     @Test
-    public void testRemoveAllWithPredicate()
+    public void testRemoveAllWithKeyPredicate()
     {
         map.put(key1, value1);
         map.put(key2, value1);
@@ -389,6 +389,66 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         });
         assertEquals(1, map.size());
         assertTrue(map.containsKey(key1));
+    }
+
+
+    /* */
+    @Test
+    public void testRemoveAllWithKeyValuePredicate()
+    {
+        map.put(keyE, value1);
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value2);
+
+        map.removeAll(new KTypeVTypePredicate<KType, VType>()
+        {
+            public boolean apply(KType key, VType value)
+            {
+                return value == value1;
+            }
+        });
+
+        assertEquals(2, map.size());
+        Assertions.assertThat(map.getOrDefault(key2, value0)).isEqualTo(value2);
+        Assertions.assertThat(map.getOrDefault(key3, value0)).isEqualTo(value2);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllOnValueContainer()
+    {
+        map.put(keyE, value1);
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value2);
+
+        map.values().removeAll(value1);
+
+        assertEquals(2, map.size());
+        Assertions.assertThat(map.getOrDefault(key2, value0)).isEqualTo(value2);
+        Assertions.assertThat(map.getOrDefault(key3, value0)).isEqualTo(value2);
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllPredicateOnValueContainer()
+    {
+        map.put(keyE, value1);
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value2);
+
+        map.values().removeAll(new KTypePredicate<VType>() {
+          @Override
+          public boolean apply(VType value) {
+            return value == value1;
+          }
+        });
+
+        assertEquals(2, map.size());
+        Assertions.assertThat(map.getOrDefault(key2, value0)).isEqualTo(value2);
+        Assertions.assertThat(map.getOrDefault(key3, value0)).isEqualTo(value2);
     }
 
     /* */
@@ -464,6 +524,22 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map.put(key1, value1);
         map.put(key2, value1);
         map.clear();
+        assertEquals(0, map.size());
+
+        // These are internals, but perhaps worth asserting too.
+        assertEquals(0, map.assigned);
+
+        // Check if the map behaves properly upon subsequent use.
+        testPutWithExpansions();
+    }
+
+    /* */
+    @Test
+    public void testRelease()
+    {
+        map.put(key1, value1);
+        map.put(key2, value1);
+        map.release();
         assertEquals(0, map.size());
 
         // These are internals, but perhaps worth asserting too.

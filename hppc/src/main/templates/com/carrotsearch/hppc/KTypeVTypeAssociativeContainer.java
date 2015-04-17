@@ -69,15 +69,17 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
     
     /**
      * Removes all keys (and associated values) for which the predicate returns <code>true</code>.
-     * An alias to:
-     * <pre>
-     * keys().removeAll(container)
-     * </pre>
-     * but with no additional overhead. 
      * 
      * @return Returns the number of elements actually removed as a result of this call.
      */
     public int removeAll(KTypePredicate<? super KType> predicate);
+
+    /**
+     * Removes all keys (and associated values) for which the predicate returns <code>true</code>.
+     * 
+     * @return Returns the number of elements actually removed as a result of this call.
+     */
+    public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate);
 
     /**
      * Applies a given procedure to all keys-value pairs in this container. Returns the argument (any
@@ -96,11 +98,6 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
      * The iteration is continued as long as the predicate returns <code>true</code>.
      */
     public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(T predicate);
-
-    /**
-     * Clear all keys and values in the container.
-     */
-    public void clear();
 
     /**
      * Returns a collection of keys of this container. The returned collection is a view

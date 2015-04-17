@@ -68,7 +68,7 @@ public class KTypeOpenHashSet<KType>
    */
   protected double loadFactor;
 
-  /**
+  /** 
    * Per-instance hash order mixing strategy.
    * @see #keyMixer
    */
@@ -326,6 +326,17 @@ public class KTypeOpenHashSet<KType>
     assigned = 0;
     hasEmptyKey = false;
     Arrays.fill(keys, Intrinsics.<KType> empty());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void release() {
+    assigned = 0;
+    hasEmptyKey = false;
+    keys = null;
+    ensureCapacity(Containers.DEFAULT_EXPECTED_ELEMENTS);
   }
 
   /**

@@ -305,8 +305,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     for (int slot = 0, max = this.mask; slot <= max;) {
       KType existing;
-      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) &&
-          container.contains(existing)) {
+      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && container.contains(existing)) {
         // Shift, do not increment slot.
         shiftConflictingKeys(slot);
       } else {
@@ -315,6 +314,38 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     return before - size();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate) {
+    final int before = size();
+
+    final int mask = this.mask;
+
+    if (hasEmptyKey) {
+      if (predicate.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]))) {
+        hasEmptyKey = false;
+        values[mask + 1] = Intrinsics.<VType> empty();
+      }
+    }
+
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+    final VType[] values = Intrinsics.<VType[]> cast(this.values);
+    for (int slot = 0; slot <= mask;) {
+      KType existing;
+      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && 
+          predicate.apply(existing, values[slot])) {
+        // Shift, do not increment slot.
+        shiftConflictingKeys(slot);
+      } else {
+        slot++;
+      }
+    }
+
+    return before - size();    
   }
 
   /**
@@ -508,10 +539,6 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
   /**
    * {@inheritDoc}
-   * 
-   * <p>
-   * Does not release internal buffers.
-   * </p>
    */
   @Override
   public void clear() {
@@ -523,6 +550,19 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     /* #if ($TemplateOptions.VTypeGeneric) */ 
     Arrays.fill(values, Intrinsics.<VType> empty());
     /* #end */
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void release() {
+    assigned = 0;
+    hasEmptyKey = false;
+
+    keys = null;
+    values = null;
+    ensureCapacity(Containers.DEFAULT_EXPECTED_ELEMENTS);
   }
 
   /**
@@ -761,6 +801,11 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     public void clear() {
       owner.clear();
     }
+    
+    @Override
+    public void release() {
+      owner.release();
+    }
 
     @Override
     public int removeAll(KTypePredicate<? super KType> predicate) {
@@ -819,7 +864,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * @return Returns a container with all values stored in this map.
    */
   @Override
-  public KTypeContainer<VType> values() {
+  public KTypeCollection<VType> values() {
     return new ValuesContainer();
   }
 
@@ -873,18 +918,33 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
 
     @Override
-    public int removeAll(VType e) {
-      throw new UnsupportedOperationException();
+    public int removeAll(final VType e) {
+      return owner.removeAll(new KTypeVTypePredicate<KType, VType>() {
+        @Override
+        public boolean apply(KType key, VType value) {
+          return Intrinsics.<VType> equals(e, value);
+        }
+      });
     }
 
     @Override
-    public int removeAll(KTypePredicate<? super VType> predicate) {
-      throw new UnsupportedOperationException();
+    public int removeAll(final KTypePredicate<? super VType> predicate) {
+      return owner.removeAll(new KTypeVTypePredicate<KType, VType>() {
+        @Override
+        public boolean apply(KType key, VType value) {
+          return predicate.apply(value);
+        }
+      });
     }
 
     @Override
     public void clear() {
-      throw new UnsupportedOperationException();
+      owner.clear();
+    }
+    
+    @Override
+    public void release() {
+      owner.release();
     }
   }
   
