@@ -71,8 +71,29 @@ HPPC-117: A summary of API changes resulting from other issues.
             public int removeAll(KTypeContainer<? extends KType> container)
           now corrected to:
             public int removeAll(KTypeContainer<? super KType> container)
+            
+          * (HPPC-116): Dropped methods that required a memory write (lset, lget, 
+          lkey) and replaced them with methods that take a logical "index" of a
+          key:
+            int indexOf(KType);
+            boolean indexExists(int index);
+            VType indexGet(int index);
+            VType indexReplace(int index, VType newValue);
+            void indexInsert(int index, KType key, VType value);
+          So, for example:
+            int index;
+            if ((index = map.indexOf(key)) >= 0) {
+              // key exists, do something with the value.
+              doSomething(map.indexGet(index));
+            } else {
+              // Insert the new key-value pair.
+              map.indexInsert(index, key, newValue);
+            }
 
 ** New features
+
+HPPC-116: Drop methods that require memory write (lset, lget, lkey) and replace
+          them with methods that take a logical "index" of a key.
 
 HPPC-111: Dropped identity maps and sets in favor of one protected 
           method on each container: sameKeys. Override and

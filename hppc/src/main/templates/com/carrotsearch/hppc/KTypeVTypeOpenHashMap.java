@@ -418,7 +418,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
   }
 
-  /** TODO: javadoc */
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public int indexOf(KType key) {
     final int mask = this.mask;
     if (Intrinsics.<KType> isEmpty(key)) {
@@ -439,7 +442,34 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     }
   }
 
-  /** TODO: javadoc */
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean indexExists(int index) {
+    assert index < 0 || 
+           (index >= 0 && index <= mask) ||
+           (index == mask + 1 && hasEmptyKey);
+
+    return index >= 0; 
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public VType indexGet(int index) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+           (index == mask + 1 && hasEmptyKey);
+
+    return Intrinsics.<VType> cast(values[index]);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public VType indexReplace(int index, VType newValue) {
     assert index >= 0 : "The index must point at an existing key.";
     assert index <= mask ||
@@ -450,25 +480,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     return previousValue;
   }
 
-  /** TODO: javadoc */
-  public VType indexGet(int index) {
-    assert index >= 0 : "The index must point at an existing key.";
-    assert index <= mask ||
-           (index == mask + 1 && hasEmptyKey);
-
-    return Intrinsics.<VType> cast(values[index]);
-  }
-
-  /** TODO: javadoc */
-  public boolean indexExists(int index) {
-    assert index < 0 || 
-           (index >= 0 && index <= mask) ||
-           (index == mask + 1 && hasEmptyKey);
-
-    return index >= 0; 
-  }
-
-  /** TODO: javadoc */
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void indexInsert(int index, KType key, VType value) {
     assert index < 0 : "The index must not point at an existing key.";
 
