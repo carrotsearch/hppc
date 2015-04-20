@@ -689,7 +689,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testNullValue()
     {
-        map.put(key1, null);
+        assertEquals(null, map.put(key1, null));
         assertEquals(null, map.get(key1));
         assertTrue(map.containsKey(key1));
         map.remove(key1);

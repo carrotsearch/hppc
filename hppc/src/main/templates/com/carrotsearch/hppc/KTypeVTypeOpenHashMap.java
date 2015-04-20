@@ -609,6 +609,9 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * Equality comparison is performed with this object's {@link #equals(Object, Object)} 
    * method.
 #end 
+#if ($TemplateOptions.VTypeGeneric) 
+   * Values are compared using {@link Objects#equals(Object)} method.
+#end 
    */
   protected boolean equalElements(KTypeVTypeOpenHashMap<?, ?> other) {
     if (other.size() != size()) {
@@ -1031,7 +1034,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
       throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
     }
 
-    KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<>();
+    KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<>(keys.length);
     for (int i = 0; i < keys.length; i++) {
       map.put(keys[i], values[i]);
     }
