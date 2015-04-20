@@ -8,6 +8,8 @@
 <listAttribute key="M2_PROPERTIES">
 <listEntry value="template.processor.incremental=false"/>
 <listEntry value="forbiddenapis.skip=true"/>
+<listEntry value="maven.main.skip=true"/>
+<listEntry value="maven.test.skip=true"/>
 </listAttribute>
 <stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
 <booleanAttribute key="M2_SKIP_TESTS" value="false"/>
