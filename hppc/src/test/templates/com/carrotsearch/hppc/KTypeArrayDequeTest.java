@@ -7,6 +7,7 @@ import java.util.ArrayDeque;
 /*! #end !*/
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -14,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
-import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
@@ -512,16 +512,16 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         deque.addLast(sequence);
 
-        final IntHolder count = new IntHolder();
+        final AtomicInteger count = new AtomicInteger();
         deque.forEach(new KTypeProcedure<KType>() {
             int index = 0;
             public void apply(KType v)
             {
                 assertEquals2(sequence.buffer[index++], v);
-                count.value++;
+                count.incrementAndGet();
             }
         });
-        assertEquals(count.value, deque.size());
+        assertEquals(count.get(), deque.size());
     }
 
     /* */
@@ -530,16 +530,16 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     {
         deque.addLast(sequence);
 
-        final IntHolder count = new IntHolder();
+        final AtomicInteger count = new AtomicInteger();
         deque.descendingForEach(new KTypeProcedure<KType>() {
             int index = sequence.size();
             public void apply(KType v)
             {
                 assertEquals2(sequence.buffer[--index], v);
-                count.value++;
+                count.incrementAndGet();
             }
         });
-        assertEquals(count.value, deque.size());
+        assertEquals(count.get(), deque.size());
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/

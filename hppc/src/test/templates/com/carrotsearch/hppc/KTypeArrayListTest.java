@@ -4,6 +4,7 @@ import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -11,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
-import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
@@ -450,16 +450,16 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     public void testForEachWithProcedure()
     {
         list.add(asArray( 1, 2, 3));
-        final IntHolder holder = new IntHolder();
+        final AtomicInteger holder = new AtomicInteger();
         list.forEach(new KTypeProcedure<KType>() {
             int index = 0;
             public void apply(KType v)
             {
                 assertEquals2(v, list.get(index++));
-                holder.value = index;
+                holder.set(index);
             }
         });
-        assertEquals(holder.value, list.size());
+        assertEquals(holder.get(), list.size());
     }
 
     /* */
