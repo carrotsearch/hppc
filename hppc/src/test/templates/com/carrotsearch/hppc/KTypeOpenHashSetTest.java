@@ -328,7 +328,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testNullKey()
     {
-        set.add((KType) null);
+        assertTrue(set.add((KType) null));
         assertEquals(1, set.size());
         assertTrue(set.contains(null));
         assertTrue(set.remove(null));

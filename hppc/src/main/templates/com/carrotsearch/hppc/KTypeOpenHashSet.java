@@ -135,9 +135,9 @@ public class KTypeOpenHashSet<KType>
   public boolean add(KType key) {
     if (Intrinsics.isEmpty(key)) {
       assert Intrinsics.isEmpty(keys[mask + 1]);
-      boolean hadEmptyKey = hasEmptyKey;
+      boolean added = !hasEmptyKey;
       hasEmptyKey = true;
-      return hadEmptyKey;
+      return added;
     } else {
       final KType [] keys = Intrinsics.<KType[]> cast(this.keys);
       final int mask = this.mask;
