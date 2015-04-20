@@ -82,14 +82,14 @@ public class NaNCornerCaseTest
       }
       
       {
-        FloatArrayList list = FloatArrayList.newInstance();
+        FloatArrayList list = new FloatArrayList();
         Assert.assertFalse(list.contains(Float.NaN));
         list.add(0, Float.NaN, 1);
         Assert.assertTrue(list.contains(Float.NaN));
       }
       
       {
-        DoubleArrayList list = DoubleArrayList.newInstance();
+        DoubleArrayList list = new DoubleArrayList();
         Assert.assertFalse(list.contains(Double.NaN));
         list.add(0, Double.NaN, 1);
         Assert.assertTrue(list.contains(Double.NaN));
@@ -97,9 +97,9 @@ public class NaNCornerCaseTest
       
       {
         
-        DoubleArrayList l1 = DoubleArrayList.newInstance();
+        DoubleArrayList l1 = new DoubleArrayList();
         l1.add(0, Double.NaN, 1);
-        DoubleArrayList l2 = DoubleArrayList.newInstance();
+        DoubleArrayList l2 = new DoubleArrayList();
         l2.add(0, Double.NaN, 1);
         Assert.assertEquals(l1, l2);
       }                  

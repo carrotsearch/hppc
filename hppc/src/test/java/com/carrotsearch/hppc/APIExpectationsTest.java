@@ -148,9 +148,9 @@ public class APIExpectationsTest extends RandomizedTest
     @SuppressWarnings("unused")
     public void testNewInstance()
     {
-        IntArrayList v1 = IntArrayList.newInstance();
-        ObjectArrayList<Integer> v2 = ObjectArrayList.newInstance();
-        ObjectArrayList<Long> v3 = ObjectArrayList.newInstance();
+        IntArrayList v1 = new IntArrayList();
+        ObjectArrayList<Integer> v2 = new ObjectArrayList<>();
+        ObjectArrayList<Long> v3 = new ObjectArrayList<>();
         
         IntStack v4 = IntStack.newInstance();
         ObjectStack<Integer> v5 = ObjectStack.newInstance();

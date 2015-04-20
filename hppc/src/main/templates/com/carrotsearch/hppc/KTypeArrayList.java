@@ -737,26 +737,6 @@ public class KTypeArrayList<KType>
     }
 
     /**
-     * Returns a new object of this class with no need to declare generic type (shortcut
-     * instead of using a constructor).
-     */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
-      KTypeArrayList<KType> newInstance()
-    {
-        return new KTypeArrayList<KType>();
-    }
-
-    /**
-     * Returns a new object of this class with no need to declare generic type (shortcut
-     * instead of using a constructor).
-     */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */
-      KTypeArrayList<KType> newInstance(int expectedElements)
-    {
-        return new KTypeArrayList<KType>(expectedElements);
-    }
-
-    /**
      * Create a list from a variable number of arguments or an array of <code>KType</code>.
      * The elements are copied from the argument to the internal buffer.
      */
@@ -769,14 +749,5 @@ public class KTypeArrayList<KType>
         final KTypeArrayList<KType> list = new KTypeArrayList<KType>(elements.length);
         list.add(elements);
         return list;
-    }
-    
-    /**
-     * Create a list from elements of another container.
-     */
-    public static /* #if ($TemplateOptions.KTypeGeneric) */ <KType> /* #end */ 
-    KTypeArrayList<KType> from(KTypeContainer<KType> container)
-    {
-        return new KTypeArrayList<KType>(container);
     }
 }

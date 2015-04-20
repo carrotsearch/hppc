@@ -288,28 +288,35 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * {@inheritDoc}
    */
   @Override
-  public int removeAll(KTypeContainer<? super KType> container) {
+  public int removeAll(KTypeContainer<? super KType> other) {
     final int before = size();
 
-    if (hasEmptyKey) {
-      if (container.contains(Intrinsics.<KType> empty())) {
-        hasEmptyKey = false;
-        values[mask + 1] = Intrinsics.<VType> empty();
+    // Try to iterate over the smaller set of values or
+    // over the container that isn't implementing 
+    // efficient contains() lookup.
+
+    if (other.size() >= size() &&
+        other instanceof KTypeLookupContainer<?>) {
+      if (hasEmptyKey) {
+        if (other.contains(Intrinsics.<KType> empty())) {
+          hasEmptyKey = false;
+          values[mask + 1] = Intrinsics.<VType> empty();
+        }
       }
-    }
 
-    /*! #if ($templateOnly)
-     *  TODO: this should iterate over the smaller set of values. But then what to do with supers of KType?
-     *  #end !*/
-
-    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max;) {
-      KType existing;
-      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && container.contains(existing)) {
-        // Shift, do not increment slot.
-        shiftConflictingKeys(slot);
-      } else {
-        slot++;
+      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+      for (int slot = 0, max = this.mask; slot <= max;) {
+        KType existing;
+        if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && other.contains(existing)) {
+          // Shift, do not increment slot.
+          shiftConflictingKeys(slot);
+        } else {
+          slot++;
+        }
+      }
+    } else {
+      for (KTypeCursor<?> c : other) {
+        this.remove(Intrinsics.<KType> cast(c.value));
       }
     }
 

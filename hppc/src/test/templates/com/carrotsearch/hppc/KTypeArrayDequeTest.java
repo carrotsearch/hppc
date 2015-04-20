@@ -40,7 +40,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     public void initialize()
     {
         deque = KTypeArrayDeque.newInstance();
-        sequence = KTypeArrayList.newInstance();
+        sequence = new KTypeArrayList<>();
 
         for (int i = 0; i < 10000; i++)
             sequence.add(cast(i));
@@ -113,7 +113,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAllFirst()
     {
-        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        KTypeArrayList<KType> list2 = new KTypeArrayList<>();
         list2.add(asArray(0, 1, 2));
 
         deque.addFirst(list2);
@@ -132,7 +132,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAllLast()
     {
-        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        KTypeArrayList<KType> list2 = new KTypeArrayList<>();
         list2.add(asArray(0, 1, 2));
 
         deque.addLast(list2);
