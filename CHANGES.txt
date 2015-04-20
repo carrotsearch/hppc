@@ -150,7 +150,7 @@ HPPC-115: Hash containers now, by default, use a random internal
 
 ** Other changes
 
-HPPC-141: Dropped mutable type wrappers. 
+HPPC-141: Dropped mutable type wrappers (*Holder). 
 
 HPPC-128: The preprocessor (intrinsics, preprocessor) is now deployed as part 
           of the official release.
