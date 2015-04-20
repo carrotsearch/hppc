@@ -416,12 +416,7 @@ public class KTypeArrayList<KType>
                     " return sensible new size: " + newSize + " <= " 
                     + (elementsCount + expectedAdditions);
 
-            final KType [] newBuffer = Intrinsics.<KType> newArray(newSize);
-            if (bufferLen > 0)
-            {
-                System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
-            }
-            this.buffer = newBuffer;
+            this.buffer = Arrays.copyOf(buffer, newSize);
         }
     }
 

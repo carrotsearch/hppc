@@ -124,12 +124,7 @@ public class DoubleLinkedIntSet
                     " return sensible new size: " + newSize + " <= " 
                     + (elementsCount + expectedAdditions);
 
-            final int [] newBuffer = new int [newSize];
-            if (bufferLen > 0)
-            {
-                System.arraycopy(dense, 0, newBuffer, 0, elementsCount);
-            }
-            this.dense = newBuffer;
+            this.dense = Arrays.copyOf(dense, newSize);
         }
     }
 
@@ -143,12 +138,7 @@ public class DoubleLinkedIntSet
 
         if (maxElementValue >= sparse.length)
         {
-            final int [] newBuffer = new int [maxElementValue + 1];
-            if (sparse.length > 0)
-            {
-                System.arraycopy(sparse, 0, newBuffer, 0, sparse.length);
-            }
-            this.sparse = newBuffer;
+            this.sparse = Arrays.copyOf(sparse, maxElementValue + 1);
         }
     }
 
@@ -161,9 +151,7 @@ public class DoubleLinkedIntSet
     @Override
     public int [] toArray()
     {
-        int [] result = new int [size()];
-        System.arraycopy(dense, 0, result, 0, size());
-        return result;
+        return Arrays.copyOf(dense, size());
     }
 
     @Override

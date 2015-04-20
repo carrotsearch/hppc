@@ -150,6 +150,9 @@ HPPC-115: Hash containers now, by default, use a random internal
 
 ** Other changes
 
+HPPC-102: Use Arrays.copyOf instead of new[]+System.arraycopy() for resizing 
+          arrays.
+
 HPPC-141: Dropped mutable type wrappers (*Holder). 
 
 HPPC-128: The preprocessor (intrinsics, preprocessor) is now deployed as part 
