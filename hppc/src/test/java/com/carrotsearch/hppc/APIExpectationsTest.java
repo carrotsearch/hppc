@@ -213,7 +213,7 @@ public class APIExpectationsTest extends RandomizedTest
 
     	assertTrue(k1 != k1b);
         assertEquals2(1, map.putOrAdd(k1, 1, 2));
-        assertTrue(map.containsKey(k1b));
+        assertTrue(map.contains(k1b));
         assertEquals2(3, map.putOrAdd(k1b, 1, 2));
     }    
 

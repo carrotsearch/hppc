@@ -17,7 +17,8 @@ import com.carrotsearch.hppc.procedures.*;
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeVTypeAssociativeContainer<KType, VType> 
-    extends Iterable<KTypeVTypeCursor<KType, VType>>
+    extends Iterable<KTypeVTypeCursor<KType, VType>>,
+            KTypeLookup<KType>
 {
    /**
     * Returns a cursor over the entries (key-value pairs) in this map. The iterator is
@@ -39,12 +40,6 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
     */
     @Override
     public Iterator<KTypeVTypeCursor<KType, VType>> iterator();
-
-    /**
-     * Returns <code>true</code> if this container has an association to a value for
-     * the given key. 
-     */
-    public boolean containsKey(KType key);
     
     /**
      * @return Returns the current size (number of assigned keys) in the container.
@@ -57,11 +52,7 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
     public boolean isEmpty();    
 
     /**
-     * Removes all keys (and associated values) present in a given container. An alias to:
-     * <pre>
-     * keys().removeAll(container)
-     * </pre>
-     * but with no additional overhead.
+     * Removes all keys (and associated values) present in a given container.
      * 
      * @return Returns the number of elements actually removed as a result of this call.
      */

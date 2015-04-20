@@ -207,7 +207,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * was placed in the map.
    */
   public boolean putIfAbsent(KType key, VType value) {
-    if (!containsKey(key)) {
+    if (!contains(key)) {
       put(key, value);
       return true;
     } else {
@@ -229,7 +229,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
     assert assigned < mask + 1;
 
-    if (containsKey(key)) {
+    if (contains(key)) {
       putValue = get(key);
       putValue = (VType) (Intrinsics.<VType> add(putValue, incrementValue));
     }
@@ -429,7 +429,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * {@inheritDoc}
    */
   @Override
-  public boolean containsKey(KType key) {
+  public boolean contains(KType key) {
     if (Intrinsics.<KType> isEmpty(key)) {
       return hasEmptyKey;
     } else {
@@ -622,7 +622,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
     while (i.hasNext()) {
       KTypeVTypeCursor<?, ?> c = i.next();
       KType key = Intrinsics.<KType> cast(c.key);
-      if (!containsKey(key) ||
+      if (!contains(key) ||
           !Intrinsics.<VType> equals(c.value, get(key))) {
         return false;
       }
@@ -758,7 +758,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
     @Override
     public boolean contains(KType e) {
-      return owner.containsKey(e);
+      return owner.contains(e);
     }
 
     @Override
@@ -817,7 +817,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
 
     @Override
     public int removeAll(final KType e) {
-      final boolean hasKey = owner.containsKey(e);
+      final boolean hasKey = owner.contains(e);
       if (hasKey) {
         owner.remove(e);
         return 1;
