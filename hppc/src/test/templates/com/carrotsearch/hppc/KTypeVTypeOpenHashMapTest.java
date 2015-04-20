@@ -4,12 +4,12 @@ import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.HashSet;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.assertj.core.api.Assertions;
 import org.junit.*;
 
 import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.mutables.IntHolder;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
@@ -108,12 +108,12 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testEnsureCapacity()
     {
-        final IntHolder expands = new IntHolder();
+        final AtomicInteger expands = new AtomicInteger();
         KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<KType, VType>(0) {
           @Override
           protected void allocateBuffers(int arraySize) {
             super.allocateBuffers(arraySize);
-            expands.value++;
+            expands.incrementAndGet();
           }
         };
 
@@ -125,11 +125,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
         final int additions = randomIntBetween(max, max + 5000);
         map.ensureCapacity(additions + map.size());
-        final int before = expands.value;
+        final int before = expands.get();
         for (int i = 0; i < additions; i++) {
           map.put(cast(i), value0);
         }
-        assertEquals(before, expands.value);
+        assertEquals(before, expands.get());
     }
 
     @Test
@@ -578,7 +578,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testBug_HPPC73_FullCapacityGet()
     {
-      final IntHolder reallocations = new IntHolder();
+      final AtomicInteger reallocations = new AtomicInteger();
       final int elements = 0x7F;
       map = new KTypeVTypeOpenHashMap<KType, VType>(elements, 1f) {
         @Override
@@ -590,11 +590,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         @Override
         protected void allocateBuffers(int arraySize) {
           super.allocateBuffers(arraySize);
-          reallocations.value++;
+          reallocations.incrementAndGet();
         }
       };
 
-      int reallocationsBefore = reallocations.value;
+      int reallocationsBefore = reallocations.get();
       assertEquals(reallocationsBefore, 1);
       for (int i = 1; i <= elements; i++)
       {
@@ -605,20 +605,20 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
       KType outOfSet = cast(elements + 1);
       map.remove(outOfSet);
       assertFalse(map.containsKey(outOfSet));
-      assertEquals(reallocationsBefore, reallocations.value);
+      assertEquals(reallocationsBefore, reallocations.get());
 
       // Should not expand because we're replacing an existing element.
       map.put(k1, value2);
-      assertEquals(reallocationsBefore, reallocations.value);
+      assertEquals(reallocationsBefore, reallocations.get());
 
       // Remove from a full map.
       map.remove(k1);
-      assertEquals(reallocationsBefore, reallocations.value);
+      assertEquals(reallocationsBefore, reallocations.get());
       map.put(k1, value2);
 
       // Check expand on "last slot of a full map" condition.
       map.put(outOfSet, value1);
-      assertEquals(reallocationsBefore + 1, reallocations.value);
+      assertEquals(reallocationsBefore + 1, reallocations.get());
     }
 
     @Test

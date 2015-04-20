@@ -89,6 +89,8 @@ HPPC-117: A summary of API changes resulting from other issues.
               // Insert the new key-value pair.
               map.indexInsert(index, key, newValue);
             }
+            
+          * (HPPC-141): Dropped mutable type wrappers. 
 
 ** New features
 
@@ -147,6 +149,8 @@ HPPC-115: Hash containers now, by default, use a random internal
           counter or something like that).
 
 ** Other changes
+
+HPPC-141: Dropped mutable type wrappers. 
 
 HPPC-128: The preprocessor (intrinsics, preprocessor) is now deployed as part 
           of the official release.
