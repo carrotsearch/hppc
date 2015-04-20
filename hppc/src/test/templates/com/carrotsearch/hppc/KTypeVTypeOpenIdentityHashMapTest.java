@@ -92,7 +92,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         {
             public void apply(KType key, VType value)
             {
-                assertTrue(c2.contains(key));
+                assertTrue(c2.containsKey(key));
                 assertEquals2(value, c2.get(key));
             }
         });
@@ -128,7 +128,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     public void testGetOrDefault()
     {
         map.put(key2, value2);
-        assertTrue(map.contains(key2));
+        assertTrue(map.containsKey(key2));
 
         map.put(key1, value1);
         assertEquals2(value1, map.getOrDefault(key1, value3));
@@ -143,7 +143,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     {
         map.put(key1, value1);
 
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
         assertEquals2(value1, map.get(key1));
     }
 
@@ -233,7 +233,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
 
         map.removeAll(list2);
         assertEquals(1, map.size());
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
     }
 
     /* */
@@ -252,7 +252,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             }
         });
         assertEquals(1, map.size());
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
     }
 
     /* */
@@ -271,7 +271,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
             }
         });
         assertEquals(1, map.size());
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
     }
 
     /* */
@@ -291,7 +291,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         assertEquals(2, map.keys().retainAll(map2.keys()));
 
         assertEquals(1, map.size());
-        assertTrue(map.contains(key2));
+        assertTrue(map.containsKey(key2));
     }
 
     /* */
@@ -348,7 +348,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         for (KTypeVTypeCursor<KType, VType> cursor : map)
         {
             count++;
-            assertTrue(map.contains(cursor.key));
+            assertTrue(map.containsKey(cursor.key));
             assertEquals2(cursor.value, map.get(cursor.key));
 
             assertEquals2(cursor.value, map.values[cursor.index]);

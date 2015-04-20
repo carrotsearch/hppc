@@ -98,7 +98,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         {
             public void apply(KType key, VType value)
             {
-                assertTrue(c2.contains(key));
+                assertTrue(c2.containsKey(key));
                 assertEquals2(value, c2.get(key));
             }
         });
@@ -195,7 +195,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     public void testGetOrDefault()
     {
         map.put(key2, value2);
-        assertTrue(map.contains(key2));
+        assertTrue(map.containsKey(key2));
 
         map.put(key1, value1);
         assertEquals2(value1, map.getOrDefault(key1, value3));
@@ -210,7 +210,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     {
         map.put(key1, value1);
 
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
         assertEquals2(value1, map.get(key1));
     }
 
@@ -237,7 +237,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             final boolean hadKey = values.contains(cast(v));
             values.add(cast(v));
 
-            assertEquals(hadKey, map.contains(cast(v)));
+            assertEquals(hadKey, map.containsKey(cast(v)));
             map.put(cast(v), vcast(v));
             assertEquals(values.size(), map.size());
         }
@@ -369,7 +369,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
         assertEquals(2, map.removeAll(list2));
         assertEquals(1, map.size());
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
     }
 
     /* */
@@ -388,7 +388,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             }
         });
         assertEquals(1, map.size());
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
     }
 
 
@@ -467,7 +467,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
             }
         });
         assertEquals(1, map.size());
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
     }
 
     /* */
@@ -486,7 +486,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         assertEquals(2, map.keys().retainAll(map2.keys()));
 
         assertEquals(1, map.size());
-        assertTrue(map.contains(key2));
+        assertTrue(map.containsKey(key2));
     }
 
     /* */
@@ -562,7 +562,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         for (KTypeVTypeCursor<KType, VType> cursor : map)
         {
             count++;
-            assertTrue(map.contains(cursor.key));
+            assertTrue(map.containsKey(cursor.key));
             assertEquals2(cursor.value, map.get(cursor.key));
 
             assertEquals2(cursor.value, map.values[cursor.index]);
@@ -604,7 +604,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
       // Non-existent key.
       KType outOfSet = cast(elements + 1);
       map.remove(outOfSet);
-      assertFalse(map.contains(outOfSet));
+      assertFalse(map.containsKey(outOfSet));
       assertEquals(reallocationsBefore, reallocations.get());
 
       // Should not expand because we're replacing an existing element.
@@ -691,9 +691,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     {
         assertEquals(null, map.put(key1, null));
         assertEquals(null, map.get(key1));
-        assertTrue(map.contains(key1));
+        assertTrue(map.containsKey(key1));
         map.remove(key1);
-        assertFalse(map.contains(key1));
+        assertFalse(map.containsKey(key1));
         assertEquals(0, map.size());
     }
     /*! #end !*/
@@ -730,11 +730,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
                     other.put(key, value);
 
                     assertEquals(value, map.get(key));
-                    assertTrue(map.contains(key));
+                    assertTrue(map.containsKey(key));
                 }
                 else
                 {
-                    assertEquals(other.containsKey(key), map.contains(key));
+                    assertEquals(other.containsKey(key), map.containsKey(key));
                     assertEquals(other.remove(key), map.remove(key));
                 }
 

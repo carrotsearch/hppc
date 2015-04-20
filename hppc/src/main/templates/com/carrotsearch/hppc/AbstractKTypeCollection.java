@@ -20,7 +20,7 @@ abstract class AbstractKTypeCollection<KType>
      * Default implementation uses a predicate for removal.
      */
     @Override
-    public int removeAll(final KTypeLookup<? super KType> c)
+    public int removeAll(final KTypeLookupContainer<? super KType> c)
     {
         // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
         return this.removeAll(new KTypePredicate<KType>()
@@ -36,7 +36,7 @@ abstract class AbstractKTypeCollection<KType>
      * Default implementation uses a predicate for retaining.
      */
     @Override
-    public int retainAll(final KTypeLookup<? super KType> c)
+    public int retainAll(final KTypeLookupContainer<? super KType> c)
     {
         // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
         return this.removeAll(new KTypePredicate<KType>()

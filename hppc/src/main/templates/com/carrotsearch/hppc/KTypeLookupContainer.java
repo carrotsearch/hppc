@@ -6,8 +6,7 @@ package com.carrotsearch.hppc;
  * constant time <code>O(1)</code>.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public interface KTypeLookupContainer<KType> 
-  extends KTypeContainer<KType>,
-          KTypeLookup<KType>
+public interface KTypeLookupContainer<KType> extends KTypeContainer<KType>
 {
+    public boolean contains(KType e);
 }

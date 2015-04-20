@@ -87,7 +87,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
     while (i.hasNext()) {
       KTypeVTypeCursor<?, ?> c = i.next();
       KType key = Intrinsics.<KType> cast(c.key);
-      if (!contains(key) ||
+      if (!containsKey(key) ||
           !equals(get(key), c.value)) {   // Compare values using the same function as keys.
         return false;
       }

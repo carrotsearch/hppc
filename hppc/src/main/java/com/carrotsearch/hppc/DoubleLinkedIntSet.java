@@ -339,7 +339,7 @@ public class DoubleLinkedIntSet
     }
 
     @Override
-    public int removeAll(IntLookup c)
+    public int removeAll(IntLookupContainer c)
     {
         int max = size(), removed = 0;
         final int [] dense = this.dense;
@@ -381,7 +381,7 @@ public class DoubleLinkedIntSet
     }
 
     @Override
-    public int retainAll(IntLookup c)
+    public int retainAll(IntLookupContainer c)
     {
         int max = size(), removed = 0;
         final int [] dense = this.dense;
