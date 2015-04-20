@@ -69,7 +69,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAllPushAll()
     {
-        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        KTypeArrayList<KType> list2 = new KTypeArrayList<>();
         list2.add(asArray(0, 1, 2));
 
         stack.addAll(list2);

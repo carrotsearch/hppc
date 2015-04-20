@@ -358,17 +358,34 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
 
     /* */
     @Test
-    public void testRemoveAllWithContainer()
+    public void testRemoveAllWithList()
     {
         map.put(key1, value1);
         map.put(key2, value1);
         map.put(keyE, value1);
 
-        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
-        list2.add(newArray(key2, keyE, key4));
+        KTypeArrayList<KType> other = new KTypeArrayList<>();
+        other.add(newArray(key2, keyE, key4));
 
-        assertEquals(2, map.removeAll(list2));
+        assertEquals(2, map.removeAll(other));
         assertEquals(1, map.size());
+        assertTrue(map.containsKey(key1));
+    }
+
+    /* */
+    @Test
+    public void testRemoveAllWithSet()
+    {
+        map.put(key1, value1);
+        map.put(key2, value1);
+        map.put(key3, value1);
+        map.put(keyE, value1);
+
+        KTypeOpenHashSet<KType> other = new KTypeOpenHashSet<>();
+        other.addAll(newArray(key2, keyE, key4));
+
+        assertEquals(2, map.removeAll(other));
+        assertEquals(2, map.size());
         assertTrue(map.containsKey(key1));
     }
 

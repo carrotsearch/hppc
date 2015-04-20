@@ -228,7 +228,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         map.put(key2, value1);
         map.put(key3, value1);
 
-        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        KTypeArrayList<KType> list2 = new KTypeArrayList<>();
         list2.add(newArray(key2, key3, key4));
 
         map.removeAll(list2);

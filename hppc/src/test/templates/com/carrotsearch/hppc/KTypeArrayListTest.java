@@ -88,7 +88,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAll()
     {
-        KTypeArrayList<KType> list2 = KTypeArrayList.newInstance();
+        KTypeArrayList<KType> list2 = new KTypeArrayList<>();
         list2.add(asArray(0, 1, 2));
 
         list.addAll(list2);
