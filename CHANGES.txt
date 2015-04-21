@@ -94,6 +94,9 @@ HPPC-117: A summary of API changes resulting from other issues.
 
 ** New features
 
+HPPC-98:  Change the default bit mixing function from MurmurHash to PhiMix 
+          (golden ratio).
+
 HPPC-134: Set and Map's removeAll() should pick the best removal strategy.
 
 HPPC-139: Added release() to the API (clears and releases internal buffers).

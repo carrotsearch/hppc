@@ -50,13 +50,16 @@ public final class BitMixer {
   public static int mix (Object key, int seed)  { return murmurHash3(key.hashCode() ^ seed); }
   public static int mix0(Object key, int seed)  { return key == null ? 0 : murmurHash3(key.hashCode() ^ seed); }
 
+  /** 
+   * 2<sup>32</sup> &middot; &phi;, &phi; = (&#x221A;5 &minus; 1)/2.
+   * 
+   * @see "http://brpreiss.com/books/opus4/html/page214.html"
+   */
+  private static final int INT_PHI = 0x9E3779B9;
+
   /** */
   private static int murmurHash3(int k) {
-    k ^= k >>> 16;
-    k *= 0x85ebca6b;
-    k ^= k >>> 13;
-    k *= 0xc2b2ae35;
-    k ^= k >>> 16;
-    return k;
+    final int h = k * INT_PHI;
+    return h ^ (h >>> 16);
   }
 }
