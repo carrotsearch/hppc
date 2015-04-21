@@ -26,8 +26,12 @@ public class HashCollisionsClusteringTest
         long deadline = start + TimeUnit.SECONDS.toMillis(3);
         for (IntCursor c : source) {
           target.add(c.value);
-          if ((i++ % 1000) == 0) {
-            System.out.println("Added keys: " + i + " in " + (System.currentTimeMillis() - start) + " ms.");
+          if ((i++ % 5000) == 0) {
+            System.out.println(String.format(Locale.ROOT,
+                "Keys: %7d, %5d ms.",
+                i, 
+                System.currentTimeMillis() - start));
+
             if (System.currentTimeMillis() >= deadline) {
               fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
             }
@@ -81,9 +85,13 @@ public class HashCollisionsClusteringTest
         int i = 0;
         for (IntCursor c : source) {
           target.add(c.value);
-          if ((i++ % 1000) == 0) {
+          if ((i++ % 5000) == 0) {
             if (source.keys.length == target.keys.length) {
-              System.out.println("Added keys: " + i + " in " + (System.currentTimeMillis() - start) + " ms.");
+              System.out.println(String.format(Locale.ROOT,
+                  "Keys: %7d, %5d ms.: %s",
+                  i, 
+                  System.currentTimeMillis() - start,
+                  visualizeDistribution(target, 80)));
             }
             if (System.currentTimeMillis() >= deadline) {
               fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
@@ -135,7 +143,7 @@ public class HashCollisionsClusteringTest
     }
 
     protected String visualizeDistribution(IntOpenHashSet target, int lineLength) {
-      int bucketSize = target.keys.length / lineLength;
+      int bucketSize = Math.max(lineLength, target.keys.length) / lineLength;
       int [] counts = new int [lineLength];
       for (int x = 0; x < target.keys.length; x++) {
         if (target.keys[x] != 0) {
