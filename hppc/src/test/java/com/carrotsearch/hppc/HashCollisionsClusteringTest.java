@@ -2,6 +2,7 @@ package com.carrotsearch.hppc;
 
 import static org.junit.Assert.*;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -101,7 +102,7 @@ public class HashCollisionsClusteringTest
           @Override
           protected void allocateBuffers(int arraySize) {
             super.allocateBuffers(arraySize);
-            System.out.println("Rehashed to: " + arraySize);
+            System.out.println("[Rehashed to: " + arraySize + "]");
           }
         };
 
@@ -121,11 +122,37 @@ public class HashCollisionsClusteringTest
             if (firstSubsetOfKeys-- == 0) break;
           }
           long e = System.currentTimeMillis();
-          System.out.println("Added keys: " + i + " in " + (e - s) + " ms.");
-          
+          System.out.println(String.format(Locale.ROOT,
+              "Keys: %7d, %5d ms.: %s",
+              i, 
+              e - s,
+              visualizeDistribution(target, 80)));
+
           if (System.currentTimeMillis() > deadline) {
             fail("Takes too long, something is wrong. Added " + i + " batches.");
           }
         }
+    }
+
+    protected String visualizeDistribution(IntOpenHashSet target, int lineLength) {
+      int bucketSize = target.keys.length / lineLength;
+      int [] counts = new int [lineLength];
+      for (int x = 0; x < target.keys.length; x++) {
+        if (target.keys[x] != 0) {
+          counts[Math.min(counts.length - 1, x / bucketSize)]++;
+        }
+      }
+      
+      int max = counts[0];
+      for (int x = 0; x < counts.length; x++) {
+        max = Math.max(max, counts[x]);
+      }
+
+      StringBuilder b = new StringBuilder();
+      final char [] chars = ".0123456789".toCharArray();
+      for (int x = 0; x < counts.length; x++) {
+        b.append(chars[(counts[x] * 10 / max)]);
+      }
+      return b.toString();
     }    
 }
