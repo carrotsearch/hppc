@@ -2,6 +2,7 @@ package com.carrotsearch.hppc;
 
 import static org.junit.Assert.*;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -10,6 +11,8 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 
 public class HashCollisionsClusteringTest
 {
+    private static boolean debugging = false;
+
     /** @see "http://issues.carrot2.org/browse/HPPC-80" */
     @Test
     public void testHashSetClusteringOnRehash()
@@ -25,8 +28,12 @@ public class HashCollisionsClusteringTest
         long deadline = start + TimeUnit.SECONDS.toMillis(3);
         for (IntCursor c : source) {
           target.add(c.value);
-          if ((i++ % 1000) == 0) {
-            System.out.println("Added keys: " + i + " in " + (System.currentTimeMillis() - start) + " ms.");
+          if ((i++ % 5000) == 0) {
+            System.out.println(String.format(Locale.ROOT,
+                "Keys: %7d, %5d ms.",
+                i, 
+                System.currentTimeMillis() - start));
+
             if (System.currentTimeMillis() >= deadline) {
               fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
             }
@@ -80,9 +87,13 @@ public class HashCollisionsClusteringTest
         int i = 0;
         for (IntCursor c : source) {
           target.add(c.value);
-          if ((i++ % 1000) == 0) {
+          if ((i++ % 5000) == 0) {
             if (source.keys.length == target.keys.length) {
-              System.out.println("Added keys: " + i + " in " + (System.currentTimeMillis() - start) + " ms.");
+              System.out.println(String.format(Locale.ROOT,
+                  "Keys: %7d, %5d ms.: %s",
+                  i, 
+                  System.currentTimeMillis() - start,
+                  visualizeDistribution(target, 80)));
             }
             if (System.currentTimeMillis() >= deadline) {
               fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
@@ -101,7 +112,7 @@ public class HashCollisionsClusteringTest
           @Override
           protected void allocateBuffers(int arraySize) {
             super.allocateBuffers(arraySize);
-            System.out.println("Rehashed to: " + arraySize);
+            System.out.println("[Rehashed to: " + arraySize + "]");
           }
         };
 
@@ -121,11 +132,42 @@ public class HashCollisionsClusteringTest
             if (firstSubsetOfKeys-- == 0) break;
           }
           long e = System.currentTimeMillis();
-          System.out.println("Added keys: " + i + " in " + (e - s) + " ms.");
-          
+          System.out.println(String.format(Locale.ROOT,
+              "Keys: %7d, %5d ms. (%5d): %s",
+              i, 
+              e - s,
+              deadline - e,
+              visualizeDistribution(target, 80)));
+
           if (System.currentTimeMillis() > deadline) {
             fail("Takes too long, something is wrong. Added " + i + " batches.");
           }
         }
+    }
+
+    protected String visualizeDistribution(IntOpenHashSet target, int lineLength) {
+      if (!debugging) {
+        return "[disabled]";
+      }
+
+      int bucketSize = Math.max(lineLength, target.keys.length) / lineLength;
+      int [] counts = new int [lineLength];
+      for (int x = 0; x < target.keys.length; x++) {
+        if (target.keys[x] != 0) {
+          counts[Math.min(counts.length - 1, x / bucketSize)]++;
+        }
+      }
+      
+      int max = counts[0];
+      for (int x = 0; x < counts.length; x++) {
+        max = Math.max(max, counts[x]);
+      }
+
+      StringBuilder b = new StringBuilder();
+      final char [] chars = ".0123456789".toCharArray();
+      for (int x = 0; x < counts.length; x++) {
+        b.append(chars[(counts[x] * 10 / max)]);
+      }
+      return b.toString();
     }    
 }
