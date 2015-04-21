@@ -72,7 +72,7 @@
     <version.junit>4.12</version.junit> 
     <version.jmh>1.6.2</version.jmh>
     <version.assertj>2.0.0</version.assertj>
-    <version.randomizedtesting>2.1.12</version.randomizedtesting>
+    <version.randomizedtesting>2.1.14</version.randomizedtesting>
     <version.antlr>4.5</version.antlr>
     <version.velocity>1.7</version.velocity>
     <version.forbiddenapis>1.8</version.forbiddenapis>
