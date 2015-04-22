@@ -11,6 +11,8 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 
 public class HashCollisionsClusteringTest
 {
+    private static boolean debugging = false;
+
     /** @see "http://issues.carrot2.org/browse/HPPC-80" */
     @Test
     public void testHashSetClusteringOnRehash()
@@ -131,9 +133,10 @@ public class HashCollisionsClusteringTest
           }
           long e = System.currentTimeMillis();
           System.out.println(String.format(Locale.ROOT,
-              "Keys: %7d, %5d ms.: %s",
+              "Keys: %7d, %5d ms. (%5d): %s",
               i, 
               e - s,
+              deadline - e,
               visualizeDistribution(target, 80)));
 
           if (System.currentTimeMillis() > deadline) {
@@ -143,6 +146,10 @@ public class HashCollisionsClusteringTest
     }
 
     protected String visualizeDistribution(IntOpenHashSet target, int lineLength) {
+      if (!debugging) {
+        return "[disabled]";
+      }
+
       int bucketSize = Math.max(lineLength, target.keys.length) / lineLength;
       int [] counts = new int [lineLength];
       for (int x = 0; x < target.keys.length; x++) {
