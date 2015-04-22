@@ -33,6 +33,7 @@ public class B004_HashSet_CollisionAvalanche {
   
   @Setup(Level.Trial)
   public void prepare() {
+    // make sure we have nearly full load (dense source)
     int keyCount = (int) Math.ceil((1 << 19) / loadFactor) - 5000;
     int [] keys = new int [keyCount];
     for (int i = keyCount; i-- != 0;) {
