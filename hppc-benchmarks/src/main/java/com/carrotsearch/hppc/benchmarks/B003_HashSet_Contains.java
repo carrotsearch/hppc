@@ -19,21 +19,12 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import com.carrotsearch.hppc.XorShiftRandom;
-import com.carrotsearch.hppc.benchmarks.implementations.FastutilIntSetOps;
-import com.carrotsearch.hppc.benchmarks.implementations.HppcIntSetOps;
-import com.carrotsearch.hppc.benchmarks.implementations.HppcPhiMixIntSetOps;
-import com.carrotsearch.hppc.benchmarks.implementations.KolobokeIntSetOps;
 
 @Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 5)
 @State(Scope.Benchmark)
 public class B003_HashSet_Contains {
-  public static interface Ops {
-    Object addAll(int [] keys);
-    int contains(int [] keys);
-  }
-
   @Param("0.75")
   public double loadFactor;
 
@@ -44,7 +35,7 @@ public class B003_HashSet_Contains {
   public int mbOfKeys;
 
   public int [] keys;
-  public Ops ops;
+  public IntSetOps ops;
   
   @Setup(Level.Trial)
   public void prepare() {
@@ -56,26 +47,19 @@ public class B003_HashSet_Contains {
       keys[i] = rnd.nextInt(2 * keys.length);
     }
 
-    switch (library) {
-      case HPPC:        ops = new HppcIntSetOps(keys.length, loadFactor); break;
-      case HPPC_PHIMIX: ops = new HppcPhiMixIntSetOps(keys.length, loadFactor); break;
-      case FASTUTIL:    ops = new FastutilIntSetOps(keys.length, loadFactor); break;
-      case KOLOBOKE:    ops = new KolobokeIntSetOps(keys.length, loadFactor); break;
-      default:
-        throw new RuntimeException();
-    }
+    ops = library.newIntSet(keys.length, loadFactor);
 
     int[] existing = new int [keyCount];
     for (int i = 0; i < keys.length; i++) {
       existing[i] = rnd.nextInt(2 * keys.length);
     }
-    ops.addAll(existing);
+    ops.bulkAdd(existing);
   }
 
   @Benchmark()
   @BenchmarkMode(Mode.SingleShotTime)
   public Object bulk() {
-    return ops.contains(keys);
+    return ops.bulkContains(keys);
   }
 
   public static void main(String[] args) throws RunnerException {

@@ -1,11 +1,9 @@
 package com.carrotsearch.hppc.benchmarks.implementations;
 
 import com.carrotsearch.hppc.IntOpenHashSet;
-import com.carrotsearch.hppc.benchmarks.*;
+import com.carrotsearch.hppc.benchmarks.IntSetOps;
 
-public class HppcIntSetOps implements B002_HashSet_Add.Ops,
-                                      B003_HashSet_Contains.Ops
-{
+public class HppcIntSetOps implements IntSetOps {
   private final IntOpenHashSet delegate;
 
   public HppcIntSetOps(int expectedElements, double loadFactor) {
@@ -13,15 +11,19 @@ public class HppcIntSetOps implements B002_HashSet_Add.Ops,
   }
 
   @Override
-  public Object addAll(int[] keys) {
-    for (int key : keys) {
-      delegate.add(key);
-    }
-    return delegate;
+  public void add(int key) {
+    delegate.add(key);
   }
   
   @Override
-  public int contains(int[] keys) {
+  public void bulkAdd(int[] keys) {
+    for (int key : keys) {
+      delegate.add(key);
+    }
+  }
+
+  @Override
+  public int bulkContains(int[] keys) {
     int v = 0;
     for (int key : keys) {
       if (delegate.contains(key)) {
@@ -29,5 +31,10 @@ public class HppcIntSetOps implements B002_HashSet_Add.Ops,
       }
     }
     return v;
+  }
+  
+  @Override
+  public int[] iterationOrderArray() {
+    return delegate.toArray();
   }
 }

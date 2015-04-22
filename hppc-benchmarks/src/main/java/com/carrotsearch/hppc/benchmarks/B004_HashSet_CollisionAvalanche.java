@@ -1,7 +1,5 @@
 package com.carrotsearch.hppc.benchmarks;
 
-import java.util.Random;
-
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -18,54 +16,49 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import com.carrotsearch.hppc.XorShiftRandom;
-
 @Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 5)
 @State(Scope.Benchmark)
-public class B002_HashSet_Add {
-  public static interface Ops {
-    Object addAll(int [] keys);
-  }
-
+public class B004_HashSet_CollisionAvalanche {
   @Param("0.75")
   public double loadFactor;
 
   @Param
   public Library library;
 
-  @Param({"200"})
-  public int mbOfKeys;
-
-  public int [] keys;
-  public IntSetOps ops;
-
-  @Setup(Level.Iteration)
-  public void prepareDelegate() {
-    ops = library.newIntSet(keys.length, loadFactor);
-  }
+  private IntSetOps source;
+  private IntSetOps target;
+  private int[] keys;
   
   @Setup(Level.Trial)
   public void prepare() {
-    int keyCount = mbOfKeys * (1024 * 1024) / 4;
-    keys = new int [keyCount];
-
-    Random rnd = new XorShiftRandom(0xdeadbeef);
-    for (int i = 0; i < keys.length; i++) {
-      keys[i] = rnd.nextInt();
+    int keyCount = (int) Math.ceil((1 << 19) / loadFactor) - 5000;
+    int [] keys = new int [keyCount];
+    for (int i = keyCount; i-- != 0;) {
+      keys[i] = i;
     }
+
+    source = library.newIntSet(0, loadFactor);
+    source.bulkAdd(keys);
+
+    this.keys = source.iterationOrderArray();
+  }
+
+  @Setup(Level.Iteration)
+  public void prepareDelegate() {
+    target = library.newIntSet(0, loadFactor);
   }
 
   @Benchmark()
   @BenchmarkMode(Mode.SingleShotTime)
-  public Object bulk() {
-    ops.bulkAdd(keys);
-    return ops;
+  public Object run() {
+    target.bulkAdd(keys);
+    return target;
   }
 
   public static void main(String[] args) throws RunnerException {
-    Options opt = new OptionsBuilder().include(B002_HashSet_Add.class.getSimpleName()).build();
+    Options opt = new OptionsBuilder().include(B004_HashSet_CollisionAvalanche.class.getSimpleName()).build();
     new Runner(opt).run();
   }
 }

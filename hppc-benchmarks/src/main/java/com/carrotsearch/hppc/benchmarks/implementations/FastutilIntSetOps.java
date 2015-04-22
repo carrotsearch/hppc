@@ -2,28 +2,29 @@ package com.carrotsearch.hppc.benchmarks.implementations;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
-import com.carrotsearch.hppc.benchmarks.B002_HashSet_Add;
-import com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains;
+import com.carrotsearch.hppc.benchmarks.IntSetOps;
 
-public class FastutilIntSetOps implements B002_HashSet_Add.Ops, 
-                                          B003_HashSet_Contains.Ops
-{
+public class FastutilIntSetOps implements IntSetOps {
   private final IntOpenHashSet delegate;
 
   public FastutilIntSetOps(int expectedElements, double loadFactor) {
-    this.delegate = new IntOpenHashSet(expectedElements, (float) loadFactor); 
+    this.delegate = new IntOpenHashSet(expectedElements, (float) loadFactor);
   }
 
   @Override
-  public Object addAll(int[] keys) {
-    for (int key : keys) {
-      delegate.add(key);
-    }
-    return delegate;
+  public void add(int key) {
+    delegate.add(key);
   }
   
   @Override
-  public int contains(int[] keys) {
+  public void bulkAdd(int[] keys) {
+    for (int key : keys) {
+      delegate.add(key);
+    }
+  }
+
+  @Override
+  public int bulkContains(int[] keys) {
     int v = 0;
     for (int key : keys) {
       if (delegate.contains(key)) {
@@ -31,5 +32,10 @@ public class FastutilIntSetOps implements B002_HashSet_Add.Ops,
       }
     }
     return v;
+  }
+  
+  @Override
+  public int[] iterationOrderArray() {
+    return delegate.toIntArray();
   }
 }

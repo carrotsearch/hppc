@@ -4,32 +4,31 @@ import net.openhft.koloboke.collect.hash.HashConfig;
 import net.openhft.koloboke.collect.set.hash.HashIntSet;
 import net.openhft.koloboke.collect.set.hash.HashIntSets;
 
-import com.carrotsearch.hppc.benchmarks.B002_HashSet_Add;
-import com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains;
+import com.carrotsearch.hppc.benchmarks.IntSetOps;
 
-public class KolobokeIntSetOps implements B002_HashSet_Add.Ops,
-                                          B003_HashSet_Contains.Ops
-{
+public class KolobokeIntSetOps implements IntSetOps {
   private final HashIntSet delegate;
 
   public KolobokeIntSetOps(int expectedElements, double loadFactor) {
-    this.delegate = 
-        HashIntSets.getDefaultFactory()
-          .withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor))
-          .newMutableSet();
+    this.delegate = HashIntSets.getDefaultFactory()
+        .withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableSet();
     this.delegate.ensureCapacity(expectedElements);
   }
 
   @Override
-  public Object addAll(int[] keys) {
+  public void add(int key) {
+    delegate.add(key);
+  }
+
+  @Override
+  public void bulkAdd(int[] keys) {
     for (int key : keys) {
       delegate.add(key);
     }
-    return delegate;
   }
-  
+
   @Override
-  public int contains(int[] keys) {
+  public int bulkContains(int[] keys) {
     int v = 0;
     for (int key : keys) {
       if (delegate.contains(key)) {
@@ -37,5 +36,10 @@ public class KolobokeIntSetOps implements B002_HashSet_Add.Ops,
       }
     }
     return v;
+  }
+
+  @Override
+  public int[] iterationOrderArray() {
+    return delegate.toIntArray();
   }
 }

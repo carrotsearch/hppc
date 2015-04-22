@@ -3,8 +3,7 @@ package com.carrotsearch.hppc.benchmarks.implementations;
 import com.carrotsearch.hppc.IntOpenHashSet;
 import com.carrotsearch.hppc.benchmarks.*;
 
-public class HppcPhiMixIntSetOps implements B002_HashSet_Add.Ops,
-                                            B003_HashSet_Contains.Ops
+public class HppcPhiMixIntSetOps implements IntSetOps
 {
   private final IntOpenHashSet delegate;
 
@@ -19,15 +18,19 @@ public class HppcPhiMixIntSetOps implements B002_HashSet_Add.Ops,
   }
 
   @Override
-  public Object addAll(int[] keys) {
+  public void add(int key) {
+    delegate.add(key);
+  }
+
+  @Override
+  public void bulkAdd(int[] keys) {
     for (int key : keys) {
       delegate.add(key);
     }
-    return delegate;
   }
   
   @Override
-  public int contains(int[] keys) {
+  public int bulkContains(int[] keys) {
     int v = 0;
     for (int key : keys) {
       if (delegate.contains(key)) {
@@ -35,5 +38,10 @@ public class HppcPhiMixIntSetOps implements B002_HashSet_Add.Ops,
       }
     }
     return v;
+  }
+  
+  @Override
+  public int[] iterationOrderArray() {
+    return delegate.toArray();
   }
 }
