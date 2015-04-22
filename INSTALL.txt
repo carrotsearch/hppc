@@ -15,3 +15,16 @@ Eclipse workflow/ import
 mvn -Peclipse
 
 # Ready to use m2e: "File->Import->Existing Maven Projects".
+
+
+Benchmarking
+------------
+
+There are some sanity tests and isolated benchmarks
+of common operations in hppc-benchmarks.
+
+# Create benchmark JAR
+mvn package -Pquick -am -pl :hppc-benchmarks
+
+# List available benchmarks
+java -jar hppc-benchmarks/target/benchmarks.jar -l

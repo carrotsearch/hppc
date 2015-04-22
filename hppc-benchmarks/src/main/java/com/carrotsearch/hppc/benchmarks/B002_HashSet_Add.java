@@ -18,45 +18,54 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import com.carrotsearch.hppc.IntOpenHashSet;
 import com.carrotsearch.hppc.XorShiftRandom;
 
 @Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 5)
-@State(Scope.Thread)
-public class B002_HashMap_Put {
-  @Param("44")
-  public long seed;
+@State(Scope.Benchmark)
+public class B002_HashSet_Add {
+  public static interface Ops {
+    Object addAll(int [] keys);
+  }
 
   @Param("0.75")
   public double loadFactor;
 
-  public int [] keys;
-  public IntOpenHashSet set;
+  @Param
+  public Library library;
 
-  @Setup(Level.Trial) 
+  @Param({"200"})
+  public int mbOfKeys;
+
+  public int [] keys;
+  public IntSetOps ops;
+
+  @Setup(Level.Iteration)
+  public void prepareDelegate() {
+    ops = library.newIntSet(keys.length, loadFactor);
+  }
+  
+  @Setup(Level.Trial)
   public void prepare() {
-    keys = new int [1024 * 1024 * 50];
-    Random rnd = new XorShiftRandom(seed);
+    int keyCount = mbOfKeys * (1024 * 1024) / 4;
+    keys = new int [keyCount];
+
+    Random rnd = new XorShiftRandom(0xdeadbeef);
     for (int i = 0; i < keys.length; i++) {
       keys[i] = rnd.nextInt();
     }
-
-    set = new IntOpenHashSet(keys.length, loadFactor);
   }
 
   @Benchmark()
   @BenchmarkMode(Mode.SingleShotTime)
-  public Object put() {
-    for (int value : keys) {
-      set.add(value);
-    }
-    return set;
+  public Object bulk() {
+    ops.bulkAdd(keys);
+    return ops;
   }
 
   public static void main(String[] args) throws RunnerException {
-    Options opt = new OptionsBuilder().include(B002_HashMap_Put.class.getSimpleName()).build();
+    Options opt = new OptionsBuilder().include(B002_HashSet_Add.class.getSimpleName()).build();
     new Runner(opt).run();
   }
 }
