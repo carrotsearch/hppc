@@ -222,7 +222,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * 
    * @param key The key of the value to adjust.
    * @param putValue The value to put if <code>key</code> does not exist.
-   * @param additionValue The value to add to the existing value if <code>key</code> exists.
+   * @param incrementValue The value to add to the existing value if <code>key</code> exists.
    * @return Returns the current value associated with <code>key</code> (after changes).
    */
   @Override
@@ -245,7 +245,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * or inserts <code>incrementValue</code> if <code>key</code> did not previously exist.
    * 
    * @param key The key of the value to adjust.
-   * @param additionValue The value to put or add to the existing value if <code>key</code> exists.
+   * @param incrementValue The value to put or add to the existing value if <code>key</code> exists.
    * @return Returns the current value associated with <code>key</code> (after changes).
    */
   @Override

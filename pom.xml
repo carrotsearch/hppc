@@ -95,6 +95,8 @@
     <version.maven-buildhelper-plugin>1.9.1</version.maven-buildhelper-plugin>
 
     <version.maven.api>3.2.3</version.maven.api>
+
+    <gpg.passphrase></gpg.passphrase>
   </properties>
 
   <prerequisites>
@@ -139,6 +141,12 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.6</version>
+        </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>

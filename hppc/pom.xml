@@ -58,6 +58,113 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                  <exclude>**/ByteByte*</exclude>
+                  <exclude>**/ByteChar*</exclude>
+                  <exclude>**/ByteShort*</exclude>
+                  <exclude>**/ByteInt*</exclude>
+                  <exclude>**/ByteFloat*</exclude>
+                  <exclude>**/ByteLong*</exclude>
+                  <exclude>**/ByteDouble*</exclude>
+                  <exclude>**/ByteObject*</exclude>
+
+                  <exclude>**/ByteOpenHashSet*</exclude>
+                  <exclude>**/ByteScatterSet*</exclude>
+                  <exclude>**/ByteSet*</exclude>
+
+                  <exclude>**/FloatByte*</exclude>
+                  <exclude>**/FloatChar*</exclude>
+                  <exclude>**/FloatShort*</exclude>
+                  <exclude>**/FloatInt*</exclude>
+                  <exclude>**/FloatFloat*</exclude>
+                  <exclude>**/FloatLong*</exclude>
+                  <exclude>**/FloatDouble*</exclude>
+                  <exclude>**/FloatObject*</exclude>
+
+                  <exclude>**/FloatOpenHashSet*</exclude>
+                  <exclude>**/FloatScatterSet*</exclude>
+                  <exclude>**/FloatSet*</exclude>
+
+                  <exclude>**/DoubleByte*</exclude>
+                  <exclude>**/DoubleChar*</exclude>
+                  <exclude>**/DoubleShort*</exclude>
+                  <exclude>**/DoubleInt*</exclude>
+                  <exclude>**/DoubleFloat*</exclude>
+                  <exclude>**/DoubleLong*</exclude>
+                  <exclude>**/DoubleDouble*</exclude>
+                  <exclude>**/DoubleObject*</exclude>
+
+                  <exclude>**/DoubleOpenHashSet*</exclude>
+                  <exclude>**/DoubleScatterSet*</exclude>
+                  <exclude>**/DoubleSet*</exclude>              
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>attach-sources-esoteric</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+            <configuration>
+              <classifier>esoteric-sources</classifier>
+              <includes>
+                <include>**/ByteByte*</include>
+                <include>**/ByteChar*</include>
+                <include>**/ByteShort*</include>
+                <include>**/ByteInt*</include>
+                <include>**/ByteFloat*</include>
+                <include>**/ByteLong*</include>
+                <include>**/ByteDouble*</include>
+                <include>**/ByteObject*</include>
+
+                <include>**/ByteOpenHashSet*</include>
+                <include>**/ByteScatterSet*</include>
+                <include>**/ByteSet*</include>
+
+                <include>**/FloatByte*</include>
+                <include>**/FloatChar*</include>
+                <include>**/FloatShort*</include>
+                <include>**/FloatInt*</include>
+                <include>**/FloatFloat*</include>
+                <include>**/FloatLong*</include>
+                <include>**/FloatDouble*</include>
+                <include>**/FloatObject*</include>
+
+                <include>**/FloatOpenHashSet*</include>
+                <include>**/FloatScatterSet*</include>
+                <include>**/FloatSet*</include>
+
+                <include>**/DoubleByte*</include>
+                <include>**/DoubleChar*</include>
+                <include>**/DoubleShort*</include>
+                <include>**/DoubleInt*</include>
+                <include>**/DoubleFloat*</include>
+                <include>**/DoubleLong*</include>
+                <include>**/DoubleDouble*</include>
+                <include>**/DoubleObject*</include>
+
+                <include>**/DoubleOpenHashSet*</include>
+                <include>**/DoubleScatterSet*</include>
+                <include>**/DoubleSet*</include>
+              </includes>            
+            </configuration>
+          </execution>          
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
           <executions>
             <execution>
@@ -66,44 +173,44 @@
               <configuration>
                 <!-- HPPC-144: esoteric combinations. -->
                 <excludes>
-                  <exclude>**/ByteByte*.class</exclude>
-                  <exclude>**/ByteChar*.class</exclude>
-                  <exclude>**/ByteShort*.class</exclude>
-                  <exclude>**/ByteInt*.class</exclude>
-                  <exclude>**/ByteFloat*.class</exclude>
-                  <exclude>**/ByteLong*.class</exclude>
-                  <exclude>**/ByteDouble*.class</exclude>
-                  <exclude>**/ByteObject*.class</exclude>
+                  <exclude>**/ByteByte*</exclude>
+                  <exclude>**/ByteChar*</exclude>
+                  <exclude>**/ByteShort*</exclude>
+                  <exclude>**/ByteInt*</exclude>
+                  <exclude>**/ByteFloat*</exclude>
+                  <exclude>**/ByteLong*</exclude>
+                  <exclude>**/ByteDouble*</exclude>
+                  <exclude>**/ByteObject*</exclude>
 
-                  <exclude>**/ByteOpenHashSet*.class</exclude>
-                  <exclude>**/ByteScatterSet*.class</exclude>
-                  <exclude>**/ByteSet*.class</exclude>
+                  <exclude>**/ByteOpenHashSet*</exclude>
+                  <exclude>**/ByteScatterSet*</exclude>
+                  <exclude>**/ByteSet*</exclude>
 
-                  <exclude>**/FloatByte*.class</exclude>
-                  <exclude>**/FloatChar*.class</exclude>
-                  <exclude>**/FloatShort*.class</exclude>
-                  <exclude>**/FloatInt*.class</exclude>
-                  <exclude>**/FloatFloat*.class</exclude>
-                  <exclude>**/FloatLong*.class</exclude>
-                  <exclude>**/FloatDouble*.class</exclude>
-                  <exclude>**/FloatObject*.class</exclude>
+                  <exclude>**/FloatByte*</exclude>
+                  <exclude>**/FloatChar*</exclude>
+                  <exclude>**/FloatShort*</exclude>
+                  <exclude>**/FloatInt*</exclude>
+                  <exclude>**/FloatFloat*</exclude>
+                  <exclude>**/FloatLong*</exclude>
+                  <exclude>**/FloatDouble*</exclude>
+                  <exclude>**/FloatObject*</exclude>
 
-                  <exclude>**/FloatOpenHashSet*.class</exclude>
-                  <exclude>**/FloatScatterSet*.class</exclude>
-                  <exclude>**/FloatSet*.class</exclude>
+                  <exclude>**/FloatOpenHashSet*</exclude>
+                  <exclude>**/FloatScatterSet*</exclude>
+                  <exclude>**/FloatSet*</exclude>
 
-                  <exclude>**/DoubleByte*.class</exclude>
-                  <exclude>**/DoubleChar*.class</exclude>
-                  <exclude>**/DoubleShort*.class</exclude>
-                  <exclude>**/DoubleInt*.class</exclude>
-                  <exclude>**/DoubleFloat*.class</exclude>
-                  <exclude>**/DoubleLong*.class</exclude>
-                  <exclude>**/DoubleDouble*.class</exclude>
-                  <exclude>**/DoubleObject*.class</exclude>
+                  <exclude>**/DoubleByte*</exclude>
+                  <exclude>**/DoubleChar*</exclude>
+                  <exclude>**/DoubleShort*</exclude>
+                  <exclude>**/DoubleInt*</exclude>
+                  <exclude>**/DoubleFloat*</exclude>
+                  <exclude>**/DoubleLong*</exclude>
+                  <exclude>**/DoubleDouble*</exclude>
+                  <exclude>**/DoubleObject*</exclude>
 
-                  <exclude>**/DoubleOpenHashSet*.class</exclude>
-                  <exclude>**/DoubleScatterSet*.class</exclude>
-                  <exclude>**/DoubleSet*.class</exclude>
+                  <exclude>**/DoubleOpenHashSet*</exclude>
+                  <exclude>**/DoubleScatterSet*</exclude>
+                  <exclude>**/DoubleSet*</exclude>
                 </excludes>
               </configuration>
             </execution>
@@ -116,44 +223,44 @@
               <configuration>
                 <classifier>esoteric</classifier>
                 <includes>
-                  <include>**/ByteByte*.class</include>
-                  <include>**/ByteChar*.class</include>
-                  <include>**/ByteShort*.class</include>
-                  <include>**/ByteInt*.class</include>
-                  <include>**/ByteFloat*.class</include>
-                  <include>**/ByteLong*.class</include>
-                  <include>**/ByteDouble*.class</include>
-                  <include>**/ByteObject*.class</include>
+                  <include>**/ByteByte*</include>
+                  <include>**/ByteChar*</include>
+                  <include>**/ByteShort*</include>
+                  <include>**/ByteInt*</include>
+                  <include>**/ByteFloat*</include>
+                  <include>**/ByteLong*</include>
+                  <include>**/ByteDouble*</include>
+                  <include>**/ByteObject*</include>
 
-                  <include>**/ByteOpenHashSet*.class</include>
-                  <include>**/ByteScatterSet*.class</include>
-                  <include>**/ByteSet*.class</include>
+                  <include>**/ByteOpenHashSet*</include>
+                  <include>**/ByteScatterSet*</include>
+                  <include>**/ByteSet*</include>
 
-                  <include>**/FloatByte*.class</include>
-                  <include>**/FloatChar*.class</include>
-                  <include>**/FloatShort*.class</include>
-                  <include>**/FloatInt*.class</include>
-                  <include>**/FloatFloat*.class</include>
-                  <include>**/FloatLong*.class</include>
-                  <include>**/FloatDouble*.class</include>
-                  <include>**/FloatObject*.class</include>
+                  <include>**/FloatByte*</include>
+                  <include>**/FloatChar*</include>
+                  <include>**/FloatShort*</include>
+                  <include>**/FloatInt*</include>
+                  <include>**/FloatFloat*</include>
+                  <include>**/FloatLong*</include>
+                  <include>**/FloatDouble*</include>
+                  <include>**/FloatObject*</include>
 
-                  <include>**/FloatOpenHashSet*.class</include>
-                  <include>**/FloatScatterSet*.class</include>
-                  <include>**/FloatSet*.class</include>
+                  <include>**/FloatOpenHashSet*</include>
+                  <include>**/FloatScatterSet*</include>
+                  <include>**/FloatSet*</include>
 
-                  <include>**/DoubleByte*.class</include>
-                  <include>**/DoubleChar*.class</include>
-                  <include>**/DoubleShort*.class</include>
-                  <include>**/DoubleInt*.class</include>
-                  <include>**/DoubleFloat*.class</include>
-                  <include>**/DoubleLong*.class</include>
-                  <include>**/DoubleDouble*.class</include>
-                  <include>**/DoubleObject*.class</include>
+                  <include>**/DoubleByte*</include>
+                  <include>**/DoubleChar*</include>
+                  <include>**/DoubleShort*</include>
+                  <include>**/DoubleInt*</include>
+                  <include>**/DoubleFloat*</include>
+                  <include>**/DoubleLong*</include>
+                  <include>**/DoubleDouble*</include>
+                  <include>**/DoubleObject*</include>
 
-                  <include>**/DoubleOpenHashSet*.class</include>
-                  <include>**/DoubleScatterSet*.class</include>
-                  <include>**/DoubleSet*.class</include>
+                  <include>**/DoubleOpenHashSet*</include>
+                  <include>**/DoubleScatterSet*</include>
+                  <include>**/DoubleSet*</include>
                 </includes>
               </configuration>
             </execution>            

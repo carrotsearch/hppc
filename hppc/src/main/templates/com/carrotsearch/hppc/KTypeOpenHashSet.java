@@ -236,7 +236,7 @@ public class KTypeOpenHashSet<KType>
   }
 
   /**
-   * An alias for the (preferred) {@link #removeAll(KType)}.
+   * An alias for the (preferred) {@link #removeAll}.
    */
   public boolean remove(KType key) {
     if (Intrinsics.isEmpty(key)) {
@@ -622,7 +622,7 @@ public class KTypeOpenHashSet<KType>
    * 
    * @param index The index of an existing key.
    * @return Returns the equivalent key currently stored in the set.
-   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
+   * @throws AssertionError If assertions are enabled and the index does
    *         not correspond to an existing key.
    */
   public KType indexGet(int index) {
@@ -643,8 +643,8 @@ public class KTypeOpenHashSet<KType>
    * @param equivalentKey The key to put in the set as a replacement. Must be equivalent to
    *        the key currently stored at the provided index. 
    * @return Returns the previous key stored in the set.
-   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
-   *         not correspond to an existing key or is not equal to the existing key.
+   * @throws AssertionError If assertions are enabled and the index does
+   *         not correspond to an existing key.
    */
   public KType indexReplace(int index, KType equivalentKey) {
     assert index >= 0 : "The index must point at an existing key.";
@@ -665,8 +665,8 @@ public class KTypeOpenHashSet<KType>
    * 
    * @param index The index of a previously non-existing key, as returned from 
    *              {@link #indexOf}.
-   * @throws Throws {@link AssertionError} if assertions are enabled and the index 
-   *         corresponds to an existing key.
+   * @throws AssertionError If assertions are enabled and the index does
+   *         not correspond to an existing key.
    */
   public void indexInsert(int index, KType key) {
     assert index < 0 : "The index must not point at an existing key.";
