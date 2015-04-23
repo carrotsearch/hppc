@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -69,14 +70,14 @@
     <maven.compiler.target>1.7</maven.compiler.target>
 
     <version.guava>18.0</version.guava>
-    <version.junit>4.12</version.junit> 
+    <version.junit>4.12</version.junit>
     <version.jmh>1.6.2</version.jmh>
     <version.assertj>2.0.0</version.assertj>
     <version.randomizedtesting>2.1.14</version.randomizedtesting>
     <version.antlr>4.5</version.antlr>
     <version.velocity>1.7</version.velocity>
     <version.forbiddenapis>1.8</version.forbiddenapis>
-    
+
     <version.fastutil>7.0.2</version.fastutil>
     <version.koloboke>0.6.6</version.koloboke>
 
@@ -93,6 +94,7 @@
     <version.maven-javadoc-plugin>2.10.1</version.maven-javadoc-plugin>
     <version.maven-versions-plugin>2.1</version.maven-versions-plugin>
     <version.maven-buildhelper-plugin>1.9.1</version.maven-buildhelper-plugin>
+    <version.maven-shade-plugin>2.2</version.maven-shade-plugin>
 
     <version.maven.api>3.2.3</version.maven.api>
 
@@ -129,7 +131,7 @@
         <version>${version.assertj}</version>
         <type>jar</type>
       </dependency>
-      
+
       <dependency>
         <groupId>com.carrotsearch.randomizedtesting</groupId>
         <artifactId>randomizedtesting-runner</artifactId>
@@ -191,7 +193,7 @@
             <target>${maven.compiler.target}</target>
           </configuration>
         </plugin>
- 
+
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>${version.maven-deploy-plugin}</version>
@@ -243,7 +245,7 @@
           <artifactId>junit4-maven-plugin</artifactId>
           <version>${version.randomizedtesting}</version>
         </plugin>
-        
+
         <plugin>
           <groupId>de.thetaphi</groupId>
           <artifactId>forbiddenapis</artifactId>
@@ -257,7 +259,8 @@
                 <internalRuntimeForbidden>true</internalRuntimeForbidden>
                 <failOnUnsupportedJava>false</failOnUnsupportedJava>
                 <failOnMissingClasses>false</failOnMissingClasses>
-                <excludes><!-- Override in subprojects. --></excludes>
+                <excludes><!-- Override in subprojects. -->
+                </excludes>
                 <bundledSignatures>
                   <bundledSignature>jdk-unsafe</bundledSignature>
                   <bundledSignature>jdk-deprecated</bundledSignature>
@@ -275,7 +278,8 @@
                 <internalRuntimeForbidden>true</internalRuntimeForbidden>
                 <failOnUnsupportedJava>false</failOnUnsupportedJava>
                 <failOnMissingClasses>false</failOnMissingClasses>
-                <excludes><!-- Override in subprojects. --></excludes>
+                <excludes><!-- Override in subprojects. -->
+                </excludes>
                 <bundledSignatures>
                   <bundledSignature>jdk-unsafe</bundledSignature>
                   <bundledSignature>jdk-deprecated</bundledSignature>
@@ -286,10 +290,10 @@
               </goals>
             </execution>
           </executions>
-        </plugin>        
+        </plugin>
       </plugins>
     </pluginManagement>
-    
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -325,7 +329,7 @@
       </plugin>
     </plugins>
   </build>
-  
+
   <profiles>
     <profile>
       <id>quick</id>
@@ -354,6 +358,10 @@
         </property>
       </activation>
       <properties>
+        <!-- Skip compilation, installation or testing. -->
+        <maven.test.skip>true</maven.test.skip>
+        <maven.main.skip>true</maven.main.skip>
+        <forbiddenapis.skip>true</forbiddenapis.skip>
         <skipTests>true</skipTests>
       </properties>
       <build>
@@ -373,20 +381,26 @@
                       <presetdef name="copy">
                         <copy overwrite="true" />
                       </presetdef>
-                      <condition property="onwin"><os family="windows"/></condition>
+                      <condition property="onwin">
+                        <os family="windows" />
+                      </condition>
 
                       <fileset id="id:settings" dir="etc/eclipse/settings" />
-                      <copy todir="hppc-template-processor/.settings"><fileset refid="id:settings" /></copy>
-                      <copy todir="hppc/.settings">                   <fileset refid="id:settings" /></copy>
+                      <copy todir="hppc-template-processor/.settings">
+                        <fileset refid="id:settings" />
+                      </copy>
+                      <copy todir="hppc/.settings">
+                        <fileset refid="id:settings" />
+                      </copy>
 
                       <copy todir=".">
                         <fileset dir="etc/eclipse/configs" />
                         <filtermapper>
-                            <replacestring from="_" to="."/>
+                          <replacestring from="_" to="." />
                         </filtermapper>
                         <filterchain unless:true="${onwin}" xmlns:unless="ant:unless">
                           <tokenfilter>
-                            <filetokenizer/>
+                            <filetokenizer />
                             <replacestring from=".bat" to="" />
                           </tokenfilter>
                         </filterchain>
@@ -425,7 +439,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore/>
+                        <ignore />
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -459,7 +473,7 @@
                       <action>
                         <ignore></ignore>
                       </action>
-                    </pluginExecution>                    
+                    </pluginExecution>
                     <pluginExecution>
                       <pluginExecutionFilter>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -472,7 +486,7 @@
                       <action>
                         <ignore></ignore>
                       </action>
-                    </pluginExecution>                    
+                    </pluginExecution>
                   </pluginExecutions>
                 </lifecycleMappingMetadata>
               </configuration>
