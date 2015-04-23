@@ -51,7 +51,7 @@ import static com.carrotsearch.hppc.Containers.*;
 public class KTypeArrayList<KType>
   extends AbstractKTypeCollection<KType> 
   implements KTypeIndexedContainer<KType>,
-             Preallocatable,
+             Preallocable,
              Cloneable
 {
     /**

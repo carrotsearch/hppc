@@ -3,50 +3,44 @@ package com.carrotsearch.hppc;
 import java.util.Random;
 
 /**
- * XorShift pseudo random number generator. This class is not thread-safe and should be
- * used from a single thread only.
+ * XorShift pseudo random number generator. This class is not thread-safe and
+ * should be used from a single thread only.
  * 
  * @see "http://en.wikipedia.org/wiki/Xorshift"
  * @see "http://www.jstatsoft.org/v08/i14/paper"
  * @see "http://www.javamex.com/tutorials/random_numbers/xorshift.shtml"
  */
 @SuppressWarnings("serial")
-public class XorShiftRandom extends Random
-{
-    private long x;
+public class XorShiftRandom extends Random {
+  private long x;
 
-    public XorShiftRandom()
-    {
-        this(System.nanoTime());
-    }
+  public XorShiftRandom() {
+    this(System.nanoTime());
+  }
 
-    public XorShiftRandom(long seed)
-    {
-        this.setSeed(seed);
-    }
+  public XorShiftRandom(long seed) {
+    this.setSeed(seed);
+  }
 
-    @Override
-    public long nextLong()
-    {
-        return x = next(x);
-    }
+  @Override
+  public long nextLong() {
+    return x = next(x);
+  }
 
-    @Override
-    protected int next(int bits)
-    {
-        return (int) (nextLong() & ((1L << bits) - 1));
-    }
+  @Override
+  protected int next(int bits) {
+    return (int) (nextLong() & ((1L << bits) - 1));
+  }
 
-    @Override
-    public void setSeed(long seed)
-    {
-        this.x = seed;
-    }
+  @Override
+  public void setSeed(long seed) {
+    this.x = seed;
+  }
 
-    public static long next(long x) {
-      x ^= (x << 21);
-      x ^= (x >>> 35);
-      x ^= (x << 4);
-      return x;
-    }
+  public static long next(long x) {
+    x ^= (x << 21);
+    x ^= (x >>> 35);
+    x ^= (x << 4);
+    return x;
+  }
 }

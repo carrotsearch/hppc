@@ -1,6 +1,15 @@
 package com.carrotsearch.hppc;
 
+/**
+ * Factory methods to acquire the most common types of 
+ * {@link HashOrderMixingStrategy}.
+ */
 public final class HashOrderMixing {
+  private HashOrderMixing() {}
+
+  /**
+   * @see #deterministic()
+   */
   private static final HashOrderMixingStrategy DETERMINISTIC = new HashOrderMixingStrategy() {
     @Override
     public int newKeyMixer(int newContainerBufferSize) {
@@ -12,8 +21,6 @@ public final class HashOrderMixing {
       return this;
     }    
   };
-
-  private HashOrderMixing() {}
 
   /**
    * Returns a randomized {@link HashOrderMixingStrategy} that issues unique
