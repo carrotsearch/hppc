@@ -90,9 +90,38 @@ HPPC-117: A summary of API changes resulting from other issues.
               map.indexInsert(index, key, newValue);
             }
             
-          * (HPPC-141): Dropped mutable type wrappers. 
+          * (HPPC-141): Dropped mutable type wrappers.
+          
+          * (HPPC-144): Several less-frequently used classes have been moved to 
+          a separate JAR file. See full description of HPPC-144 below.
 
 ** New features
+
+HPPC-144: Moved certain esoteric key/value containers to a separate JAR. This
+          JAR has an identical dependency as main HPPC jar, but is declared with
+          an "esoteric" classifier. The following containers are included
+          in the set of "esoteric" ones:
+          * all associative containers with Byte* keys
+          * all associative containers with Float* keys
+          * all associative containers with Double* keys
+          
+          Byte-keyed containers are very infrequent (just create a plain array 
+          for values). Hash containers keyed by a floating-point type are odd
+          and may lead to confusion. The problem is how the "key" should be 
+          normalized from fixed-bit representation and then internally compared.
+          If fp normalization is applied (like Double.doubleToLongBits) then 
+          the value one puts in a set or a map may be different from the value 
+          later retrieved while iterating over the set of keys. On the other 
+          hand, if one takes raw floating point values (for example 
+          Double.doubleToRawLongBits) then there are awkward side-effects 
+          (like various types of NaNs can be stored as separate keys, for 
+          example).
+          
+          All floating-point "esoterics" use proper normalization, but it is 
+          strongly advised to manually apply the floating point-fixed-point 
+          conversion (normalization) in the target code and just use
+          a corresponding fixed-point associative container for storing 
+          normalized values.  
 
 HPPC-143: Added KTypeScatterSet and KTypeVTypeScatterMap. These classes are
           specializations of KTypeOpenHashSet and KTypeVTypeOpenHashMap with

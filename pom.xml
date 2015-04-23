@@ -76,6 +76,10 @@
     <version.antlr>4.5</version.antlr>
     <version.velocity>1.7</version.velocity>
     <version.forbiddenapis>1.8</version.forbiddenapis>
+    
+    <version.fastutil>7.0.2</version.fastutil>
+    <version.koloboke>0.6.6</version.koloboke>
+
     <version.maven-assembly-plugin>2.5.2</version.maven-assembly-plugin>
     <version.maven-clean-plugin>2.5</version.maven-clean-plugin>
     <version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>

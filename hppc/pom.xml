@@ -57,6 +57,110 @@
 
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-jar</id>
+              <phase>package</phase>
+              <configuration>
+                <!-- HPPC-144: esoteric combinations. -->
+                <excludes>
+                  <exclude>**/ByteByte*.class</exclude>
+                  <exclude>**/ByteChar*.class</exclude>
+                  <exclude>**/ByteShort*.class</exclude>
+                  <exclude>**/ByteInt*.class</exclude>
+                  <exclude>**/ByteFloat*.class</exclude>
+                  <exclude>**/ByteLong*.class</exclude>
+                  <exclude>**/ByteDouble*.class</exclude>
+                  <exclude>**/ByteObject*.class</exclude>
+
+                  <exclude>**/ByteOpenHashSet*.class</exclude>
+                  <exclude>**/ByteScatterSet*.class</exclude>
+                  <exclude>**/ByteSet*.class</exclude>
+
+                  <exclude>**/FloatByte*.class</exclude>
+                  <exclude>**/FloatChar*.class</exclude>
+                  <exclude>**/FloatShort*.class</exclude>
+                  <exclude>**/FloatInt*.class</exclude>
+                  <exclude>**/FloatFloat*.class</exclude>
+                  <exclude>**/FloatLong*.class</exclude>
+                  <exclude>**/FloatDouble*.class</exclude>
+                  <exclude>**/FloatObject*.class</exclude>
+
+                  <exclude>**/FloatOpenHashSet*.class</exclude>
+                  <exclude>**/FloatScatterSet*.class</exclude>
+                  <exclude>**/FloatSet*.class</exclude>
+
+                  <exclude>**/DoubleByte*.class</exclude>
+                  <exclude>**/DoubleChar*.class</exclude>
+                  <exclude>**/DoubleShort*.class</exclude>
+                  <exclude>**/DoubleInt*.class</exclude>
+                  <exclude>**/DoubleFloat*.class</exclude>
+                  <exclude>**/DoubleLong*.class</exclude>
+                  <exclude>**/DoubleDouble*.class</exclude>
+                  <exclude>**/DoubleObject*.class</exclude>
+
+                  <exclude>**/DoubleOpenHashSet*.class</exclude>
+                  <exclude>**/DoubleScatterSet*.class</exclude>
+                  <exclude>**/DoubleSet*.class</exclude>
+                </excludes>
+              </configuration>
+            </execution>
+            <execution>
+              <id>esoteric-jar</id>
+              <phase>package</phase>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+              <configuration>
+                <classifier>esoteric</classifier>
+                <includes>
+                  <include>**/ByteByte*.class</include>
+                  <include>**/ByteChar*.class</include>
+                  <include>**/ByteShort*.class</include>
+                  <include>**/ByteInt*.class</include>
+                  <include>**/ByteFloat*.class</include>
+                  <include>**/ByteLong*.class</include>
+                  <include>**/ByteDouble*.class</include>
+                  <include>**/ByteObject*.class</include>
+
+                  <include>**/ByteOpenHashSet*.class</include>
+                  <include>**/ByteScatterSet*.class</include>
+                  <include>**/ByteSet*.class</include>
+
+                  <include>**/FloatByte*.class</include>
+                  <include>**/FloatChar*.class</include>
+                  <include>**/FloatShort*.class</include>
+                  <include>**/FloatInt*.class</include>
+                  <include>**/FloatFloat*.class</include>
+                  <include>**/FloatLong*.class</include>
+                  <include>**/FloatDouble*.class</include>
+                  <include>**/FloatObject*.class</include>
+
+                  <include>**/FloatOpenHashSet*.class</include>
+                  <include>**/FloatScatterSet*.class</include>
+                  <include>**/FloatSet*.class</include>
+
+                  <include>**/DoubleByte*.class</include>
+                  <include>**/DoubleChar*.class</include>
+                  <include>**/DoubleShort*.class</include>
+                  <include>**/DoubleInt*.class</include>
+                  <include>**/DoubleFloat*.class</include>
+                  <include>**/DoubleLong*.class</include>
+                  <include>**/DoubleDouble*.class</include>
+                  <include>**/DoubleObject*.class</include>
+
+                  <include>**/DoubleOpenHashSet*.class</include>
+                  <include>**/DoubleScatterSet*.class</include>
+                  <include>**/DoubleSet*.class</include>
+                </includes>
+              </configuration>
+            </execution>            
+          </executions>
+      </plugin>
+
+      <plugin>
         <groupId>com.carrotsearch</groupId>
         <artifactId>hppc-template-processor</artifactId>
         <version>${project.version}</version>
