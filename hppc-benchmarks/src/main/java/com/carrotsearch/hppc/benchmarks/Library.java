@@ -2,7 +2,7 @@ package com.carrotsearch.hppc.benchmarks;
 
 import com.carrotsearch.hppc.benchmarks.implementations.FastutilIntSetOps;
 import com.carrotsearch.hppc.benchmarks.implementations.HppcIntSetOps;
-import com.carrotsearch.hppc.benchmarks.implementations.HppcPhiMixIntSetOps;
+import com.carrotsearch.hppc.benchmarks.implementations.HppcIntScatterSetOps;
 import com.carrotsearch.hppc.benchmarks.implementations.KolobokeIntSetOps;
 
 /**
@@ -16,10 +16,10 @@ public enum Library {
     }
   },
 
-  HPPC_PHIMIX {
+  HPPC_SCATTER {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcPhiMixIntSetOps(expectedElements, loadFactor);
+      return new HppcIntScatterSetOps(expectedElements, loadFactor);
     }    
   },
 

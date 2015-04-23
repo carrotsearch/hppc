@@ -59,9 +59,9 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
      * @return Returns the element at index <code>index</code> from the list.
      */
     public KType get(int index);
-    
+
     /**
-     * Removes the element at the specified position in this list and returns it.
+     * Removes the element at the specified position in this container and returns it.
      * 
      * <p><b>Careful.</b> Do not confuse this method with the overridden signature in
      * Java Collections ({@link List#remove(Object)}). Use: {@link #removeAll},
@@ -71,7 +71,7 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
     public KType remove(int index);
 
     /**
-     * Removes from this list all of the elements whose index is between 
+     * Removes from this container all of the elements with indexes between 
      * <code>fromIndex</code>, inclusive, and <code>toIndex</code>, exclusive.
      */
     public void removeRange(int fromIndex, int toIndex);

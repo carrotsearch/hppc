@@ -1,20 +1,14 @@
 package com.carrotsearch.hppc.benchmarks.implementations;
 
-import com.carrotsearch.hppc.IntOpenHashSet;
+import com.carrotsearch.hppc.IntScatterSet;
 import com.carrotsearch.hppc.benchmarks.*;
 
-public class HppcPhiMixIntSetOps implements IntSetOps
+public class HppcIntScatterSetOps implements IntSetOps
 {
-  private final IntOpenHashSet delegate;
+  private final IntScatterSet delegate;
 
-  public HppcPhiMixIntSetOps(int expectedElements, double loadFactor) {
-    this.delegate = new IntOpenHashSet(expectedElements, loadFactor) {
-      @Override
-      protected int hashKey(int key) { // PhiMix.
-        final int h = key * 0x9E3779B9;
-        return h ^ (h >>> 16);
-      }
-    };
+  public HppcIntScatterSetOps(int expectedElements, double loadFactor) {
+    this.delegate = new IntScatterSet(expectedElements, loadFactor);
   }
 
   @Override

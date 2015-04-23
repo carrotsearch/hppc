@@ -94,6 +94,12 @@ HPPC-117: A summary of API changes resulting from other issues.
 
 ** New features
 
+HPPC-143: Added KTypeScatterSet and KTypeVTypeScatterMap. These classes are
+          specializations of KTypeOpenHashSet and KTypeVTypeOpenHashMap with
+          a simpler bit distribution function and no bit mixers. They are
+          useful for key existence checks or counting but should not be 
+          propagated across containers.
+
 HPPC-134: Set and Map's removeAll() should pick the best removal strategy.
 
 HPPC-139: Added release() to the API (clears and releases internal buffers).
