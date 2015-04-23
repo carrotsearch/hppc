@@ -28,7 +28,11 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     /**
      * Per-test fresh initialized instance.
      */
-    public KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<>();
+    public KTypeVTypeOpenHashMap<KType, VType> map = newInstance();
+    
+    protected KTypeVTypeOpenHashMap<KType, VType> newInstance() {
+      return new KTypeVTypeOpenHashMap<>();
+    }
 
     @After
     public void checkEmptySlotsUninitialized()
@@ -251,8 +255,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         map.put(key1, value1);
         map.put(key2, value1);
 
-        KTypeVTypeOpenHashMap<KType, VType> map2 = 
-            new KTypeVTypeOpenHashMap<KType, VType>();
+        KTypeVTypeOpenHashMap<KType, VType> map2 = newInstance();
 
         map2.put(key2, value2);
         map2.put(keyE, value1);
@@ -491,7 +494,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testMapsIntersection()
     {
-        KTypeVTypeOpenHashMap<KType, VType> map2 = new KTypeVTypeOpenHashMap<>(); 
+        KTypeVTypeOpenHashMap<KType, VType> map2 = newInstance(); 
 
         map.put(key1, value1);
         map.put(key2, value1);
@@ -641,10 +644,9 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testHashCodeEquals()
     {
-        KTypeVTypeOpenHashMap<KType, VType> l0 = 
-            new KTypeVTypeOpenHashMap<KType, VType>();
+        KTypeVTypeOpenHashMap<KType, VType> l0 = newInstance();
         assertEquals(0, l0.hashCode());
-        assertEquals(l0, new KTypeVTypeOpenHashMap<KType, VType>());
+        assertEquals(l0, newInstance());
 
         KTypeVTypeOpenHashMap<KType, VType> l1 = KTypeVTypeOpenHashMap.from(
             newArray(key1, key2, key3),
@@ -853,7 +855,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     @Test
     public void testEqualsSameClass()
     {
-        KTypeVTypeOpenHashMap<KType, VType> l1 = new KTypeVTypeOpenHashMap<>();
+        KTypeVTypeOpenHashMap<KType, VType> l1 = newInstance();
         l1.put(k1, value0);
         l1.put(k2, value1);
         l1.put(k3, value2);
@@ -877,7 +879,7 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
         class Sub extends KTypeVTypeOpenHashMap<KType, VType> {
         };
 
-        KTypeVTypeOpenHashMap<KType, VType> l1 = new KTypeVTypeOpenHashMap<>();
+        KTypeVTypeOpenHashMap<KType, VType> l1 = newInstance();
         l1.put(k1, value0);
         l1.put(k2, value1);
         l1.put(k3, value2);
