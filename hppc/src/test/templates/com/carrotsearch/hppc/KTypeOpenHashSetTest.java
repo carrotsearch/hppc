@@ -62,6 +62,19 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
       Assertions.assertThat(set.size()).isEqualTo(3);
     }
 
+    @Test
+    public void testCursorIndexIsValid()
+    {
+      set.add(keyE);
+      set.add(key1);
+      set.add(key2);
+
+      for (KTypeCursor<KType> c : set) {
+        Assertions.assertThat(set.indexExists(c.index)).isTrue();
+        Assertions.assertThat(set.indexGet(c.index)).isEqualTo(c.value);
+      }
+    }
+
     /* */
     @Test
     public void testEmptyKey()

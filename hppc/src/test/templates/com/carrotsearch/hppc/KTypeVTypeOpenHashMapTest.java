@@ -137,6 +137,19 @@ public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<K
     }
 
     @Test
+    public void testCursorIndexIsValid()
+    {
+      map.put(keyE, value1);
+      map.put(key1, value2);
+      map.put(key2, value3);
+
+      for (KTypeVTypeCursor<KType, VType> c : map) {
+        Assertions.assertThat(map.indexExists(c.index)).isTrue();
+        Assertions.assertThat(map.indexGet(c.index)).isEqualTo(c.value);
+      }
+    }
+
+    @Test
     public void testIndexMethods()
     {
       map.put(keyE, value1);
