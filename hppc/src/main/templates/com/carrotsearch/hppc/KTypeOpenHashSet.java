@@ -20,7 +20,7 @@ public class KTypeOpenHashSet<KType>
   implements /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
              KTypeLookupContainer<KType>, 
              KTypeSet<KType>,
-             Preallocatable,
+             Preallocable,
              Cloneable {
   /** The hash array holding keys. */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 

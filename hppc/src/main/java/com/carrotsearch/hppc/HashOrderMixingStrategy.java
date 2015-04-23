@@ -8,7 +8,7 @@ public interface HashOrderMixingStrategy extends Cloneable {
 
   /**
    * @return Return a clone of this strategy. This should use a different mixing
-   * because cloned containers should have a different hash ordering.
+   *         because cloned containers should have a different hash ordering.
    */
   public HashOrderMixingStrategy clone();
 }

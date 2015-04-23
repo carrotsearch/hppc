@@ -5,15 +5,15 @@ import java.util.Locale;
 
 @SuppressWarnings("serial")
 public class BufferAllocationException extends RuntimeException {
-  BufferAllocationException(String message) {
+  public BufferAllocationException(String message) {
     super(message);
   }
 
-  BufferAllocationException(String message, Object... args) {
+  public BufferAllocationException(String message, Object... args) {
     this(message, null, args);
   }
 
-  BufferAllocationException(String message, Throwable t, Object... args) {
+  public BufferAllocationException(String message, Throwable t, Object... args) {
     super(formatMessage(message, t, args), t);
   }
 

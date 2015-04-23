@@ -50,7 +50,7 @@ import static com.carrotsearch.hppc.Containers.*;
 public class KTypeArrayDeque<KType> 
   extends AbstractKTypeCollection<KType> 
   implements KTypeDeque<KType>,
-             Preallocatable, 
+             Preallocable, 
              Cloneable {
     /**
      * Internal array for storing elements of the deque.

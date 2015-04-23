@@ -5,27 +5,27 @@ public final class HashContainers {
    * Maximum array size for hash containers (power-of-two and still
    * allocable in Java, not a negative int).  
    */
-  final static int MAX_HASH_ARRAY_LENGTH = 0x80000000 >>> 1;
+  public final static int MAX_HASH_ARRAY_LENGTH = 0x80000000 >>> 1;
 
   /**
    * Minimum hash buffer size.
    */
-  final static int MIN_HASH_ARRAY_LENGTH = 4;
+  public final static int MIN_HASH_ARRAY_LENGTH = 4;
 
   /**
    * Default load factor.
    */
-  final static float DEFAULT_LOAD_FACTOR = 0.75f;
+  public final static float DEFAULT_LOAD_FACTOR = 0.75f;
 
   /**
    * Minimal sane load factor (99 empty slots per 100).
    */
-  final static float MIN_LOAD_FACTOR = 1 / 100.0f;
+  public final static float MIN_LOAD_FACTOR = 1 / 100.0f;
 
   /**
    * Maximum sane load factor (1 empty slot per 100).
    */
-  final static float MAX_LOAD_FACTOR = 99 / 100.0f;
+  public final static float MAX_LOAD_FACTOR = 99 / 100.0f;
 
   /**
    * Compute and return the maximum number of elements (inclusive)

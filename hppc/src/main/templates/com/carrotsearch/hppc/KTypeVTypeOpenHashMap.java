@@ -19,7 +19,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   implements /*! #if ($templateonly) !*/ Intrinsics.EqualityFunction, /*! #end !*/
              /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
              KTypeVTypeMap<KType, VType>,
-             Preallocatable,
+             Preallocable,
              Cloneable
 {
   /** 
