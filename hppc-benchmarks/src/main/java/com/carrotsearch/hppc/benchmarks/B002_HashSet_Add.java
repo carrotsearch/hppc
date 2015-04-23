@@ -65,7 +65,10 @@ public class B002_HashSet_Add {
   }
 
   public static void main(String[] args) throws RunnerException {
-    Options opt = new OptionsBuilder().include(B002_HashSet_Add.class.getSimpleName()).build();
+    Options opt = new OptionsBuilder()
+      .param("library", "HPPC_SCATTER")
+      .include(B002_HashSet_Add.class.getSimpleName())
+      .build();
     new Runner(opt).run();
   }
 }
