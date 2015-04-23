@@ -162,7 +162,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * 
    * @param index The index of an existing key.
    * @return Returns the value currently associated with the key.
-   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
+   * @throws AssertionError If assertions are enabled and the index does
    *         not correspond to an existing key.
    */
   public VType indexGet(int index);
@@ -175,7 +175,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * 
    * @param index The index of an existing key.
    * @return Returns the previous value associated with the key.
-   * @throws Throws {@link AssertionError} if assertions are enabled and the index does
+   * @throws AssertionError If assertions are enabled and the index does
    *         not correspond to an existing key.
    */
   public VType indexReplace(int index, VType newValue);
@@ -188,8 +188,8 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * 
    * @param index The index of a previously non-existing key, as returned from 
    *              {@link #indexOf}.
-   * @throws Throws {@link AssertionError} if assertions are enabled and the index 
-   *         corresponds to an existing key.
+   * @throws AssertionError If assertions are enabled and the index corresponds 
+   *         to an existing key.
    */
   public void indexInsert(int index, KType key, VType value);
 

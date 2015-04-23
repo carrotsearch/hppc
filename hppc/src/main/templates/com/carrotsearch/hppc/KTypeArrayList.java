@@ -544,7 +544,7 @@ public class KTypeArrayList<KType>
      * Returns <code>true</code> only if the other object is an instance of 
      * the same class and with the same elements. 
 #if ($TemplateOptions.KTypeGeneric) 
-     * Equality comparison is performed with this object's {@link #equal} 
+     * Equality comparison is performed with this object's {@link #equals(Object, Object)} 
      * method.
 #end
      */
@@ -560,7 +560,7 @@ public class KTypeArrayList<KType>
      * Compare index-aligned elements against another 
      * {@link KTypeIndexedContainer}. 
 #if ($TemplateOptions.KTypeGeneric) 
-     * Equality comparison is performed with this object's {@link #equal} 
+     * Equality comparison is performed with this object's {@link #equals(Object, Object)} 
      * method.
 #end
      */
