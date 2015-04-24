@@ -460,6 +460,7 @@
                       <packages>com.carrotsearch.hppc*</packages>
                     </group>
                   </groups>
+                  <stylesheetfile>css/1.7/stylesheet.css</stylesheetfile>
                 </configuration>
                 <goals>
                   <goal>jar</goal>
@@ -472,7 +473,7 @@
     </profile>
     
     <profile>
-      <id>jdk18+</id>
+      <id>jdk18</id>
       <activation>
         <jdk>[1.8,)</jdk>
       </activation>
@@ -487,6 +488,7 @@
                 <id>attach-javadocs</id>
                 <configuration>
                   <additionalparam>-Xdoclint:-missing</additionalparam>
+                  <stylesheetfile>css/1.8/stylesheet.css</stylesheetfile>
                 </configuration>
               </execution>
             </executions>
