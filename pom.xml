@@ -91,7 +91,7 @@
     <version.maven-resources-plugin>2.6</version.maven-resources-plugin>
     <version.maven-surefire-plugin>2.17</version.maven-surefire-plugin>
     <version.maven-enforcer-plugin>1.4</version.maven-enforcer-plugin>
-    <version.maven-javadoc-plugin>2.10.1</version.maven-javadoc-plugin>
+    <version.maven-javadoc-plugin>2.10.3</version.maven-javadoc-plugin>
     <version.maven-versions-plugin>2.1</version.maven-versions-plugin>
     <version.maven-buildhelper-plugin>1.9.1</version.maven-buildhelper-plugin>
     <version.maven-shade-plugin>2.2</version.maven-shade-plugin>
