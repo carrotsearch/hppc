@@ -10,7 +10,7 @@ import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
 /**
- * Tests for {@link KTypeVTypeOpenIdentityHashMap}.
+ * Tests for {@link KTypeVTypeIdentityHashMap}.
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("all") #end !*/
 /* ! ${TemplateOptions.generatedAnnotation} ! */
@@ -24,7 +24,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     /**
      * Per-test fresh initialized instance.
      */
-    public KTypeVTypeOpenIdentityHashMap<KType, VType> map = new KTypeVTypeOpenIdentityHashMap<>();
+    public KTypeVTypeIdentityHashMap<KType, VType> map = new KTypeVTypeIdentityHashMap<>();
 
     @After
     public void checkEmptySlotsUninitialized()
@@ -106,7 +106,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         map.put(key2, value2);
         map.put(key3, value3);
 
-        assertSameMap(map, new KTypeVTypeOpenIdentityHashMap<KType, VType>(map));
+        assertSameMap(map, new KTypeVTypeIdentityHashMap<KType, VType>(map));
     }
 
     /* */
@@ -117,7 +117,7 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         map.put(key2, value2);
         map.put(key3, value3);
 
-        KTypeVTypeOpenIdentityHashMap<KType, VType> map2 = KTypeVTypeOpenIdentityHashMap.from(
+        KTypeVTypeIdentityHashMap<KType, VType> map2 = KTypeVTypeIdentityHashMap.from(
             newArray(key1, key2, key3),
             newvArray(value1, value2, value3));
 
@@ -163,8 +163,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
         map.put(key1, value1);
         map.put(key2, value1);
 
-        KTypeVTypeOpenIdentityHashMap<KType, VType> map2 = 
-            new KTypeVTypeOpenIdentityHashMap<KType, VType>();
+        KTypeVTypeIdentityHashMap<KType, VType> map2 = 
+            new KTypeVTypeIdentityHashMap<KType, VType>();
 
         map2.put(key2, value2);
         map2.put(key3, value1);
@@ -278,8 +278,8 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     @Test
     public void testMapsIntersection()
     {
-        KTypeVTypeOpenIdentityHashMap<KType, VType> map2 = 
-            new KTypeVTypeOpenIdentityHashMap<>(); 
+        KTypeVTypeIdentityHashMap<KType, VType> map2 = 
+            new KTypeVTypeIdentityHashMap<>(); 
 
         map.put(key1, value1);
         map.put(key2, value1);
@@ -363,20 +363,20 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     @Test
     public void testHashCodeEquals()
     {
-        KTypeVTypeOpenIdentityHashMap<KType, VType> l0 = 
-            new KTypeVTypeOpenIdentityHashMap<KType, VType>();
+        KTypeVTypeIdentityHashMap<KType, VType> l0 = 
+            new KTypeVTypeIdentityHashMap<KType, VType>();
         assertEquals(0, l0.hashCode());
-        assertEquals(l0, new KTypeVTypeOpenIdentityHashMap<KType, VType>());
+        assertEquals(l0, new KTypeVTypeIdentityHashMap<KType, VType>());
 
-        KTypeVTypeOpenIdentityHashMap<KType, VType> l1 = KTypeVTypeOpenIdentityHashMap.from(
+        KTypeVTypeIdentityHashMap<KType, VType> l1 = KTypeVTypeIdentityHashMap.from(
             newArray(key1, key2, key3),
             newvArray(value1, value2, value3));
 
-        KTypeVTypeOpenIdentityHashMap<KType, VType> l2 = KTypeVTypeOpenIdentityHashMap.from(
+        KTypeVTypeIdentityHashMap<KType, VType> l2 = KTypeVTypeIdentityHashMap.from(
             newArray(key2, key1, key3),
             newvArray(value2, value1, value3));
 
-        KTypeVTypeOpenIdentityHashMap<KType, VType> l3 = KTypeVTypeOpenIdentityHashMap.from(
+        KTypeVTypeIdentityHashMap<KType, VType> l3 = KTypeVTypeIdentityHashMap.from(
             newArray(key1, key2),
             newvArray(value2, value1));
 
@@ -390,11 +390,11 @@ public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTy
     @Test
     public void testBug_HPPC37()
     {
-        KTypeVTypeOpenIdentityHashMap<KType, VType> l1 = KTypeVTypeOpenIdentityHashMap.from(
+        KTypeVTypeIdentityHashMap<KType, VType> l1 = KTypeVTypeIdentityHashMap.from(
             newArray(key1),
             newvArray(value1));
 
-        KTypeVTypeOpenIdentityHashMap<KType, VType> l2 = KTypeVTypeOpenIdentityHashMap.from(
+        KTypeVTypeIdentityHashMap<KType, VType> l2 = KTypeVTypeIdentityHashMap.from(
             newArray(key2),
             newvArray(value1));
 

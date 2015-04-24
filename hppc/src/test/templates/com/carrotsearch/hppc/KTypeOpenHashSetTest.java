@@ -12,7 +12,7 @@ import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 
 /**
- * Unit tests for {@link KTypeOpenHashSet}.
+ * Unit tests for {@link KTypeHashSet}.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
@@ -20,7 +20,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     /**
      * Per-test fresh initialized instance.
      */
-    public KTypeOpenHashSet<KType> set;
+    public KTypeHashSet<KType> set;
 
     public final KType EMPTY_KEY = Intrinsics.<KType> empty();
 
@@ -28,7 +28,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        set = new KTypeOpenHashSet<>();
+        set = new KTypeHashSet<>();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testEmptyKey()
     {
-        KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>();
+        KTypeHashSet<KType> set = new KTypeHashSet<KType>();
         set.add(EMPTY_KEY);
 
         Assertions.assertThat(set.size()).isEqualTo(1);
@@ -100,7 +100,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     public void testEnsureCapacity()
     {
         final AtomicInteger expands = new AtomicInteger();
-        KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(0) {
+        KTypeHashSet<KType> set = new KTypeHashSet<KType>(0) {
           @Override
           protected void allocateBuffers(int arraySize) {
             super.allocateBuffers(arraySize);
@@ -162,7 +162,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAll()
     {
-        KTypeOpenHashSet<KType> set2 = new KTypeOpenHashSet<KType>();
+        KTypeHashSet<KType> set2 = new KTypeHashSet<KType>();
         set2.addAll(asArray(1, 2));
         set.addAll(asArray(0, 1));
 
@@ -191,7 +191,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < 256; i++)
         {
-            KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(i);
+            KTypeHashSet<KType> set = new KTypeHashSet<KType>(i);
             
             for (int j = 0; j < i; j++)
             {
@@ -208,7 +208,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         final AtomicInteger reallocations = new AtomicInteger();
         final int elements = 0x7F;
-        set = new KTypeOpenHashSet<KType>(elements, 1f) {
+        set = new KTypeHashSet<KType>(elements, 1f) {
           @Override
           protected double verifyLoadFactor(double loadFactor) {
             // Skip load factor sanity range checking.
@@ -255,7 +255,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         set.addAll(asArray(0, 1, 2, 3, 4));
 
-        KTypeOpenHashSet<KType> list2 = new KTypeOpenHashSet<KType>();
+        KTypeHashSet<KType> list2 = new KTypeHashSet<KType>();
         list2.addAll(asArray(1, 3, 5));
 
         assertEquals(2, set.removeAll(list2));
@@ -395,12 +395,12 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeEquals()
     {
-        KTypeOpenHashSet<KType> l0 = new KTypeOpenHashSet<>();
+        KTypeHashSet<KType> l0 = new KTypeHashSet<>();
         assertEquals(0, l0.hashCode());
-        assertEquals(l0, new KTypeOpenHashSet<>());
+        assertEquals(l0, new KTypeHashSet<>());
 
-        KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, k2, k3);
-        KTypeOpenHashSet<KType> l2 = KTypeOpenHashSet.from(k1, k2);
+        KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, k2, k3);
+        KTypeHashSet<KType> l2 = KTypeHashSet.from(k1, k2);
         l2.add(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
@@ -411,8 +411,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeEqualsForDifferentMix()
     {
-        KTypeOpenHashSet<KType> l0 = new KTypeOpenHashSet<KType>(0, 0.5d, HashOrderMixing.constant(1));
-        KTypeOpenHashSet<KType> l1 = new KTypeOpenHashSet<KType>(0, 0.5d, HashOrderMixing.constant(2));
+        KTypeHashSet<KType> l0 = new KTypeHashSet<KType>(0, 0.5d, HashOrderMixing.constant(1));
+        KTypeHashSet<KType> l1 = new KTypeHashSet<KType>(0, 0.5d, HashOrderMixing.constant(2));
 
         assertEquals(0, l0.hashCode());
         assertEquals(l0.hashCode(), l1.hashCode());
@@ -429,8 +429,8 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeWithNulls()
     {
-        KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, null, k3);
-        KTypeOpenHashSet<KType> l2 = KTypeOpenHashSet.from(k1, null);
+        KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, null, k3);
+        KTypeHashSet<KType> l2 = KTypeHashSet.from(k1, null);
         l2.add(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
@@ -443,7 +443,7 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         this.set.addAll(key1, key2, key3);
 
-        KTypeOpenHashSet<KType> cloned = set.clone();
+        KTypeHashSet<KType> cloned = set.clone();
         cloned.removeAll(key1);
 
         assertSortedListEquals(set.toArray(), key1, key2, key3);
@@ -454,9 +454,9 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testEqualsSameClass()
     {
-      KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, k2, k3);
-      KTypeOpenHashSet<KType> l2 = KTypeOpenHashSet.from(k1, k2, k3);
-      KTypeOpenHashSet<KType> l3 = KTypeOpenHashSet.from(k1, k2, k4);
+      KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, k2, k3);
+      KTypeHashSet<KType> l2 = KTypeHashSet.from(k1, k2, k3);
+      KTypeHashSet<KType> l3 = KTypeHashSet.from(k1, k2, k4);
 
         Assertions.assertThat(l1).isEqualTo(l2);
         Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
@@ -467,12 +467,12 @@ public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testEqualsSubClass()
     {
-        class Sub extends KTypeOpenHashSet<KType> {
+        class Sub extends KTypeHashSet<KType> {
         };
 
-        KTypeOpenHashSet<KType> l1 = KTypeOpenHashSet.from(k1, k2, k3);
-        KTypeOpenHashSet<KType> l2 = new Sub();
-        KTypeOpenHashSet<KType> l3 = new Sub();
+        KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, k2, k3);
+        KTypeHashSet<KType> l2 = new Sub();
+        KTypeHashSet<KType> l3 = new Sub();
         l2.addAll(l1);
         l3.addAll(l1);
 

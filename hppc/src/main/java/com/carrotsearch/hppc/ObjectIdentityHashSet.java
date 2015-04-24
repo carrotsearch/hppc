@@ -6,27 +6,25 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A reference-equality (identity) hash set.
  */
-public class ObjectOpenIdentityHashSet<KType>
-  extends ObjectOpenHashSet<KType> {
-
+public class ObjectIdentityHashSet<KType> extends ObjectHashSet<KType> {
   /**
    * New instance with sane defaults.
    */
-  public ObjectOpenIdentityHashSet() {
+  public ObjectIdentityHashSet() {
     this(DEFAULT_EXPECTED_ELEMENTS, DEFAULT_LOAD_FACTOR);
   }
 
   /**
    * New instance with sane defaults.
    */
-  public ObjectOpenIdentityHashSet(int expectedElements) {
+  public ObjectIdentityHashSet(int expectedElements) {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
   }
 
   /**
    * New instance with sane defaults.
    */
-  public ObjectOpenIdentityHashSet(int expectedElements, double loadFactor) {
+  public ObjectIdentityHashSet(int expectedElements, double loadFactor) {
     this(expectedElements, loadFactor, HashOrderMixing.randomized());
   }
 
@@ -43,7 +41,7 @@ public class ObjectOpenIdentityHashSet<KType>
    *          implementations. Use constant mixers only if you understand the potential
    *          consequences.
    */
-  public ObjectOpenIdentityHashSet(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
+  public ObjectIdentityHashSet(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
     this.orderMixer = orderMixer;
     this.loadFactor = verifyLoadFactor(loadFactor);
     ensureCapacity(expectedElements);
@@ -52,7 +50,7 @@ public class ObjectOpenIdentityHashSet<KType>
   /**
    * New instance copying elements from another {@link ObjectContainer}.
    */
-  public ObjectOpenIdentityHashSet(ObjectContainer<? extends KType> container) {
+  public ObjectIdentityHashSet(ObjectContainer<? extends KType> container) {
     this(container.size());
     addAll(container);
   }
@@ -74,8 +72,8 @@ public class ObjectOpenIdentityHashSet<KType>
    * internal buffer.
    */
   @SafeVarargs
-  public static <KType> ObjectOpenIdentityHashSet<KType> from(KType... elements) {
-    final ObjectOpenIdentityHashSet<KType> set = new ObjectOpenIdentityHashSet<KType>(elements.length);
+  public static <KType> ObjectIdentityHashSet<KType> from(KType... elements) {
+    final ObjectIdentityHashSet<KType> set = new ObjectIdentityHashSet<KType>(elements.length);
     set.addAll(elements);
     return set;
   }

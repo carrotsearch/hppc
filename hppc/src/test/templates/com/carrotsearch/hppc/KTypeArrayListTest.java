@@ -209,7 +209,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         list.add(asArray(0, 1, 2, 1, 0));
 
-        KTypeOpenHashSet<KType> list2 = new KTypeOpenHashSet<>();
+        KTypeHashSet<KType> list2 = new KTypeHashSet<>();
         list2.addAll(asArray(0, 2));
 
         assertEquals(3, list.removeAll(list2));

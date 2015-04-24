@@ -14,27 +14,27 @@ import static com.carrotsearch.hppc.HashContainers.*;
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("all") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeVTypeOpenIdentityHashMap<KType, VType> 
-  extends KTypeVTypeOpenHashMap<KType, VType>
+public class KTypeVTypeIdentityHashMap<KType, VType> 
+  extends KTypeVTypeHashMap<KType, VType>
 {
   /**
    * New instance with sane defaults.
    */
-  public KTypeVTypeOpenIdentityHashMap() {
+  public KTypeVTypeIdentityHashMap() {
     this(DEFAULT_EXPECTED_ELEMENTS);
   }
 
   /**
    * New instance with sane defaults.
    */
-  public KTypeVTypeOpenIdentityHashMap(int expectedElements) {
+  public KTypeVTypeIdentityHashMap(int expectedElements) {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
   }
 
   /**
    * New instance with sane defaults.
    */
-  public KTypeVTypeOpenIdentityHashMap(int expectedElements, double loadFactor) {
+  public KTypeVTypeIdentityHashMap(int expectedElements, double loadFactor) {
     this(expectedElements, loadFactor, HashOrderMixing.randomized());
   }
 
@@ -51,7 +51,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
    *          implementations. Use constant mixers only if you understand the potential
    *          consequences.
    */
-  public KTypeVTypeOpenIdentityHashMap(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
+  public KTypeVTypeIdentityHashMap(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
     this.orderMixer = orderMixer;
     this.loadFactor = verifyLoadFactor(loadFactor);
     ensureCapacity(expectedElements);
@@ -60,7 +60,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
   /**
    * Create a hash map from all key-value pairs of another container.
    */
-  public KTypeVTypeOpenIdentityHashMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
+  public KTypeVTypeIdentityHashMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
     this(container.size());
     putAll(container);
   }
@@ -78,7 +78,7 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
 
   /* #if ($TemplateOptions.VTypeGeneric) */
   @Override
-  protected boolean equalElements(KTypeVTypeOpenHashMap<?, ?> other) {
+  protected boolean equalElements(KTypeVTypeHashMap<?, ?> other) {
     if (other.size() != size()) {
       return false;
     }
@@ -100,12 +100,12 @@ public class KTypeVTypeOpenIdentityHashMap<KType, VType>
   /**
    * Creates a hash map from two index-aligned arrays of key-value pairs.
    */
-  public static <KType, VType> KTypeVTypeOpenIdentityHashMap<KType, VType> from(KType[] keys, VType[] values) {
+  public static <KType, VType> KTypeVTypeIdentityHashMap<KType, VType> from(KType[] keys, VType[] values) {
     if (keys.length != values.length) {
       throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
     }
 
-    KTypeVTypeOpenIdentityHashMap<KType, VType> map = new KTypeVTypeOpenIdentityHashMap<>(keys.length);
+    KTypeVTypeIdentityHashMap<KType, VType> map = new KTypeVTypeIdentityHashMap<>(keys.length);
     for (int i = 0; i < keys.length; i++) {
       map.put(keys[i], values[i]);
     }

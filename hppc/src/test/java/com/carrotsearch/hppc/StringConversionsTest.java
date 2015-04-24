@@ -33,8 +33,8 @@ public class StringConversionsTest
     @Test
     public void testObjectObjectMap()
     {
-        ObjectObjectOpenHashMap<String, String> map = 
-            ObjectObjectOpenHashMap.from(
+        ObjectObjectHashMap<String, String> map = 
+            ObjectObjectHashMap.from(
                 new String [] {"a"}, 
                 new String [] {"b"});
 

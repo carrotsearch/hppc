@@ -94,8 +94,14 @@ HPPC-117: A summary of API changes resulting from other issues.
           
           * (HPPC-144): Several less-frequently used classes have been moved to 
           a separate JAR file. See full description of HPPC-144 below.
+          
+          * (HPPC-145): Removed any "Open" infix from all classes:
+          KTypeOpenHashSet -> KTypeHashSet
+          KTypeVTypeOpenHashMap -> KTypeVTypeHashMap
 
 ** New features
+
+HPPC-145: Removed any "Open" infix from all classes. 
 
 HPPC-144: Moved certain esoteric key/value containers to a separate JAR. This
           JAR has an identical dependency as main HPPC jar, but is declared with

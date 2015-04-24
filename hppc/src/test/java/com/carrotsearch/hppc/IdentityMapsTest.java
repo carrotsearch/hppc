@@ -9,7 +9,7 @@ public class IdentityMapsTest
     @Test
     public void testSanity()
     {
-        ObjectCharOpenIdentityHashMap<Integer> m1 = new ObjectCharOpenIdentityHashMap<>(); 
+        ObjectCharIdentityHashMap<Integer> m1 = new ObjectCharIdentityHashMap<>(); 
 
         Integer a, b;
         m1.put(a = new Integer(1), 'a');
@@ -19,7 +19,7 @@ public class IdentityMapsTest
         assertEquals('b', m1.get(b));
         assertEquals(2, m1.size());
         
-        ObjectCharOpenIdentityHashMap<Integer> m2 = new ObjectCharOpenIdentityHashMap<>();
+        ObjectCharIdentityHashMap<Integer> m2 = new ObjectCharIdentityHashMap<>();
         m2.put(b, 'b');
         m2.put(a, 'a');
         
@@ -35,8 +35,8 @@ public class IdentityMapsTest
     @Test
     public void testEqualsComparesValuesByReference()
     {
-        ObjectObjectOpenIdentityHashMap<String, String> m1 = new ObjectObjectOpenIdentityHashMap<>();
-        ObjectObjectOpenIdentityHashMap<String, String> m2 = new ObjectObjectOpenIdentityHashMap<>();
+        ObjectObjectIdentityHashMap<String, String> m1 = new ObjectObjectIdentityHashMap<>();
+        ObjectObjectIdentityHashMap<String, String> m2 = new ObjectObjectIdentityHashMap<>();
 
         String a = "a";
         String av = "av";
@@ -60,8 +60,8 @@ public class IdentityMapsTest
     @Test
     public void testNaNsInValues()
     {
-        ObjectDoubleOpenIdentityHashMap<String> m1 = new ObjectDoubleOpenIdentityHashMap<>();
-        ObjectDoubleOpenIdentityHashMap<String> m2 = new ObjectDoubleOpenIdentityHashMap<>();
+        ObjectDoubleIdentityHashMap<String> m1 = new ObjectDoubleIdentityHashMap<>();
+        ObjectDoubleIdentityHashMap<String> m2 = new ObjectDoubleIdentityHashMap<>();
 
         String a = "a";
         Double av = Double.NaN;

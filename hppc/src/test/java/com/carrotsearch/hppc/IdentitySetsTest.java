@@ -10,7 +10,7 @@ public class IdentitySetsTest
     @Test
     public void testSanity()
     {
-        ObjectOpenIdentityHashSet<Integer> m1 = new ObjectOpenIdentityHashSet<>(); 
+        ObjectIdentityHashSet<Integer> m1 = new ObjectIdentityHashSet<>(); 
 
         Integer a, b;
         Assertions.assertThat(m1.add(a = new Integer(1))).isTrue();
@@ -28,7 +28,7 @@ public class IdentitySetsTest
 
         assertEquals(3, m1.size());
 
-        ObjectOpenIdentityHashSet<Integer> m2 = new ObjectOpenIdentityHashSet<>();
+        ObjectIdentityHashSet<Integer> m2 = new ObjectIdentityHashSet<>();
         m2.addAll(m1);
 
         Assertions.assertThat(m1).isEqualTo(m2);
