@@ -26,6 +26,9 @@ public class KTypeVTypeIdentityHashMap<KType, VType>
 
   /**
    * New instance with sane defaults.
+   * @param expectedElements
+   *          The expected number of elements guaranteed not to cause buffer
+   *          expansion (inclusive).
    */
   public KTypeVTypeIdentityHashMap(int expectedElements) {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
@@ -33,6 +36,13 @@ public class KTypeVTypeIdentityHashMap<KType, VType>
 
   /**
    * New instance with sane defaults.
+   * 
+   * @param expectedElements
+   *          The expected number of elements guaranteed not to cause buffer
+   *          expansion (inclusive).
+   * @param loadFactor
+   *          The load factor for internal buffers. Insane load factors (zero, full capacity)
+   *          are rejected by {@link #verifyLoadFactor(double)}.
    */
   public KTypeVTypeIdentityHashMap(int expectedElements, double loadFactor) {
     this(expectedElements, loadFactor, HashOrderMixing.randomized());

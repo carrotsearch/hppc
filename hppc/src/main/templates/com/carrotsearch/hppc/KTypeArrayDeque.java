@@ -107,6 +107,8 @@ public class KTypeArrayDeque<KType>
    * 
    * <p><b>This method is handy, but costly if used in tight loops (anonymous 
    * array passing)</b></p>
+   * 
+   * @param elements The elements to add.
    */
   /* #if ($TemplateOptions.KTypeGeneric) */
   @SafeVarargs
@@ -120,6 +122,8 @@ public class KTypeArrayDeque<KType>
 
   /**
    * Inserts all elements from the given container to the front of this deque.
+   * 
+   * @param container The container to iterate over.
    * 
    * @return Returns the number of elements actually added as a result of this
    *         call.
@@ -137,6 +141,8 @@ public class KTypeArrayDeque<KType>
 
   /**
    * Inserts all elements from the given iterable to the front of this deque.
+   * 
+   * @param iterable The iterable to iterate over.
    * 
    * @return Returns the number of elements actually added as a result of this
    *         call.
@@ -171,6 +177,8 @@ public class KTypeArrayDeque<KType>
    * <b>This method is handy, but costly if used in tight loops (anonymous array
    * passing)</b>
    * </p>
+   * 
+   * @param elements The elements to iterate over.  
    */
   /* #if ($TemplateOptions.KTypeGeneric) */
   @SafeVarargs
@@ -184,6 +192,8 @@ public class KTypeArrayDeque<KType>
 
   /**
    * Inserts all elements from the given container to the end of this deque.
+   * 
+   * @param container The container to iterate over.
    * 
    * @return Returns the number of elements actually added as a result of this
    *         call.
@@ -201,6 +211,8 @@ public class KTypeArrayDeque<KType>
 
   /**
    * Inserts all elements from the given iterable to the end of this deque.
+   * 
+   * @param iterable The iterable to iterate over.
    * 
    * @return Returns the number of elements actually added as a result of this
    *         call.

@@ -51,6 +51,10 @@ public final class BoundedProportionalArraySizingStrategy implements ArraySizing
 
   /**
    * Create the sizing strategy with custom policies.
+   * 
+   * @param minGrow Minimum number of elements to grow by when expanding.
+   * @param maxGrow Maximum number of elements to grow by when expanding.
+   * @param ratio   The ratio of expansion compared to the previous buffer size.
    */
   public BoundedProportionalArraySizingStrategy(int minGrow, int maxGrow, float ratio) {
     assert minGrow >= 1 : "Min grow must be >= 1.";
@@ -65,6 +69,11 @@ public final class BoundedProportionalArraySizingStrategy implements ArraySizing
   /**
    * Grow according to {@link #growRatio}, {@link #minGrowCount} and
    * {@link #maxGrowCount}.
+   * 
+   * @param currentBufferLength The current length of the buffer.
+   * @param elementsCount The number of elements stored in the buffer.
+   * @param expectedAdditions The number of expected additions to the buffer.
+   * @return New buffer size.
    */
   public int grow(int currentBufferLength, int elementsCount, int expectedAdditions) {
     long growBy = (long) ((long) currentBufferLength * growRatio);

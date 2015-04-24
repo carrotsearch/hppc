@@ -4,13 +4,17 @@ import static com.carrotsearch.hppc.Containers.*;
 import static com.carrotsearch.hppc.HashContainers.*;
 
 /**
- * Same as {@link KTypeHashSet} but does not implement per-instance
- * key mixing strategy and uses a simpler (faster) bit distribution function.
+ * Same as {@link KTypeHashSet} but does not implement per-instance key mixing
+ * strategy and uses a simpler (faster) bit distribution function.
  * 
- * Scatter sets are useful for containment checks or counting but should not be 
- * used when keys are copied from one hash container to another (because the 
- * keys of a scatter set are nearly-sorted by their hash value and can cause conflict 
- * avalanching leading to exponential times for any slot-lookup operation).
+ * <p>
+ * <strong>Note:</strong> read about <a href="{@docRoot}
+ * /overview-summary.html#scattervshash">important differences between hash and
+ * scatter sets</a>.
+ * </p>
+ * 
+ * @see KTypeHashSet
+ * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a> 
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeScatterSet<KType> extends KTypeHashSet<KType> {
@@ -35,7 +39,7 @@ public class KTypeScatterSet<KType> extends KTypeHashSet<KType> {
   public KTypeScatterSet(int expectedElements, double loadFactor) {
     super(expectedElements, loadFactor, HashOrderMixing.none());
   }
-  
+
   /*! #if ($templateonly) !*/
   @Override
   public

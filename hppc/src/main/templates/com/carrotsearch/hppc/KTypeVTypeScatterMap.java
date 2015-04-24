@@ -7,10 +7,9 @@ import static com.carrotsearch.hppc.HashContainers.*;
  * Same as {@link KTypeVTypeHashMap} but does not implement per-instance
  * key mixing strategy and uses a simpler (faster) bit distribution function.
  * 
- * Scatter maps are useful for containment checks or counting but should not be 
- * used when keys are copied from one hash container to another (because the 
- * keys of a scatter set are nearly-sorted by their hash value and can cause conflict 
- * avalanching leading to exponential times for any slot-lookup operation).
+ * <p><strong>Note:</strong> read about 
+ * <a href="{@docRoot}/overview-summary.html#scattervshash">important differences 
+ * between hash and scatter sets</a>.</p>
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeScatterMap<KType, VType> extends KTypeVTypeHashMap<KType, VType>
