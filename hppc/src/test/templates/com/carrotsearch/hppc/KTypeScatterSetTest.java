@@ -6,7 +6,7 @@ import org.junit.Before;
  * Unit tests for {@link KTypeHashSet}.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeScatterSetTest<KType> extends KTypeOpenHashSetTest<KType>
+public class KTypeScatterSetTest<KType> extends KTypeHashSetTest<KType>
 {
     /* */
     @Before

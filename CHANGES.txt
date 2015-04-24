@@ -130,7 +130,7 @@ HPPC-144: Moved certain esoteric key/value containers to a separate JAR. This
           normalized values.  
 
 HPPC-143: Added KTypeScatterSet and KTypeVTypeScatterMap. These classes are
-          specializations of KTypeOpenHashSet and KTypeVTypeOpenHashMap with
+          specializations of KTypeHashSet and KTypeVTypeHashMap with
           a simpler bit distribution function and no bit mixers. They are
           useful for key existence checks or counting but should not be 
           propagated across containers.

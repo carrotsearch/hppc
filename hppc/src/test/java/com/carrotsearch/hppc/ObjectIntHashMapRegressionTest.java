@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class ObjectIntOpenHashMapRegressionTest
+public class ObjectIntHashMapRegressionTest
 {
     /** @see "http://issues.carrot2.org/browse/HPPC-32" */
     @Test

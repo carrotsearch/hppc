@@ -17,7 +17,7 @@ import com.carrotsearch.hppc.procedures.*;
  * Tests for {@link KTypeVTypeHashMap}.
  */
 /* ! ${TemplateOptions.generatedAnnotation} ! */
-public class KTypeVTypeOpenHashMapTest<KType, VType> extends AbstractKTypeTest<KType>
+public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType>
 {
     protected VType value0 = vcast(0);
     protected VType value1 = vcast(1);

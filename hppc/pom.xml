@@ -78,7 +78,7 @@
                 <exclude>**/ByteDouble*</exclude>
                 <exclude>**/ByteObject*</exclude>
 
-                <exclude>**/ByteOpenHashSet*</exclude>
+                <exclude>**/ByteHashSet*</exclude>
                 <exclude>**/ByteScatterSet*</exclude>
                 <exclude>**/ByteSet*</exclude>
 
@@ -91,7 +91,7 @@
                 <exclude>**/FloatDouble*</exclude>
                 <exclude>**/FloatObject*</exclude>
 
-                <exclude>**/FloatOpenHashSet*</exclude>
+                <exclude>**/FloatHashSet*</exclude>
                 <exclude>**/FloatScatterSet*</exclude>
                 <exclude>**/FloatSet*</exclude>
 
@@ -104,7 +104,7 @@
                 <exclude>**/DoubleDouble*</exclude>
                 <exclude>**/DoubleObject*</exclude>
 
-                <exclude>**/DoubleOpenHashSet*</exclude>
+                <exclude>**/DoubleHashSet*</exclude>
                 <exclude>**/DoubleScatterSet*</exclude>
                 <exclude>**/DoubleSet*</exclude>
               </excludes>
@@ -128,7 +128,7 @@
                 <include>**/ByteDouble*</include>
                 <include>**/ByteObject*</include>
 
-                <include>**/ByteOpenHashSet*</include>
+                <include>**/ByteHashSet*</include>
                 <include>**/ByteScatterSet*</include>
                 <include>**/ByteSet*</include>
 
@@ -141,7 +141,7 @@
                 <include>**/FloatDouble*</include>
                 <include>**/FloatObject*</include>
 
-                <include>**/FloatOpenHashSet*</include>
+                <include>**/FloatHashSet*</include>
                 <include>**/FloatScatterSet*</include>
                 <include>**/FloatSet*</include>
 
@@ -154,7 +154,7 @@
                 <include>**/DoubleDouble*</include>
                 <include>**/DoubleObject*</include>
 
-                <include>**/DoubleOpenHashSet*</include>
+                <include>**/DoubleHashSet*</include>
                 <include>**/DoubleScatterSet*</include>
                 <include>**/DoubleSet*</include>
               </includes>
@@ -182,7 +182,7 @@
                 <exclude>**/ByteDouble*</exclude>
                 <exclude>**/ByteObject*</exclude>
 
-                <exclude>**/ByteOpenHashSet*</exclude>
+                <exclude>**/ByteHashSet*</exclude>
                 <exclude>**/ByteScatterSet*</exclude>
                 <exclude>**/ByteSet*</exclude>
 
@@ -195,7 +195,7 @@
                 <exclude>**/FloatDouble*</exclude>
                 <exclude>**/FloatObject*</exclude>
 
-                <exclude>**/FloatOpenHashSet*</exclude>
+                <exclude>**/FloatHashSet*</exclude>
                 <exclude>**/FloatScatterSet*</exclude>
                 <exclude>**/FloatSet*</exclude>
 
@@ -208,7 +208,7 @@
                 <exclude>**/DoubleDouble*</exclude>
                 <exclude>**/DoubleObject*</exclude>
 
-                <exclude>**/DoubleOpenHashSet*</exclude>
+                <exclude>**/DoubleHashSet*</exclude>
                 <exclude>**/DoubleScatterSet*</exclude>
                 <exclude>**/DoubleSet*</exclude>
               </excludes>
@@ -232,7 +232,7 @@
                 <include>**/ByteDouble*</include>
                 <include>**/ByteObject*</include>
 
-                <include>**/ByteOpenHashSet*</include>
+                <include>**/ByteHashSet*</include>
                 <include>**/ByteScatterSet*</include>
                 <include>**/ByteSet*</include>
 
@@ -245,7 +245,7 @@
                 <include>**/FloatDouble*</include>
                 <include>**/FloatObject*</include>
 
-                <include>**/FloatOpenHashSet*</include>
+                <include>**/FloatHashSet*</include>
                 <include>**/FloatScatterSet*</include>
                 <include>**/FloatSet*</include>
 
@@ -258,7 +258,7 @@
                 <include>**/DoubleDouble*</include>
                 <include>**/DoubleObject*</include>
 
-                <include>**/DoubleOpenHashSet*</include>
+                <include>**/DoubleHashSet*</include>
                 <include>**/DoubleScatterSet*</include>
                 <include>**/DoubleSet*</include>
               </includes>
