@@ -27,7 +27,7 @@ HPPC-117: A summary of API changes resulting from other issues.
           them to use cursors or other form of iteration instead (it will
           be simpler than taking care of the empty slot marker).
           
-          * (HPPC-108) Renamed IntDoubleLinkedSet to DoubleLinkedIntSet.
+          * (HPPC-146) Removed DoubleLinkedIntSet.
 
           * (HPPC-115) Hash containers now, by default, use a random internal
           mixing seed to reorder entries (so the order of keys is not 
@@ -213,7 +213,7 @@ HPPC-123: Dropped MurmurHash3 class entirely.
 HPPC-121: Rename remove{All|First|Last}Occurrence(s) to 
           remove{All|First|Last}(key).
 
-HPPC-108: Rename IntDoubleLinkedSet to DoubleLinkedIntSet.
+HPPC-146: Removed IntDoubleLinkedSet.
 
 HPPC-120: Rework entry shifting routine to be less hairy.
 
