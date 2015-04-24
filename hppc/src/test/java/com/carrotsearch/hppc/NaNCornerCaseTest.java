@@ -9,7 +9,7 @@ public class NaNCornerCaseTest
     @Test
     public void testNaNAsDoubleKey()
     {
-        DoubleObjectMap<String> map = new DoubleObjectOpenHashMap<>();
+        DoubleObjectMap<String> map = new DoubleObjectHashMap<>();
         map.put(Double.NaN, "a");
         map.put(Double.NaN, "b");
 
@@ -23,7 +23,7 @@ public class NaNCornerCaseTest
             (Double) map.keys().iterator().next().value, 
             (Double) Double.NaN);
         
-        DoubleOpenHashSet set = new DoubleOpenHashSet();
+        DoubleHashSet set = new DoubleHashSet();
         set.add(Double.NaN);
         set.add(Double.NaN);
         set.add(Double.longBitsToDouble(0xfff8000000000000L));
@@ -37,7 +37,7 @@ public class NaNCornerCaseTest
     @Test
     public void testNaNAsFloatKey()
     {
-        FloatObjectMap<String> map = new FloatObjectOpenHashMap<>();
+        FloatObjectMap<String> map = new FloatObjectHashMap<>();
         map.put(Float.NaN, "a");
         map.put(Float.NaN, "b");
 
@@ -51,7 +51,7 @@ public class NaNCornerCaseTest
             (Float) map.keys().iterator().next().value, 
             (Float) Float.NaN);
         
-        FloatOpenHashSet set = new FloatOpenHashSet();
+        FloatHashSet set = new FloatHashSet();
         set.add(Float.NaN);
         set.add(Float.NaN);
         set.add(Float.intBitsToFloat(0xfff80000));
@@ -66,17 +66,17 @@ public class NaNCornerCaseTest
     public void testNaNAsValue()
     {
       {
-        IntDoubleMap m1 = new IntDoubleOpenHashMap();
+        IntDoubleMap m1 = new IntDoubleHashMap();
         m1.put(1, Double.NaN);
-        IntDoubleMap m2 = new IntDoubleOpenHashMap();
+        IntDoubleMap m2 = new IntDoubleHashMap();
         m2.put(1, Double.NaN);
         Assert.assertEquals(m1, m2);
       }
       
       {
-        IntFloatMap m1 = new IntFloatOpenHashMap();
+        IntFloatMap m1 = new IntFloatHashMap();
         m1.put(1, Float.NaN);
-        IntFloatMap m2 = new IntFloatOpenHashMap();
+        IntFloatMap m2 = new IntFloatHashMap();
         m2.put(1, Float.NaN);
         Assert.assertEquals(m1, m2);
       }

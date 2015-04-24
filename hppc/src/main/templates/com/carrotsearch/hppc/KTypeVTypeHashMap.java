@@ -15,7 +15,7 @@ import static com.carrotsearch.hppc.Containers.*;
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeVTypeOpenHashMap<KType, VType>
+public class KTypeVTypeHashMap<KType, VType>
   implements /*! #if ($templateonly) !*/ Intrinsics.EqualityFunction, /*! #end !*/
              /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
              KTypeVTypeMap<KType, VType>,
@@ -86,21 +86,21 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   /**
    * New instance with sane defaults.
    */
-  public KTypeVTypeOpenHashMap() {
+  public KTypeVTypeHashMap() {
     this(DEFAULT_EXPECTED_ELEMENTS);
   }
 
   /**
    * New instance with sane defaults.
    */
-  public KTypeVTypeOpenHashMap(int expectedElements) {
+  public KTypeVTypeHashMap(int expectedElements) {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
   }
 
   /**
    * New instance with sane defaults.
    */
-  public KTypeVTypeOpenHashMap(int expectedElements, double loadFactor) {
+  public KTypeVTypeHashMap(int expectedElements, double loadFactor) {
     this(expectedElements, loadFactor, HashOrderMixing.randomized());
   }
 
@@ -117,7 +117,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    *          implementations. Use constant mixers only if you understand the potential
    *          consequences.
    */
-  public KTypeVTypeOpenHashMap(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
+  public KTypeVTypeHashMap(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
     this.orderMixer = orderMixer;
     this.loadFactor = verifyLoadFactor(loadFactor);
     ensureCapacity(expectedElements);
@@ -126,7 +126,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   /**
    * Create a hash map from all key-value pairs of another container.
    */
-  public KTypeVTypeOpenHashMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
+  public KTypeVTypeHashMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
     this(container.size());
     putAll(container);
   }
@@ -620,7 +620,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * Values are compared using {@link Objects#equals(Object)} method.
 #end 
    */
-  protected boolean equalElements(KTypeVTypeOpenHashMap<?, ?> other) {
+  protected boolean equalElements(KTypeVTypeHashMap<?, ?> other) {
     if (other.size() != size()) {
       return false;
     }
@@ -761,7 +761,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    */
   public final class KeysContainer extends AbstractKTypeCollection<KType> 
                                    implements KTypeLookupContainer<KType> {
-    private final KTypeVTypeOpenHashMap<KType, VType> owner = KTypeVTypeOpenHashMap.this;
+    private final KTypeVTypeHashMap<KType, VType> owner = KTypeVTypeHashMap.this;
 
     @Override
     public boolean contains(KType e) {
@@ -882,7 +882,7 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * A view over the set of values of this map.
    */
   private final class ValuesContainer extends AbstractKTypeCollection<VType> {
-    private final KTypeVTypeOpenHashMap<KType, VType> owner = KTypeVTypeOpenHashMap.this;
+    private final KTypeVTypeHashMap<KType, VType> owner = KTypeVTypeHashMap.this;
 
     @Override
     public int size() {
@@ -997,10 +997,10 @@ public class KTypeVTypeOpenHashMap<KType, VType>
    * {@inheritDoc}
    */
   @Override
-  public KTypeVTypeOpenHashMap<KType, VType> clone() {
+  public KTypeVTypeHashMap<KType, VType> clone() {
     try {
       /* #if ($templateOnly) */ @SuppressWarnings("unchecked") /* #end */
-      KTypeVTypeOpenHashMap<KType, VType> cloned = (KTypeVTypeOpenHashMap<KType, VType>) super.clone();
+      KTypeVTypeHashMap<KType, VType> cloned = (KTypeVTypeHashMap<KType, VType>) super.clone();
       cloned.keys = keys.clone();
       cloned.values = values.clone();
       cloned.hasEmptyKey = cloned.hasEmptyKey;
@@ -1036,12 +1036,12 @@ public class KTypeVTypeOpenHashMap<KType, VType>
   /**
    * Creates a hash map from two index-aligned arrays of key-value pairs.
    */
-  public static <KType, VType> KTypeVTypeOpenHashMap<KType, VType> from(KType[] keys, VType[] values) {
+  public static <KType, VType> KTypeVTypeHashMap<KType, VType> from(KType[] keys, VType[] values) {
     if (keys.length != values.length) {
       throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
     }
 
-    KTypeVTypeOpenHashMap<KType, VType> map = new KTypeVTypeOpenHashMap<>(keys.length);
+    KTypeVTypeHashMap<KType, VType> map = new KTypeVTypeHashMap<>(keys.length);
     for (int i = 0; i < keys.length; i++) {
       map.put(keys[i], values[i]);
     }

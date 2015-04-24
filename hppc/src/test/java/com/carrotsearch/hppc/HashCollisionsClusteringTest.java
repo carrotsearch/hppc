@@ -17,12 +17,12 @@ public class HashCollisionsClusteringTest
     @Test
     public void testHashSetClusteringOnRehash()
     {
-        IntOpenHashSet source = new IntOpenHashSet(0, 0.9d);
+        IntHashSet source = new IntHashSet(0, 0.9d);
         for (int i = 1250000; i-- != 0;) {
           source.add(i);
         }
 
-        IntOpenHashSet target = new IntOpenHashSet(0, 0.9d);
+        IntHashSet target = new IntHashSet(0, 0.9d);
         int i = 0;
         long start = System.currentTimeMillis();
         long deadline = start + TimeUnit.SECONDS.toMillis(3);
@@ -45,11 +45,11 @@ public class HashCollisionsClusteringTest
     @Test
     public void testHashMapClusteringOnRehash()
     {
-        IntIntOpenHashMap a = new IntIntOpenHashMap();
+        IntIntHashMap a = new IntIntHashMap();
         for (int i = 10000000; i-- != 0;) {
             a.put(i, 0);
         }
-        IntIntOpenHashMap b2 = new IntIntOpenHashMap();
+        IntIntHashMap b2 = new IntIntHashMap();
         b2.putAll(a);
     }
     
@@ -58,7 +58,7 @@ public class HashCollisionsClusteringTest
     public void testHashSetClusteringAtFront()
     {
         int keys = 500000;
-        IntOpenHashSet target = new IntOpenHashSet(keys, 0.9) {
+        IntHashSet target = new IntHashSet(keys, 0.9) {
           @Override
           protected void allocateBuffers(int arraySize) {
             super.allocateBuffers(arraySize);
@@ -69,7 +69,7 @@ public class HashCollisionsClusteringTest
         int expandAtCount = HashContainers.expandAtCount(target.keys.length - 1, 0.9);
         int fillUntil = expandAtCount - 100000;
 
-        IntOpenHashSet source = new IntOpenHashSet(keys, 0.9);
+        IntHashSet source = new IntHashSet(keys, 0.9);
         int unique = 0;
         while (source.size() < expandAtCount - 1) {
           source.add(unique++);
@@ -108,7 +108,7 @@ public class HashCollisionsClusteringTest
     {
         int keys = 100000;
         int expected = keys * 5;
-        IntOpenHashSet target = new IntOpenHashSet(expected, 0.9) {
+        IntHashSet target = new IntHashSet(expected, 0.9) {
           @Override
           protected void allocateBuffers(int arraySize) {
             super.allocateBuffers(arraySize);
@@ -117,7 +117,7 @@ public class HashCollisionsClusteringTest
         };
 
         long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(3);
-        IntOpenHashSet source = new IntOpenHashSet(expected, 0.9);
+        IntHashSet source = new IntHashSet(expected, 0.9);
         int unique = 0;
         for (int i = 0; i < 200; i++) {
           source.clear();
@@ -145,7 +145,7 @@ public class HashCollisionsClusteringTest
         }
     }
 
-    protected String visualizeDistribution(IntOpenHashSet target, int lineLength) {
+    protected String visualizeDistribution(IntHashSet target, int lineLength) {
       if (!debugging) {
         return "[disabled]";
       }

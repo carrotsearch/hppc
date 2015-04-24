@@ -15,7 +15,7 @@ import static com.carrotsearch.hppc.Containers.*;
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeOpenHashSet<KType>
+public class KTypeHashSet<KType>
   extends AbstractKTypeCollection<KType> 
   implements /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
              KTypeLookupContainer<KType>, 
@@ -77,27 +77,27 @@ public class KTypeOpenHashSet<KType>
   /**
    * New instance with sane defaults.
    * 
-   * @see #KTypeOpenHashSet(int, double, HashOrderMixingStrategy)
+   * @see #KTypeHashSet(int, double, HashOrderMixingStrategy)
    */
-  public KTypeOpenHashSet() {
+  public KTypeHashSet() {
     this(DEFAULT_EXPECTED_ELEMENTS, DEFAULT_LOAD_FACTOR);
   }
 
   /**
    * New instance with sane defaults.
    * 
-   * @see #KTypeOpenHashSet(int, double, HashOrderMixingStrategy)
+   * @see #KTypeHashSet(int, double, HashOrderMixingStrategy)
    */
-  public KTypeOpenHashSet(int expectedElements) {
+  public KTypeHashSet(int expectedElements) {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
   }
 
   /**
    * New instance with sane defaults.
    * 
-   * @see #KTypeOpenHashSet(int, double, HashOrderMixingStrategy)
+   * @see #KTypeHashSet(int, double, HashOrderMixingStrategy)
    */
-  public KTypeOpenHashSet(int expectedElements, double loadFactor) {
+  public KTypeHashSet(int expectedElements, double loadFactor) {
     this(expectedElements, loadFactor, HashOrderMixing.randomized());
   }
 
@@ -114,7 +114,7 @@ public class KTypeOpenHashSet<KType>
    *          implementations. Use constant mixers only if you understand the potential
    *          consequences.
    */
-  public KTypeOpenHashSet(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
+  public KTypeHashSet(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
     this.orderMixer = orderMixer;
     this.loadFactor = verifyLoadFactor(loadFactor);
     ensureCapacity(expectedElements);
@@ -123,7 +123,7 @@ public class KTypeOpenHashSet<KType>
   /**
    * New instance copying elements from another {@link KTypeContainer}.
    */
-  public KTypeOpenHashSet(KTypeContainer<? extends KType> container) {
+  public KTypeHashSet(KTypeContainer<? extends KType> container) {
     this(container.size());
     addAll(container);
   }
@@ -423,10 +423,10 @@ public class KTypeOpenHashSet<KType>
    * {@inheritDoc}
    */
   @Override
-  public KTypeOpenHashSet<KType> clone() {
+  public KTypeHashSet<KType> clone() {
     try {
       /* #if ($templateOnly) */ @SuppressWarnings("unchecked") /* #end */
-      KTypeOpenHashSet<KType> cloned = (KTypeOpenHashSet<KType>) super.clone();
+      KTypeHashSet<KType> cloned = (KTypeHashSet<KType>) super.clone();
       cloned.keys = keys.clone();
       cloned.hasEmptyKey = cloned.hasEmptyKey;
       cloned.orderMixer = orderMixer.clone();
@@ -532,8 +532,8 @@ public class KTypeOpenHashSet<KType>
   /* #if ($TemplateOptions.KTypeGeneric) */
   @SafeVarargs
   /* #end */
-  public static <KType> KTypeOpenHashSet<KType> from(KType... elements) {
-    final KTypeOpenHashSet<KType> set = new KTypeOpenHashSet<KType>(elements.length);
+  public static <KType> KTypeHashSet<KType> from(KType... elements) {
+    final KTypeHashSet<KType> set = new KTypeHashSet<KType>(elements.length);
     set.addAll(elements);
     return set;
   }

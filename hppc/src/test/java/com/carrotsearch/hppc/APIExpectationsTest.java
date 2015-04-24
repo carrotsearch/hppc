@@ -17,13 +17,13 @@ public class APIExpectationsTest extends RandomizedTest
     @Test
     public void testRemoveAllFromMap()
     {
-        ObjectIntOpenHashMap<Integer> list = new ObjectIntOpenHashMap<>();
+        ObjectIntHashMap<Integer> list = new ObjectIntHashMap<>();
         list.put(1, 1);
         list.put(2, 2);
         list.put(3, 3);
 
         // Same type.
-        ObjectOpenHashSet<Integer> other1 = new ObjectOpenHashSet<>();
+        ObjectHashSet<Integer> other1 = new ObjectHashSet<>();
         other1.add(1);
         list.removeAll(other1);
 
@@ -47,17 +47,17 @@ public class APIExpectationsTest extends RandomizedTest
         list.add(3);
         
         // Same type.
-        ObjectOpenHashSet<Integer> other1 = new ObjectOpenHashSet<>();
+        ObjectHashSet<Integer> other1 = new ObjectHashSet<>();
         other1.add(1);
         list.removeAll(other1);
 
         // Supertype.
-        ObjectOpenHashSet<Number> other2 = new ObjectOpenHashSet<>();
+        ObjectHashSet<Number> other2 = new ObjectHashSet<>();
         other2.add(1);
         list.removeAll(other2);
 
         // Object
-        ObjectOpenHashSet<Object> other3 = new ObjectOpenHashSet<>();
+        ObjectHashSet<Object> other3 = new ObjectHashSet<>();
         other3.add(1);
         list.removeAll(other3);        
     }
@@ -138,9 +138,9 @@ public class APIExpectationsTest extends RandomizedTest
         t1 = IntArrayList.from(1, 2, 3).toArray();
         t1 = IntStack.from(1, 2, 3).toArray();
         t1 = IntArrayDeque.from(1, 2, 3).toArray();
-        t1 = IntOpenHashSet.from(1, 2, 3).toArray();
+        t1 = IntHashSet.from(1, 2, 3).toArray();
 
-        t1 = IntObjectOpenHashMap.from(
+        t1 = IntObjectHashMap.from(
             new int [] {1, 2}, new Long [] {1L, 2L}).keys().toArray();
     }
 
@@ -156,17 +156,17 @@ public class APIExpectationsTest extends RandomizedTest
         ObjectStack<Integer> v5 = ObjectStack.newInstance();
         ObjectStack<Long> v6 = ObjectStack.newInstance();
         
-        IntOpenHashSet v7 = new IntOpenHashSet();
-        ObjectOpenHashSet<Integer> v8 = new ObjectOpenHashSet<>();
-        ObjectOpenHashSet<Long> v9 = new ObjectOpenHashSet<>();
+        IntHashSet v7 = new IntHashSet();
+        ObjectHashSet<Integer> v8 = new ObjectHashSet<>();
+        ObjectHashSet<Long> v9 = new ObjectHashSet<>();
         
         IntArrayDeque v10 = IntArrayDeque.newInstance();
         ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();
         ObjectArrayDeque<Long> v12 = ObjectArrayDeque.newInstance();
 
-        IntIntOpenHashMap v13 = new IntIntOpenHashMap();
-        ObjectIntOpenHashMap<Integer> v14 = new ObjectIntOpenHashMap<>();
-        IntObjectOpenHashMap<Integer> v15 = new IntObjectOpenHashMap<>();
+        IntIntHashMap v13 = new IntIntHashMap();
+        ObjectIntHashMap<Integer> v14 = new ObjectIntHashMap<>();
+        IntObjectHashMap<Integer> v15 = new IntObjectHashMap<>();
     }
 
     @Test
@@ -175,9 +175,9 @@ public class APIExpectationsTest extends RandomizedTest
         isObjectArray(ObjectArrayList.from(1, 2, 3).toArray());
         isObjectArray(ObjectStack.from(1, 2, 3).toArray());
         isObjectArray(ObjectArrayDeque.from(1, 2, 3).toArray());
-        isObjectArray(ObjectOpenHashSet.from(1, 2, 3).toArray());
+        isObjectArray(ObjectHashSet.from(1, 2, 3).toArray());
 
-        isObjectArray(ObjectObjectOpenHashMap.from(
+        isObjectArray(ObjectObjectHashMap.from(
             new Integer [] {1, 2}, new Long [] {1L, 2L}).keys().toArray());
     }
 
@@ -187,9 +187,9 @@ public class APIExpectationsTest extends RandomizedTest
         isIntegerArray(ObjectArrayList.from(1, 2, 3).toArray(Integer.class));
         isIntegerArray(ObjectStack.from(1, 2, 3).toArray(Integer.class));
         isIntegerArray(ObjectArrayDeque.from(1, 2, 3).toArray(Integer.class));
-        isIntegerArray(ObjectOpenHashSet.from(1, 2, 3).toArray(Integer.class));
+        isIntegerArray(ObjectHashSet.from(1, 2, 3).toArray(Integer.class));
 
-        isIntegerArray(ObjectObjectOpenHashMap.from(
+        isIntegerArray(ObjectObjectHashMap.from(
             new Integer [] {1, 2}, new Long [] {1L, 2L}).keys().toArray(Integer.class));
     }
     
@@ -206,7 +206,7 @@ public class APIExpectationsTest extends RandomizedTest
     @Test
     public void testPutOrAddOnEqualKeys()
     {
-    	ObjectIntOpenHashMap<Integer> map = new ObjectIntOpenHashMap<>();
+    	ObjectIntHashMap<Integer> map = new ObjectIntHashMap<>();
 
     	Integer k1  = 1;
     	Integer k1b = new Integer(k1.intValue()); 
@@ -224,8 +224,8 @@ public class APIExpectationsTest extends RandomizedTest
     @Test
     public void testHashCodeOverflowIdentical()
     {
-        IntOpenHashSet l0 = new IntOpenHashSet(0, 0.5, HashOrderMixing.constant(0xcafe));
-        IntOpenHashSet l1 = new IntOpenHashSet(0, 0.5, HashOrderMixing.constant(0xbabe));
+        IntHashSet l0 = new IntHashSet(0, 0.5, HashOrderMixing.constant(0xcafe));
+        IntHashSet l1 = new IntHashSet(0, 0.5, HashOrderMixing.constant(0xbabe));
 
         for (int i = 100000 + randomIntBetween(0, 100000); i-- > 0;) {
             l0.add(i);

@@ -10,7 +10,7 @@ public class ObjectIntOpenHashMapRegressionTest
     @Test
     public void testEqualsOnObjectKeys()
     {
-        ObjectIntOpenHashMap<String> map = new ObjectIntOpenHashMap<String>();
+        ObjectIntHashMap<String> map = new ObjectIntHashMap<String>();
         String key1 = "key1";
         String key2 = new String("key1");
 

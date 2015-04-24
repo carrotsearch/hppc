@@ -1,13 +1,13 @@
 package com.carrotsearch.hppc.benchmarks.implementations;
 
-import com.carrotsearch.hppc.IntOpenHashSet;
+import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.benchmarks.IntSetOps;
 
 public class HppcIntSetOps implements IntSetOps {
-  private final IntOpenHashSet delegate;
+  private final IntHashSet delegate;
 
   public HppcIntSetOps(int expectedElements, double loadFactor) {
-    this.delegate = new IntOpenHashSet(expectedElements, loadFactor);
+    this.delegate = new IntHashSet(expectedElements, loadFactor);
   }
 
   @Override
