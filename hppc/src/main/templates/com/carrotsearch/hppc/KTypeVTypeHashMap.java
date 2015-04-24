@@ -237,10 +237,14 @@ public class KTypeVTypeHashMap<KType, VType>
    * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
    * otherwise any existing value is incremented by <code>additionValue</code>.
    * 
-   * @param key The key of the value to adjust.
-   * @param putValue The value to put if <code>key</code> does not exist.
-   * @param incrementValue The value to add to the existing value if <code>key</code> exists.
-   * @return Returns the current value associated with <code>key</code> (after changes).
+   * @param key
+   *          The key of the value to adjust.
+   * @param putValue
+   *          The value to put if <code>key</code> does not exist.
+   * @param incrementValue
+   *          The value to add to the existing value if <code>key</code> exists.
+   * @return Returns the current value associated with <code>key</code> (after
+   *         changes).
    */
   @Override
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {

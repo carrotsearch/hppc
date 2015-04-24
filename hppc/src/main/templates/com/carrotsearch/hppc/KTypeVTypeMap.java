@@ -55,31 +55,19 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
 
   /*! #if ($TemplateOptions.VTypePrimitive) !*/
   /**
-   * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. A
-   * logical equivalent of the following code:
-   * 
-   * <pre>
-   * if (containsKey(key)) {
-   *   VType v = (VType) (lget() + additionValue);
-   *   lset(v);
-   *   return v;
-   * } else {
-   *   put(key, putValue);
-   *   return putValue;
-   * }
-   * </pre>
+   * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
+   * otherwise any existing value is incremented by <code>additionValue</code>.
    * 
    * @param key
    *          The key of the value to adjust.
    * @param putValue
    *          The value to put if <code>key</code> does not exist.
-   * @param additionValue
+   * @param incrementValue
    *          The value to add to the existing value if <code>key</code> exists.
    * @return Returns the current value associated with <code>key</code> (after
    *         changes).
    */
-  public VType putOrAdd(KType key, VType putValue, VType additionValue);
-
+  public VType putOrAdd(KType key, VType putValue, VType incrementValue);
   /*! #end !*/
 
   /*! #if ($TemplateOptions.VTypePrimitive) !*/
