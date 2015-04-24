@@ -39,7 +39,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        deque = new KTypeArrayDeque<>();
+        deque = KTypeArrayDeque.newInstance();
         sequence = new KTypeArrayList<>();
 
         for (int i = 0; i < 10000; i++)
@@ -261,15 +261,15 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         {
             KType k = cast(rnd.nextInt(modulo));
             assertEquals(
-                deque.removeFirst(k) >= 0, 
+                deque.removeFirstOccurrence(k) >= 0, 
                 sequence.removeFirst(k) >= 0);
         }
 
         assertListEquals(deque.toArray(), sequence.toArray());
 
-        assertTrue(0 > deque.removeFirst(cast(modulo + 1)));
+        assertTrue(0 > deque.removeFirstOccurrence(cast(modulo + 1)));
         deque.addLast(cast(modulo + 1));
-        assertTrue(0 <= deque.removeFirst(cast(modulo + 1)));
+        assertTrue(0 <= deque.removeFirstOccurrence(cast(modulo + 1)));
     }
 
     /* */
@@ -290,15 +290,15 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         {
             KType k = cast(rnd.nextInt(modulo));
             assertEquals(
-                deque.removeLast(k) >= 0, 
+                deque.removeLastOccurrence(k) >= 0, 
                 sequence.removeLast(k) >= 0);
         }
 
         assertListEquals(deque.toArray(), sequence.toArray());
 
-        assertTrue(0 > deque.removeLast(cast(modulo + 1)));
+        assertTrue(0 > deque.removeLastOccurrence(cast(modulo + 1)));
         deque.addFirst(cast(modulo + 1));
-        assertTrue(0 <= deque.removeLast(cast(modulo + 1)));
+        assertTrue(0 <= deque.removeLastOccurrence(cast(modulo + 1)));
     }
     
     /* */
@@ -580,13 +580,13 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             {
                 assertEquals(
                     ad.removeFirstOccurrence(k), 
-                    deque.removeFirst(k) >= 0);
+                    deque.removeFirstOccurrence(k) >= 0);
             }
             else if (op < 8)
             {
                 assertEquals(
                     ad.removeLastOccurrence(k), 
-                    deque.removeLast(k) >= 0);
+                    deque.removeLastOccurrence(k) >= 0);
             }
             assertEquals(ad.size(), deque.size());
         }
@@ -616,7 +616,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeEquals()
     {
-        KTypeArrayDeque<KType> l0 = new KTypeArrayDeque<>();
+        KTypeArrayDeque<KType> l0 = KTypeArrayDeque.newInstance();
         assertEquals(1, l0.hashCode());
         assertEquals(l0, KTypeArrayDeque.from());
 

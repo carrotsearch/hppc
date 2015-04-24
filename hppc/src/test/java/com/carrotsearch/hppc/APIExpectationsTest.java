@@ -160,9 +160,9 @@ public class APIExpectationsTest extends RandomizedTest
         ObjectHashSet<Integer> v8 = new ObjectHashSet<>();
         ObjectHashSet<Long> v9 = new ObjectHashSet<>();
         
-        IntArrayDeque v10 = new IntArrayDeque();
-        ObjectArrayDeque<Integer> v11 = new ObjectArrayDeque<>();
-        ObjectArrayDeque<Long> v12 = new ObjectArrayDeque<>();
+        IntArrayDeque v10 = IntArrayDeque.newInstance();
+        ObjectArrayDeque<Integer> v11 = ObjectArrayDeque.newInstance();
+        ObjectArrayDeque<Long> v12 = ObjectArrayDeque.newInstance();
 
         IntIntHashMap v13 = new IntIntHashMap();
         ObjectIntHashMap<Integer> v14 = new ObjectIntHashMap<>();
