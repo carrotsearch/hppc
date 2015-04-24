@@ -12,6 +12,11 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A hash set of <code>KType</code>s, implemented using using open addressing
  * with linear probing for collision resolution.
+ * 
+ * Note: there are <a href="{@docRoot}/overview-summary.html#scattervshash">important differences</a> 
+ * between hash and scatter sets.
+ * 
+ * @see KTypeScatterSet
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
