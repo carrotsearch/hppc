@@ -15,7 +15,7 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
  * Unit tests for {@link KTypeHashSet}.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeOpenHashSetTest<KType> extends AbstractKTypeTest<KType>
+public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 {
     /**
      * Per-test fresh initialized instance.

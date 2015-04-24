@@ -14,7 +14,7 @@ import com.carrotsearch.hppc.procedures.*;
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("all") #end !*/
 /* ! ${TemplateOptions.generatedAnnotation} ! */
-public class KTypeVTypeOpenIdentityHashMapTest<KType, VType> extends AbstractKTypeTest<KType>
+public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeTest<KType>
 {
     protected VType value0 = vcast(0);
     protected VType value1 = vcast(1);
