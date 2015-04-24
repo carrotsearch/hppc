@@ -460,11 +460,34 @@
                       <packages>com.carrotsearch.hppc*</packages>
                     </group>
                   </groups>
-                  <additionalparam>-Xdoclint:-missing</additionalparam>
                 </configuration>
                 <goals>
                   <goal>jar</goal>
                 </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>jdk18+</id>
+      <activation>
+        <jdk>[1.8,)</jdk>
+      </activation>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <configuration>
+                  <additionalparam>-Xdoclint:-missing</additionalparam>
+                </configuration>
               </execution>
             </executions>
           </plugin>
