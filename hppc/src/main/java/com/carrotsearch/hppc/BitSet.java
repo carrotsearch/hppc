@@ -78,6 +78,8 @@ public class BitSet implements Cloneable
 
     /**
      * Constructs an BitSet large enough to hold numBits.
+     * 
+     * @param numBits Number of bits  
      */
     public BitSet(long numBits)
     {
@@ -95,6 +97,9 @@ public class BitSet implements Cloneable
      * numWords are the number of elements in the array that contain set bits (non-zero
      * longs). numWords should be &lt;= bits.length, and any existing words in the array at
      * position &gt;= numWords should be zero.
+     * 
+     * @param bits underlying bits buffer
+     * @param numWords the number of elements in the array that contain set bits
      */
     public BitSet(long [] bits, int numWords)
     {
@@ -103,7 +108,9 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Static constructor-like method similar to other (generic) collections. 
+     * Static constructor-like method similar to other (generic) collections.
+     * 
+     * @return New instance.
      */
     public static BitSet newInstance()
     {
@@ -120,7 +127,7 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the current capacity in bits (1 greater than the index of the last bit).
+     * @return Returns the current capacity in bits (1 greater than the index of the last bit). 
      */
     public long capacity()
     {
@@ -128,11 +135,10 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the current capacity of this set. Included for compatibility. This is <b>not</b>
-     * equal to {@link #cardinality}.
-     * 
      * @see #cardinality()
      * @see java.util.BitSet#size()
+     * @return Returns the current capacity of this set. Included for compatibility. This is <b>not</b>
+     * equal to {@link #cardinality}.
      */
     public long size()
     {
@@ -141,6 +147,8 @@ public class BitSet implements Cloneable
 
     /**
      * @see java.util.BitSet#length()
+     * @return Returns the "logical size" of this {@code BitSet}: the index of
+     * the highest set bit in the {@code BitSet} plus one.
      */
     public long length()
     {
@@ -151,7 +159,7 @@ public class BitSet implements Cloneable
     }
 
     /** 
-     * Returns true if there are no set bits 
+     * @return Returns true if there are no set bits
      */
     public boolean isEmpty()
     {
@@ -159,7 +167,8 @@ public class BitSet implements Cloneable
     }
 
     /** 
-     * Returns true or false for the specified bit index. 
+     * @param index The index.
+     * @return Returns true or false for the specified bit index. 
      */
     public boolean get(int index)
     {
@@ -174,7 +183,8 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns true or false for the specified bit index.
+     * @param index The index.
+     * @return Returns true or false for the specified bit index.
      */
     public boolean get(long index)
     {
@@ -186,7 +196,9 @@ public class BitSet implements Cloneable
     }
 
     /** 
-     * Sets a bit, expanding the set size if necessary. 
+     * Sets a bit, expanding the set size if necessary.
+     * 
+     * @param index the index to set 
      */
     public void set(long index)
     {
@@ -248,6 +260,8 @@ public class BitSet implements Cloneable
     /**
      * clears a bit, allowing access beyond the current set size without changing the
      * size.
+     * 
+     * @param index the index to clear 
      */
     public void clear(long index)
     {
@@ -343,6 +357,9 @@ public class BitSet implements Cloneable
     /**
      * Sets a bit and returns the previous value. The index should be less than the BitSet
      * size.
+     * 
+     * @param index the index to set
+     * @return previous state of the index 
      */
     public boolean getAndSet(int index)
     {
@@ -357,6 +374,9 @@ public class BitSet implements Cloneable
     /**
      * Sets a bit and returns the previous value. The index should be less than the BitSet
      * size.
+     * 
+     * @param index the index to set
+     * @return previous state of the index 
      */
     public boolean getAndSet(long index)
     {
@@ -370,6 +390,8 @@ public class BitSet implements Cloneable
 
     /** 
      * Flips a bit, expanding the set size if necessary.
+     * 
+     * @param index the index to flip
      */
     public void flip(long index)
     {
@@ -382,6 +404,9 @@ public class BitSet implements Cloneable
     /**
      * flips a bit and returns the resulting bit value. The index should be less than the
      * BitSet size.
+     * 
+     * @param index the index to flip
+     * @return previous state of the index
      */
     public boolean flipAndGet(int index)
     {
@@ -395,6 +420,9 @@ public class BitSet implements Cloneable
     /**
      * flips a bit and returns the resulting bit value. The index should be less than the
      * BitSet size.
+     * 
+     * @param index the index to flip
+     * @return previous state of the index
      */
     public boolean flipAndGet(long index)
     {
@@ -447,7 +475,10 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the popcount or cardinality of the intersection of the two sets. Neither
+     * @param a The first set
+     * @param b The second set
+     * 
+     * @return Returns the popcount or cardinality of the intersection of the two sets. Neither
      * set is modified.
      */
     public static long intersectionCount(BitSet a, BitSet b)
@@ -456,7 +487,9 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the popcount or cardinality of the union of the two sets. Neither set is
+     * @param a The first set
+     * @param b The second set
+     * @return Returns the popcount or cardinality of the union of the two sets. Neither set is
      * modified.
      */
     public static long unionCount(BitSet a, BitSet b)
@@ -474,7 +507,9 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the popcount or cardinality of "a and not b" or "intersection(a, not(b))".
+     * @param a The first set
+     * @param b The second set
+     * @return Returns the popcount or cardinality of "a and not b" or "intersection(a, not(b))".
      * Neither set is modified.
      */
     public static long andNotCount(BitSet a, BitSet b)
@@ -488,7 +523,9 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the popcount or cardinality of the exclusive-or of the two sets. Neither
+     * @param a The first set
+     * @param b The second set
+     * @return Returns the popcount or cardinality of the exclusive-or of the two sets. Neither
      * set is modified.
      */
     public static long xorCount(BitSet a, BitSet b)
@@ -506,8 +543,10 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the index of the first set bit starting at the index specified. -1 is
+     * @param index The index to start scanning from, inclusive. 
+     * @return Returns the index of the first set bit starting at the index specified. -1 is
      * returned if there are no more set bits.
+     * 
      */
     public int nextSetBit(int index)
     {
@@ -531,7 +570,8 @@ public class BitSet implements Cloneable
     }
 
     /**
-     * Returns the index of the first set bit starting at the index specified. -1 is
+     * @param index The index to start scanning from, inclusive. 
+     * @return Returns the index of the first set bit starting at the index specified. -1 is
      * returned if there are no more set bits.
      */
     public long nextSetBit(long index)
@@ -571,7 +611,10 @@ public class BitSet implements Cloneable
         }
     }
 
-    /** this = this AND other */
+    /** 
+     * this = this AND other
+     * @param other The bitset to intersect with. 
+     */
     public void intersect(BitSet other)
     {
         int newLen = Math.min(this.wlen, other.wlen);
@@ -591,7 +634,10 @@ public class BitSet implements Cloneable
         this.wlen = newLen;
     }
 
-    /** this = this OR other */
+    /** 
+     * this = this OR other
+     * @param other The bitset to union with. 
+     */
     public void union(BitSet other)
     {
         int newLen = Math.max(wlen, other.wlen);
@@ -611,7 +657,10 @@ public class BitSet implements Cloneable
         this.wlen = newLen;
     }
 
-    /** Remove all elements set in other. this = this AND_NOT other */
+    /** 
+     * Remove all elements set in other: this = this AND_NOT other
+     * @param other The other bitset.  
+     */
     public void remove(BitSet other)
     {
         int idx = Math.min(wlen, other.wlen);
@@ -623,7 +672,10 @@ public class BitSet implements Cloneable
         }
     }
 
-    /** this = this XOR other */
+    /** 
+     * this = this XOR other
+     * @param other The other bitset.   
+     */
     public void xor(BitSet other)
     {
         int newLen = Math.max(wlen, other.wlen);
@@ -663,7 +715,10 @@ public class BitSet implements Cloneable
         remove(other);
     }
 
-    /** returns true if the sets have any elements in common */
+    /**
+     * @param other The other bitset. 
+     * @return true if the sets have any elements in common 
+     */
     public boolean intersects(BitSet other)
     {
         int pos = Math.min(this.wlen, other.wlen);
@@ -679,6 +734,8 @@ public class BitSet implements Cloneable
     /**
      * Expand the long[] with the size given as a number of words (64 bit longs).
      * getNumWords() is unchanged by this call.
+     * 
+     * @param numWords The size to expand to (64-bit long words)
      */
     public void ensureCapacityWords(int numWords)
     {
@@ -714,6 +771,8 @@ public class BitSet implements Cloneable
     /**
      * Ensure that the long[] is big enough to hold numBits, expanding it if necessary.
      * getNumWords() is unchanged by this call.
+     * 
+     * @param numBits The number of bits to expand to
      */
     public void ensureCapacity(long numBits)
     {
@@ -732,13 +791,15 @@ public class BitSet implements Cloneable
         wlen = idx + 1;
     }
 
-    /** returns the number of 64 bit words it would take to hold numBits */
+    /* 
+     * returns the number of 64 bit words it would take to hold numBits 
+     */
     public static int bits2words(long numBits)
     {
         return (int) (((numBits - 1) >>> 6) + 1);
     }
 
-    /** returns true if both sets have the same bits set */
+    /* returns true if both sets have the same bits set */
     @Override
     public boolean equals(Object o)
     {
@@ -820,6 +881,8 @@ public class BitSet implements Cloneable
      * 
      * <p>Methods of the returned {@link IntLookupContainer} may throw a {@link RuntimeException}
      * if the cardinality of this bitset exceeds the int range.
+     * 
+     * @return The view of this bitset as {@link IntLookupContainer}.
      */
     public IntLookupContainer asIntLookupContainer() 
     {
@@ -933,6 +996,8 @@ public class BitSet implements Cloneable
      * Returns a view over this bitset data compatible with {@link LongLookupContainer}. A new
      * object is always returned, but its methods reflect the current state of the bitset
      * (the view is not a snapshot).
+     * 
+     * @return The view of this bitset as {@link LongLookupContainer}.
      */
     public LongLookupContainer asLongLookupContainer() 
     {

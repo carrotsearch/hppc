@@ -12,6 +12,12 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
+ * 
+ * <p><strong>Note:</strong> read about <a href="{@docRoot}/overview-summary.html#scattervshash">important differences 
+ * between hash and scatter sets</a>.</p>
+ * 
+ * @see KTypeVTypeScatterMap
+ * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a> 
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
@@ -92,6 +98,10 @@ public class KTypeVTypeHashMap<KType, VType>
 
   /**
    * New instance with sane defaults.
+   * 
+   * @param expectedElements
+   *          The expected number of elements guaranteed not to cause buffer
+   *          expansion (inclusive).
    */
   public KTypeVTypeHashMap(int expectedElements) {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
@@ -99,6 +109,13 @@ public class KTypeVTypeHashMap<KType, VType>
 
   /**
    * New instance with sane defaults.
+   * 
+   * @param expectedElements
+   *          The expected number of elements guaranteed not to cause buffer
+   *          expansion (inclusive).
+   * @param loadFactor
+   *          The load factor for internal buffers. Insane load factors (zero, full capacity)
+   *          are rejected by {@link #verifyLoadFactor(double)}.
    */
   public KTypeVTypeHashMap(int expectedElements, double loadFactor) {
     this(expectedElements, loadFactor, HashOrderMixing.randomized());
@@ -625,9 +642,7 @@ public class KTypeVTypeHashMap<KType, VType>
       return false;
     }
 
-    Iterator<? extends KTypeVTypeCursor<?, ?>> i = other.iterator();
-    while (i.hasNext()) {
-      KTypeVTypeCursor<?, ?> c = i.next();
+    for (KTypeVTypeCursor<?, ?> c : other) {
       KType key = Intrinsics.<KType> cast(c.key);
       if (!containsKey(key) ||
           !Intrinsics.<VType> equals(c.value, get(key))) {
@@ -1052,13 +1067,13 @@ public class KTypeVTypeHashMap<KType, VType>
   /**
    * Returns a hash code for the given key.
    * 
-   * The default implementation mixes the hash of the key with {@link #keyMixer}
+   * <p>The default implementation mixes the hash of the key with {@link #keyMixer}
    * to differentiate hash order of keys between hash containers. Helps
    * alleviate problems resulting from linear conflict resolution in open
-   * addressing.
+   * addressing.</p>
    * 
-   * The output from this function should evenly distribute keys across the
-   * entire integer range.
+   * <p>The output from this function should evenly distribute keys across the
+   * entire integer range.</p>
    */
   /*! #if ($templateonly) !*/
   @Override

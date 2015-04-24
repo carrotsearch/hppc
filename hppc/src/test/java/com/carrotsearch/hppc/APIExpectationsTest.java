@@ -152,9 +152,9 @@ public class APIExpectationsTest extends RandomizedTest
         ObjectArrayList<Integer> v2 = new ObjectArrayList<>();
         ObjectArrayList<Long> v3 = new ObjectArrayList<>();
         
-        IntStack v4 = IntStack.newInstance();
-        ObjectStack<Integer> v5 = ObjectStack.newInstance();
-        ObjectStack<Long> v6 = ObjectStack.newInstance();
+        IntStack v4 = new IntStack();
+        ObjectStack<Integer> v5 = new ObjectStack<>();
+        ObjectStack<Long> v6 = new ObjectStack<>();
         
         IntHashSet v7 = new IntHashSet();
         ObjectHashSet<Integer> v8 = new ObjectHashSet<>();

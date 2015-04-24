@@ -20,7 +20,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        stack = KTypeStack.newInstance();
+        stack = new KTypeStack<>();
     }
 
     /* */
@@ -140,7 +140,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeEquals()
     {
-        KTypeStack<KType> s0 = KTypeStack.newInstance();
+        KTypeStack<KType> s0 = new KTypeStack<>();
         assertEquals(1, s0.hashCode());
 
         KTypeStack<KType> s1 = KTypeStack.from(key1, key2, key3);

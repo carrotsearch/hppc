@@ -50,9 +50,10 @@ public final class BitMixer {
   public static int mix (Object key, int seed)  { return murmurHash3(key.hashCode() ^ seed); }
   public static int mix0(Object key, int seed)  { return key == null ? 0 : murmurHash3(key.hashCode() ^ seed); }
 
-  /**
-   * Finalization step from MurmurHash3. 
+  /*
+   * MurmurHash3's finalization step.
    */
+  
   public static int murmurHash3(int k) {
     k ^= k >>> 16;
     k *= 0x85ebca6b;
@@ -62,9 +63,10 @@ public final class BitMixer {
     return k;
   }
 
-  /**
-   * Golden ratio bit mixer.
+  /*
+   * Golden ratio bit mixers.
    */
+
   public static int phiMix(byte k)   { final int h = k * 0x9E3779B9; return h ^ (h >>> 16); }
   public static int phiMix(char k)   { final int h = k * 0x9E3779B9; return h ^ (h >>> 16); }
   public static int phiMix(short k)  { final int h = k * 0x9E3779B9; return h ^ (h >>> 16); }

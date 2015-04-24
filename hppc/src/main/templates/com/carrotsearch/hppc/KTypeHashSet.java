@@ -13,10 +13,14 @@ import static com.carrotsearch.hppc.Containers.*;
  * A hash set of <code>KType</code>s, implemented using using open addressing
  * with linear probing for collision resolution.
  * 
- * Note: there are <a href="{@docRoot}/overview-summary.html#scattervshash">important differences</a> 
- * between hash and scatter sets.
+ * <p>
+ * <strong>Note:</strong> read about <a href="{@docRoot}
+ * /overview-summary.html#scattervshash">important differences between hash and
+ * scatter sets</a>.
+ * </p>
  * 
  * @see KTypeScatterSet
+ * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/

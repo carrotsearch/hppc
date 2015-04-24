@@ -191,6 +191,9 @@
           <configuration>
             <source>${maven.compiler.source}</source>
             <target>${maven.compiler.target}</target>
+            <compilerArgs>
+              <arg>-Xlint</arg>
+            </compilerArgs>
           </configuration>
         </plugin>
 
@@ -219,6 +222,7 @@
             <detectJavaApiLink>false</detectJavaApiLink>
             <detectLinks>false</detectLinks>
             <detectOfflineLinks>false</detectOfflineLinks>
+            <quiet>true</quiet>
           </configuration>
         </plugin>
 

@@ -79,6 +79,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    *         changes).
    */
   public VType putOrAdd(KType key, VType putValue, VType additionValue);
+
   /*! #end !*/
 
   /*! #if ($TemplateOptions.VTypePrimitive) !*/
@@ -98,6 +99,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    *         changes).
    */
   public VType addTo(KType key, VType additionValue);
+
   /*! #end !*/
 
   /**
@@ -121,17 +123,17 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    *         elements in a set does not affect the hash code.
    */
   public int hashCode();
-  
+
   /**
    * Returns a logical "index" of a given key that can be used to speed up
    * follow-up value setters or getters in certain scenarios (conditional
    * logic).
    * 
-   * The semantics of "indexes" are not strictly defined. Indexes may 
-   * (and typically won't be) contiguous. 
+   * The semantics of "indexes" are not strictly defined. Indexes may (and
+   * typically won't be) contiguous.
    * 
    * The index is valid only between map modifications (it will not be affected
-   * by read-only operations like iteration or value retrievals). 
+   * by read-only operations like iteration or value retrievals).
    * 
    * @see #indexExists
    * @see #indexGet
@@ -148,10 +150,12 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   /**
    * @see #indexOf
    * 
-   * @param index The index of a given key, as returned from {@link #indexOf}.
-   * @return Returns <code>true</code> if the index corresponds to an existing key
-   *         or false otherwise. This is equivalent to checking whether the index is
-   *         a positive value (existing keys) or a negative value (non-existing keys).
+   * @param index
+   *          The index of a given key, as returned from {@link #indexOf}.
+   * @return Returns <code>true</code> if the index corresponds to an existing
+   *         key or false otherwise. This is equivalent to checking whether the
+   *         index is a positive value (existing keys) or a negative value
+   *         (non-existing keys).
    */
   public boolean indexExists(int index);
 
@@ -160,53 +164,59 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * 
    * @see #indexOf
    * 
-   * @param index The index of an existing key.
+   * @param index
+   *          The index of an existing key.
    * @return Returns the value currently associated with the key.
-   * @throws AssertionError If assertions are enabled and the index does
-   *         not correspond to an existing key.
+   * @throws AssertionError
+   *           If assertions are enabled and the index does not correspond to an
+   *           existing key.
    */
   public VType indexGet(int index);
 
   /**
-   * Replaces the value associated with an existing key and returns any previous value
-   * stored for that key.
+   * Replaces the value associated with an existing key and returns any previous
+   * value stored for that key.
    * 
    * @see #indexOf
    * 
-   * @param index The index of an existing key.
+   * @param index
+   *          The index of an existing key.
    * @return Returns the previous value associated with the key.
-   * @throws AssertionError If assertions are enabled and the index does
-   *         not correspond to an existing key.
+   * @throws AssertionError
+   *           If assertions are enabled and the index does not correspond to an
+   *           existing key.
    */
   public VType indexReplace(int index, VType newValue);
-  
+
   /**
-   * Inserts a key-value pair for a key that is not present in the map. This method 
-   * may help in avoiding double recalculation of the key's hash.
-   *    
+   * Inserts a key-value pair for a key that is not present in the map. This
+   * method may help in avoiding double recalculation of the key's hash.
+   * 
    * @see #indexOf
    * 
-   * @param index The index of a previously non-existing key, as returned from 
-   *              {@link #indexOf}.
-   * @throws AssertionError If assertions are enabled and the index corresponds 
-   *         to an existing key.
+   * @param index
+   *          The index of a previously non-existing key, as returned from
+   *          {@link #indexOf}.
+   * @throws AssertionError
+   *           If assertions are enabled and the index corresponds to an
+   *           existing key.
    */
   public void indexInsert(int index, KType key, VType value);
 
   /**
-   * Clear all keys and values in the container. 
+   * Clear all keys and values in the container.
    * 
    * @see #release()
    */
   public void clear();
 
   /**
-   * Removes all elements from the collection and additionally 
-   * releases any internal buffers. Typically, if the object is to be reused,
-   * a simple {@link #clear()} should be a better alternative since it'll 
-   * avoid reallocation.
+   * Removes all elements from the collection and additionally releases any
+   * internal buffers. Typically, if the object is to be reused, a simple
+   * {@link #clear()} should be a better alternative since it'll avoid
+   * reallocation.
    * 
    * @see #clear()
    */
-  public void release();  
+  public void release();
 }

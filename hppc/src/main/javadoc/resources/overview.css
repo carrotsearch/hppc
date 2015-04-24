@@ -1,0 +1,98 @@
+.header ul li, .footer ul li {
+  list-style: disc;
+  font-size: 1em;
+}
+
+table.nice a,
+table.nice a:link,
+table.nice a:visited {
+	border: none;
+}
+
+img {
+	border: 0;
+	margin-top: .5em;
+}
+
+table.nice {
+	margin: 1em auto;
+	border-collapse: collapse;
+}
+
+caption {
+	color: #9ba9b4;
+	font-size: .94em;
+	letter-spacing: .1em;
+	margin: 1em 0 0 0;
+	padding: 0;
+	caption-side: top;
+	text-align: center;
+}
+
+table.nice tr.odd td {
+	background: #f0f0f5;
+}
+
+table.nice tr.odd .column1 {
+	background: #f0f0f5;
+	font-weight: bold;
+}
+
+table.nice tr .column1 {
+	background: #f9fcfe;
+    font-weight: bold;
+}
+
+table.nice td {
+	color: #526678;
+    border: 1px solid #cfe4f8;
+	padding: .3em 1em;
+	text-align: center;
+}
+
+table.nice th {
+    border: 1px solid #cfe4f8;
+	font-weight: normal;
+	color: #526678;
+	text-align: left;
+	padding: .3em 1em;
+}
+
+table.nice thead th {
+	background: #e8e8f0;
+	text-align: center;
+	font: bold 1.2em/ 2em Arial, Helvetica, sans-serif;
+	color: #66a3d3
+}
+
+table.nice tfoot th {
+	text-align: center;
+	background: #f4f9fe;
+}
+
+table.nice tfoot th strong {
+	font: bold 1.2em Arial, Helvetica, sans-serif;
+	margin: .5em .5em .5em 0;
+	color: #66a3d3;
+}
+
+table.nice tfoot th em {
+	color: #f03b58;
+	font-weight: bold;
+	font-size: 1.1em;
+	font-style: normal;
+}
+
+table.nice thead th.empty {
+	border-top: none;
+	border-left: none;
+	background: white;
+}
+
+.red {
+	color: red;
+}
+
+.nobr {
+	white-space: nowrap;
+}

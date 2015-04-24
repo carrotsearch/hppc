@@ -56,11 +56,15 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
   /**
    * Fetch next element. The implementation must return {@link #done()} when all
    * elements have been fetched.
+   * 
+   * @return Returns the next value for the iterator or chain-calls {@link #done()}. 
    */
   protected abstract E fetch();
 
   /**
    * Call when done.
+   * 
+   * @return Returns a unique sentinel value to indicate end-of-iteration.
    */
   protected final E done() {
     state = AT_END;

@@ -446,11 +446,11 @@
                 <id>attach-javadocs</id>
                 <configuration>
                   <encoding>${project.build.sourceEncoding}</encoding>
-                  <docfilessubdirs>false</docfilessubdirs>
                   <windowtitle>HPPC v${project.version} API Documentation</windowtitle>
                   <doctitle>HPPC v${project.version} API Documentation</doctitle>
                   <header><![CDATA[<div id='header'><a class='logo' target='_top' href='http://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>]]></header>
                   <failOnError>true</failOnError>
+                  <docfilessubdirs>true</docfilessubdirs>
                   <use>false</use>
                   <noindex>true</noindex>
                   <notree>true</notree>
@@ -460,6 +460,7 @@
                       <packages>com.carrotsearch.hppc*</packages>
                     </group>
                   </groups>
+                  <additionalparam>-Xdoclint:-missing</additionalparam>
                 </configuration>
                 <goals>
                   <goal>jar</goal>
