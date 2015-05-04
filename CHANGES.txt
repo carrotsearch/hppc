@@ -98,6 +98,9 @@ HPPC-117: A summary of API changes resulting from other issues.
           * (HPPC-145): Removed any "Open" infix from all classes:
           KTypeOpenHashSet -> KTypeHashSet
           KTypeVTypeOpenHashMap -> KTypeVTypeHashMap
+          
+          * (HPPC-152) XorShiftRandom has been removed and replaced with a
+          simpler, int-only PRNG XorShift128+ (XorShift128P). 
 
 ** New features
 
@@ -208,6 +211,8 @@ HPPC-115: Hash containers now, by default, use a random internal
           counter or something like that).
 
 ** Other changes
+
+HPPC-152: Remove XorShiftRandom (add a simpler RPRG: XorShift128+).
 
 HPPC-149: Recognize tests.seed as the initialization seed for randomized 
           key mix strategies.

@@ -45,7 +45,7 @@ public final class HashOrderMixing {
   private static final HashOrderMixingStrategy DETERMINISTIC = new HashOrderMixingStrategy() {
     @Override
     public int newKeyMixer(int newContainerBufferSize) {
-      return (int) XorShiftRandom.next((long) newContainerBufferSize);
+      return BitMixer.mix32(newContainerBufferSize);
     }
     
     @Override
@@ -75,7 +75,7 @@ public final class HashOrderMixing {
     return new HashOrderMixingStrategy() {
       @Override
       public int newKeyMixer(int newContainerBufferSize) {
-        return (int) XorShiftRandom.next(seed ^ newContainerBufferSize);
+        return (int) BitMixer.mix64(newContainerBufferSize ^ seed);
       }
 
       @Override

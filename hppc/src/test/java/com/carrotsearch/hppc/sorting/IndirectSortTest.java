@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.junit.*;
 
-import com.carrotsearch.hppc.XorShiftRandom;
+import com.carrotsearch.hppc.XorShift128P;
 
 import static org.junit.Assert.*;
 
@@ -318,11 +318,12 @@ public class IndirectSortTest
     @Test
     public void testMergeSortIsStable()
     {
-        final Random rnd = new XorShiftRandom(0xdeadbeef);
+        final XorShift128P rnd = new XorShift128P(0xdeadbeefL);
         final int [] data = new int [10000];
 
-        for (int i = 0; i < data.length; i++)
+        for (int i = 0; i < data.length; i++) {
             data[i] = rnd.nextInt(0x100);
+        }
 
         int [] order = IndirectSort.mergesort(0, data.length, new IndirectComparator()
         {

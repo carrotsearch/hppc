@@ -21,7 +21,7 @@ public final class RandomizedHashOrderMixer implements HashOrderMixingStrategy {
 
   @Override
   public int newKeyMixer(int newContainerBufferSize) {
-    return (int) (XorShiftRandom.next(seedMixer.incrementAndGet() ^ newContainerBufferSize));
+    return (int) BitMixer.mix64(seedMixer.incrementAndGet());
   }
 
   @Override

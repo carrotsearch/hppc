@@ -1,7 +1,5 @@
 package com.carrotsearch.hppc.benchmarks;
 
-import java.util.Random;
-
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -18,7 +16,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import com.carrotsearch.hppc.XorShiftRandom;
+import com.carrotsearch.hppc.XorShift128P;
 
 @Fork(1)
 @Warmup(iterations = 5)
@@ -51,7 +49,7 @@ public class B002_HashSet_Add {
     int keyCount = mbOfKeys * (1024 * 1024) / 4;
     keys = new int [keyCount];
 
-    Random rnd = new XorShiftRandom(0xdeadbeef);
+    XorShift128P rnd = new XorShift128P(0xdeadbeefL);
     for (int i = 0; i < keys.length; i++) {
       keys[i] = rnd.nextInt();
     }
