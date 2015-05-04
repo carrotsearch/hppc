@@ -3,6 +3,8 @@ package com.carrotsearch.hppc;
 /**
  * Factory methods to acquire the most common types of 
  * {@link HashOrderMixingStrategy}.
+ * 
+ * @see HashOrderMixingStrategy
  */
 public final class HashOrderMixing {
   private HashOrderMixing() {}
