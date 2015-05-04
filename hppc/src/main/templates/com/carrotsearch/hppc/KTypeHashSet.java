@@ -14,9 +14,9 @@ import static com.carrotsearch.hppc.Containers.*;
  * with linear probing for collision resolution.
  * 
  * <p>
- * <strong>Note:</strong> read about <a href="{@docRoot}
- * /overview-summary.html#scattervshash">important differences between hash and
- * scatter sets</a>.
+ * <strong>Note:</strong> read about 
+ * <a href="{@docRoot}/overview-summary.html#scattervshash">
+ * important differences between hash and scatter sets</a>.
  * </p>
  * 
  * @see KTypeScatterSet
