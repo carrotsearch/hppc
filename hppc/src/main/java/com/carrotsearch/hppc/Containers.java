@@ -50,7 +50,7 @@ public final class Containers {
             return System.getProperty("tests.seed", NOT_AVAILABLE);
           }
         });
-      } catch (Exception e) {
+      } catch (SecurityException e) {
         // If failed on security exception, don't panic.
         testsSeedProperty = NOT_AVAILABLE;
         Logger.getLogger(Containers.class.getName())
