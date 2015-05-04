@@ -18,17 +18,17 @@ public final class BitMixer {
   public static int mix0(char  key)  { int k = key * 0x85ebca6b; return k ^= k >>> 13; }
 
   // Do mix larger key domains.
-  public static int mix (int key)    { return murmurHash3(key); }
-  public static int mix0(int key)    { return murmurHash3(key); }
+  public static int mix (int key)    { return mix32(key); }
+  public static int mix0(int key)    { return mix32(key); }
 
-  public static int mix (float key)  { return murmurHash3(Float.floatToIntBits(key)); }
-  public static int mix0(float key)  { return murmurHash3(Float.floatToIntBits(key)); }
+  public static int mix (float key)  { return mix32(Float.floatToIntBits(key)); }
+  public static int mix0(float key)  { return mix32(Float.floatToIntBits(key)); }
 
-  public static int mix (double key) { long v = Double.doubleToLongBits(key); return murmurHash3((int)((v >>> 32) ^ v)); }
-  public static int mix0(double key) { long v = Double.doubleToLongBits(key); return murmurHash3((int)((v >>> 32) ^ v)); }
+  public static int mix (double key) { return (int) mix64(Double.doubleToLongBits(key)); }
+  public static int mix0(double key) { return (int) mix64(Double.doubleToLongBits(key)); }
 
-  public static int mix (Object key) { return murmurHash3(key.hashCode()); }
-  public static int mix0(Object key) { return key == null ? 0 : murmurHash3(key.hashCode()); }
+  public static int mix (Object key) { return mix32(key.hashCode()); }
+  public static int mix0(Object key) { return key == null ? 0 : mix32(key.hashCode()); }
 
   public static int mix (byte key, int seed)  { return mix(key ^ seed); }
   public static int mix0(byte key, int seed)  { return mix0(key ^ seed); }
@@ -41,27 +41,36 @@ public final class BitMixer {
   public static int mix (int key, int seed)   { return mix0(key ^ seed); }
   public static int mix0(int key, int seed)   { return mix0(key ^ seed); }
 
-  public static int mix (float key, int seed)  { return murmurHash3(Float.floatToIntBits(key) ^ seed); }
-  public static int mix0(float key, int seed)  { return murmurHash3(Float.floatToIntBits(key) ^ seed); }
+  public static int mix (float key, int seed)  { return mix32(Float.floatToIntBits(key) ^ seed); }
+  public static int mix0(float key, int seed)  { return mix32(Float.floatToIntBits(key) ^ seed); }
 
-  public static int mix (double key, int seed)  { long v = Double.doubleToLongBits(key); return murmurHash3((int)((v >>> 32) ^ v) ^ seed); }
-  public static int mix0(double key, int seed)  { long v = Double.doubleToLongBits(key); return murmurHash3((int)((v >>> 32) ^ v) ^ seed); }
+  public static int mix (double key, int seed)  { return (int) mix64(Double.doubleToLongBits(key) ^ seed); }
+  public static int mix0(double key, int seed)  { return (int) mix64(Double.doubleToLongBits(key) ^ seed); }
 
-  public static int mix (Object key, int seed)  { return murmurHash3(key.hashCode() ^ seed); }
-  public static int mix0(Object key, int seed)  { return key == null ? 0 : murmurHash3(key.hashCode() ^ seed); }
+  public static int mix (Object key, int seed)  { return mix32(key.hashCode() ^ seed); }
+  public static int mix0(Object key, int seed)  { return key == null ? 0 : mix32(key.hashCode() ^ seed); }
 
-  /*
-   * MurmurHash3's finalization step.
+  /**
+   * MH3's plain finalization step.
    */
-  
-  public static int murmurHash3(int k) {
-    k ^= k >>> 16;
-    k *= 0x85ebca6b;
-    k ^= k >>> 13;
-    k *= 0xc2b2ae35;
-    k ^= k >>> 16;
-    return k;
+  public static int mix32(int k) {
+    k = (k ^ (k >>> 16)) * 0x85ebca6b;
+    k = (k ^ (k >>> 13)) * 0xc2b2ae35;
+    return k ^ (k >>> 16);
   }
+
+  /**
+   * Computes David Stafford variant 13 of 64bit mix function (MH3 finalization step,
+   * with different shifts and constants).
+   * 
+   * @see "http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html"
+   */
+  public static long mix64(long z) {
+      z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
+      z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+      return z ^ (z >>> 31);
+  }
+
 
   /*
    * Golden ratio bit mixers.

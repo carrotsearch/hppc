@@ -374,7 +374,11 @@
               </excludes>
               <signaturesFiles>
                 <signaturesFile>${project.parent.basedir}/etc/forbidden-apis/intrinsics.txt</signaturesFile>
+                <signaturesFile>${project.parent.basedir}/etc/forbidden-apis/time-relative.txt</signaturesFile>
               </signaturesFiles>
+              <suppressAnnotations>
+                <suppressAnnotation>com.carrotsearch.hppc.SuppressForbidden</suppressAnnotation>
+              </suppressAnnotations>
             </configuration>
           </execution>
         </executions>
