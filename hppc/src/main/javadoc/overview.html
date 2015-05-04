@@ -157,14 +157,34 @@
         </tr>
 
         <tr>
-            <th scope="row" class="column1">hash maps (dictionaries)</th>
+            <th scope="row" class="column1">hash sets</th>
+            <td><code>java.util.HashSet</code></td>
+            <td><code><span class="red nobr">[keyType]</span>HashSet</code><br/>
+                <code><span class="red nobr">[keyType]</span>ScatterSet</code><br/>
+            </td>
+            <td>
+                {@linkplain com.carrotsearch.hppc.ObjectHashSet
+                <code>ObjectHashSet&lt;<span class="red nobr">K</span>&gt;</code>}<br/>
+                <code><span class="red nobr">[keyType]</span>HashSet</code><br/><br/>
+                {@linkplain com.carrotsearch.hppc.ObjectScatterSet
+                <code>ObjectScatterSet&lt;<span class="red nobr">K</span>&gt;</code>}<br/>
+                <code><span class="red nobr">[keyType]</span>ScatterSet</code><br/>
+            </td>
+        </tr>
+
+        <tr>
+            <th scope="row" class="column1">hash maps</th>
             <td><code>java.util.HashMap</code></td>
             <td><code><span class="red nobr">[keyType][valueType]</span>HashMap</code></td>
             <td>
                 {@linkplain com.carrotsearch.hppc.ObjectObjectHashMap
                 <code>ObjectObjectHashMap&lt;<span class="red nobr">K, V</span>&gt;</code>}<br/>
                 <code><span class="red nobr">[keyType]</span>ObjectHashMap&lt;<span class="red nobr">V</span>&gt;</code><br/>
-                <code>Object<span class="red nobr">[valueType]</span>HashMap&lt;<span class="red nobr">K</span>&gt;</code>
+                <code>Object<span class="red nobr">[valueType]</span>HashMap&lt;<span class="red nobr">K</span>&gt;</code><br/><br/>
+                {@linkplain com.carrotsearch.hppc.ObjectObjectScatterMap
+                <code>ObjectObjectScatterMap&lt;<span class="red nobr">K, V</span>&gt;</code>}<br/>
+                <code><span class="red nobr">[keyType]</span>ObjectScatterMap&lt;<span class="red nobr">V</span>&gt;</code><br/>
+                <code>Object<span class="red nobr">[valueType]</span>ScatterMap&lt;<span class="red nobr">K</span>&gt;</code>
             </td>
         </tr>
         </tbody>
