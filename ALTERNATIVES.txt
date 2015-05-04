@@ -12,11 +12,11 @@ Nowadays there are a number of options to choose from (alphabetically).
   Compatible with Java Collections.
 
 * HPPC-RT (by Vincent Sonnier), https://github.com/vsonnier/hppc
-  A fork of HPPC for real-time computing, minimizes allocations, introduces cool
+  A fork of HPPC for real-time computing, minimizes allocations, introduces
   overhead-less iterators and other miscellaneous goodies.
   
 * Koloboke (by Roman Leventov), https://github.com/OpenHFT/Koloboke
-  A very cool library that offers unprecedented speed and features.
+  A very impressive library that offers unprecedented speed and features.
   Includes support for Java8 (including Collections compatibility).
 
 * PCJ (by Søren Bak), http://pcj.sourceforge.net/
