@@ -62,9 +62,19 @@ public final class Containers {
     if (testsSeedProperty != NOT_AVAILABLE) {
       initialSeed = testsSeedProperty.hashCode();
     } else {
+      // Mix something that is changing over time (nanoTime)
+      // ... with something that is thread-local and relatively unique 
+      //     even for very short time-spans (new Object's address from a TLAB).
       initialSeed = System.nanoTime() ^ 
-                    System.identityHashCode(Thread.currentThread());
+                    System.identityHashCode(new Object());
     }
     return BitMixer.mix64(initialSeed);
+  }
+
+  /**
+   * Reset state for tests.
+   */
+  static void test$reset() {
+    testsSeedProperty = null;
   }
 }
