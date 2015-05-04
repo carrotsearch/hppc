@@ -118,7 +118,7 @@ public class KTypeVTypeHashMap<KType, VType>
    *          are rejected by {@link #verifyLoadFactor(double)}.
    */
   public KTypeVTypeHashMap(int expectedElements, double loadFactor) {
-    this(expectedElements, loadFactor, HashOrderMixing.randomized());
+    this(expectedElements, loadFactor, HashOrderMixing.defaultStrategy());
   }
 
   /**
