@@ -11,6 +11,7 @@ import java.util.Random;
  * @see "http://www.javamex.com/tutorials/random_numbers/xorshift.shtml"
  */
 @SuppressWarnings("serial")
+@SuppressForbidden
 public class XorShiftRandom extends Random {
   private long x;
 

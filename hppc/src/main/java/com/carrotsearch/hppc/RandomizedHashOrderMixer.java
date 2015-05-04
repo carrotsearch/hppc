@@ -12,7 +12,7 @@ public final class RandomizedHashOrderMixer implements HashOrderMixingStrategy {
   protected final AtomicLong seedMixer;
 
   public RandomizedHashOrderMixer() {
-    this(XorShiftRandom.next(System.nanoTime()));
+    this(Containers.randomSeed64());
   }
 
   public RandomizedHashOrderMixer(long seed) {

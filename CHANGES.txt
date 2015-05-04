@@ -193,6 +193,9 @@ HPPC-115: Hash containers now, by default, use a random internal
 
 ** Other changes
 
+HPPC-149: Recognize tests.seed as the initialization seed for randomized 
+          key mix strategies.
+
 HPPC-102: Use Arrays.copyOf instead of new[]+System.arraycopy() for resizing 
           arrays.
 
