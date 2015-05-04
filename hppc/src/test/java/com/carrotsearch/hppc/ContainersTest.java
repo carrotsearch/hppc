@@ -23,7 +23,9 @@ public class ContainersTest extends RandomizedTest {
 
   @Test
   public void testNoTestsSeed() {
-    Assertions.assertThat(System.getProperty("tests.seed")).isNull();
+    System.clearProperty("tests.seed");
+    Containers.test$reset();
+
     Assertions.assertThat(Containers.randomSeed64())
               .isNotEqualTo(Containers.randomSeed64());
   }
@@ -32,6 +34,7 @@ public class ContainersTest extends RandomizedTest {
   public void testWithTestsSeed() {
     System.setProperty("tests.seed", "deadbeef");
     Containers.test$reset();
+
     Assertions.assertThat(Containers.randomSeed64())
               .isEqualTo(Containers.randomSeed64());
   }

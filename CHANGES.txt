@@ -101,6 +101,22 @@ HPPC-117: A summary of API changes resulting from other issues.
 
 ** New features
 
+HPPC-150: Make the default key mixing strategy globally configurable (via 
+          "hppc.bitmixer" sysprop). This property allows switching from
+          random bit mixer strategy to any of the following:
+          - random 
+              the default strategy. Varies bit mixer per instance. 
+          - deterministic 
+              the default strategy in HPPC up to v. 0.6.x. Varies bit
+              mixer depending on hash container size.
+          - none
+              No bit mixing is used (hash sets/maps become scatter sets/ maps).
+
+          This is a last-resort, discouraged, property. Your code should not 
+          rely on hash map/set ordering. Your code should use scatter maps when
+          speed is of absolute importance and there are guarantees that keys
+          won't be copied around to other associative containers.
+
 HPPC-145: Removed any "Open" infix from all classes. 
 
 HPPC-144: Moved certain esoteric key/value containers to a separate JAR. This

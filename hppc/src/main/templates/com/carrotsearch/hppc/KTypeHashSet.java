@@ -107,7 +107,7 @@ public class KTypeHashSet<KType>
    * @see #KTypeHashSet(int, double, HashOrderMixingStrategy)
    */
   public KTypeHashSet(int expectedElements, double loadFactor) {
-    this(expectedElements, loadFactor, HashOrderMixing.randomized());
+    this(expectedElements, loadFactor, HashOrderMixing.defaultStrategy());
   }
 
   /**
