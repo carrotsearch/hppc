@@ -1,5 +1,15 @@
 
-[0.7.0-SNAPSHOT]
+[0.8.0-SNAPSHOT]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
+
+** API-breaking changes
+** New features
+** Bug fixes
+** Other changes
+
+
+[0.7.0] 
+Released on May 5th, 2015
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12421
 
 ** API-breaking changes
