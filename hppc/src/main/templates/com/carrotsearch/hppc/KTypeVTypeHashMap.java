@@ -616,7 +616,7 @@ public class KTypeVTypeHashMap<KType, VType>
     int h = hasEmptyKey ? 0xDEADBEEF : 0;
     for (KTypeVTypeCursor<KType, VType> c : this) {
       h += BitMixer.mix(c.key) +
-           BitMixer.mix0(c.value);
+           BitMixer.mix(c.value);
     }
     return h;
   }

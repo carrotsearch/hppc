@@ -828,7 +828,7 @@ public class KTypeArrayDeque<KType>
 
     final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
     for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length)) {
-      h = 31 * h + BitMixer.mix0(this.buffer[i]);
+      h = 31 * h + BitMixer.mix(this.buffer[i]);
     }
     return h;
   }

@@ -460,7 +460,7 @@ public class KTypeArrayList<KType>
   public int hashCode() {
     int h = 1, max = elementsCount;
     for (int i = 0; i < max; i++) {
-      h = 31 * h + BitMixer.mix0(this.buffer[i]);
+      h = 31 * h + BitMixer.mix(this.buffer[i]);
     }
     return h;
   }

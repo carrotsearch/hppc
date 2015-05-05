@@ -41,6 +41,6 @@ public class KTypeVTypeScatterMap<KType, VType> extends KTypeVTypeHashMap<KType,
   public
   /*! #else protected #end !*/
   int hashKey(KType key) {
-    return BitMixer.phiMix(key);
+    return BitMixer.mixPhi(key);
   }
 }
