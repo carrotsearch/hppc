@@ -43,4 +43,20 @@ public class KTypeVTypeScatterMap<KType, VType> extends KTypeVTypeHashMap<KType,
   int hashKey(KType key) {
     return BitMixer.mixPhi(key);
   }
+
+  /**
+   * Creates a hash map from two index-aligned arrays of key-value pairs.
+   */
+  public static <KType, VType> KTypeVTypeScatterMap<KType, VType> from(KType[] keys, VType[] values) {
+    if (keys.length != values.length) {
+      throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
+    }
+
+    KTypeVTypeScatterMap<KType, VType> map = new KTypeVTypeScatterMap<>(keys.length);
+    for (int i = 0; i < keys.length; i++) {
+      map.put(keys[i], values[i]);
+    }
+
+    return map;
+  }
 }
