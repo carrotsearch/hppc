@@ -2,18 +2,17 @@
 HPPC: High Performance Primitive Collections
 --------------------------------------------
 
-Collections of primitive types (maps, sets, stacks, lists) with open internals
-and an API twist (it is not Java Collections compatible).
+Collections of primitive types (maps, sets, stacks, lists) 
+with open internals and an API twist 
+(no java.util.collections.* compatibility).
 
-More information:
-  http://labs.carrotsearch.com/hppc.html
+See the Wiki for more information:
+  https://github.com/carrotsearch/hppc/wiki
 
-See ALTERNATIVES if you're just shopping around.
+See ALTERNATIVES.txt if you're just shopping around.
 
-See LICENSE to make your company's lawyer happy.
+See LICENSE.txt to make your company's lawyer happy.
 
-See CHANGES for API changes and updates.
+See CHANGES.txt for API changes and updates.
 
-__
-(c) Carrot Search s.c.
-http://carrotsearch.com/
+(c) Carrot Search s.c., http://carrotsearch.com/
