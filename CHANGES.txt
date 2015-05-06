@@ -6,6 +6,8 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 ** New features
 ** Bug fixes
 
+HPPC-156: forEach iterators spin loop endlessly on *HashSet and *ScatterSet. 
+
 HPPC-155: IntScatterSet.from should shadow IntHashSet.from with proper covariant.
 
 ** Other changes
