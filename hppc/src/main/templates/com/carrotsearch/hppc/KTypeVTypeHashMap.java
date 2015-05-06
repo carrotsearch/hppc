@@ -1052,6 +1052,11 @@ public class KTypeVTypeHashMap<KType, VType>
     return buffer.toString();
   }
 
+  @Override
+  public String visualizeKeyDistribution(int characters) {
+    return KTypeBufferVisualizer.visualizeKeyDistribution(keys, mask, characters);
+  }
+
   /**
    * Creates a hash map from two index-aligned arrays of key-value pairs.
    */

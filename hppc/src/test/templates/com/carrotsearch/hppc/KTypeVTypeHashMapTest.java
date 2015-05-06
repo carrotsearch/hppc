@@ -107,7 +107,21 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
             }
         });
     }
-    
+
+    @Test
+    public void testVisualizeKeys()
+    {
+      map.clear();
+      
+      Assertions.assertThat(map.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      map.put(keyE, value0);
+      Assertions.assertThat(map.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      map.put(key1, value1);
+      Assertions.assertThat(map.visualizeKeyDistribution(20).trim()).matches("\\.*X\\.*");
+    }
+
     /* */
     @Test
     public void testEnsureCapacity()

@@ -499,7 +499,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max;) {
+    for (int slot = 0, max = this.mask; slot <= max; slot++) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         procedure.apply(existing);
@@ -521,7 +521,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max;) {
+    for (int slot = 0, max = this.mask; slot <= max; slot++) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (!predicate.apply(existing)) {
@@ -696,6 +696,11 @@ public class KTypeHashSet<KType>
 
       assigned++;
     }
+  }
+
+  @Override
+  public String visualizeKeyDistribution(int characters) {
+    return KTypeBufferVisualizer.visualizeKeyDistribution(keys, mask, characters);
   }
 
   /**

@@ -207,4 +207,15 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * @see #clear()
    */
   public void release();
+  
+  /**
+   * Visually depict the distribution of keys.
+   * 
+   * @param characters
+   *          The number of characters to "squeeze" the entire buffer into.
+   * @return Returns a sequence of characters where '.' depicts an empty
+   *         fragment of the internal buffer and 'X' depicts full or nearly full
+   *         capacity within the buffer's range and anything between 1 and 9 is between.
+   */
+  public String visualizeKeyDistribution(int characters);  
 }

@@ -47,4 +47,18 @@ public class KTypeScatterSet<KType> extends KTypeHashSet<KType> {
   int hashKey(KType key) {
     return BitMixer.mixPhi(key);
   }
+  
+  /**
+   * Create a set from a variable number of arguments or an array of
+   * <code>KType</code>. The elements are copied from the argument to the
+   * internal buffer.
+   */
+  /* #if ($TemplateOptions.KTypeGeneric) */
+  @SafeVarargs
+  /* #end */
+  public static <KType> KTypeScatterSet<KType> from(KType... elements) {
+    final KTypeScatterSet<KType> set = new KTypeScatterSet<KType>(elements.length);
+    set.addAll(elements);
+    return set;
+  }
 }
