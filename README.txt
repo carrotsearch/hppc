@@ -6,8 +6,9 @@ Collections of primitive types (maps, sets, stacks, lists)
 with open internals and an API twist 
 (no java.util.collections.* compatibility).
 
-See the Wiki for more information:
-  https://github.com/carrotsearch/hppc/wiki
+See the following for more information:
+  Wiki: https://github.com/carrotsearch/hppc/wiki
+  Bugs: http://issues.carrot2.org/browse/HPPC/
 
 See ALTERNATIVES.txt if you're just shopping around.
 
