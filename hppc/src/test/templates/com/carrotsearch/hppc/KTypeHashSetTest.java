@@ -33,6 +33,26 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     }
 
     @Test
+    public void testVisualizeKeys()
+    {
+      set.clear();
+      
+      Assertions.assertThat(set.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      set.add(keyE);
+      Assertions.assertThat(set.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      set.add(key1);
+      Assertions.assertThat(set.visualizeKeyDistribution(20).trim()).matches("\\.*X\\.*");
+      Assertions.assertThat(set.visualizeKeyDistribution(20)).hasSize(20);
+      
+      for (int i = 0; i < 60; i++) {
+        set.add(cast(i));
+      }
+      Assertions.assertThat(set.visualizeKeyDistribution(20)).hasSize(20);
+    }
+    
+    @Test
     public void testIndexMethods()
     {
       set.add(keyE);

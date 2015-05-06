@@ -93,7 +93,7 @@ public class HashCollisionsClusteringTest
                   "Keys: %7d, %5d ms.: %s",
                   i, 
                   System.currentTimeMillis() - start,
-                  visualizeDistribution(target, 80)));
+                  debugging ? target.visualizeKeyDistribution(80) : "--"));
             }
             if (System.currentTimeMillis() >= deadline) {
               fail("Takes too long, something is wrong. Added " + i + " keys out of " + source.size());
@@ -137,37 +137,11 @@ public class HashCollisionsClusteringTest
               i, 
               e - s,
               deadline - e,
-              visualizeDistribution(target, 80)));
+              debugging ? target.visualizeKeyDistribution(80) : "--"));
 
           if (System.currentTimeMillis() > deadline) {
             fail("Takes too long, something is wrong. Added " + i + " batches.");
           }
         }
     }
-
-    protected String visualizeDistribution(IntHashSet target, int lineLength) {
-      if (!debugging) {
-        return "[disabled]";
-      }
-
-      int bucketSize = Math.max(lineLength, target.keys.length) / lineLength;
-      int [] counts = new int [lineLength];
-      for (int x = 0; x < target.keys.length; x++) {
-        if (target.keys[x] != 0) {
-          counts[Math.min(counts.length - 1, x / bucketSize)]++;
-        }
-      }
-      
-      int max = counts[0];
-      for (int x = 0; x < counts.length; x++) {
-        max = Math.max(max, counts[x]);
-      }
-
-      StringBuilder b = new StringBuilder();
-      final char [] chars = ".0123456789".toCharArray();
-      for (int x = 0; x < counts.length; x++) {
-        b.append(chars[(counts[x] * 10 / max)]);
-      }
-      return b.toString();
-    }    
 }

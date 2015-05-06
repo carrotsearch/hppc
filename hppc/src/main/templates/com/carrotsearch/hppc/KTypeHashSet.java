@@ -698,6 +698,11 @@ public class KTypeHashSet<KType>
     }
   }
 
+  @Override
+  public String visualizeKeyDistribution(int characters) {
+    return KTypeBufferVisualizer.visualizeKeyDistribution(keys, mask, characters);
+  }
+
   /**
    * Validate load factor range and return it. Override and suppress if you need
    * insane load factors.
