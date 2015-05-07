@@ -98,7 +98,7 @@ public class HppcExample_006_HashAndScatterMaps {
      * We now have a hash map that isn't like a hash map at all -- all keys, instead of being
      * distributed across the buffer space, are adjacent and grouped. Here is the visualization
      * of the buffer (a dot is an empty buffer region, numbers indicate progressively
-     * more occupied regions). Let's also expand the buffer it a bit to make the point clearer.  
+     * more occupied regions). Let's also expand the buffer a bit to make the point clearer.  
      */
     set.ensureCapacity(1000);
     println("Keys buffer: %s", set.visualizeKeyDistribution(30));
@@ -187,17 +187,20 @@ public class HppcExample_006_HashAndScatterMaps {
      * requiring a long time to find a free or matching slot. 
      * 
      * This is very easy to demonstrate (in a number of ways). The example below 
-     * simple recreates a hash container with a high load factor that is on 
+     * simply recreates a hash container with a high load factor that is on 
      * the verge of expansion.
      */
-    int keys = (int) Math.ceil((1 << 19) / 0.75) - 5000;
 
-    set = new IntHashSet(0, 0.9d, HashOrderMixing.none());
+    // 5000 keys from expanding the buffer... (nearly full capacity).  
+    double lf = 0.9;
+    int keys = (int) Math.ceil((1 << 19) / lf) - 5000;
+
+    set = new IntHashSet(0, lf, HashOrderMixing.none());
     for (int i = keys; i-- != 0;) {
       set.add(i);
     }
-    
-    other = new IntHashSet(0, 0.9d, HashOrderMixing.none());
+
+    other = new IntHashSet(0, lf, HashOrderMixing.none());
     int added = 0;
     long start = System.currentTimeMillis();
     long deadline = start + TimeUnit.SECONDS.toMillis(5);
@@ -252,7 +255,7 @@ public class HppcExample_006_HashAndScatterMaps {
      * them), but there is no way to solve the issue systematically... unless each and 
      * every hash container has a different key distribution.
      * 
-     * Which is exactly why HPPC implements. The two different "flavors" of associative
+     * Which is exactly what HPPC implements. The two different "flavors" of associative
      * containers are meant to distinguish between "safe" and "fast" ones.
      * 
      * Any hash container will, by default, use a fairly unique internal
