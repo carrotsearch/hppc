@@ -1,0 +1,5 @@
+com.carrotsearch.hppc
+com.carrotsearch.hppc.cursors
+com.carrotsearch.hppc.predicates
+com.carrotsearch.hppc.procedures
+com.carrotsearch.hppc.sorting
