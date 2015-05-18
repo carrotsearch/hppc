@@ -255,7 +255,7 @@ public class HppcExample_006_HashAndScatterMaps {
      * them), but there is no way to solve the issue systematically... unless each and 
      * every hash container has a different key distribution.
      * 
-     * Which is exactly why HPPC implements. The two different "flavors" of associative
+     * Which is exactly what HPPC implements. The two different "flavors" of associative
      * containers are meant to distinguish between "safe" and "fast" ones.
      * 
      * Any hash container will, by default, use a fairly unique internal
