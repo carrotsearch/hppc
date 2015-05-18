@@ -27,7 +27,7 @@ public class EntryShiftingOnRemovalTest extends RandomizedTest {
       v.add(r);
     }
 
-    Integer[] array = ref.toArray(new Integer[4]);
+    Integer[] array = ref.toArray(new Integer[ref.size()]);
     int remove = randomFrom(array);
     ref.remove(remove);
     v.remove(remove);
