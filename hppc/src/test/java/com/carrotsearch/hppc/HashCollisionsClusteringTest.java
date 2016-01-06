@@ -1,15 +1,14 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
-
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 
-public class HashCollisionsClusteringTest
+public class HashCollisionsClusteringTest extends RandomizedTest
 {
     private static boolean debugging = false;
 
@@ -83,7 +82,7 @@ public class HashCollisionsClusteringTest
 
         assertEquals(source.keys.length, target.keys.length);
         long start = System.currentTimeMillis();
-        long deadline = start + TimeUnit.SECONDS.toMillis(3);
+        long deadline = start + TimeUnit.SECONDS.toMillis(5);
         int i = 0;
         for (IntCursor c : source) {
           target.add(c.value);
@@ -103,7 +102,7 @@ public class HashCollisionsClusteringTest
     }
 
     /** */
-    @Test 
+    @Test
     public void testHashSetClusteringAtFront2()
     {
         int keys = 100000;
@@ -116,7 +115,7 @@ public class HashCollisionsClusteringTest
           }
         };
 
-        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(3);
+        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(15);
         IntHashSet source = new IntHashSet(expected, 0.9);
         int unique = 0;
         for (int i = 0; i < 200; i++) {
