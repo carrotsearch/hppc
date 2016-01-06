@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>hppc</artifactId>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <name>HPPC Collections</name>
   <description>High Performance Primitive Collections. 
