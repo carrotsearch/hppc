@@ -268,6 +268,23 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>esoteric-bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+            <configuration>
+              <classifier>esoteric</classifier>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>com.carrotsearch</groupId>
         <artifactId>hppc-template-processor</artifactId>
         <version>${project.version}</version>
