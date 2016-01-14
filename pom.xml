@@ -110,6 +110,7 @@
     <module>hppc</module>
     <module>hppc-template-processor</module>
     <module>hppc-benchmarks</module>
+    <module>hppc-examples</module>
   </modules>
 
   <dependencyManagement>
@@ -136,7 +137,7 @@
       <dependency>
         <groupId>com.carrotsearch.randomizedtesting</groupId>
         <artifactId>randomizedtesting-runner</artifactId>
-        <version>2.1.11</version>
+        <version>${version.randomizedtesting}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -249,6 +250,45 @@
           <groupId>com.carrotsearch.randomizedtesting</groupId>
           <artifactId>junit4-maven-plugin</artifactId>
           <version>${version.randomizedtesting}</version>
+          <executions>
+            <execution>
+              <id>junit4-tests</id>
+              <goals>
+                <goal>junit4</goal>
+              </goals>
+              <configuration>
+                <includes>
+                  <include>**/*Test.*</include>
+                </includes>
+                <excludes>
+                  <exclude>**/*$*</exclude>
+                  <exclude>**/Abstract*</exclude>
+                </excludes>
+  
+                <parallelism>auto</parallelism>
+                <maxMemory>750m</maxMemory>
+  
+                <listeners>
+                  <report-text 
+                    showThrowable="false" 
+                    showStackTraces="false" 
+                    showOutput="onError"
+                    showStatusOk="false" 
+                    showStatusError="false" 
+                    showStatusFailure="false" 
+                    showStatusIgnored="false"
+                    showSuiteSummary="true" />
+
+                  <report-json file="${project.build.directory}/surefire-reports/test-results.html" />
+                  <report-ant-xml dir="${project.build.directory}/surefire-reports/" mavenExtensions="true" />
+                </listeners>
+
+                <assertions>
+                  <enable package="com.carrotsearch" />
+                </assertions>
+              </configuration>
+            </execution>
+          </executions>          
         </plugin>
 
         <plugin>
@@ -397,12 +437,10 @@
                       </condition>
 
                       <fileset id="id:settings" dir="etc/eclipse/settings" />
-                      <copy todir="hppc-template-processor/.settings">
-                        <fileset refid="id:settings" />
-                      </copy>
-                      <copy todir="hppc/.settings">
-                        <fileset refid="id:settings" />
-                      </copy>
+                      <copy todir="hppc-template-processor/.settings"><fileset refid="id:settings" /></copy>
+                      <copy todir="hppc/.settings">                   <fileset refid="id:settings" /></copy>
+                      <copy todir="hppc-benchmarks/.settings">        <fileset refid="id:settings" /></copy>
+                      <copy todir="hppc-examples/.settings">          <fileset refid="id:settings" /></copy>
 
                       <copy todir=".">
                         <fileset dir="etc/eclipse/configs" />
