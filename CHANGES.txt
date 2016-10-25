@@ -5,21 +5,15 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 ** API-breaking changes
 ** New features
 
-HPPC-159: Add .visualizeKeyDistribution(int characters) to maps and sets 
+[0.7.2]
 
-** Bug fixes
-
-HPPC-156: forEach iterators spin loop endlessly on *HashSet and *ScatterSet. 
-
-HPPC-158: *ScatterMap.from should shadow *HashMap.from with proper covariant.
-
-HPPC-155: *ScatterSet.from should shadow *HashSet.from with proper covariant.
+Released on October 25th, 2016
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12632
 
 ** Other changes
 
    PR #5: OSGi descriptors in JAR manifests, bundle packaging. (Guillaume 
           Delafosse)
-
 
 [0.7.1]
 Released on May 7th, 2015
