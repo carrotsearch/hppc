@@ -5,8 +5,8 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 ** API-breaking changes
 ** New features
 
-[0.7.2]
 
+[0.7.2]
 Released on October 25th, 2016
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12632
 
@@ -14,6 +14,7 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12632
 
    PR #5: OSGi descriptors in JAR manifests, bundle packaging. (Guillaume 
           Delafosse)
+
 
 [0.7.1]
 Released on May 7th, 2015
@@ -31,10 +32,6 @@ HPPC-158: *ScatterMap.from should shadow *HashMap.from with proper covariant.
 
 HPPC-155: *ScatterSet.from should shadow *HashSet.from with proper covariant.
 
-** Other changes
-
-   PR #5: OSGi descriptors in JAR manifests, bundle packaging. (Guillaume 
-          Delafosse)
 
 [0.7.0] 
 Released on May 5th, 2015
