@@ -19,12 +19,17 @@ Nowadays there are a number of options to choose from (alphabetically).
   A very impressive library that offers unprecedented speed and features.
   Includes support for Java8 (including Collections compatibility).
 
-* PCJ (by Søren Bak), http://pcj.sourceforge.net/
-  The grand-daddy of them all. :) DO NOT use it, it contains bugs. But it
-  deserves to be mentioned nonetheless.
+* Eclipse Collections (formerly GS collections), https://www.eclipse.org/collections/
+  Contains specialized classes for primitives as well. Includes Java8
+  support. Didn't analyze in more detail.
 
 * Trove, https://bitbucket.org/robeden/trove/
   If you're a GNU fan, this may be just the sweet spot for you.
 
 * Agrona, https://github.com/real-logic/Agrona
   (contains some primitive collection classes, but didn't check it out yet).
+
+* PCJ (by Søren Bak), http://pcj.sourceforge.net/
+  The grand-daddy of them all. :) DO NOT use it, it contains bugs. But it
+  deserves to be mentioned nonetheless.
+
