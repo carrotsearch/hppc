@@ -530,5 +530,5 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         }
       });
       Assertions.assertThat(other).isEqualTo(set);
-    }        
+    }
 }
