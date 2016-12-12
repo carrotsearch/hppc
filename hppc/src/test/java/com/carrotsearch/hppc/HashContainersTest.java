@@ -1,10 +1,13 @@
 package com.carrotsearch.hppc;
 
+import static com.carrotsearch.hppc.HashContainers.*;
+
+import java.util.HashSet;
+
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-
-import static com.carrotsearch.hppc.HashContainers.*;
 
 public class HashContainersTest extends RandomizedTest {
   /* */
@@ -39,5 +42,24 @@ public class HashContainersTest extends RandomizedTest {
     assertEquals(0x100, minBufferSize(0x80, 1d));
     assertEquals(0x7f, expandAtCount(0x80, 1d));
     assertEquals(0xff, expandAtCount(0x100, 1d));
+  }
+  
+  @Test
+  public void testAddReplacements()
+  {
+      ObjectHashSet<Integer> set = new ObjectHashSet<>();
+      HashSet<Integer> reference = new HashSet<>();
+
+      Integer i1 = 1;
+      Integer i2 = new Integer(i1.intValue());
+
+      assertTrue(set.add(i1));
+      assertTrue(reference.add(i1));
+
+      assertFalse(set.add(i2));
+      assertFalse(reference.add(i2));
+
+      Assertions.assertThat(reference.iterator().next()).isSameAs(i1);
+      Assertions.assertThat(set.iterator().next().value).isSameAs(i1);
   }
 }
