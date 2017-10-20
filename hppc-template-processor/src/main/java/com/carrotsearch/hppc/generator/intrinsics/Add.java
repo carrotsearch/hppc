@@ -1,6 +1,7 @@
 package com.carrotsearch.hppc.generator.intrinsics;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
@@ -16,6 +17,8 @@ public class Add extends AbstractIntrinsicMethod {
       throw new RuntimeException("Can't add generic types: " + m.group());
     }
 
-    sb.append(String.format("((%1$s) + (%2$s))", params.toArray()));
+    ArrayList<String> newArgs = new ArrayList<>(params);
+    newArgs.add(type.getType());
+    sb.append(String.format(Locale.ROOT, "((%3$s) ((%1$s) + (%2$s)))", newArgs.toArray()));
   }
 }
