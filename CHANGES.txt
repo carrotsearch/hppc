@@ -6,12 +6,14 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 ** New features
 ** Other changes
 
-HPPC-164: ObjectHashSet.add() documentation incorrectly states existing 
-          equivalent key would be replaced. (Olivier Garrouste, Dawid Weiss).
-
 
 [0.7.3-SNAPSHOT]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12932
+
+** Improvements
+
+HPPC-166: More efficient map.putOrAdd and map.putIfAbsent. (Konstantin Pavelko, 
+          Dawid Weiss)
 
 ** Other changes
 

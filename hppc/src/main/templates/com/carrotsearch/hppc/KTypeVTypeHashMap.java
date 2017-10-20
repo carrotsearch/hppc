@@ -224,8 +224,9 @@ public class KTypeVTypeHashMap<KType, VType>
    * was placed in the map.
    */
   public boolean putIfAbsent(KType key, VType value) {
-    if (!containsKey(key)) {
-      put(key, value);
+    int keyIndex = indexOf(key);
+    if (!indexExists(keyIndex)) {
+      indexInsert(keyIndex, key, value);
       return true;
     } else {
       return false;
@@ -250,12 +251,13 @@ public class KTypeVTypeHashMap<KType, VType>
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
     assert assigned < mask + 1;
 
-    if (containsKey(key)) {
-      putValue = get(key);
-      putValue = (VType) (Intrinsics.<VType> add(putValue, incrementValue));
+    int keyIndex = indexOf(key);
+    if (indexExists(keyIndex)) {
+      putValue = Intrinsics.<VType> add(Intrinsics.<VType> cast(values[keyIndex]), incrementValue);
+      indexReplace(keyIndex, putValue);
+    } else {
+      indexInsert(keyIndex, key, putValue);
     }
-
-    put(key, putValue);
     return putValue;
   }
   /*! #end !*/
