@@ -1,5 +1,5 @@
 
-[0.7.4]
+[0.7.4-SNAPSHOT]
 http://issues.carrot2.org/projects/HPPC/versions/13324
 
 
