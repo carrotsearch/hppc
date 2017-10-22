@@ -10,7 +10,7 @@
 
   <groupId>com.carrotsearch</groupId>
   <artifactId>hppc-parent</artifactId>
-  <version>0.7.3-SNAPSHOT</version>
+  <version>0.7.3</version>
   <packaging>pom</packaging>
 
   <name>HPPC (parent POM)</name>
