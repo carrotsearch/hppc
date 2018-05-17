@@ -10,7 +10,8 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   /**
    * @return Returns the value associated with the given key or the default
    *         value for the value type, if the key is not associated with any
-   *         value.  For numeric value types, this default value is 0.
+   *         value.  For numeric value types, this default value is 0, for
+   *         object types it is {@code null}.
    */
   public VType get(KType key);
 

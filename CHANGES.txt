@@ -9,6 +9,11 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 [0.7.4-SNAPSHOT]
 http://issues.carrot2.org/projects/HPPC/versions/13324
 
+** Other changes
+
+   PR #6: Document that map's get() returns the empty value for non-existent 
+          keys. (Michael Ekstrand)
+
 
 [0.7.3]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12932
