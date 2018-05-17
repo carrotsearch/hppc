@@ -59,7 +59,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.0.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -171,7 +171,7 @@
             <id>default-jar</id>
             <phase>package</phase>
             <configuration>
-                <!-- HPPC-144: esoteric combinations. -->
+              <!-- HPPC-144: esoteric combinations. -->
               <excludes>
                 <exclude>**/ByteByte*</exclude>
                 <exclude>**/ByteChar*</exclude>

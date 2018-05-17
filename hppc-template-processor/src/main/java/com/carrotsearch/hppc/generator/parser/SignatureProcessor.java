@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
@@ -26,7 +26,7 @@ public class SignatureProcessor {
   final CompilationUnitContext unitContext;
 
   public SignatureProcessor(String input) {
-    Lexer lexer = new Java7Lexer(new ANTLRInputStream(input));
+    Lexer lexer = new Java7Lexer(CharStreams.fromString(input));
     tokenStream = new CommonTokenStream(lexer);
     parser = new Java7Parser(tokenStream);
     parser.setErrorHandler(new BailErrorStrategy());
