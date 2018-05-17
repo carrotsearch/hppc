@@ -11,6 +11,8 @@ import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.carrotsearch.hppc.predicates.LongPredicate;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 
+import static org.junit.Assert.*;
+
 /**
  * Regression tests against <code>java.util.BitSet</code>.
  */

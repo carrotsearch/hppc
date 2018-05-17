@@ -8,6 +8,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
+import static org.junit.Assert.*;
 
 public class HashContainersTest extends RandomizedTest {
   /* */

@@ -67,11 +67,11 @@ public class APIExpectationsTest extends RandomizedTest
     {
         ObjectArrayDeque<Integer> l1 = ObjectArrayDeque.from(1, 2, 3);
         Integer[] result1 = l1.toArray(Integer.class);
-        assertArrayEquals(new Integer [] {1, 2, 3}, result1);
+        Assertions.assertThat(result1).containsExactly(1, 2, 3);
         
         Number[] result2 = l1.toArray(Number.class);
         Assertions.assertThat(result2).isExactlyInstanceOf(Number[].class);
-        assertArrayEquals(new Number [] {1, 2, 3}, result2);
+        Assertions.assertThat(result2).containsExactly(1, 2, 3);
     }
 
     @Test
@@ -206,16 +206,16 @@ public class APIExpectationsTest extends RandomizedTest
     @Test
     public void testPutOrAddOnEqualKeys()
     {
-    	ObjectIntHashMap<Integer> map = new ObjectIntHashMap<>();
+    	  ObjectIntHashMap<Integer> map = new ObjectIntHashMap<>();
 
-    	Integer k1  = 1;
-    	Integer k1b = new Integer(k1.intValue()); 
+    	  Integer k1  = 1;
+    	  Integer k1b = new Integer(k1.intValue()); 
 
-    	assertTrue(k1 != k1b);
+    	  Assertions.assertThat(k1).isNotSameAs(k1b);
         assertEquals2(1, map.putOrAdd(k1, 1, 2));
-        assertTrue(map.containsKey(k1b));
+        Assertions.assertThat(map.containsKey(k1b)).isTrue();
         assertEquals2(3, map.putOrAdd(k1b, 1, 2));
-    }    
+    }
 
     /*
      * Even with two different hash distribution keys the
@@ -232,8 +232,8 @@ public class APIExpectationsTest extends RandomizedTest
             l1.add(i);
         }
 
-        assertEquals(l0.hashCode(), l1.hashCode());
-        assertEquals(l0, l1);
+        Assertions.assertThat(l0.hashCode()).isEqualTo(l1.hashCode());
+        Assertions.assertThat(l0).isEqualTo(l1);
     }
     
     /**
@@ -249,7 +249,7 @@ public class APIExpectationsTest extends RandomizedTest
      */
     private void isTypeArray(Class<?> clazz, Object [] array)
     {
-        assertEquals(clazz, array.getClass().getComponentType());
+        Assertions.assertThat(clazz).isEqualTo(array.getClass().getComponentType());
     }
 
     /**

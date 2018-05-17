@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
+import static org.junit.Assert.*;
 
 public class HashCollisionsClusteringTest extends RandomizedTest
 {

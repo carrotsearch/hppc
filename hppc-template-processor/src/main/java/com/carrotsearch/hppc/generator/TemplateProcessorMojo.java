@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.ExtendedProperties;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -28,9 +27,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeInstance;
-import org.apache.velocity.runtime.log.NullLogChute;
+import org.apache.velocity.util.ExtProperties;
 
 import com.carrotsearch.hppc.generator.intrinsics.Add;
 import com.carrotsearch.hppc.generator.intrinsics.Cast;
@@ -95,9 +93,7 @@ public class TemplateProcessorMojo extends AbstractMojo {
 
   private void execute0() throws IOException, MojoExecutionException {
     velocity = new RuntimeInstance();
-    final ExtendedProperties p = new ExtendedProperties();
-    p.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, NullLogChute.class.getName());
-    p.setProperty(RuntimeConstants.SET_NULL_ALLOWED, "false");
+    final ExtProperties p = new ExtProperties();
     velocity.setConfiguration(p);
     
     // Cater for Eclipse's insanity -- we can't just specify a separate launch config that'd run

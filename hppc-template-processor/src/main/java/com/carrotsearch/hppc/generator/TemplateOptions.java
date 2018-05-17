@@ -97,7 +97,7 @@ public class TemplateOptions {
 
   public String getGeneratedAnnotation() {
     return String.format(Locale.ROOT, 
-        "@javax.annotation.Generated(\n" + 
+        "@com.carrotsearch.hppc.Generated(\n" + 
         "    date = \"%s\",\n" +
         "    value = \"%s\")",
         getTimeNow(),

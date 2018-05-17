@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import static org.junit.Assert.*;
 
 public class EntryShiftingOnRemovalTest extends RandomizedTest {
   @Test

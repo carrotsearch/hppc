@@ -1,6 +1,7 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.KTypePrimitive)) !*/
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 import org.junit.*;

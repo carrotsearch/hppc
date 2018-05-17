@@ -71,12 +71,12 @@
 
     <version.guava>18.0</version.guava>
     <version.junit>4.12</version.junit>
-    <version.jmh>1.6.2</version.jmh>
+    <version.jmh>1.21</version.jmh>
     <version.assertj>2.0.0</version.assertj>
-    <version.randomizedtesting>2.1.14</version.randomizedtesting>
+    <version.randomizedtesting>2.6.1</version.randomizedtesting>
     <version.antlr>4.5</version.antlr>
-    <version.velocity>1.7</version.velocity>
-    <version.forbiddenapis>1.8</version.forbiddenapis>
+    <version.velocity>2.0</version.velocity>
+    <version.forbiddenapis>2.5</version.forbiddenapis>
 
     <version.fastutil>7.0.2</version.fastutil>
     <version.koloboke>0.6.6</version.koloboke>
@@ -101,10 +101,6 @@
 
     <gpg.passphrase></gpg.passphrase>
   </properties>
-
-  <prerequisites>
-    <maven>${version.maven.api}</maven>
-  </prerequisites>
 
   <modules>
     <module>hppc</module>

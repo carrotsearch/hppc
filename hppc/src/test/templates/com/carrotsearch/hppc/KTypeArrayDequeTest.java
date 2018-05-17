@@ -1,5 +1,6 @@
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -17,7 +18,6 @@ import org.junit.Test;
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
-
 
 /**
  * Unit tests for {@link KTypeArrayDeque}.
