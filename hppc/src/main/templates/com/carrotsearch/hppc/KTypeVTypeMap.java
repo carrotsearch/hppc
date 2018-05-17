@@ -9,13 +9,8 @@ import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
 public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContainer<KType, VType> {
   /**
    * @return Returns the value associated with the given key or the default
-   *         value for the key type, if the key is not associated with any
-   *         value.
-   *
-   *         <b>Important note:</b> For primitive type values, the value
-   *         returned for a non-existing key may not be the default value of the
-   *         primitive type (it may be any value previously assigned to that
-   *         slot).
+   *         value for the value type, if the key is not associated with any
+   *         value.  For numeric value types, this default value is 0.
    */
   public VType get(KType key);
 
