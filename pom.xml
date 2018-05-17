@@ -86,7 +86,6 @@
     <version.koloboke>0.6.6</version.koloboke>
 
     <version.maven-assembly-plugin>3.1.0</version.maven-assembly-plugin>
-    <version.maven-bundle-plugin>3.5.0</version.maven-bundle-plugin>
     <version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
     <version.maven-compiler-plugin>3.7.0</version.maven-compiler-plugin>
     <version.maven-dependency-plugin>2.9</version.maven-dependency-plugin>
@@ -371,12 +370,6 @@
             <phase>none</phase>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <version>${version.maven-bundle-plugin}</version>
-        <extensions>true</extensions>
       </plugin>
     </plugins>
   </build>
