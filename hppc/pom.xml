@@ -63,6 +63,9 @@
           <execution>
             <id>default-jar</id>
             <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>            
             <configuration>
               <archive>  
                 <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -78,6 +81,10 @@
         <version>${version.maven-bundle-plugin}</version>
         <extensions>true</extensions>
         <executions>
+          <execution>
+            <id>default-bundle</id>
+            <phase>none</phase>
+          </execution>
           <execution>
             <id>bundle-manifest</id>
             <phase>process-classes</phase>
