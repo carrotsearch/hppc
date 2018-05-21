@@ -1,5 +1,5 @@
 
-[0.8.0-SNAPSHOT]
+[0.8.0]
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 
 ** API-breaking changes
