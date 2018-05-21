@@ -318,7 +318,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         assertEquals(0, deque.size());
     }
 
-    /* */
+    /*! #if (not $TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE")) !*/
     @Test
     public void testRemoveAllInLookupContainer()
     {
@@ -332,7 +332,8 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
         assertListEquals(deque.toArray(), 1, 1);
     }
-
+    /*! #end !*/
+    
     /* */
     @Test
     public void testRemoveAllWithPredicate()

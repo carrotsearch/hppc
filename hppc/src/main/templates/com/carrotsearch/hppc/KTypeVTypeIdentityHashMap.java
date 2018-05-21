@@ -1,4 +1,4 @@
-/*! #set($TemplateOptions.ignored = ($TemplateOptions.KTypePrimitive)) !*/
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.KTypePrimitive or $TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT"))) !*/
 package com.carrotsearch.hppc;
 
 /* #if ($TemplateOptions.VTypeGeneric) */

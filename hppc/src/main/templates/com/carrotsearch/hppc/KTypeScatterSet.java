@@ -1,3 +1,4 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.Containers.*;

@@ -37,6 +37,16 @@ public class TemplateOptions {
     return ignore;
   }
 
+  public boolean isKTypeAnyOf(String... typeNames) {
+    for (String type : typeNames) {
+      Type t = Type.valueOf(type);
+      if (ktype == t) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean isKTypePrimitive() {
     return ktype != Type.GENERIC;
   }

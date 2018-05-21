@@ -23,13 +23,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.carrotsearch</groupId>
-      <artifactId>hppc</artifactId>
-      <version>${project.version}</version>
-      <classifier>esoteric</classifier>
-    </dependency>
-
-    <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
       <version>${version.fastutil}</version>

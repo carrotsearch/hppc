@@ -1,3 +1,4 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
 import static org.junit.Assert.*;
@@ -412,10 +413,12 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
         map.put(key3, value1);
         map.put(keyE, value1);
 
-        KTypeHashSet<KType> other = new KTypeHashSet<>();
-        other.addAll(newArray(key2, keyE, key4));
+        KTypeVTypeHashMap<KType, VType> other = newInstance();
+        other.put(key2, value1);
+        other.put(keyE, value1);
+        other.put(key4, value1);
 
-        assertEquals(2, map.removeAll(other));
+        assertEquals(2, map.removeAll(other.keys()));
         assertEquals(2, map.size());
         assertTrue(map.containsKey(key1));
     }

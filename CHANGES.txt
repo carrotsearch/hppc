@@ -4,6 +4,9 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 
 ** API-breaking changes
 
+HPPC-171: Drop esoteric JAR entirely (associative containers keyed using floating 
+          point types).
+
 HPPC-170: removed OSGi metadata (bundle plugin) because it screws up class exclusion
           in the esoteric-vs-main jar and I don't know/ use OSGi to know how to fix 
           it.
