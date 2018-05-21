@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>hppc</artifactId>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <name>HPPC Collections</name>
   <description>High Performance Primitive Collections. 
@@ -64,7 +64,26 @@
             <id>default-jar</id>
             <phase>package</phase>
             <configuration>
+              <archive>  
+                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+              </archive> 
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>${version.maven-bundle-plugin}</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+                <goal>manifest</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
