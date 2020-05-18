@@ -27,7 +27,8 @@ public class KTypeVTypeHashMap<KType, VType>
              /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
              KTypeVTypeMap<KType, VType>,
              Preallocable,
-             Cloneable
+             Cloneable,
+             Accountable
 {
   /** 
    * The array holding keys.
@@ -676,6 +677,18 @@ public class KTypeVTypeHashMap<KType, VType>
         rehash(prevKeys, prevValues);
       }
     }
+  }
+
+  @Override
+  public long ramUsageBytes() {
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
+            RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowSizeOf(keys) +
+            RamUsageEstimator.shallowSizeOf(values);
+  }
+
+  @Override
+  public float occupancyRate() {
+    return (float) size() / keys.length;
   }
 
   /**

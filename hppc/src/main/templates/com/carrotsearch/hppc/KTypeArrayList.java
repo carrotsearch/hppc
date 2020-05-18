@@ -17,7 +17,8 @@ public class KTypeArrayList<KType>
   extends AbstractKTypeCollection<KType> 
   implements KTypeIndexedContainer<KType>,
              Preallocable,
-             Cloneable
+             Cloneable,
+             Accountable
 {
   /**
    * An immutable empty buffer (array).
@@ -501,6 +502,17 @@ public class KTypeArrayList<KType>
     }
 
     return true;
+  }
+
+  @Override
+  public long ramUsageBytes() {
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES + RamUsageEstimator.shallowSizeOf(resizer) +
+            RamUsageEstimator.shallowSizeOf(buffer);
+  }
+
+  @Override
+  public float occupancyRate() {
+    return (float) elementsCount / buffer.length;
   }
 
   /**

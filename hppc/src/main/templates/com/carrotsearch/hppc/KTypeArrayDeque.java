@@ -17,7 +17,8 @@ public class KTypeArrayDeque<KType>
   extends AbstractKTypeCollection<KType> 
   implements KTypeDeque<KType>,
              Preallocable, 
-             Cloneable {
+             Cloneable,
+             Accountable {
   /**
    * Internal array for storing elements of the deque.
    */
@@ -579,6 +580,17 @@ public class KTypeArrayDeque<KType>
       return 0;
     }
     return index + 1;
+  }
+
+  @Override
+  public long ramUsageBytes() {
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + RamUsageEstimator.shallowSizeOf(resizer)
+            + RamUsageEstimator.shallowSizeOf(buffer);
+  }
+
+  @Override
+  public float occupancyRate() {
+    return (float)size() / buffer.length;
   }
 
   /**

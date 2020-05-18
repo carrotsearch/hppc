@@ -31,7 +31,8 @@ public class KTypeHashSet<KType>
              KTypeLookupContainer<KType>, 
              KTypeSet<KType>,
              Preallocable,
-             Cloneable {
+             Cloneable,
+             Accountable {
   /** The hash array holding keys. */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
                    Object [] 
@@ -452,6 +453,17 @@ public class KTypeHashSet<KType>
   @Override
   public Iterator<KTypeCursor<KType>> iterator() {
     return new EntryIterator();
+  }
+
+  @Override
+  public long ramUsageBytes() {
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
+            RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowSizeOf(keys);
+  }
+
+  @Override
+  public float occupancyRate() {
+    return (float) size() / keys.length;
   }
 
   /**
