@@ -210,6 +210,23 @@ public class RamUsageEstimator {
     }
 
     /**
+     * Return used part of shallow size of any <code>array</code>.
+     * @param usedSize Size that array is actually used
+     */
+    public static long shallowUsedSizeOfArray(Object array, int usedSize) {
+        long size = NUM_BYTES_ARRAY_HEADER;
+        if (usedSize > 0) {
+            Class<?> arrayElementClazz = array.getClass().getComponentType();
+            if (arrayElementClazz.isPrimitive()) {
+                size += (long) usedSize * primitiveSizes.get(arrayElementClazz);
+            } else {
+                size += (long) NUM_BYTES_OBJECT_REF * usedSize;
+            }
+        }
+        return alignObjectSize(size);
+    }
+
+    /**
      * Return shallow size of any <code>array</code>.
      */
     private static long shallowSizeOfArray(Object array) {

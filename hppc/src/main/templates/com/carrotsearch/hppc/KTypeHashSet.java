@@ -456,14 +456,21 @@ public class KTypeHashSet<KType>
   }
 
   @Override
-  public long ramUsageBytes() {
+  public long ramBytesAllocated() {
+    // int: assigned, mask, keyMixer, resizeAt
+    // double: loadFactor
+    // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
             RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowSizeOf(keys);
   }
 
   @Override
-  public float occupancyRate() {
-    return (float) size() / keys.length;
+  public long ramBytesUsed() {
+    // int: assigned, mask, keyMixer, resizeAt
+    // double: loadFactor
+    // boolean: hasEmptyKey
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
+            RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowUsedSizeOfArray(keys, size());
   }
 
   /**

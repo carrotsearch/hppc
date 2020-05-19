@@ -680,15 +680,23 @@ public class KTypeVTypeHashMap<KType, VType>
   }
 
   @Override
-  public long ramUsageBytes() {
+  public long ramBytesAllocated() {
+    // int: keyMixer, assigned, mask, resizeAt
+    // double: loadFactor
+    // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
             RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowSizeOf(keys) +
             RamUsageEstimator.shallowSizeOf(values);
   }
 
   @Override
-  public float occupancyRate() {
-    return (float) size() / keys.length;
+  public long ramBytesUsed() {
+    // int: keyMixer, assigned, mask, resizeAt
+    // double: loadFactor
+    // boolean: hasEmptyKey
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
+            RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowUsedSizeOfArray(keys, size()) +
+            RamUsageEstimator.shallowUsedSizeOfArray(values, size());
   }
 
   /**

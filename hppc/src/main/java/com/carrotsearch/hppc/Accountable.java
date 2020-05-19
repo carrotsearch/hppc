@@ -8,14 +8,14 @@ package com.carrotsearch.hppc;
  */
 public interface Accountable {
     /**
-     * Memory usage estimation
-     * @return Ram used in bytes
+     * Allocated memory estimation
+     * @return Ram allocated in bytes
      */
-    public long ramUsageBytes();
+    public long ramBytesAllocated();
 
     /**
-     * Return what fraction of internal storage is actually occupied
-     * @return A float which is between 0 and 1 inclusive
+     * Bytes that is actually been used
+     * @return Ram used in bytes
      */
-    public float occupancyRate();
+    public long ramBytesUsed();
 }

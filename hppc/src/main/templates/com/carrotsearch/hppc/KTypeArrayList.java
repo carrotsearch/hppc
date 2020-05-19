@@ -505,14 +505,17 @@ public class KTypeArrayList<KType>
   }
 
   @Override
-  public long ramUsageBytes() {
+  public long ramBytesAllocated() {
+    // int: elementsCount
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES + RamUsageEstimator.shallowSizeOf(resizer) +
             RamUsageEstimator.shallowSizeOf(buffer);
   }
 
   @Override
-  public float occupancyRate() {
-    return (float) elementsCount / buffer.length;
+  public long ramBytesUsed() {
+    // int: elementsCount
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES + RamUsageEstimator.shallowSizeOf(resizer) +
+            RamUsageEstimator.shallowUsedSizeOfArray(buffer, elementsCount);
   }
 
   /**

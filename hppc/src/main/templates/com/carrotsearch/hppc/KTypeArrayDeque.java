@@ -583,14 +583,17 @@ public class KTypeArrayDeque<KType>
   }
 
   @Override
-  public long ramUsageBytes() {
+  public long ramBytesAllocated() {
+    // int: head, tail
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + RamUsageEstimator.shallowSizeOf(resizer)
             + RamUsageEstimator.shallowSizeOf(buffer);
   }
 
   @Override
-  public float occupancyRate() {
-    return (float)size() / buffer.length;
+  public long ramBytesUsed() {
+    // int: head, tail
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + RamUsageEstimator.shallowSizeOf(resizer)
+            + RamUsageEstimator.shallowUsedSizeOfArray(buffer, size());
   }
 
   /**
