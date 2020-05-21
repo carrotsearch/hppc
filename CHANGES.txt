@@ -1,6 +1,10 @@
 
 [0.8.2-SNAPSHOT]
 
+** New features
+
+HPPC-175: Method estimating memory usage (Haoyu Zhai)
+
 
 [0.8.1]
 
