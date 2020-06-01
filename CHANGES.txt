@@ -1,5 +1,6 @@
 
-[0.8.2-SNAPSHOT]
+[0.8.2]
+https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13522&styleName=Text
 
 ** New features
 
@@ -7,6 +8,7 @@ HPPC-175: Method estimating memory usage (Haoyu Zhai)
 
 
 [0.8.1]
+https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13521&styleName=Text
 
 ** Bug fixes
 
