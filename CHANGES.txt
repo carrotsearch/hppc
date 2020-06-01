@@ -1,4 +1,9 @@
 
+[0.8.3-SNAPSHOT]
+https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=15220&styleName=Text
+
+
+
 [0.8.2]
 https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13522&styleName=Text
 

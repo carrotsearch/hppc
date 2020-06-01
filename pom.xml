@@ -14,7 +14,7 @@
 
   <groupId>com.carrotsearch</groupId>
   <artifactId>hppc-parent</artifactId>
-  <version>0.8.2</version>
+  <version>0.8.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>HPPC (parent POM)</name>
