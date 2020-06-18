@@ -463,7 +463,7 @@ public class KTypeVTypeWormMap<KType, VType>
         // Iterate all entries.
         for (int index = 0, entryCount = 0; entryCount < size; index++) {
             if (next[index] != 0) {
-                if (values[index] == value) {
+                if (Intrinsics.<VType> equals(values[index], value)) {
                     // An entry matches the value.
                     return true;
                 }
@@ -515,7 +515,7 @@ public class KTypeVTypeWormMap<KType, VType>
         // Iterate all entries.
         for (int index = 0, entryCount = 0; entryCount < size; index++) {
             if (next[index] != 0) {
-                if (values[index] != map.get(keys[index])) {
+                if (!Intrinsics.<VType> equals(values[index], map.get(keys[index]))) {
                     return false;
                 }
                 entryCount++;
@@ -789,7 +789,7 @@ public class KTypeVTypeWormMap<KType, VType>
                 // An entry in the chain matches the key. Replace the value and return the previous one.
                 VType previousValue = Intrinsics.<VType>cast(values[entryIndex]);
                 if (policy != PutPolicy.NEW_ONLY_IF_ABSENT
-                        && (requiredPreviousValue == noValue() || requiredPreviousValue == previousValue)) {
+                        && (requiredPreviousValue == noValue() || Intrinsics.<VType> equals(requiredPreviousValue, previousValue))) {
                     values[entryIndex] = value;
                     if (requiredPreviousValue != noValue()) {
                         // Return the exact required previous value reference for fast check.
@@ -864,7 +864,7 @@ public class KTypeVTypeWormMap<KType, VType>
         }
         int entryToRemoveIndex = previousEntryIndex == Integer.MAX_VALUE ?
                 hashIndex : addOffset(previousEntryIndex, Math.abs(next[previousEntryIndex]), next);
-        if (requiredValue != noValue() && requiredValue != values[entryToRemoveIndex]) {
+        if (requiredValue != noValue() && !Intrinsics.<VType> equals(requiredValue, values[entryToRemoveIndex])) {
             return noValue();
         }
         return remove(hashIndex, previousEntryIndex, entryToRemoveIndex);
@@ -1356,7 +1356,7 @@ public class KTypeVTypeWormMap<KType, VType>
         }
 
         // There is at least one entry at this bucket. Check the first head-of-chain.
-        if (keys[index] == key) {
+        if (Intrinsics.<KType> equals(keys[index], key)) {
             // The first head-of-chain entry matches the key. Return its index.
             return index;
         }
@@ -1364,7 +1364,7 @@ public class KTypeVTypeWormMap<KType, VType>
         // Follow the entry chain for this bucket.
         while (nextOffset != END_OF_CHAIN) {
             index = addOffset(index, nextOffset, next); // Jump forward.
-            if (keys[index] == key) {
+            if (Intrinsics.<KType> equals(keys[index], key)) {
                 // An entry in the chain matches the key. Return its index.
                 return index;
             }
@@ -1395,7 +1395,7 @@ public class KTypeVTypeWormMap<KType, VType>
         }
 
         // There is at least one entry at this bucket. Check the first head-of-chain.
-        if (keys[index] == key) {
+        if (Intrinsics.<KType> equals(keys[index], key)) {
             // The first head-of-chain entry matches the key. Return Integer.MAX_VALUE as there is no previous entry.
             return Integer.MAX_VALUE;
         }
@@ -1404,7 +1404,7 @@ public class KTypeVTypeWormMap<KType, VType>
         while (nextOffset != END_OF_CHAIN) {
             int previousIndex = index;
             index = addOffset(index, nextOffset, next); // Jump forward.
-            if (keys[index] == key) {
+            if (Intrinsics.<KType> equals(keys[index], key)) {
                 // An entry in the chain matches the key. Return the previous entry index.
                 return previousIndex;
             }
@@ -1824,7 +1824,7 @@ public class KTypeVTypeWormMap<KType, VType>
         @Override
         public boolean contains(VType value) {
             for (KTypeVTypeCursor<KType, VType> c : owner) {
-                if (((c.value) == (value))) {
+                if (Intrinsics.<VType> equals(value, c.value)) {
                     return true;
                 }
             }
