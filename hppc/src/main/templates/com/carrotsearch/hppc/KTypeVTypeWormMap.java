@@ -271,6 +271,7 @@ public class KTypeVTypeWormMap<KType, VType>
         return size() - count;
     }
 
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     // Can be overwritten using index system in case we implement support of them
     @Override
     public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
@@ -283,11 +284,14 @@ public class KTypeVTypeWormMap<KType, VType>
         }
         return putValue;
     }
+    /*! #end !*/
 
+    /*! #if ($TemplateOptions.VTypePrimitive) !*/
     @Override
     public VType addTo(KType key, VType additionValue) {
         return putOrAdd(key, additionValue, additionValue);
     }
+    /*! #end !*/
 
     public VType putIfAbsent(KType key, VType value) {
         return put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, noValue(), true);
