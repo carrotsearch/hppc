@@ -267,7 +267,11 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
     if (ctx.qualifiedNameList() != null) {
       replacements.addAll(visitQualifiedNameList(ctx.qualifiedNameList()));
     }
-    replacements.addAll(visitMethodBody(ctx.methodBody()));
+
+    Java7Parser.MethodBodyContext methodBody = ctx.methodBody();
+    if (methodBody != null) {
+      replacements.addAll(visitMethodBody(methodBody));
+    }
     return replacements;
   }
 
