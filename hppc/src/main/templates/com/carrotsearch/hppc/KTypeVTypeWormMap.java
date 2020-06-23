@@ -1,14 +1,11 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.hppc.cursors.KTypeCursor;
-import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
-import com.carrotsearch.hppc.predicates.KTypePredicate;
-import com.carrotsearch.hppc.predicates.KTypeVTypePredicate;
-import com.carrotsearch.hppc.procedures.KTypeProcedure;
-import com.carrotsearch.hppc.procedures.KTypeVTypeProcedure;
-
 import java.util.*;
+
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.predicates.*;
+import com.carrotsearch.hppc.procedures.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
@@ -204,7 +201,7 @@ public class KTypeVTypeWormMap<KType, VType>
     }
 
     public VType noValue() {
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        /*! #if ($TemplateOptions.VTypeGeneric) !*/
         return null;
         /*! #else return 0; #end !*/
     }
