@@ -678,7 +678,7 @@ public class KTypeVTypeWormMap<KType, VType>
 
     @Override
     public void ensureCapacity(int expectedElements) {
-        allocateBuffers((int)(expectedElements * 1.0 / 0.75));
+        allocateBuffers((int)(expectedElements * 1.0 / 0.73));
     }
 
     public boolean allocateBuffers(int capacity) {
