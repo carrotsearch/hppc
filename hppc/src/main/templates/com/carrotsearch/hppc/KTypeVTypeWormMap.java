@@ -23,7 +23,10 @@ public class KTypeVTypeWormMap<KType, VType>
         implements /*! #if ($templateonly) !*/ Intrinsics.EqualityFunction, /*! #end !*/
         /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
         KTypeVTypeMap<KType, VType>,
-        Cloneable{
+        Preallocable,
+        Cloneable,
+        Accountable
+{
     /**
      * No {@link KTypeVTypeWormMap} can have higher capacity. Same value as the {@link HashMap} maximum capacity.
      */
@@ -124,7 +127,7 @@ public class KTypeVTypeWormMap<KType, VType>
      * [1,{@link #maxOffset}]), {@link #next}[i] &lt; 0 for the subsequent tail-of-chain entries (within [-{@link
      * #maxOffset},-1]. For the last entry in the chain, abs({@link #next}[i])={@link #END_OF_CHAIN}.</p>
      */
-    private byte[] next;
+    public byte[] next;
 
     /**
      * Map size (number of entries).
@@ -151,7 +154,15 @@ public class KTypeVTypeWormMap<KType, VType>
         if (initialCapacity == 0) {
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
         }
-        setCapacity(initialCapacity, false);
+        allocateBuffers(initialCapacity, false);
+    }
+
+    /**
+     * Create a hash map from all key-value pairs of another container.
+     */
+    public KTypeVTypeWormMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
+        this(container.size());
+        putAll(container);
     }
 
     /**
@@ -159,11 +170,11 @@ public class KTypeVTypeWormMap<KType, VType>
      *
      * @param expectedSize The expected number of entries the map will hold.
      */
-    public static KTypeVTypeWormMap withExpectedSize(int expectedSize) {
+    public static <KType, VType>KTypeVTypeWormMap<KType, VType> withExpectedSize(int expectedSize) {
         if (expectedSize < 0) {
             throw new IllegalArgumentException("Invalid expectedSize=" + expectedSize);
         }
-        return new KTypeVTypeWormMap(computeCapacityForSize(expectedSize));
+        return new KTypeVTypeWormMap<KType, VType>(computeCapacityForSize(expectedSize));
     }
 
     /**
@@ -173,8 +184,8 @@ public class KTypeVTypeWormMap<KType, VType>
      * @param map The other map to copy.
      * @see #clone()
      */
-    public static KTypeVTypeWormMap copyOf(KTypeVTypeMap map) {
-        KTypeVTypeWormMap wormMap = withExpectedSize(map.size());
+    public static <KType, VType>KTypeVTypeWormMap<KType, VType> copyOf(KTypeVTypeMap<KType, VType> map) {
+        KTypeVTypeWormMap<KType, VType> wormMap = withExpectedSize(map.size());
         wormMap.putAll(map);
         return wormMap;
     }
@@ -188,9 +199,9 @@ public class KTypeVTypeWormMap<KType, VType>
      */
     @Override
     @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException", "unchecked"})
-    public KTypeVTypeWormMap clone() {
+    public KTypeVTypeWormMap<KType, VType> clone() {
         try {
-            KTypeVTypeWormMap cloneMap = (KTypeVTypeWormMap) super.clone();
+            KTypeVTypeWormMap<KType, VType> cloneMap = (KTypeVTypeWormMap<KType, VType>) super.clone();
             cloneMap.keys = Arrays.copyOf(keys, keys.length);
             cloneMap.values = Arrays.copyOf(values, values.length);
             cloneMap.next = Arrays.copyOf(next, next.length);
@@ -198,6 +209,19 @@ public class KTypeVTypeWormMap<KType, VType>
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Clone must be supported", e);
         }
+    }
+
+    public static <KType, VType> KTypeVTypeWormMap<KType, VType> from(KType[] keys, VType[] values) {
+        if (keys.length != values.length) {
+            throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
+        }
+
+        KTypeVTypeWormMap<KType, VType> map = new KTypeVTypeWormMap<>(keys.length);
+        for (int i = 0; i < keys.length; i++) {
+            map.put(keys[i], values[i]);
+        }
+
+        return map;
     }
 
     public VType noValue() {
@@ -290,8 +314,12 @@ public class KTypeVTypeWormMap<KType, VType>
     }
     /*! #end !*/
 
-    public VType putIfAbsent(KType key, VType value) {
-        return put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, noValue(), true);
+//    public VType putIfAbsent(KType key, VType value) {
+//        return put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, noValue(), true);
+//    }
+
+    public boolean putIfAbsent(KType key, VType value) {
+        return noValue() == put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, noValue(), true);
     }
 
     @Override
@@ -335,7 +363,7 @@ public class KTypeVTypeWormMap<KType, VType>
             // This outer loop was in original method, don't know if we still need it
             while (true) {
                 // Going over all the keys they bound their complexity by capacity of the map instead of container size
-                while (slot <= max) {
+                while (slot < max) {
                     KType existing = keys[slot];
                     if (next[slot] != 0 && other.contains(existing)) {
                         this.remove(existing);
@@ -367,7 +395,7 @@ public class KTypeVTypeWormMap<KType, VType>
 
         // Again going over all the keys with using this weird shift function
         while (true) {
-            while (slot <= max) {
+            while (slot < max) {
                 KType existing = keys[slot];
                 if (next[slot] != 0 && predicate.apply(existing)) {
                     this.remove(existing);
@@ -384,14 +412,14 @@ public class KTypeVTypeWormMap<KType, VType>
     public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate) {
         // Same as above
         int before = this.size();
-        int mask = this.keys.length;
+        int max = this.keys.length;
 
         final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
         final VType[] values = Intrinsics.<VType[]> cast(this.values);
         int slot = 0;
 
         while (true) {
-            while (slot <= mask) {
+            while (slot < max) {
                 KType existing = keys[slot];
                 if (next[slot] != 0 && predicate.apply(existing, values[slot])) {
                     this.remove(existing);
@@ -411,7 +439,7 @@ public class KTypeVTypeWormMap<KType, VType>
 
         int max = this.keys.length;
 
-        for (int slot = 0; slot <= max; slot++) {
+        for (int slot = 0; slot < max; slot++) {
             if (next[slot] != 0) {
                 procedure.apply(keys[slot], values[slot]);
             }
@@ -427,7 +455,7 @@ public class KTypeVTypeWormMap<KType, VType>
 
         int max = this.keys.length;
 
-        for (int slot = 0; slot <= max && (next[slot] == 0 || predicate.apply(keys[slot], values[slot])); ++slot) {
+        for (int slot = 0; slot < max && (next[slot] == 0 || predicate.apply(keys[slot], values[slot])); ++slot) {
         }
 
         return predicate;
@@ -453,7 +481,14 @@ public class KTypeVTypeWormMap<KType, VType>
 
     @Override
     public boolean containsKey(KType key) {
-        return get(key) != noValue();
+        int hashIndex = hashKey(key);
+        int nextOffset = next[hashIndex];
+        if (nextOffset <= 0) {
+            return false;
+        }
+        int entryIndex = searchInChain(key, hashIndex, nextOffset);
+
+        return entryIndex >= 0;
     }
 
     public boolean containsValue(VType value) {
@@ -479,6 +514,12 @@ public class KTypeVTypeWormMap<KType, VType>
     public void clear() {
         Arrays.fill(next, (byte) 0);
         size = 0;
+
+        Arrays.fill(keys, Intrinsics.<KType> empty());
+
+        /* #if ($TemplateOptions.VTypeGeneric) */
+        Arrays.fill(values, noValue());
+        /* #end */
     }
 
     public void release() {
@@ -489,13 +530,13 @@ public class KTypeVTypeWormMap<KType, VType>
             values = null;
             next = null;
             size = 0;
-            setCapacity(newCapacity, false);
+            allocateBuffers(newCapacity, false);
         }
     }
 
     public boolean trimToSize() {
         int fitCapacity = computeCapacityForSize(size);
-        return fitCapacity < next.length && setCapacity(fitCapacity, false, false);
+        return fitCapacity < next.length && allocateBuffers(fitCapacity, false, false);
     }
 
     @Override
@@ -564,13 +605,12 @@ public class KTypeVTypeWormMap<KType, VType>
         }
         int entryIndex = searchInChain(key, hashIndex, nextOffset);
 
-        //Maybe I should return something else than noValue()
         return entryIndex < 0 ? ~entryIndex : entryIndex;
     }
 
     @Override
     public boolean indexExists(int index) {
-        assert (index >= 0 && index < keys.length);
+        assert (index < 0 || (index >= 0 && index < keys.length));
 
         // Don't check upper bound just as HPPC do
         return index >= 0;
@@ -602,6 +642,7 @@ public class KTypeVTypeWormMap<KType, VType>
 
         keys[index] = key;
         values[index] = value;
+        next[index] = END_OF_CHAIN;
 
         size++;
     }
@@ -635,8 +676,16 @@ public class KTypeVTypeWormMap<KType, VType>
         return next.length;
     }
 
-    public boolean setCapacity(int capacity, boolean onlyIfEnlarged) {
-        return setCapacity(capacity, onlyIfEnlarged, true);
+    @Override
+    public void ensureCapacity(int expectedElements) {
+        allocateBuffers((int)(expectedElements * 1.0 / 0.75));
+    }
+
+    public boolean allocateBuffers(int capacity) {
+        return allocateBuffers(capacity, false, true);
+    }
+    public boolean allocateBuffers(int capacity, boolean onlyIfEnlarged) {
+        return allocateBuffers(capacity, onlyIfEnlarged, true);
     }
 
     public int getLoad() {
@@ -649,12 +698,23 @@ public class KTypeVTypeWormMap<KType, VType>
 //        return null;
     }
 
+    @Override
+    public long ramBytesAllocated() {
+        return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Float.BYTES + 2 +
+                RamUsageEstimator.shallowSizeOf(RECURSIVE_MOVE_ATTEMPTS) + RamUsageEstimator.shallowSizeOf(keys) +
+                RamUsageEstimator.shallowSizeOf(values) + RamUsageEstimator.shallowSizeOf(next);
+    }
 
-    // Private methods start
+    @Override
+    public long ramBytesUsed() {
+        return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Float.BYTES + 2 +
+                RamUsageEstimator.shallowSizeOf(RECURSIVE_MOVE_ATTEMPTS) + RamUsageEstimator.shallowUsedSizeOfArray(keys, size) +
+                RamUsageEstimator.shallowUsedSizeOfArray(values, size) + RamUsageEstimator.shallowUsedSizeOfArray(next, size);
+    }
 
 
     @SuppressWarnings("unchecked")
-    protected boolean setCapacity(int capacity, boolean onlyIfEnlarged, boolean autoEnlargeIfNeeded) {
+    protected boolean allocateBuffers(int capacity, boolean onlyIfEnlarged, boolean autoEnlargeIfNeeded) {
         if (capacity <= 0)
             throw new IllegalArgumentException("Illegal capacity=" + capacity);
         if (capacity < size && !onlyIfEnlarged) {
@@ -669,7 +729,7 @@ public class KTypeVTypeWormMap<KType, VType>
         }
 
         if (PRINT_LOAD_FACTOR) {
-            System.out.println("setCapacity() size=" + size + ", currentCapacity=" + (next == null ? "none" : next.length) + ", currentLoadFactor=" + (next == null ? "none" : ((float) size / next.length)) + ", requiredCapacity=" + capacity);
+            System.out.println("allocateBuffers() size=" + size + ", currentCapacity=" + (next == null ? "none" : next.length) + ", currentLoadFactor=" + (next == null ? "none" : ((float) size / next.length)) + ", requiredCapacity=" + capacity);
         }
 
         KType[] oldKeys = Intrinsics.<KType[]>cast(keys);
@@ -688,7 +748,7 @@ public class KTypeVTypeWormMap<KType, VType>
                 values = oldValues;
                 next = oldNext;
                 if (PRINT_LOAD_FACTOR) {
-                    System.out.println("setCapacity() aborted, auto-enlarge needed but not allowed");
+                    System.out.println("allocateBuffers() aborted, auto-enlarge needed but not allowed");
                 }
                 return false;
             }
@@ -697,7 +757,7 @@ public class KTypeVTypeWormMap<KType, VType>
             }
         }
         if (PRINT_LOAD_FACTOR) {
-            System.out.println("setCapacity() newCapacity=" + next.length + ", newLoadFactor=" + ((float) size / next.length));
+            System.out.println("allocateBuffers() newCapacity=" + next.length + ", newLoadFactor=" + ((float) size / next.length));
         }
 
         return true;
@@ -723,6 +783,10 @@ public class KTypeVTypeWormMap<KType, VType>
      * @return An index within [0, capacity[ (0 included, capacity excluded).
      */
     protected int hash(KType key, int capacity) {
+        /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        if (key == null)
+            return 0;
+        /*! #end !*/
         // Improves hash distribution. Reduces average get time by 30%.
         return WormMapUtil.hash(Intrinsics.<KType>cast(key)) & (capacity - 1);
     }
@@ -735,7 +799,6 @@ public class KTypeVTypeWormMap<KType, VType>
     public
     /*! #else protected #end !*/
     int hashKey(KType key) {
-        assert !Intrinsics.<KType> isEmpty(key); // Handled as a special case (empty slot marker).
         return hash(key, next.length);
     }
 
@@ -912,7 +975,7 @@ public class KTypeVTypeWormMap<KType, VType>
             next[beforeLastIndex] = (byte) (beforeLastIndex == headIndex ? END_OF_CHAIN : -END_OF_CHAIN);
         }
         // Free the last entry of the chain.
-        keys[lastIndex] = 0;
+        keys[lastIndex] = Intrinsics.<KType> empty();
         values[lastIndex] = noValue();
         next[lastIndex] = 0;
 
@@ -942,7 +1005,7 @@ public class KTypeVTypeWormMap<KType, VType>
      * Enlarges and rehashes this map. Increases this map capacity without modifying the current size.
      */
     protected void enlarge() {
-        setCapacity(next.length << 1, true);
+        allocateBuffers(next.length << 1, true);
     }
 
     /**
