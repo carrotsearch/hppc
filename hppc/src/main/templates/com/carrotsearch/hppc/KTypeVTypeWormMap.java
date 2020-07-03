@@ -588,7 +588,7 @@ public class KTypeVTypeWormMap<KType, VType>
         // Iterate all entries.
         for (int index = 0, entryCount = 0; entryCount < size; index++) {
             if (next[index] != 0) {
-                hashCode += WormPrimitiveHashUtil.hash(keys[index]) ^ WormPrimitiveHashUtil.hash(values[index]);
+                hashCode +=  WormUtil.stdHash(keys[index]) ^ WormUtil.stdHash(values[index]);
                 entryCount++;
             }
         }
@@ -678,12 +678,13 @@ public class KTypeVTypeWormMap<KType, VType>
 
     @Override
     public void ensureCapacity(int expectedElements) {
-        allocateBuffers((int)(expectedElements * 1.0 / 0.73));
+        allocateBuffers((int)(expectedElements * 1.0 / 0.76));
     }
 
     public boolean allocateBuffers(int capacity) {
-        return allocateBuffers(capacity, false, true);
+        return allocateBuffers(capacity, false);
     }
+
     public boolean allocateBuffers(int capacity, boolean onlyIfEnlarged) {
         return allocateBuffers(capacity, onlyIfEnlarged, true);
     }
@@ -772,7 +773,7 @@ public class KTypeVTypeWormMap<KType, VType>
      * if it is already a power of 2).
      */
     protected int adjustCapacity(int capacity) {
-        return capacity >= MAXIMUM_CAPACITY ? MAXIMUM_CAPACITY : WormBitUtil.nextIntPowerOfTwo(capacity);
+        return capacity >= MAXIMUM_CAPACITY ? MAXIMUM_CAPACITY : BitUtil.nextHighestPowerOfTwo(capacity);
     }
 
     /**
@@ -788,7 +789,7 @@ public class KTypeVTypeWormMap<KType, VType>
             return 0;
         /*! #end !*/
         // Improves hash distribution. Reduces average get time by 30%.
-        return WormMapUtil.hash(Intrinsics.<KType>cast(key)) & (capacity - 1);
+        return WormUtil.hash(Intrinsics.<KType>cast(key)) & (capacity - 1);
     }
 
     /**
