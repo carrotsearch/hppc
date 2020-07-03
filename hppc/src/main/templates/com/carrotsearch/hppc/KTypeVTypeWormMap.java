@@ -522,9 +522,10 @@ public class KTypeVTypeWormMap<KType, VType>
         /* #end */
     }
 
+    @Override
     public void release() {
         if (!isEmpty()) {
-            // If clear() is called, it's probably to continue using this map and put again, so keep an initial capacity.
+            // If release() is called, it's probably to continue using this map and put again, so keep an initial capacity.
             int newCapacity = Math.max(getCapacity() / 4, DEFAULT_INITIAL_CAPACITY);
             keys = null;
             values = null;
@@ -593,6 +594,17 @@ public class KTypeVTypeWormMap<KType, VType>
             }
         }
         return hashCode;
+    }
+
+    /**
+     * Returns a hash code for the given key.
+     */
+    /*! #if ($templateonly) !*/
+    @Override
+    public
+    /*! #else protected #end !*/
+    int hashKey(KType key) {
+        return hash(key, next.length);
     }
 
     @Override
@@ -790,17 +802,6 @@ public class KTypeVTypeWormMap<KType, VType>
         /*! #end !*/
         // Improves hash distribution. Reduces average get time by 30%.
         return WormUtil.hash(Intrinsics.<KType>cast(key)) & (capacity - 1);
-    }
-
-    /**
-     * Returns a hash code for the given key.
-     */
-    /*! #if ($templateonly) !*/
-    @Override
-    public
-    /*! #else protected #end !*/
-    int hashKey(KType key) {
-        return hash(key, next.length);
     }
 
     /**
