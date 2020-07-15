@@ -7,14 +7,11 @@ import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
 
+import static com.carrotsearch.hppc.WormUtil.*;
+
 /**
- * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
- * addressing with linear probing for collision resolution.
+ * A hash map of <code>KType</code> to <code>VType</code>, implemented using Worm Hashing strategy.
  *
- * <p><strong>Note:</strong> read about <a href="{@docRoot}/overview-summary.html#scattervshash">important differences
- * between hash and scatter sets</a>.</p>
- *
- * @see KTypeVTypeScatterMap
  * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
@@ -36,7 +33,7 @@ public class KTypeVTypeWormMap<KType, VType>
      * Default initial capacity used when none is provided in the constructor. Same value as the
      * {@link HashMap} default capacity.
      */
-    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    private static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     /**
      * Target load factor for the {@link #trimToSize()} method. The method sets the map capacity according to the map
@@ -54,17 +51,16 @@ public class KTypeVTypeWormMap<KType, VType>
      */
     // Suppose to be final, but we have to remove it to be able to change values for tests.
     public static int[] RECURSIVE_MOVE_ATTEMPTS = {10, 1, 0};
-//    private static final int[] RECURSIVE_MOVE_ATTEMPTS = {10, 1, 0};
 
     /**
      * Marks an entry at the end of a chain. This value is stored at {@link #next}[entryIndex].
      */
-    private static final int END_OF_CHAIN = 127;
+    static final int END_OF_CHAIN = 127;
 
     /**
      * Enables costly assertions and integrity checks. Very useful to debug, but it must not be enabled otherwise.
      */
-    private static final boolean DEBUG_ENABLED = false;
+    static final boolean DEBUG_ENABLED = false;
 
     /**
      * Print the load factor when resizing the map. Useful to determine a good value for {@link #FIT_LOAD_FACTOR}, but
@@ -145,16 +141,16 @@ public class KTypeVTypeWormMap<KType, VType>
     /**
      * Constructs a {@link KTypeVTypeWormMap}.
      *
-     * @param initialCapacity The initial capacity. It becomes internally the next power of 2.
+     * @param expectedElements The expected number of elements. Based on it the capacity of the map is calculated.
      */
-    public KTypeVTypeWormMap(int initialCapacity) {
-        if (initialCapacity < 0) {
-            throw new IllegalArgumentException("Invalid initialCapacity=" + initialCapacity);
+    public KTypeVTypeWormMap(int expectedElements) {
+        if (expectedElements < 0) {
+            throw new IllegalArgumentException("Invalid expectedElements=" + expectedElements);
         }
-        if (initialCapacity == 0) {
-            initialCapacity = DEFAULT_INITIAL_CAPACITY;
+        if (expectedElements == 0) {
+            expectedElements = DEFAULT_INITIAL_CAPACITY;
         }
-        allocateBuffers(initialCapacity, false);
+        ensureCapacity(expectedElements);
     }
 
     /**
@@ -163,31 +159,6 @@ public class KTypeVTypeWormMap<KType, VType>
     public KTypeVTypeWormMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
         this(container.size());
         putAll(container);
-    }
-
-    /**
-     * Creates a new {@link KTypeVTypeWormMap} with capacity adapted to store the given expected size without rehashing.
-     *
-     * @param expectedSize The expected number of entries the map will hold.
-     */
-    public static <KType, VType>KTypeVTypeWormMap<KType, VType> withExpectedSize(int expectedSize) {
-        if (expectedSize < 0) {
-            throw new IllegalArgumentException("Invalid expectedSize=" + expectedSize);
-        }
-        return new KTypeVTypeWormMap<KType, VType>(computeCapacityForSize(expectedSize));
-    }
-
-    /**
-     * Creates a {@link KTypeVTypeWormMap} by copying another map. <p>If the other map is a {@link KTypeVTypeWormMap}, prefer
-     * {@link #clone()} as it is more efficient.</p>
-     *
-     * @param map The other map to copy.
-     * @see #clone()
-     */
-    public static <KType, VType>KTypeVTypeWormMap<KType, VType> copyOf(KTypeVTypeMap<KType, VType> map) {
-        KTypeVTypeWormMap<KType, VType> wormMap = withExpectedSize(map.size());
-        wormMap.putAll(map);
-        return wormMap;
     }
 
     /**
@@ -209,19 +180,6 @@ public class KTypeVTypeWormMap<KType, VType>
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Clone must be supported", e);
         }
-    }
-
-    public static <KType, VType> KTypeVTypeWormMap<KType, VType> from(KType[] keys, VType[] values) {
-        if (keys.length != values.length) {
-            throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
-        }
-
-        KTypeVTypeWormMap<KType, VType> map = new KTypeVTypeWormMap<>(keys.length);
-        for (int i = 0; i < keys.length; i++) {
-            map.put(keys[i], values[i]);
-        }
-
-        return map;
     }
 
     public VType noValue() {
@@ -313,10 +271,6 @@ public class KTypeVTypeWormMap<KType, VType>
         return putOrAdd(key, additionValue, additionValue);
     }
     /*! #end !*/
-
-//    public VType putIfAbsent(KType key, VType value) {
-//        return put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, noValue(), true);
-//    }
 
     public boolean putIfAbsent(KType key, VType value) {
         return noValue() == put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, noValue(), true);
@@ -461,7 +415,6 @@ public class KTypeVTypeWormMap<KType, VType>
         return predicate;
     }
 
-    // Start of not finished
     @Override
     public KeysContainer keys() {
         return new KeysContainer();
@@ -476,8 +429,6 @@ public class KTypeVTypeWormMap<KType, VType>
     public Iterator<KTypeVTypeCursor<KType, VType>> iterator() {
         return new EntryIterator();
     }
-
-    // End of not finished
 
     @Override
     public boolean containsKey(KType key) {
@@ -509,7 +460,6 @@ public class KTypeVTypeWormMap<KType, VType>
         return false;
     }
 
-    //Gotta check if it is enough
     @Override
     public void clear() {
         Arrays.fill(next, (byte) 0);
@@ -525,13 +475,11 @@ public class KTypeVTypeWormMap<KType, VType>
     @Override
     public void release() {
         if (!isEmpty()) {
-            // If release() is called, it's probably to continue using this map and put again, so keep an initial capacity.
-            int newCapacity = Math.max(getCapacity() / 4, DEFAULT_INITIAL_CAPACITY);
             keys = null;
             values = null;
             next = null;
             size = 0;
-            allocateBuffers(newCapacity, false);
+            allocateBuffers(DEFAULT_INITIAL_CAPACITY, false);
         }
     }
 
@@ -589,7 +537,7 @@ public class KTypeVTypeWormMap<KType, VType>
         // Iterate all entries.
         for (int index = 0, entryCount = 0; entryCount < size; index++) {
             if (next[index] != 0) {
-                hashCode +=  WormUtil.stdHash(keys[index]) ^ WormUtil.stdHash(values[index]);
+                hashCode +=  WormUtil.hash(keys[index]) ^ WormUtil.hash(values[index]);
                 entryCount++;
             }
         }
@@ -611,7 +559,6 @@ public class KTypeVTypeWormMap<KType, VType>
     public int indexOf(KType key) {
         int hashIndex = hash(key, next.length);
         int nextOffset = next[hashIndex];
-        //Maybe I should return something else than noValue()
         if (nextOffset <= 0) {
             return ~hashIndex;
         }
@@ -1544,46 +1491,6 @@ public class KTypeVTypeWormMap<KType, VType>
     }
 
     /**
-     * Adds a positive offset to the provided index, handling rotation around the circular array.
-     *
-     * @return The new index after addition.
-     */
-    private static int addOffset(int index, int offset, byte[] next) {
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-            assert offset > 0 && offset < END_OF_CHAIN : "offset=" + offset;
-        }
-        index += offset;
-        while (index >= next.length) {
-            index -= next.length;
-        }
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-        }
-        return index;
-    }
-
-    /**
-     * Subtracts a positive offset to the provided index, handling rotation around the circular array.
-     *
-     * @return The new index after subtraction.
-     */
-    private static int subtractOffset(int index, int offset, byte[] next) {
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-            assert offset > 0 && offset < END_OF_CHAIN : "offset=" + offset;
-        }
-        index -= offset;
-        while (index < 0) {
-            index += next.length;
-        }
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-        }
-        return index;
-    }
-
-    /**
      * Gets the offset between two indexes, handling rotation around the circular array.
      *
      * @return The positive offset between the two indexes.
@@ -1644,126 +1551,9 @@ public class KTypeVTypeWormMap<KType, VType>
     }
 
     private boolean checkIndex(int index) {
-        return checkIndex(index, next);
+        return WormUtil.checkIndex(index, next);
     }
 
-    private static boolean checkIndex(int index, byte[] next) {
-        assert index >= 0 && index < next.length : "index=" + index + ", array length=" + next.length;
-        return true;
-    }
-
-    /**
-     * Efficient immutable set of excluded indexes (immutable int set of expected small size).
-     * <p/>Used when searching for a free bucket and attempting to move tail-of-chain entries
-     * recursively. We must not move the entry chains for which we want to find a free bucket.
-     * So {@link ExcludedIndexes} is immutable and can be stacked with {@link #union(ExcludedIndexes)}
-     * during recursive calls. In addition the initial {@link #NONE} is a constant and does not stack
-     * as it overrides {@link #union(ExcludedIndexes)}.
-     */
-    private static abstract class ExcludedIndexes {
-
-        static final ExcludedIndexes NONE = new ExcludedIndexes() {
-            @Override
-            ExcludedIndexes union(ExcludedIndexes excludedIndexes) {
-                return excludedIndexes;
-            }
-
-            @Override
-            boolean isIndexExcluded(int index) {
-                return false;
-            }
-        };
-
-        static ExcludedIndexes fromChain(int index, byte[] next) {
-            int nextOffset = Math.abs(next[index]);
-            if (DEBUG_ENABLED) {
-                assert nextOffset != 0 : "nextOffset=0";
-            }
-            return nextOffset == END_OF_CHAIN ? new SingletonExcludedIndex(index)
-                    : new MultipleExcludedIndexes(index, nextOffset, next);
-        }
-
-        ExcludedIndexes union(ExcludedIndexes excludedIndexes) {
-            return new UnionExcludedIndexes(this, excludedIndexes);
-        }
-
-        abstract boolean isIndexExcluded(int index);
-    }
-
-    private static class SingletonExcludedIndex extends ExcludedIndexes {
-
-        final int excludedIndex;
-
-        SingletonExcludedIndex(int excludedIndex) {
-            this.excludedIndex = excludedIndex;
-        }
-
-        @Override
-        boolean isIndexExcluded(int index) {
-            return index == excludedIndex;
-        }
-    }
-
-    private static class MultipleExcludedIndexes extends ExcludedIndexes {
-
-        final int[] excludedIndexes;
-        final int size;
-
-        MultipleExcludedIndexes(int index, int nextOffset, byte[] next) {
-            if (DEBUG_ENABLED) {
-                assert index >= 0 && index < next.length : "index=" + index + ", next.length=" + next.length;
-                assert nextOffset > 0 && nextOffset < END_OF_CHAIN : "nextOffset=" + nextOffset;
-            }
-            int[] excludedIndexes = new int[8];
-            int size = 0;
-            boolean shouldSort = false;
-            excludedIndexes[size++] = index;
-            do {
-                int nextIndex = addOffset(index, nextOffset, next);
-                if (nextIndex < index) {
-                    // Rolling on the circular buffer. We will need to sort to keep a sorted list of indexes.
-                    shouldSort = true;
-                }
-                if (DEBUG_ENABLED) {
-                    assert nextIndex >= 0 && nextIndex < next.length : "nextIndex=" + index + ", next.length=" + next.length;
-                }
-                if (size == excludedIndexes.length) {
-                    excludedIndexes = Arrays.copyOf(excludedIndexes, size * 2);
-                }
-                excludedIndexes[size++] = index = nextIndex;
-                nextOffset = Math.abs(next[index]);
-                if (DEBUG_ENABLED) {
-                    assert nextOffset > 0 : "nextOffset=" + nextOffset;
-                }
-            } while (nextOffset != END_OF_CHAIN);
-            if (shouldSort) {
-                Arrays.sort(excludedIndexes, 0, size);
-            }
-            this.excludedIndexes = excludedIndexes;
-            this.size = size;
-        }
-
-        @Override
-        boolean isIndexExcluded(int index) {
-            return Arrays.binarySearch(excludedIndexes, 0, size, index) >= 0;
-        }
-    }
-
-    private static class UnionExcludedIndexes extends ExcludedIndexes {
-
-        final ExcludedIndexes left;
-        final ExcludedIndexes right;
-
-        UnionExcludedIndexes(ExcludedIndexes left, ExcludedIndexes right) {
-            this.left = left;
-            this.right = right;
-        }
-
-        @Override
-        boolean isIndexExcluded(int index) {
-            return left.isIndexExcluded(index) || right.isIndexExcluded(index);
-        }
-    }
 
     /**
      * A view of the keys inside this hash map.
