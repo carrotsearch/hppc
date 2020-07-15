@@ -164,6 +164,21 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
         assertSameMap(map, new KTypeVTypeWormMap<>(map));
     }
 
+    /* */
+    @Test
+    public void testFromArrays()
+    {
+        map.put(key1, value1);
+        map.put(key2, value2);
+        map.put(key3, value3);
+
+        KTypeVTypeWormMap<KType, VType> map2 = KTypeVTypeWormMap.from(
+            newArray(key1, key2, key3),
+            newvArray(value1, value2, value3));
+
+        assertSameMap(map, map2);
+    }
+
     @Test
     public void testGetOrDefault()
     {

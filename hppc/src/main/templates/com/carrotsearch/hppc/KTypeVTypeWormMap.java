@@ -49,8 +49,8 @@ public class KTypeVTypeWormMap<KType, VType>
      * free a bucket instead of enlarging the map. The more attempts are allowed, the more the load factor increases,
      * but the performance decreases. It is a compromise between memory reduction and performance.
      */
-    // Suppose to be final, but we have to remove it to be able to change values for tests.
-    public static int[] RECURSIVE_MOVE_ATTEMPTS = {10, 1, 0};
+
+    public static final int[] RECURSIVE_MOVE_ATTEMPTS = {10, 1, 0};
 
     /**
      * Marks an entry at the end of a chain. This value is stored at {@link #next}[entryIndex].
@@ -116,12 +116,12 @@ public class KTypeVTypeWormMap<KType, VType>
             values;
 
     /**
-     * abs({@link #next}[i])=offset to next chained entry index. <p>{@link #next}[i]=0 for free bucket.</p> <p>The
+     * {@code abs(next[i])=offset} to next chained entry index. <p>{@code next[i]=0} for free bucket.</p> <p>The
      * offset is always forward, and the array is considered circular, meaning that an entry at the end of the
      * array may point to an entry at the beginning with a positive offset.</p> <p>The offset is always forward, but the
      * sign of the offset encodes head/tail of chain. {@link #next}[i] &gt; 0 for the first head-of-chain entry (within
      * [1,{@link #maxOffset}]), {@link #next}[i] &lt; 0 for the subsequent tail-of-chain entries (within [-{@link
-     * #maxOffset},-1]. For the last entry in the chain, abs({@link #next}[i])={@link #END_OF_CHAIN}.</p>
+     * #maxOffset},-1]. For the last entry in the chain, {@code abs(next[i])=}{@link #END_OF_CHAIN}.</p>
      */
     public byte[] next;
 
@@ -161,6 +161,19 @@ public class KTypeVTypeWormMap<KType, VType>
         putAll(container);
     }
 
+    public static <KType, VType> KTypeVTypeWormMap<KType, VType> from(KType[] keys, VType[] values) {
+        if (keys.length != values.length) {
+            throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
+        }
+
+        KTypeVTypeWormMap<KType, VType> map = new KTypeVTypeWormMap<>(keys.length);
+        for (int i = 0; i < keys.length; i++) {
+            map.put(keys[i], values[i]);
+        }
+
+        return map;
+    }
+
     /**
      * Clones this map. The cloning operation is efficient because it copies directly the internal arrays, without
      * having to put entries in the cloned map. The cloned map has the same entries and the same {@link #getCapacity()
@@ -197,9 +210,6 @@ public class KTypeVTypeWormMap<KType, VType>
     public boolean isEmpty() {
         return size == 0;
     }
-
-
-    // Public methods start
 
     @Override
     public VType get(KType key) {
@@ -314,21 +324,19 @@ public class KTypeVTypeWormMap<KType, VType>
             int slot = 0;
             int max = this.keys.length;
 
-            // This outer loop was in original method, don't know if we still need it
-            while (true) {
-                // Going over all the keys they bound their complexity by capacity of the map instead of container size
-                while (slot < max) {
-                    KType existing = keys[slot];
-                    if (next[slot] != 0 && other.contains(existing)) {
-                        this.remove(existing);
-                    } else {
-                        slot++;
-                    }
+            // Going over all the keys they bound their complexity by capacity of the map instead of container size
+            while (slot < max) {
+                KType existing = keys[slot];
+                if (next[slot] != 0 && other.contains(existing)) {
+                    this.remove(existing);
+                } else {
+                    slot++;
                 }
-
-                // returns number of removed elements
-                return before - this.size();
             }
+
+            // returns number of removed elements
+            return before - this.size();
+
         } else {
             for (KTypeCursor<?> c : other) {
                 this.remove(Intrinsics.<KType> cast(c.value));
@@ -347,24 +355,21 @@ public class KTypeVTypeWormMap<KType, VType>
         int slot = 0;
         int max = this.keys.length;
 
-        // Again going over all the keys with using this weird shift function
-        while (true) {
-            while (slot < max) {
-                KType existing = keys[slot];
-                if (next[slot] != 0 && predicate.apply(existing)) {
-                    this.remove(existing);
-                } else {
-                    ++slot;
-                }
+        while (slot < max) {
+            KType existing = keys[slot];
+            if (next[slot] != 0 && predicate.apply(existing)) {
+                this.remove(existing);
+            } else {
+                ++slot;
             }
-
-            return before - this.size();
         }
+
+        return before - this.size();
+
     }
 
     @Override
     public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate) {
-        // Same as above
         int before = this.size();
         int max = this.keys.length;
 
@@ -372,18 +377,16 @@ public class KTypeVTypeWormMap<KType, VType>
         final VType[] values = Intrinsics.<VType[]> cast(this.values);
         int slot = 0;
 
-        while (true) {
-            while (slot < max) {
-                KType existing = keys[slot];
-                if (next[slot] != 0 && predicate.apply(existing, values[slot])) {
-                    this.remove(existing);
-                } else {
-                    ++slot;
-                }
+        while (slot < max) {
+            KType existing = keys[slot];
+            if (next[slot] != 0 && predicate.apply(existing, values[slot])) {
+                this.remove(existing);
+            } else {
+                ++slot;
             }
-
-            return before - this.size();
         }
+
+        return before - this.size();
     }
 
     @Override
@@ -526,20 +529,11 @@ public class KTypeVTypeWormMap<KType, VType>
 
     @Override
     public int hashCode() {
-        // Hash code must be computed with the same algorithm as all standard Java maps.
-        // See Map.hashCode() javadoc.
-
-        final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
-        final VType[] values = Intrinsics.<VType[]>cast(this.values);
-        final byte[] next = this.next;
-        final int size = this.size;
         int hashCode = 0;
         // Iterate all entries.
-        for (int index = 0, entryCount = 0; entryCount < size; index++) {
-            if (next[index] != 0) {
-                hashCode +=  WormUtil.hash(keys[index]) ^ WormUtil.hash(values[index]);
-                entryCount++;
-            }
+        for (KTypeVTypeCursor<KType, VType> c : this) {
+            hashCode += WormUtil.hash(c.key) ^
+                    WormUtil.hash(c.value);
         }
         return hashCode;
     }
@@ -655,7 +649,6 @@ public class KTypeVTypeWormMap<KType, VType>
     @Override
     public String visualizeKeyDistribution(int characters) {
         throw new UnsupportedOperationException("Visualization is not supported in Worm Map");
-//        return null;
     }
 
     @Override
@@ -1631,7 +1624,7 @@ public class KTypeVTypeWormMap<KType, VType>
                 return 0;
             }
         }
-    };
+    }
 
     /**
      * An iterator over the set of assigned keys.
@@ -1784,7 +1777,6 @@ public class KTypeVTypeWormMap<KType, VType>
         @Override
         protected KTypeVTypeCursor<KType, VType> fetch() {
             if (slot < max) {
-                int existing;
                 for (slot++; slot < max; slot++) {
                     if (next[slot] != 0) {
                         cursor.index = slot;
