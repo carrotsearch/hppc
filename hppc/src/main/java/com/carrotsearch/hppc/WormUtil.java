@@ -2,7 +2,7 @@ package com.carrotsearch.hppc;
 
 import java.util.Arrays;
 
-import static com.carrotsearch.hppc.KTypeVTypeWormMap.*;
+//import static com.carrotsearch.hppc.KTypeVTypeWormMap.*;
 
 /**
  * Java hash for primitives.
@@ -11,6 +11,9 @@ import static com.carrotsearch.hppc.KTypeVTypeWormMap.*;
  */
 public class WormUtil
 {
+    private static final int END_OF_CHAIN = 127;
+    private static final boolean DEBUG_ENABLED = false;
+
     /**
      * Hashes a char. Improves distribution for Map or Set.
      */
