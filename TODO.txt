@@ -11,4 +11,6 @@ Improvements
 - Target Java 11 as minimum.
 - Try to upgrade template parser; use closures where appropriate to reduce output file size.
 - Add scaffolding so that streams api can be used?
-
+- enforced spotless (Google format)
+- forbidden APIs
+- make predicates/ procedures @FunctionalInterfaces
