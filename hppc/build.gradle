@@ -1,0 +1,112 @@
+plugins {
+  id 'java-library'
+}
+
+sourceSets {
+  templates {
+    java {
+      srcDirs += file('src/main/templates')
+    }
+    compileClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.main.output
+  }
+
+  testTemplates {
+    java {
+      srcDirs += file('src/test/templates')
+    }
+    compileClasspath += sourceSets.main.output
+    compileClasspath += sourceSets.test.output
+    compileClasspath += sourceSets.templates.output
+    runtimeClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.test.output
+    runtimeClasspath += sourceSets.templates.output
+  }
+}
+
+configurations {
+  templateProcessor
+  templatesImplementation.extendsFrom implementation
+  testTemplatesImplementation.extendsFrom templatesImplementation, testImplementation
+}
+
+dependencies {
+  templateProcessor project(":hppc-template-processor")
+
+  templatesImplementation project(":hppc-template-intrinsics")
+
+  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
+  testImplementation "org.assertj:assertj-core"
+}
+
+task generateMainTemplates(type: GenerateTemplatesTask) {
+  templatesDir file("src/main/templates")
+  outputDir file("$buildDir/generated/main/templates")
+}
+
+compileJava {
+  dependsOn generateMainTemplates
+}
+
+task generateTestTemplates(type: GenerateTemplatesTask) {
+  templatesDir file("src/test/templates")
+  outputDir file("$buildDir/generated/test/templates")
+}
+
+compileTestJava {
+  dependsOn generateTestTemplates
+}
+
+sourceSets {
+  main {
+    java.srcDirs += generateMainTemplates.outputDir
+  }
+  test {
+    java.srcDirs += generateTestTemplates.outputDir
+  }
+}
+
+task testTemplates(type: Test) {
+  description = 'Runs source template tests.'
+  group = 'verification'
+
+  useJUnit()
+
+  testClassesDirs = sourceSets.testTemplates.output.classesDirs
+  classpath = sourceSets.testTemplates.runtimeClasspath
+}
+
+test.mustRunAfter testTemplates
+check.dependsOn(testTemplates)
+
+class GenerateTemplatesTask extends DefaultTask {
+  @InputDirectory
+  File templatesDir
+
+  @OutputDirectory
+  File outputDir
+
+  @Input
+  boolean incremental = true
+
+  GenerateTemplatesTask() {
+    dependsOn(project.configurations.templateProcessor)
+  }
+
+  @TaskAction
+  public void generate() {
+    project.javaexec {
+      classpath project.configurations.templateProcessor
+      main = 'com.carrotsearch.hppc.generator.TemplateProcessor'
+
+      if (incremental) {
+        args += "--incremental"
+      }
+
+      args += [
+          "--templates", templatesDir,
+          "--output", outputDir
+      ]
+    }
+  }
+}

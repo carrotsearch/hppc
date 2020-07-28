@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
-import com.carrotsearch.hppc.generator.parser.SignatureProcessor;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
 
 @RunWith(RandomizedRunner.class)

@@ -1,0 +1,6 @@
+
+rootProject.name = 'hppc'
+
+include 'hppc-template-intrinsics'
+include 'hppc-template-processor'
+include 'hppc'

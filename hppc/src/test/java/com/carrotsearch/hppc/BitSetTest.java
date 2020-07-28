@@ -58,7 +58,7 @@ public class BitSetTest extends RandomizedTest
         {
             for (int bit = 0; bit < bits; bit++)
             {
-                int index = randomInt(bitSpace);
+                int index = randomIntBetween(0, bitSpace - 1);
                 jre.set(index);
                 hppc.set(index);
 

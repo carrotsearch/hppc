@@ -1,0 +1,7 @@
+org.antlr:*=4.7.1
+com.google.guava:guava=18.0
+org.apache.velocity:velocity-engine-core=2.0
+
+com.carrotsearch.console:*=1.0.4
+com.carrotsearch.randomizedtesting:*=2.7.8
+org.assertj:*=2.0.0

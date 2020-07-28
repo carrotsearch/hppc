@@ -1,0 +1,20 @@
+// Try to detect IntelliJ model loader ("reimport") early.
+def isIdea = System.getProperty("idea.active") != null ||
+    gradle.startParameter.taskNames.contains('idea') ||
+    gradle.startParameter.taskNames.contains('cleanIdea')
+
+if (isIdea) {
+  logger.warn("IntelliJ Idea IDE detected.")
+}
+
+allprojects {
+  apply plugin: 'idea'
+
+  idea {
+    module {
+      outputDir file('build/idea/classes/main')
+      testOutputDir file('build/idea/classes/test')
+      downloadSources = true
+    }
+  }
+}

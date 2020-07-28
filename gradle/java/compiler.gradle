@@ -1,0 +1,14 @@
+configure(rootProject) {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = sourceCompatibility
+}
+
+allprojects {
+  plugins.withType(JavaPlugin) {
+    tasks.withType(JavaCompile) {
+      sourceCompatibility = rootProject.sourceCompatibility
+      targetCompatibility = rootProject.sourceCompatibility
+      options.encoding = "UTF-8"
+    }
+  }
+}

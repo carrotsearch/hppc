@@ -1,0 +1,14 @@
+
+Porting to gradle
+
+- port hppc-examples
+- port benchmarks (?)
+- remove maven artifacts (pom.xml, update readmes).
+- packaging and sonatype/maven publishing
+
+Improvements
+
+- Target Java 11 as minimum.
+- Try to upgrade template parser; use closures where appropriate to reduce output file size.
+- Add scaffolding so that streams api can be used?
+
