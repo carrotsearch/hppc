@@ -1,9 +1,4 @@
 
-Porting to gradle
-
-- packaging and sonatype/maven publishing
-- remove maven artifacts (pom.xml, update readmes).
-
 Improvements
 
 - Target Java 11 as minimum.
@@ -13,3 +8,7 @@ Improvements
 
 - port hppc-benchmarks to gradle and update dependencies, etc.
 - Add scaffolding so that streams api can be used?
+
+Bugs
+
+- generated pom contains odd dependencyManagement section

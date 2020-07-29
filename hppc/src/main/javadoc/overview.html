@@ -2,18 +2,18 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />    
         <title>High Performance Primitive Collections (HPPC)</title>
+
+        <link rel="stylesheet" type="text/css" href="resources/custom.css">
     </head>
 
     <body>
-        <link rel="stylesheet" type="text/css" href="resources/overview.css">
-
         High Performance Primitive Collections (HPPC) library provides
         typical data structures (lists, stacks, sets and maps) 
         that are generated for all Java primitive types 
         (<code>byte</code>, <code>int</code>, etc.) from a single template
         to conserve memory and boost performance.
 
-        <h2>Why HPPC?</h2>
+        <p class="sectionTitle">Why HPPC?</p>
 
         <p>The Java Collections package is in many ways excellent, but it cannot
         be used for primitive types without autoboxing (which kills the 
@@ -24,7 +24,7 @@
         and subject to free hacking and tuning up to one's wishes.</p>
 
 
-        <h2>Why not other primitive collection libraries?</h2>
+        <p class="sectionTitle">Why not other primitive collection libraries?</p>
 
         <p>There are a few projects implementing collections over primitive types:
             <a href="http://fastutil.dsi.unimi.it/">fastutil</a>,
@@ -42,7 +42,7 @@
         very, very good.</p>
 
 
-        <h2>Assumptions and goals of HPPC</h2>
+        <p class="sectionTitle">Assumptions and goals of HPPC</p>
 
         <p>We assume that:</p>
         <ul>
@@ -87,7 +87,7 @@
         </ul>
 
 
-        <h2>Design and implementation assumptions</h2>
+        <p class="sectionTitle">Design and implementation assumptions</p>
         
         <ul>
             <li>We want HPPC class templates to be implemented as <b>regular Java classes (with generics)</b> 
@@ -99,8 +99,8 @@
             (to limit memory consumption and boost performance due to JIT optimisations).</li>
         </ul>
 
-        
-        <h2>Interfaces and their relation to Java Collections API</h2>
+
+        <p class="sectionTitle">Interfaces and their relation to Java Collections API</p>
         
         <p>HPPC is not strictly modeled after Java Collections API, although we did
         try to make the APIs look similar enough for comfortable use. 
@@ -114,7 +114,7 @@
         <p>Rough relationships between Java Collections classes and HPPC classes are
         presented in the table below.</p>
 
-        <table class="nice" summary="Relationships between HPPC and Java Collections.">
+        <table class="nice">
         <caption>Relationships between HPPC and Java Collections.</caption>
         <thead>
             <tr class="odd">
@@ -159,16 +159,20 @@
         <tr>
             <th scope="row" class="column1">hash sets</th>
             <td><code>java.util.HashSet</code></td>
-            <td><code><span class="red nobr">[keyType]</span>HashSet</code><br/>
-                <code><span class="red nobr">[keyType]</span>ScatterSet</code><br/>
+            <td><code><span class="red nobr">[keyType]</span>HashSet</code>
+                <div class="vsep"></div>
+                <code><span class="red nobr">[keyType]</span>ScatterSet</code>
             </td>
             <td>
                 {@linkplain com.carrotsearch.hppc.ObjectHashSet
-                <code>ObjectHashSet&lt;<span class="red nobr">K</span>&gt;</code>}<br/>
-                <code><span class="red nobr">[keyType]</span>HashSet</code><br/><br/>
+                <code>ObjectHashSet&lt;<span class="red nobr">K</span>&gt;</code>}
+                <div class="vsep"></div>
+                <code><span class="red nobr">[keyType]</span>HashSet</code>
+                <div class="vsep"></div>
                 {@linkplain com.carrotsearch.hppc.ObjectScatterSet
-                <code>ObjectScatterSet&lt;<span class="red nobr">K</span>&gt;</code>}<br/>
-                <code><span class="red nobr">[keyType]</span>ScatterSet</code><br/>
+                <code>ObjectScatterSet&lt;<span class="red nobr">K</span>&gt;</code>}
+                <div class="vsep"></div>
+                <code><span class="red nobr">[keyType]</span>ScatterSet</code>
             </td>
         </tr>
 
@@ -178,12 +182,17 @@
             <td><code><span class="red nobr">[keyType][valueType]</span>HashMap</code></td>
             <td>
                 {@linkplain com.carrotsearch.hppc.ObjectObjectHashMap
-                <code>ObjectObjectHashMap&lt;<span class="red nobr">K, V</span>&gt;</code>}<br/>
-                <code><span class="red nobr">[keyType]</span>ObjectHashMap&lt;<span class="red nobr">V</span>&gt;</code><br/>
-                <code>Object<span class="red nobr">[valueType]</span>HashMap&lt;<span class="red nobr">K</span>&gt;</code><br/><br/>
+                <code>ObjectObjectHashMap&lt;<span class="red nobr">K, V</span>&gt;</code>}
+                <div class="vsep"></div>
+                <code><span class="red nobr">[keyType]</span>ObjectHashMap&lt;<span class="red nobr">V</span>&gt;</code>
+                <div class="vsep"></div>
+                <code>Object<span class="red nobr">[valueType]</span>HashMap&lt;<span class="red nobr">K</span>&gt;</code>
+                <div class="vsep"></div>
                 {@linkplain com.carrotsearch.hppc.ObjectObjectScatterMap
-                <code>ObjectObjectScatterMap&lt;<span class="red nobr">K, V</span>&gt;</code>}<br/>
-                <code><span class="red nobr">[keyType]</span>ObjectScatterMap&lt;<span class="red nobr">V</span>&gt;</code><br/>
+                <code>ObjectObjectScatterMap&lt;<span class="red nobr">K, V</span>&gt;</code>}
+                <div class="vsep"></div>
+                <code><span class="red nobr">[keyType]</span>ObjectScatterMap&lt;<span class="red nobr">V</span>&gt;</code>
+                <div class="vsep"></div>
                 <code>Object<span class="red nobr">[valueType]</span>ScatterMap&lt;<span class="red nobr">K</span>&gt;</code>
             </td>
         </tr>
@@ -193,7 +202,7 @@
         <p>The method-level API of the corresponding types is also similar, but distinct
         differences exist (consult the JavaDoc of each class).</p>
 
-        <a name="scattervshash"><h2>Scatter or hash (sets and maps)</h2></a>
+        <p class="sectionTitle"><a id="scattervshash">Scatter or hash (sets and maps)</a></p>
 
         <p>
         All key-redistribution containers (maps and sets) implemented in HPPC use 
@@ -230,7 +239,7 @@
         </p>
 
 
-        <a name="interfaces"><h2>Interfaces and container inheritance</h2></a>
+        <p class="sectionTitle"><a id="interfaces">Interfaces and container inheritance</a></p>
 
         <p>HPPC's interfaces are modeled to encapsulate
         the common functionality enforced from <i>all</i> the classes that 

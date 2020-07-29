@@ -110,3 +110,36 @@ class GenerateTemplatesTask extends DefaultTask {
     }
   }
 }
+
+javadoc {
+  title = "HPPC v${project.version} API Documentation"
+
+  (options as StandardJavadocDocletOptions).with {
+    windowTitle = "HPPC v${version} API Documentation"
+    bottom = "<div id='header'><a class='logo' target='_top' href='https://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>"
+
+    docFilesSubDirs = true
+    use = false
+    noTree = true
+    noIndex = true
+
+    overview = file("src/main/javadoc/overview.html")
+
+    group("HPPC", "com.carrotsearch.hppc*")
+  }
+
+  doLast {
+    project.sync {
+      into file("${destinationDir}/resources")
+      from file("src/main/javadoc/resources")
+    }
+
+    def cssFile = file("${destinationDir}/stylesheet.css")
+    def css = cssFile.getText("UTF-8")
+    css = """
+@import url('resources/custom.css');
+
+""" + css
+    cssFile.write(css, "UTF-8")
+  }
+}
