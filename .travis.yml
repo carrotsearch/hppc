@@ -1,0 +1,9 @@
+language: java
+
+jdk:
+  - oraclejdk11
+  - openjdk11
+  - openjdk14
+
+script:
+  - ./gradlew check assemble --stacktrace -Dtests.slow=true
