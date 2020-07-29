@@ -143,3 +143,5 @@ javadoc {
     cssFile.write(css, "UTF-8")
   }
 }
+
+check.dependsOn javadoc
