@@ -15,24 +15,21 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.ClassDeclarationContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.ClassOrInterfaceTypeContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.ConstructorDeclarationContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.CreatedNameContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.GenericMethodDeclarationContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.IdentifierTypeOrDiamondPairContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.IdentifierTypePairContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.InterfaceDeclarationContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.MethodDeclarationContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.PrimaryContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.QualifiedNameContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeArgumentContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeArgumentsContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeBoundContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeContext;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.TypeParameterContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.ClassDeclarationContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.ClassOrInterfaceTypeContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.ConstructorDeclarationContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.CreatedNameContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.GenericMethodDeclarationContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.InterfaceDeclarationContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.MethodDeclarationContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.PrimaryContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.QualifiedNameContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.TypeArgumentContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.TypeArgumentsContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.TypeBoundContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.TypeParameterContext;
 
-class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacement>> {
+class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement>> {
   private final static List<Replacement> NONE = Collections.emptyList();
   private final TemplateOptions templateOptions;
   private final SignatureProcessor processor;
@@ -70,7 +67,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
   }
 
   private TypeBound typeBoundOf(TypeParameterContext c) {
-    String symbol = c.Identifier().toString();
+    String symbol = c.IDENTIFIER().getText().toString();
     switch (symbol) {
       case "KType":
         return new TypeBound(templateOptions.getKType(), c.getText());
@@ -86,7 +83,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
       return new TypeBound(wildcards.removeFirst(), c.getText());
     }
 
-    TypeBound t = typeBoundOf(c.type());
+    TypeBound t = typeBoundOf(c.typeType());
     if (t.isTemplateType()) {
       return new TypeBound(t.templateBound(), getSourceText(c));
     } else {
@@ -98,7 +95,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
     return this.processor.tokenStream.getText(c.getSourceInterval());
   }
 
-  private TypeBound typeBoundOf(TypeContext c) {
+  private TypeBound typeBoundOf(JavaParser.TypeTypeContext c) {
     if (c.primitiveType() != null) {
       return new TypeBound(null, c.getText());
     } else {
@@ -129,7 +126,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
   public List<Replacement> visitClassDeclaration(ClassDeclarationContext ctx) {
     List<Replacement> result = new ArrayList<>(super.visitClassDeclaration(ctx));
 
-    String className = ctx.Identifier().getText();
+    String className = ctx.IDENTIFIER().getText();
     if (isTemplateIdentifier(className) || true) {
       List<TypeBound> typeBounds = new ArrayList<>();
       if (ctx.typeParameters() != null) {
@@ -146,7 +143,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
       if (className.contains("VType")) {
         className = className.replace("VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
       }
-      result.add(new Replacement(ctx.Identifier(), className));
+      result.add(new Replacement(ctx.IDENTIFIER(), className));
     }
 
     return result;
@@ -156,7 +153,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
   public List<Replacement> visitInterfaceDeclaration(InterfaceDeclarationContext ctx) {
     List<Replacement> result = super.visitInterfaceDeclaration(ctx);
 
-    String className = ctx.Identifier().getText();
+    String className = ctx.IDENTIFIER().getText();
     if (isTemplateIdentifier(className)) {
       List<TypeBound> typeBounds = new ArrayList<>();
       for (TypeParameterContext c : ctx.typeParameters().typeParameter()) {
@@ -171,7 +168,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
       if (className.contains("VType")) {
         className = className.replace("VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
       }
-      Replacement replaceIdentifier = new Replacement(ctx.Identifier(), className);
+      Replacement replaceIdentifier = new Replacement(ctx.IDENTIFIER(), className);
 
       result = new ArrayList<>(result);
       result.addAll(Arrays.asList(
@@ -184,12 +181,12 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
 
   @Override
   public List<Replacement> visitConstructorDeclaration(ConstructorDeclarationContext ctx) {
-    return processIdentifier(ctx.Identifier(), super.visitConstructorDeclaration(ctx));
+    return processIdentifier(ctx.IDENTIFIER(), super.visitConstructorDeclaration(ctx));
   }
 
   @Override
   public List<Replacement> visitPrimary(PrimaryContext ctx) {
-    TerminalNode identifier = ctx.Identifier();
+    TerminalNode identifier = ctx.IDENTIFIER();
     if (identifier != null && 
         isTemplateIdentifier(identifier.getText())) {
       return processIdentifier(identifier, NONE);
@@ -202,7 +199,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
   public List<Replacement> visitGenericMethodDeclaration(GenericMethodDeclarationContext ctx) {
     ArrayList<String> bounds = new ArrayList<>();
     for (TypeParameterContext c : ctx.typeParameters().typeParameter()) {
-      switch (c.Identifier().getText()) {
+      switch (c.IDENTIFIER().getText()) {
         case "KType":
           checkArgument(c.typeBound() == null, "Unexpected type bound on template type: " + c.getText());
           if (templateOptions.isKTypeGeneric()) {
@@ -220,8 +217,8 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
         default:
           TypeBoundContext tbc = c.typeBound(); 
           if (tbc != null) {
-            checkArgument(tbc.type().size() == 1, "Expected exactly one type bound: " + c.getText());
-            TypeContext tctx = tbc.type().get(0);
+            checkArgument(tbc.typeType().size() == 1, "Expected exactly one type bound: " + c.getText());
+            JavaParser.TypeTypeContext tctx = tbc.typeType().get(0);
             Interval sourceInterval = tbc.getSourceInterval();
             try {
               StringWriter sw = processor.reconstruct(
@@ -231,7 +228,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
                   sourceInterval.b, 
                   visitType(tctx),
                   templateOptions);
-              bounds.add(c.Identifier() + " extends " + sw.toString());
+              bounds.add(c.IDENTIFIER() + " extends " + sw.toString());
             } catch (IOException e) {
               throw new RuntimeException(e);
             }
@@ -256,8 +253,8 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
   @Override
   public List<Replacement> visitMethodDeclaration(MethodDeclarationContext ctx) {
     List<Replacement> replacements = new ArrayList<>();
-    if (ctx.type() != null) {
-      replacements.addAll(visitType(ctx.type()));
+    if (ctx.typeTypeOrVoid() != null) {
+      replacements.addAll(visitType(ctx.typeTypeOrVoid()));
     }
     replacements.addAll(processIdentifier(ctx.Identifier(), NONE));
     replacements.addAll(visitFormalParameters(ctx.formalParameters()));
@@ -366,7 +363,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
   @Override
   public List<Replacement> visitQualifiedName(QualifiedNameContext ctx) {
     List<Replacement> replacements = NONE;
-    for (TerminalNode identifier : ctx.Identifier()) {
+    for (TerminalNode identifier : ctx.IDENTIFIER()) {
       String symbol = identifier.getText();
       if (isTemplateIdentifier(symbol)) {
         if (symbol.contains("KType")) {
