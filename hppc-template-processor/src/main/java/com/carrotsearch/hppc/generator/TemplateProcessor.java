@@ -210,7 +210,7 @@ public class TemplateProcessor extends Command<ExitCode> {
       return;
     }
 
-    logger.info("Processing: " + input.getFileName() + " => " + output.path);
+    logger.debug("Processing: " + input.getFileName() + " => " + output.path);
     try {
       timeIntrinsics.start();
       template = filterIntrinsics(template, templateOptions);

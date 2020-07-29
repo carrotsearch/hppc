@@ -18,6 +18,7 @@ ext {
 
 apply from: file('gradle/misc/propertyOrDefault.gradle')
 apply from: file('gradle/validation/check-environment.gradle')
+apply from: file('gradle/validation/forbidden-apis.gradle')
 apply from: file('gradle/git/gitinfo.gradle')
 apply from: file('gradle/java/compiler.gradle')
 apply from: file('gradle/java/tests.gradle')

@@ -3,6 +3,7 @@ package com.carrotsearch.hppc.examples;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.HashOrderMixing;
@@ -14,6 +15,7 @@ import com.carrotsearch.hppc.cursors.IntCursor;
  */
 @SuppressWarnings("deprecation")
 public class HppcExample_006_HashAndScatterMaps {
+  @SuppressForbidden("Uses System clock to demonstrate slowdown.")
   @Test
   public void scatterVsHashDifference() throws Exception {
     int key;

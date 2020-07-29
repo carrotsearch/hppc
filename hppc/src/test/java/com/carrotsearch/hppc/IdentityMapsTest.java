@@ -2,10 +2,12 @@ package com.carrotsearch.hppc;
 
 import static org.junit.Assert.*;
 
+import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.junit.Test;
 
 public class IdentityMapsTest
 {
+    @SuppressForbidden("new Integer() intentional")
     @Test
     public void testSanity()
     {
@@ -57,6 +59,7 @@ public class IdentityMapsTest
         assertNotEquals(m2,  m1);
     }
 
+    @SuppressForbidden("new Double() intentional")
     @Test
     public void testNaNsInValues()
     {

@@ -9,6 +9,13 @@ allprojects {
       sourceCompatibility = rootProject.sourceCompatibility
       targetCompatibility = rootProject.sourceCompatibility
       options.encoding = "UTF-8"
+
+      options.compilerArgs += [
+          "--release", "11",
+          "-Xlint:unchecked",
+          "-proc:none",
+          "-Werror",
+      ]
     }
   }
 }

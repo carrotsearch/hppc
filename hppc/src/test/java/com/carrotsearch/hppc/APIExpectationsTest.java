@@ -2,6 +2,7 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.*;
 
+import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -84,6 +85,7 @@ public class APIExpectationsTest extends RandomizedTest
         Assertions.assertThat(l2.equalElements(l1)).isTrue();
     }
 
+    @SuppressForbidden("new Integer() intentional.")
     @Test
     public void testArrayListEqualsWithOverridenComparisonMethod()
     {
@@ -108,6 +110,7 @@ public class APIExpectationsTest extends RandomizedTest
         Assertions.assertThat(l1.equalElements(l3)).isFalse();
     }
 
+    @SuppressForbidden("new Integer() intentional.")
     @Test
     public void testArrayDequeEqualsWithOverridenComparisonMethod()
     {
@@ -203,6 +206,7 @@ public class APIExpectationsTest extends RandomizedTest
         isTypeArray(Number.class, t.toArray(Number.class));
     }
 
+    @SuppressForbidden("new Integer() intentional.")
     @Test
     public void testPutOrAddOnEqualKeys()
     {

@@ -1,0 +1,13 @@
+plugins {
+  id 'java-library'
+}
+
+dependencies {
+  testImplementation project(":hppc")
+  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
+  testImplementation "org.assertj:assertj-core"
+}
+
+test {
+  include 'com/carrotsearch/**/HppcExample*'
+}

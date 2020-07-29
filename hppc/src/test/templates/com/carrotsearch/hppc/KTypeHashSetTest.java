@@ -6,6 +6,7 @@ import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -381,7 +382,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAgainstHashMap()
     {
-        final java.util.Random rnd = new java.util.Random();
+        final java.util.Random rnd = RandomizedTest.getRandom();
         final java.util.HashSet<KType> other = new java.util.HashSet<KType>();
 
         for (int size = 1000; size < 20000; size += 4000)

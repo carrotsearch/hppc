@@ -12,7 +12,6 @@ import static com.carrotsearch.hppc.HashContainers.*;
 /**
  * An identity hash map of <code>KType</code> to <code>VType</code>.
  */
-/*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("all") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeIdentityHashMap<KType, VType> 
   extends KTypeVTypeHashMap<KType, VType>
@@ -86,6 +85,7 @@ public class KTypeVTypeIdentityHashMap<KType, VType>
     return v1 == v2;
   }
 
+  /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
   /* #if ($TemplateOptions.VTypeGeneric) */
   @Override
   protected boolean equalElements(KTypeVTypeHashMap<?, ?> other) {

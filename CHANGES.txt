@@ -1,7 +1,11 @@
 
-[0.8.3-SNAPSHOT]
-https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=15220&styleName=Text
+[0.9.0-SNAPSHOT]
 
+** New features
+
+** Improvements
+
+HPPC-177: Modernize the build system to gradle and make it work with IntelliJ.
 
 
 [0.8.2]

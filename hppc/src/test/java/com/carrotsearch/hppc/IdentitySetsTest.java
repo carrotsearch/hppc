@@ -2,11 +2,13 @@ package com.carrotsearch.hppc;
 
 import static org.junit.Assert.*;
 
+import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class IdentitySetsTest
 {
+    @SuppressForbidden("new Integer() intentional.")
     @Test
     public void testSanity()
     {

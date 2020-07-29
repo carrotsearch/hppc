@@ -4,6 +4,7 @@ import static com.carrotsearch.hppc.HashContainers.*;
 
 import java.util.HashSet;
 
+import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -44,7 +45,8 @@ public class HashContainersTest extends RandomizedTest {
     assertEquals(0x7f, expandAtCount(0x80, 1d));
     assertEquals(0xff, expandAtCount(0x100, 1d));
   }
-  
+
+  @SuppressForbidden("new Integer() intentional.")
   @Test
   public void testAddReplacements()
   {

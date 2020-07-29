@@ -1,16 +1,16 @@
 
 Porting to gradle
 
-- port hppc-examples
-- port benchmarks (?)
-- remove maven artifacts (pom.xml, update readmes).
+- apply forbidden APIs
 - packaging and sonatype/maven publishing
+- remove maven artifacts (pom.xml, update readmes).
 
 Improvements
 
 - Target Java 11 as minimum.
 - Try to upgrade template parser; use closures where appropriate to reduce output file size.
-- Add scaffolding so that streams api can be used?
 - enforced spotless (Google format)
-- forbidden APIs
 - make predicates/ procedures @FunctionalInterfaces
+
+- port hppc-benchmarks to gradle and update dependencies, etc.
+- Add scaffolding so that streams api can be used?

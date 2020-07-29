@@ -313,7 +313,8 @@ public abstract class TestUtils
     /**
      * Create a new array of a given type and copy the arguments to this array.
      */
-    public static <T> T [] newArray(T [] arrayType, @SuppressWarnings("unchecked") T... elements)
+    @SafeVarargs
+    public static <T> T [] newArray(T [] arrayType, T... elements)
     {
         return elements;
     }
