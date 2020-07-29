@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 /**
  * Java hash for primitives.
- * <p/>stdHash() is different from hash() because we want <b>standard Java</b> implementations.
+ * <p>stdHash() is different from hash() because we want <b>standard Java</b> implementations.
  * @author broustant
  */
 public class WormUtil
