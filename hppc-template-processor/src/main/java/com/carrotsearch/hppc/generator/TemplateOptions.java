@@ -5,8 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Template options for velocity directives in templates.
  */
@@ -84,12 +82,16 @@ public class TemplateOptions {
   }
 
   public Type getKType() {
-    Preconditions.checkArgument(hasKType(), "Template does not specify KType.");
+    if (!hasKType()) {
+      throw new IllegalArgumentException("Template does not specify KType.");
+    }
     return ktype;
   }
 
   public Type getVType() {
-    Preconditions.checkArgument(hasVType(), "Template does not specify VType.");
+    if (!hasVType()) {
+      throw new IllegalArgumentException("Template does not specify VType.");
+    }
     return vtype;
   }
 

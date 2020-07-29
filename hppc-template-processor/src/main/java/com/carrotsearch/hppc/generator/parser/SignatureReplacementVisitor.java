@@ -1,8 +1,5 @@
 package com.carrotsearch.hppc.generator.parser;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayDeque;
@@ -55,7 +52,7 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
     }
 
     public Type templateBound() {
-      checkNotNull(targetType, "Target not a template bound: " + originalBound);
+      checkArgument(targetType != null, "Target not a template bound: " + originalBound);
       return targetType;
     }
 
@@ -476,5 +473,11 @@ class SignatureReplacementVisitor extends Java7ParserBaseVisitor<List<Replacemen
   private boolean isTemplateIdentifier(String symbol) {
     return symbol.contains("KType") ||
            symbol.contains("VType");
+  }
+
+  static void checkArgument(boolean condition, String msg) {
+    if (!condition) {
+      throw new RuntimeException(msg);
+    }
   }
 }

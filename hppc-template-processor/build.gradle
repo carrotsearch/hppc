@@ -14,7 +14,6 @@ dependencies {
   api project(":hppc-template-intrinsics")
 
   implementation "org.antlr:antlr4-runtime"
-  implementation "com.google.guava:guava"
   implementation "org.apache.velocity:velocity-engine-core"
   implementation "com.carrotsearch.console:launcher"
 

@@ -13,7 +13,6 @@ import com.carrotsearch.hppc.generator.intrinsics.Equals;
 import com.carrotsearch.hppc.generator.intrinsics.IsEmpty;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
 import com.carrotsearch.hppc.generator.parser.SignatureProcessor;
-import com.google.common.base.Stopwatch;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.util.ExtProperties;
@@ -28,13 +27,14 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,7 +98,7 @@ public class TemplateProcessor extends Command<ExitCode> {
         String.format(
             Locale.ROOT, "Processing templates from %s => %s", templatesPath, outputPath));
 
-    final Stopwatch sw = Stopwatch.createStarted();
+    final Instant startTime = Instant.now();
     final List<TemplateFile> templates = collectTemplateFiles(templatesPath);
     final List<OutputFile> generated = processTemplates(templates);
     final List<Path> removed = removeOtherFiles(outputPath, generated);
@@ -113,7 +113,7 @@ public class TemplateProcessor extends Command<ExitCode> {
             Locale.ROOT,
             "Processed %d templates in %.2f sec. (%d output files: %d updated, %d deleted).",
             templates.size(),
-            sw.elapsed(TimeUnit.MILLISECONDS) / 1000.0f,
+            Duration.between(startTime, Instant.now()).toMillis() / 1000.0f,
             generated.size(),
             updated,
             removed.size()));
@@ -175,11 +175,6 @@ public class TemplateProcessor extends Command<ExitCode> {
     return outputs;
   }
 
-  private final Stopwatch timeVelocity = Stopwatch.createUnstarted();
-  private final Stopwatch timeIntrinsics = Stopwatch.createUnstarted();
-  private final Stopwatch timeTypeClassRefs = Stopwatch.createUnstarted();
-  private final Stopwatch timeComments = Stopwatch.createUnstarted();
-
   /** Apply templates. */
   private void generate(
       TemplateFile input, List<OutputFile> outputs, TemplateOptions templateOptions)
@@ -201,9 +196,7 @@ public class TemplateProcessor extends Command<ExitCode> {
 
     String template = new String(Files.readAllBytes(input.path), StandardCharsets.UTF_8);
 
-    timeVelocity.start();
     template = filterVelocity(input, template, templateOptions);
-    timeVelocity.stop();
 
     // Check if template requested ignoring a given type combination.
     if (templateOptions.isIgnored()) {
@@ -212,18 +205,10 @@ public class TemplateProcessor extends Command<ExitCode> {
 
     logger.debug("Processing: " + input.getFileName() + " => " + output.path);
     try {
-      timeIntrinsics.start();
       template = filterIntrinsics(template, templateOptions);
-      timeIntrinsics.stop();
-
-      timeComments.start();
       template = filterComments(template);
-      timeComments.stop();
-
-      timeTypeClassRefs.start();
       template = filterTypeClassRefs(template, templateOptions);
       template = filterStaticTokens(template, templateOptions);
-      timeTypeClassRefs.stop();
     } catch (RuntimeException e) {
       logger.error(
           "Error processing: "

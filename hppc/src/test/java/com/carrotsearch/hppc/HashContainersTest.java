@@ -47,6 +47,7 @@ public class HashContainersTest extends RandomizedTest {
   }
 
   @SuppressForbidden("new Integer() intentional.")
+  @SuppressWarnings("deprecation")
   @Test
   public void testAddReplacements()
   {
