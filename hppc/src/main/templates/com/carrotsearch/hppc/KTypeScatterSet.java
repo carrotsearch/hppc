@@ -9,8 +9,8 @@ import static com.carrotsearch.hppc.HashContainers.*;
  * strategy and uses a simpler (faster) bit distribution function.
  * 
  * <p>
- * <strong>Note:</strong> read about <a href="{@docRoot}
- * /overview-summary.html#scattervshash">important differences between hash and
+ * <strong>Note:</strong> read about
+ * <a href="{@docRoot}/overview-summary.html#scattervshash">important differences between hash and
  * scatter sets</a>.
  * </p>
  * 

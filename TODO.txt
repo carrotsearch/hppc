@@ -1,7 +1,6 @@
 
 Porting to gradle
 
-- apply forbidden APIs
 - packaging and sonatype/maven publishing
 - remove maven artifacts (pom.xml, update readmes).
 

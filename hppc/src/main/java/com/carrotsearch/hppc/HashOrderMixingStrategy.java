@@ -21,7 +21,7 @@ public interface HashOrderMixingStrategy extends Cloneable {
    * A new key mixer value. The value can be derived from the new buffer size of the
    * container, but preferably should be random and unique. 
    * 
-   * @param newContainerBufferSize
+   * @param newContainerBufferSize New size of the calling container's buffer.
    */
   public int newKeyMixer(int newContainerBufferSize);
 

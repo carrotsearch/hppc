@@ -1,0 +1,14 @@
+
+allprojects {
+  plugins.withType(JavaPlugin) {
+    tasks.withType(Javadoc) {
+      options.encoding = 'UTF-8'
+      title = "${project.name} ${project.version} API Documentation"
+
+      options.addBooleanOption('html5', true)
+      options.addBooleanOption('Xdoclint:all,-missing', true)
+      options.noIndex()
+    }
+  }
+}
+

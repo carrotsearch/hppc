@@ -1,0 +1,82 @@
+
+configure(rootProject) {
+  ext {
+    published = [
+        ":hppc",
+    ]
+  }
+
+  configure(subprojects.findAll { it.path in rootProject.published }) {
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+
+    tasks.withType(GenerateModuleMetadata) {
+      enabled = false
+    }
+
+    plugins.withType(JavaPlugin) {
+      publishing {
+        repositories {
+          maven {
+            name = 'sonatype'
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+
+            credentials {
+              if (project.hasProperty('nexusUsername')) {
+                username project.nexusUsername
+              }
+              if (project.hasProperty('nexusPassword')) {
+                password project.nexusPassword
+              }
+            }
+          }
+        }
+      }
+
+      task sourcesJar(type: Jar, dependsOn: classes) {
+        archiveClassifier = 'sources'
+        from sourceSets.main.allJava
+      }
+
+      task javadocJar(type: Jar, dependsOn: javadoc) {
+        archiveClassifier = 'javadoc'
+        from javadoc.destinationDir
+      }
+
+      publishing {
+        def configurePom = {
+          name = "High Performance Primitive Collections"
+          url = "https://github.com/carrotsearch/hppc"
+          description = "High Performance Primitive Collections: " +
+              "data structures (maps, sets, lists, stacks, queues) generated " +
+              "for combinations of object and primitive types to conserve JVM " +
+              "memory and speed up execution."
+
+          licenses {
+            license {
+              name = 'Apache 2'
+              url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            }
+          }
+        }
+
+        publications {
+          signed(MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = project.archivesBaseName
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom(configurePom)
+          }
+        }
+      }
+
+      signing {
+        sign publishing.publications.signed
+      }
+    }
+  }
+}

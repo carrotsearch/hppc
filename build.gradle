@@ -9,7 +9,7 @@ plugins {
   id 'de.thetaphi.forbiddenapis' version '3.0.1' apply false
 }
 
-rootProject.version = '0.8.3-SNAPSHOT'
+rootProject.version = '0.9.0-SNAPSHOT'
 ext {
   fullName = "High Performance Primitive Collections"
   legal = files('LICENSE.txt')
@@ -22,11 +22,15 @@ apply from: file('gradle/validation/forbidden-apis.gradle')
 apply from: file('gradle/git/gitinfo.gradle')
 apply from: file('gradle/java/compiler.gradle')
 apply from: file('gradle/java/tests.gradle')
-
+apply from: file('gradle/java/javadoc.gradle')
 apply from: file('gradle/ide/idea.gradle')
+apply from: file('gradle/publishing/maven.gradle')
 
 allprojects {
   repositories {
     mavenCentral()
   }
+
+  version = rootProject.version
+  group   = "com.carrotsearch"
 }

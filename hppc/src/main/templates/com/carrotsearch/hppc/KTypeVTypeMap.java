@@ -95,7 +95,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
 
   /**
    * Compares the specified object with this set for equality. Returns
-   * <tt>true</tt> if and only if the specified object is also a
+   * {@code true} if and only if the specified object is also a
    * {@link KTypeVTypeMap} and both objects contains exactly the same key-value
    * pairs.
    */

@@ -1,5 +1,5 @@
 
-rootProject.name = 'hppc'
+rootProject.name = 'hppc-root'
 
 include 'hppc-template-intrinsics'
 include 'hppc-template-processor'
