@@ -439,7 +439,7 @@ public class KTypeHashSet<KType>
       /* #if ($templateOnly) */ @SuppressWarnings("unchecked") /* #end */
       KTypeHashSet<KType> cloned = (KTypeHashSet<KType>) super.clone();
       cloned.keys = keys.clone();
-      cloned.hasEmptyKey = cloned.hasEmptyKey;
+      cloned.hasEmptyKey = hasEmptyKey;
       cloned.orderMixer = orderMixer.clone();
       return cloned;
     } catch (CloneNotSupportedException e) {
