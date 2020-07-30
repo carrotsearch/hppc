@@ -1,0 +1,27 @@
+package com.carrotsearch.hppc.generator.parser;
+
+import com.carrotsearch.hppc.generator.parser.subpackage.LongIntInterfaceImported;
+
+/**
+ * A list of longs.
+ */
+public class LongIntClass
+       extends    LongIntSuper
+       implements LongIntInterface,
+                  LongIntInterfaceImported,
+                  Cloneable
+{
+  long [] keys;
+
+  public LongIntClass() {}
+  public LongIntClass(long[] foo, int boo) {}
+
+  public LongIntClass(LongIntSuper foo) {}
+  public int foo(long key, int value) { throw new RuntimeException(); }
+
+  public void foo(LongIntSuper foo) {}
+}
+
+class LongIntSuper {}
+
+interface LongIntInterface {}

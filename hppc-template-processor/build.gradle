@@ -44,6 +44,18 @@ task generateGrammars(type: JavaExec) {
       "-o", "$srcGeneratedGrammars/com/carrotsearch/hppc/generator/parser",
       grammars,
   ].flatten()
+
+  def baos = new ByteArrayOutputStream()
+
+  standardOutput = baos
+  errorOutput = baos
+
+  doLast {
+    def txt = new String(baos.toByteArray())
+    if (!txt.trim().isEmpty()) {
+      throw new GradleException("Antlr parser emitted output (possibly warnings)\n: ${txt}")
+    }
+  }
 }
 
 compileJava {
