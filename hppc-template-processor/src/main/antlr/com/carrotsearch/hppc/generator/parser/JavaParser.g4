@@ -241,11 +241,7 @@ arrayInitializer
     ;
 
 classOrInterfaceType
-    : identifierTypePair ('.' identifierTypePair )*
-    ;
-
-identifierTypePair
-    : IDENTIFIER typeArguments?
+    : IDENTIFIER typeArguments? ('.' IDENTIFIER typeArguments?)*
     ;
 
 typeArgument
@@ -547,12 +543,8 @@ creator
     ;
 
 createdName
-    :   identifierTypeOrDiamondPair ('.' identifierTypeOrDiamondPair)*
+    : IDENTIFIER typeArgumentsOrDiamond? ('.' IDENTIFIER typeArgumentsOrDiamond?)*
     | primitiveType
-    ;
-
-identifierTypeOrDiamondPair
-    :   IDENTIFIER typeArgumentsOrDiamond?
     ;
 
 innerCreator
