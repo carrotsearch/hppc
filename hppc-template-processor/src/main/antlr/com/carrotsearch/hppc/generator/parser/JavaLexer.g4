@@ -29,6 +29,10 @@
 
 lexer grammar JavaLexer;
 
+channels {
+   CHANNEL_COMMENT
+}
+
 // Keywords
 
 ABSTRACT:           'abstract';
@@ -168,8 +172,8 @@ ELLIPSIS:           '...';
 // Whitespace and comments
 
 WS:                 [ \t\r\n\u000C]+ -> channel(HIDDEN);
-COMMENT:            '/*' .*? '*/'    -> channel(HIDDEN);
-LINE_COMMENT:       '//' ~[\r\n]*    -> channel(HIDDEN);
+COMMENT:            '/*' .*? '*/'    -> channel(CHANNEL_COMMENT);
+LINE_COMMENT:       '//' ~[\r\n]*    -> channel(CHANNEL_COMMENT);
 
 // Identifiers
 
