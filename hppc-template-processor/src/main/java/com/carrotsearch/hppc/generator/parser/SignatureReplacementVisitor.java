@@ -67,7 +67,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   }
 
   private TypeBound typeBoundOf(TypeParameterContext c) {
-    String symbol = c.IDENTIFIER().getText().toString();
+    String symbol = c.IDENTIFIER().getText();
     switch (symbol) {
       case "KType":
         return new TypeBound(templateOptions.getKType(), c.getText());
@@ -110,9 +110,9 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
 
   private TypeBound typeBoundOf(ClassOrInterfaceTypeContext c) {
     checkArgument(c.identifierTypePair().size() == 1, "Unexpected typeBoundOf context: " + c.getText());
-    
-    for (IdentifierTypePairContext p : c.identifierTypePair()) {
-      switch (p.Identifier().getText()) {
+
+    for (JavaParser.IdentifierTypePairContext p : c.identifierTypePair()) {
+      switch (p.IDENTIFIER().getText()) {
         case "KType":
           return new TypeBound(templateOptions.getKType(), p.getText());
         case "VType":
@@ -226,7 +226,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
                   processor.tokenStream, 
                   sourceInterval.a, 
                   sourceInterval.b, 
-                  visitType(tctx),
+                  visitTypeType(tctx),
                   templateOptions);
               bounds.add(c.IDENTIFIER() + " extends " + sw.toString());
             } catch (IOException e) {
@@ -254,15 +254,15 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   public List<Replacement> visitMethodDeclaration(MethodDeclarationContext ctx) {
     List<Replacement> replacements = new ArrayList<>();
     if (ctx.typeTypeOrVoid() != null) {
-      replacements.addAll(visitType(ctx.typeTypeOrVoid()));
+      replacements.addAll(visitTypeTypeOrVoid(ctx.typeTypeOrVoid()));
     }
-    replacements.addAll(processIdentifier(ctx.Identifier(), NONE));
+    replacements.addAll(processIdentifier(ctx.IDENTIFIER(), NONE));
     replacements.addAll(visitFormalParameters(ctx.formalParameters()));
     if (ctx.qualifiedNameList() != null) {
       replacements.addAll(visitQualifiedNameList(ctx.qualifiedNameList()));
     }
 
-    Java7Parser.MethodBodyContext methodBody = ctx.methodBody();
+    JavaParser.MethodBodyContext methodBody = ctx.methodBody();
     if (methodBody != null) {
       replacements.addAll(visitMethodBody(methodBody));
     }
@@ -270,19 +270,19 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   }
 
   @Override
-  public List<Replacement> visitIdentifierTypeOrDiamondPair(IdentifierTypeOrDiamondPairContext ctx) {
+  public List<Replacement> visitIdentifierTypeOrDiamondPair(JavaParser.IdentifierTypeOrDiamondPairContext ctx) {
     if (ctx.typeArgumentsOrDiamond() == null) {
-      return processIdentifier(ctx.Identifier(), NONE);
+      return processIdentifier(ctx.IDENTIFIER(), NONE);
     } else {
       List<Replacement> replacements = new ArrayList<>();
-      String identifier = ctx.Identifier().getText();
+      String identifier = ctx.IDENTIFIER().getText();
       if (ctx.typeArgumentsOrDiamond().getText().equals("<>")) {
         if (identifier.contains("KType")
-            && templateOptions.isKTypePrimitive() 
+            && templateOptions.isKTypePrimitive()
             && (!identifier.contains("VType") || templateOptions.isVTypePrimitive())) {
           replacements.add(new Replacement(ctx.typeArgumentsOrDiamond(), ""));
         }
-        return processIdentifier(ctx.Identifier(), replacements);
+        return processIdentifier(ctx.IDENTIFIER(), replacements);
       } else {
         List<TypeBound> typeBounds = new ArrayList<>();
         TypeArgumentsContext typeArguments = ctx.typeArgumentsOrDiamond().typeArguments();
@@ -291,7 +291,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
           typeBounds.add(typeBoundOf(c, wildcards));
         }
         replacements.add(new Replacement(typeArguments, toString(typeBounds)));
-        
+
         int typeBoundIndex = 0;
         if (identifier.contains("KType")) {
           TypeBound bb = typeBounds.get(typeBoundIndex++);
@@ -309,7 +309,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
             identifier = identifier.replace("VType", "Object");
           }
         }
-        replacements.add(new Replacement(ctx.Identifier(), identifier));
+        replacements.add(new Replacement(ctx.IDENTIFIER(), identifier));
       }
 
       return replacements;
@@ -320,10 +320,10 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   public List<Replacement> visitCreatedName(CreatedNameContext ctx) {
     return super.visitCreatedName(ctx);
   }
-  
+
   @Override
-  public List<Replacement> visitIdentifierTypePair(IdentifierTypePairContext ctx) {
-    String identifier = ctx.Identifier().getText();
+  public List<Replacement> visitIdentifierTypePair(JavaParser.IdentifierTypePairContext ctx) {
+    String identifier = ctx.IDENTIFIER().getText();
     if (isTemplateIdentifier(identifier)) {
       if (ctx.typeArguments() != null) {
         List<Replacement> replacements = new ArrayList<>();
@@ -351,10 +351,10 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
             identifier = identifier.replace("VType", "Object");
           }
         }
-        replacements.add(new Replacement(ctx.Identifier(), identifier));
+        replacements.add(new Replacement(ctx.IDENTIFIER(), identifier));
         return replacements;
       } else {
-        return processIdentifier(ctx.Identifier(), NONE);
+        return processIdentifier(ctx.IDENTIFIER(), NONE);
       }
     }
     return super.visitIdentifierTypePair(ctx);

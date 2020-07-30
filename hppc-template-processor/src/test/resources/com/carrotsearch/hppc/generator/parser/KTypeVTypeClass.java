@@ -23,4 +23,5 @@ public class KTypeVTypeClass<KType, VType>
 }
 
 class KTypeVTypeSuper<KType, VType> {}
+
 interface KTypeVTypeInterface<KType, VType> {}
