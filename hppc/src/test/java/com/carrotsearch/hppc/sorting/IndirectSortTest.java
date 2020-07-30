@@ -2,6 +2,7 @@ package com.carrotsearch.hppc.sorting;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.IntBinaryOperator;
 
 import org.junit.*;
 
@@ -19,25 +20,24 @@ public class IndirectSortTest
     /**
      * Implies the same order as the order of indices.
      */
-    private static class OrderedInputComparator implements IndirectComparator
+    private static class OrderedInputComparator implements IntBinaryOperator
     {
-        public int compare(int a, int b)
+        @Override
+        public int applyAsInt(int a, int b)
         {
-            if (a < b) return -1;
-            if (a > b) return 1;
-            return 0;
+            return Integer.compare(a, b);
         }
     }
 
     /**
      * Implies reverse order of indices.
      */
-    private static class ReverseOrderedInputComparator extends OrderedInputComparator
+    private static class ReverseOrderedInputComparator implements IntBinaryOperator
     {
         @Override
-        public int compare(int a, int b)
+        public int applyAsInt(int a, int b)
         {
-            return -super.compare(a, b);
+            return -Integer.compare(a, b);
         }
     }
 
@@ -167,20 +167,18 @@ public class IndirectSortTest
      */
     private static void testOn(Algorithm algo, int [] x, String testName)
     {
-        final IndirectComparator c = new IndirectComparator.AscendingIntComparator(x);
-
         final int [] order;
         switch (algo)
         {
             case MERGESORT:
-                order = IndirectSort.mergesort(0, x.length, c);
+                order = IndirectSort.mergesort(0, x.length, Integer::compare);
                 break;
             default:
                 Assert.fail();
                 throw new RuntimeException();
         }
 
-        assertOrder(order, x.length, c);
+        assertOrder(order, x.length, Integer::compare);
     }
 
     /**
@@ -189,13 +187,12 @@ public class IndirectSortTest
     @Test
     public void testEmptyAndSingle()
     {
-        final IndirectComparator comparator = new OrderedInputComparator();
-        int [] mSortOrder = IndirectSort.mergesort(0, 0, comparator);
+        int [] mSortOrder = IndirectSort.mergesort(0, 0, Integer::compare);
         Assert.assertEquals(mSortOrder.length, 0);
 
         for (int i = 0; i < 1000; i++)
         {
-            mSortOrder = IndirectSort.mergesort(0, i, comparator);
+            mSortOrder = IndirectSort.mergesort(0, i, Integer::compare);
             Assert.assertEquals(mSortOrder.length, i);
         }
     }
@@ -206,31 +203,19 @@ public class IndirectSortTest
     @Test
     public void testOrderedMergeSort()
     {
-        final IndirectComparator comparator = new OrderedInputComparator();
-        int [] order = IndirectSort.mergesort(0, DATA_LENGTH, comparator);
-        assertOrder(order, DATA_LENGTH, comparator);
-    }
-
-    /**
-     * Large reversed input.
-     */
-    @Test
-    public void testReversedMergeSort()
-    {
-        final IndirectComparator comparator = new ReverseOrderedInputComparator();
-        final int [] order = IndirectSort.mergesort(0, DATA_LENGTH, comparator);
-        assertOrder(order, DATA_LENGTH, comparator);
+        int [] order = IndirectSort.mergesort(0, DATA_LENGTH, Integer::compare);
+        assertOrder(order, DATA_LENGTH, Integer::compare);
     }
 
     /*
      * 
      */
     private static void assertOrder(final int [] order, int length,
-        final IndirectComparator comparator)
+        final IntBinaryOperator comparator)
     {
         for (int i = 1; i < length; i++)
         {
-            Assert.assertTrue(comparator.compare(order[i - 1], order[i]) <= 0);
+            Assert.assertTrue(comparator.applyAsInt(order[i - 1], order[i]) <= 0);
         }
     }
 
@@ -248,41 +233,14 @@ public class IndirectSortTest
         for (int round = 0; round < rounds; round++)
         {
             final int [] input = generateRandom(maxSize, vocabulary, rnd);
-
-            final IndirectComparator comparator = new IndirectComparator.AscendingIntComparator(
-                input);
-
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
 
-            int [] order = IndirectSort.mergesort(start, length, comparator);
-            assertOrder(order, length, comparator);
-        }
-    }
+            IntBinaryOperator intBinaryOperator = (a, b) ->
+                Integer.compare(input[a], input[b]);
+            int [] order = IndirectSort.mergesort(start, length, intBinaryOperator);
 
-    /**
-     * Randomized input, descending int comparator.
-     */
-    @Test
-    public void testDescInt()
-    {
-        final int maxSize = 500;
-        final int rounds = 1000;
-        final int vocabulary = 10;
-        final Random rnd = new Random(0x11223344);
-
-        for (int round = 0; round < rounds; round++)
-        {
-            final int [] input = generateRandom(maxSize, vocabulary, rnd);
-
-            final IndirectComparator comparator = new IndirectComparator.DescendingIntComparator(
-                input);
-
-            final int start = rnd.nextInt(input.length - 1);
-            final int length = (input.length - start);
-
-            int [] order = IndirectSort.mergesort(start, length, comparator);
-            assertOrder(order, length, comparator);
+            assertOrder(order, length, intBinaryOperator);
         }
     }
 
@@ -300,8 +258,7 @@ public class IndirectSortTest
         {
             final double [] input = generateRandom(maxSize, rnd);
 
-            final IndirectComparator comparator = new IndirectComparator.AscendingDoubleComparator(
-                input);
+            final IntBinaryOperator comparator = (a, b) -> Double.compare(input[a], input[b]);
 
             final int start = rnd.nextInt(input.length - 1);
             final int length = (input.length - start);
@@ -325,13 +282,8 @@ public class IndirectSortTest
             data[i] = rnd.nextInt(0x100);
         }
 
-        int [] order = IndirectSort.mergesort(0, data.length, new IndirectComparator()
-        {
-            public int compare(int indexA, int indexB)
-            {
-                return (data[indexA] & 0xf0) - (data[indexB] & 0xf0);
-            }
-        });
+        int [] order = IndirectSort.mergesort(0, data.length,
+            (indexA, indexB) -> (data[indexA] & 0xf0) - (data[indexB] & 0xf0));
 
         for (int i = 1; i < order.length; i++)
         {
