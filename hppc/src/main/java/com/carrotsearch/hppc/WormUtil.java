@@ -1,54 +1,57 @@
 package com.carrotsearch.hppc;
 
 import java.util.Arrays;
-
-//import static com.carrotsearch.hppc.KTypeVTypeWormMap.*;
+import java.util.NoSuchElementException;
 
 /**
- * Java hash for primitives.
- * <p/>stdHash() is different from hash() because we want <b>standard Java</b> implementations.
- * @author broustant
+ * Utility methods for {@link KTypeVTypeWormMap}.
  */
-public class WormUtil
+class WormUtil
 {
-    private static final int END_OF_CHAIN = 127;
-    private static final boolean DEBUG_ENABLED = false;
-
     /**
-     * Hashes a char. Improves distribution for Map or Set.
+     * The number of recursive move attempts per recursive call level. {@link #RECURSIVE_MOVE_ATTEMPTS}[i] = max number
+     * of attempts at recursive level i. It must always end with 0 attempts at the last level. Used by
+     * {@code KTypeVTypeWormMap#searchAndMoveBucket} when trying to move entries recursively to
+     * free a bucket instead of enlarging the map. The more attempts are allowed, the more the load factor increases,
+     * but the performance decreases. It is a compromise between memory reduction and performance.
      */
-    public static int hash(char c) {
-        return hash((short) c);
+    static final int[] RECURSIVE_MOVE_ATTEMPTS = {10, 1, 0};
+    /**
+     * Marks an entry at the end of a chain. This value is stored in the "next offset" of the entry.
+     */
+    static final int END_OF_CHAIN = 127;
+    /**
+     * Target load factor for the {@code KTypeVTypeWormMap#ensureCapacity(int)} method. The method sets the map capacity
+     * according to the map size and this load factor. If the map cannot fit within this capacity, it is enlarged and
+     * consequently the obtained load factor is low. So this {@link #FIT_LOAD_FACTOR} must be chosen carefully to work
+     * in most cases.
+     */
+    static final float FIT_LOAD_FACTOR = 0.75f;
+
+    /** Hashes a char. Improves distribution for Map or Set. */
+    static int hash(char value) {
+        return hash((int) value);
     }
 
-    /**
-     * Hashes a short. Improves distribution for Map or Set.
-     */
-    public static int hash(short s) {
-        s ^= (s >>> 10) ^ (s >>> 6);
-        return s ^ (s >>> 4) ^ (s >>> 2);
+    /** Hashes a short. Improves distribution for Map or Set. */
+    static int hash(short value) {
+        return hash((int) value);
     }
 
-    /**
-     * Hashes an int. Improves distribution for Map or Set.
-     */
-    public static int hash(int i) {
-        int h = i * -1640531527;
+    /** Hashes an int. Improves distribution for Map or Set. */
+    static int hash(int value) {
+        int h = value * -1640531527;
         return h ^ h >> 16;
     }
 
-    /**
-     * Hashes a long. Improves distribution for Map or Set.
-     */
-    public static int hash(long l)
+    /** Hashes a long. Improves distribution for Map or Set. */
+    static int hash(long value)
     {
-        return hash((int) ((l >>> 32) ^ l));
+        return hash((int) ((value >>> 32) ^ value));
     }
 
-    /**
-     * Hashes a char. Improves distribution for Map or Set.
-     */
-    public static int hash(Object o) {
+    /** Hashes an Object. Improves distribution for Map or Set. */
+    static int hash(Object o) {
         return hash(o.hashCode());
     }
 
@@ -57,44 +60,132 @@ public class WormUtil
      *
      * @return The new index after addition.
      */
-    static int addOffset(int index, int offset, byte[] next) {
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-            assert offset > 0 && offset < END_OF_CHAIN : "offset=" + offset;
-        }
-        index += offset;
-        while (index >= next.length) {
-            index -= next.length;
-        }
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-        }
-        return index;
+    static int addOffset(int index, int offset, int capacity) {
+        assert checkIndex(index, capacity);
+        assert Math.abs(offset) < END_OF_CHAIN : "offset=" + offset;
+        return (index + offset) & (capacity - 1);
     }
 
     /**
-     * Subtracts a positive offset to the provided index, handling rotation around the circular array.
+     * Gets the offset between two indexes, handling rotation around the circular array.
      *
-     * @return The new index after subtraction.
+     * @return The positive offset between the two indexes.
      */
-    static int subtractOffset(int index, int offset, byte[] next) {
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-            assert offset > 0 && offset < END_OF_CHAIN : "offset=" + offset;
-        }
-        index -= offset;
-        while (index < 0) {
-            index += next.length;
-        }
-        if (DEBUG_ENABLED) {
-            assert checkIndex(index, next);
-        }
-        return index;
+    static int getOffsetBetweenIndexes(int fromIndex, int toIndex, int capacity) {
+        assert checkIndex(fromIndex, capacity);
+        assert checkIndex(toIndex, capacity);
+        return (toIndex - fromIndex) & (capacity - 1);
     }
 
-    static boolean checkIndex(int index, byte[] next) {
-        assert index >= 0 && index < next.length : "index=" + index + ", array length=" + next.length;
+    /**
+     * Maximum offset value.
+     */
+    static int maxOffset(int capacity) {
+        return Math.min(capacity, END_OF_CHAIN) - 1;
+    }
+
+    /** Used for assertions. */
+    static boolean checkIndex(int index, int capacity) {
+        assert index >= 0 && index < capacity : "index=" + index + ", capacity=" + capacity;
         return true;
+    }
+
+    /**
+     * Searches a free bucket by linear probing to the right.
+     *
+     * @param fromIndex     The index to start searching from, inclusive.
+     * @param range         The maximum number of buckets to search, starting from index (included), up to index +
+     *                      range (excluded).
+     * @param next          The "next offset" array.
+     * @param excludedIndex Optional index to exclude from the search; -1 if none.
+     * @return The index of the next free bucket; or -1 if not found within the range.
+     */
+    static int searchFreeBucket(int fromIndex, int range, int excludedIndex, byte[] next) {
+        assert checkIndex(fromIndex, next.length);
+        assert range >= 0 && range <= maxOffset(next.length) : "range=" + range + ", maxOffset=" + maxOffset(next.length);
+        if (range == 0) {
+            return -1;
+        }
+        final int capacity = next.length;
+        for (int index = fromIndex, toIndex = fromIndex + range; index < toIndex; index++) {
+            int rolledIndex = index & (capacity - 1);
+            if (next[rolledIndex] == 0 && rolledIndex != excludedIndex) {
+                return rolledIndex;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Finds the previous entry in the chain by linear probing to the left.
+     * <p>Note: Alternatively we could compute the hash index of the key, jump directly to the head of the chain, and then
+     * follow the chain until we find the entry which next entry in the chain is the provided one. But this alternative
+     * is slightly slower on average, even if the key hash code is cached.</p>
+     *
+     * @param entryIndex The index of the entry to start searching from. This method starts scanning at this index - 1,
+     *                   modulo array length since the array is circular.
+     * @return The index of the previous entry in the chain.
+     * @throws NoSuchElementException If the previous entry is not found (never happens if entryIndex is the index of a
+     *                                tail-of-chain entry, with next[entryIndex] &lt; 0).
+     */
+    static int findPreviousInChain(int entryIndex, byte[] next) {
+        assert checkIndex(entryIndex, next.length);
+        assert next[entryIndex] < 0;
+        final int capacity = next.length;
+        final int capacityMask = capacity - 1;
+        for (int index = entryIndex - 1, toIndex = index - maxOffset(capacity); index > toIndex; index--) {
+            int rolledIndex = index & capacityMask;
+            int absNextOffset = Math.abs(next[rolledIndex]);
+            int chainedIndex = (rolledIndex + absNextOffset) & capacityMask;
+            if (chainedIndex == entryIndex) {
+                // The entry at rolledIndex chains to the entry at entryIndex.
+                assert absNextOffset != END_OF_CHAIN;
+                return rolledIndex;
+            }
+        }
+        throw new NoSuchElementException("Previous entry not found (entryIndex=" + entryIndex + ", next[entryIndex]=" + next[entryIndex] + ")");
+    }
+
+    /**
+     * Finds the last entry of a chain.
+     *
+     * @param index      The index of an entry in the chain.
+     * @param nextOffset next[index].
+     * @return The index of the last entry in the chain.
+     */
+    static int findLastOfChain(int index, int nextOffset, boolean returnPrevious, byte[] next) {
+        assert checkIndex(index, next.length);
+        assert nextOffset != 0 && Math.abs(nextOffset) <= END_OF_CHAIN : "nextOffset=" + nextOffset;
+        assert nextOffset == next[index] : "nextOffset=" + nextOffset + ", next[index]=" + next[index];
+
+        // Follow the entry chain for this bucket.
+        final int capacity = next.length;
+        if (nextOffset < 0) {
+            nextOffset = -nextOffset;
+        }
+        int previousIndex = Integer.MAX_VALUE;
+        while (nextOffset != END_OF_CHAIN) {
+            previousIndex = index;
+            index = addOffset(index, nextOffset, capacity); // Jump forward.
+            nextOffset = -next[index]; // Next offsets are negative for tail-of-chain entries.
+            assert nextOffset > 0 : "nextOffset=" + nextOffset;
+        }
+        return returnPrevious ? previousIndex : index;
+    }
+
+    enum PutPolicy {
+        /**
+         * Always put. Create new key if absent, or replace existing value if present.
+         */
+        NEW_OR_REPLACE,
+        /**
+         * Always put and it is guaranteed that the key is absent.
+         */
+        NEW_GUARANTEED,
+        /**
+         * Put only if the key is absent. Don't replace existing value.
+         */
+        NEW_ONLY_IF_ABSENT,
     }
 
     /**
@@ -121,9 +212,7 @@ public class WormUtil
 
         static ExcludedIndexes fromChain(int index, byte[] next) {
             int nextOffset = Math.abs(next[index]);
-            if (DEBUG_ENABLED) {
-                assert nextOffset != 0 : "nextOffset=0";
-            }
+            assert nextOffset != 0 : "nextOffset=0";
             return nextOffset == END_OF_CHAIN ? new SingletonExcludedIndex(index)
                     : new MultipleExcludedIndexes(index, nextOffset, next);
         }
@@ -155,31 +244,25 @@ public class WormUtil
         final int size;
 
         MultipleExcludedIndexes(int index, int nextOffset, byte[] next) {
-            if (DEBUG_ENABLED) {
-                assert index >= 0 && index < next.length : "index=" + index + ", next.length=" + next.length;
-                assert nextOffset > 0 && nextOffset < END_OF_CHAIN : "nextOffset=" + nextOffset;
-            }
+            assert index >= 0 && index < next.length : "index=" + index + ", next.length=" + next.length;
+            assert nextOffset > 0 && nextOffset < END_OF_CHAIN : "nextOffset=" + nextOffset;
             int[] excludedIndexes = new int[8];
             int size = 0;
             boolean shouldSort = false;
             excludedIndexes[size++] = index;
             do {
-                int nextIndex = addOffset(index, nextOffset, next);
+                int nextIndex = addOffset(index, nextOffset, next.length);
                 if (nextIndex < index) {
                     // Rolling on the circular buffer. We will need to sort to keep a sorted list of indexes.
                     shouldSort = true;
                 }
-                if (DEBUG_ENABLED) {
-                    assert nextIndex >= 0 && nextIndex < next.length : "nextIndex=" + index + ", next.length=" + next.length;
-                }
+                assert nextIndex >= 0 && nextIndex < next.length : "nextIndex=" + index + ", next.length=" + next.length;
                 if (size == excludedIndexes.length) {
                     excludedIndexes = Arrays.copyOf(excludedIndexes, size * 2);
                 }
                 excludedIndexes[size++] = index = nextIndex;
                 nextOffset = Math.abs(next[index]);
-                if (DEBUG_ENABLED) {
-                    assert nextOffset > 0 : "nextOffset=" + nextOffset;
-                }
+                assert nextOffset > 0 : "nextOffset=" + nextOffset;
             } while (nextOffset != END_OF_CHAIN);
             if (shouldSort) {
                 Arrays.sort(excludedIndexes, 0, size);

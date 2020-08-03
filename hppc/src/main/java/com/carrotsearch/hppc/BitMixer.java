@@ -64,11 +64,26 @@ public final class BitMixer {
   private static final long PHI_C64 = 0x9e3779b97f4a7c15L;
 
   public static int mixPhi(byte k)   { final int h = k * PHI_C32; return h ^ (h >>> 16); }
+  public static int mixPhi(byte k, int seed)   { final int h = (k ^ seed) * PHI_C32; return h ^ (h >>> 16); }
+
   public static int mixPhi(char k)   { final int h = k * PHI_C32; return h ^ (h >>> 16); }
+  public static int mixPhi(char k, int seed)   { final int h = (k ^ seed) * PHI_C32; return h ^ (h >>> 16); }
+
   public static int mixPhi(short k)  { final int h = k * PHI_C32; return h ^ (h >>> 16); }
+  public static int mixPhi(short k, int seed)  { final int h = (k ^ seed) * PHI_C32; return h ^ (h >>> 16); }
+
   public static int mixPhi(int k)    { final int h = k * PHI_C32; return h ^ (h >>> 16); }
+  public static int mixPhi(int k, int seed)    { final int h = (k ^ seed) * PHI_C32; return h ^ (h >>> 16); }
+
   public static int mixPhi(float k)  { final int h = Float.floatToIntBits(k) * PHI_C32; return h ^ (h >>> 16); }
+  public static int mixPhi(float k, int seed)  { final int h = (Float.floatToIntBits(k) ^ seed) * PHI_C32; return h ^ (h >>> 16); }
+
   public static int mixPhi(double k) { final long h = Double.doubleToLongBits(k) * PHI_C64; return (int) (h ^ (h >>> 32)); }
+  public static int mixPhi(double k, int seed) { final long h = (Double.doubleToLongBits(k) ^ seed) * PHI_C64; return (int) (h ^ (h >>> 32)); }
+
   public static int mixPhi(long k)   { final long h = k * PHI_C64; return (int) (h ^ (h >>> 32)); }
+  public static int mixPhi(long k, int seed)   { final long h = (k ^ seed) * PHI_C64; return (int) (h ^ (h >>> 32)); }
+
   public static int mixPhi(Object k) { final int h = (k == null ? 0 : k.hashCode() * PHI_C32); return h ^ (h >>> 16); }
+  public static int mixPhi(Object k, int seed) { final int h = (k == null ? 0 : (k.hashCode() ^ seed) * PHI_C32); return h ^ (h >>> 16); }
 }

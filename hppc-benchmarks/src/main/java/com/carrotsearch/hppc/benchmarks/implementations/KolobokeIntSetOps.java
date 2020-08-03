@@ -21,6 +21,11 @@ public class KolobokeIntSetOps implements IntSetOps {
   }
 
   @Override
+  public boolean contains(int key) {
+    return delegate.contains(key);
+  }
+
+  @Override
   public void bulkAdd(int[] keys) {
     for (int key : keys) {
       delegate.add(key);
