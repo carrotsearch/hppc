@@ -15,7 +15,12 @@ public class FastutilIntSetOps implements IntSetOps {
   public void add(int key) {
     delegate.add(key);
   }
-  
+
+  @Override
+  public boolean contains(int key) {
+    return delegate.contains(key);
+  }
+
   @Override
   public void bulkAdd(int[] keys) {
     for (int key : keys) {
