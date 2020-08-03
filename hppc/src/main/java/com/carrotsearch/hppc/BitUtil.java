@@ -65,7 +65,7 @@ public final class BitUtil {
      return popCount;
    }
 
-  /** Returns the popcount or cardinality of A & ~B.
+  /** Returns the popcount or cardinality of A &amp; ~B.
    *  Neither array is modified. */
   public static long pop_andnot(long[] arr1, long[] arr2, int wordOffset, int numWords) {
     long popCount = 0;

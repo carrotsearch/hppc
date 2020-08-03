@@ -893,7 +893,7 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
     public void testAgainstHashMap2()
     {
         final int NUM_OPERATIONS = 1000000;
-        KTypeVTypeWormMap<Integer, Integer> wormMap = randomBoolean() ? new KTypeVTypeWormMap<Integer, Integer>() : new KTypeVTypeWormMap<Integer, Integer>(randomInt(100));
+        KTypeVTypeWormMap<Integer, Integer> wormMap = randomBoolean() ? new KTypeVTypeWormMap<Integer, Integer>() : new KTypeVTypeWormMap<Integer, Integer>(randomIntBetween(0, 100));
         Map<Integer, Integer> jdkMap = new HashMap<>();
         for (int i = 0; i < NUM_OPERATIONS; i++) {
             try {
@@ -968,7 +968,7 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
         }
 
         static Operation random() {
-            int randomValue = randomInt(SUM_RANGES - 1);
+            int randomValue = randomIntBetween(0, SUM_RANGES - 1);
             int cumulativeRange = 0;
             for (Operation op : OPERATIONS) {
                 cumulativeRange += op.randomRange;
