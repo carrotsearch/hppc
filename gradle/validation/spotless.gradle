@@ -26,10 +26,7 @@ subprojects {
   }
 }
 
-configure([
-           project(":hppc"),
-           project(":hppc-template-intrinsics"),
-           project(":hppc-template-processor")]) {
+configure([project(":hppc")]) {
   afterEvaluate {
     spotless {
       java {

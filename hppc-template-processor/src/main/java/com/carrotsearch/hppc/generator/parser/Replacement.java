@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator.parser;
 
 import org.antlr.v4.runtime.misc.Interval;
@@ -12,7 +21,7 @@ final class Replacement {
     this.interval = interval;
     this.replacement = replacement;
   }
-  
+
   public Replacement(SyntaxTree ctx, String replacement) {
     this(ctx.getSourceInterval(), replacement);
   }
