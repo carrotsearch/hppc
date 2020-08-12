@@ -49,6 +49,23 @@ allprojects { prj ->
       check.dependsOn task
     }
 
+    // Configure defaults for JMH
+    tasks.matching { it.name == "forbiddenApisJmh" }.all { task ->
+      bundledSignatures += [
+          'jdk-unsafe',
+          'jdk-deprecated',
+          'jdk-non-portable',
+          'jdk-reflection',
+          'jdk-system-out',
+      ]
+
+      suppressAnnotations += [
+          "**.SuppressForbidden"
+      ]
+
+      check.dependsOn task
+    }
+
     // Configure defaults for sourceSets.test
     tasks.matching { it.name == "forbiddenApisTest" || it.name == "forbiddenApisTestTemplates" }.all { task ->
       bundledSignatures += [

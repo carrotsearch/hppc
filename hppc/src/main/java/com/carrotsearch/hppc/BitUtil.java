@@ -29,7 +29,7 @@ package com.carrotsearch.hppc;
 /**  
  * A variety of high efficiency bit twiddling routines.
  */
-final class BitUtil {
+public final class BitUtil {
   private BitUtil() {} // no instance
 
   // The pop methods used to rely on bit-manipulation tricks for speed but it
@@ -65,7 +65,7 @@ final class BitUtil {
      return popCount;
    }
 
-  /** Returns the popcount or cardinality of A & ~B.
+  /** Returns the popcount or cardinality of A &amp; ~B.
    *  Neither array is modified. */
   public static long pop_andnot(long[] arr1, long[] arr2, int wordOffset, int numWords) {
     long popCount = 0;
