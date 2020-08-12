@@ -10,7 +10,6 @@ may not be consistent.
 # Assemble HPPC JAR file/
 ./gradlew -p hppc assemble
 
-
 IDE workflow
 ------------
 
@@ -18,3 +17,10 @@ IntelliJ should import the project without any additional
 steps. Compilation and test launches are done via gradle
 wrapper so everything should just work.
 
+Benchmarks
+----------
+
+./gradlew benchmarks
+
+Will generate and display benchmark JAR location and JMH 
+options.

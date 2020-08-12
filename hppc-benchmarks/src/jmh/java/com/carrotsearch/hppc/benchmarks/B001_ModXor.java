@@ -16,17 +16,17 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Measurement(iterations = 5) 
 @State(Scope.Thread)
 public class B001_ModXor {
-  private int v;
-  private int mask = 0x238751;
+  private long v;
+  private long mask = 0x238751;
 
   @Benchmark
-  public int modOp() {
+  public long modOp() {
     v = v % mask++;
     return v;
   }
 
   @Benchmark
-  public int xorOp() {
+  public long xorOp() {
     v = v ^ mask++;
     return v;
   }

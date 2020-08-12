@@ -1,0 +1,760 @@
+(pre-library upgrade)
+java -jar C:\carrot2\gh.carrotsearch\hppc\hppc-benchmarks\build\libs\hppc-benchmarks-0.9.0-SNAPSHOT-jmh.jar -o output-pre.txt -wi 3 -i 5
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, 10 s each
+# Measurement: 5 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B001_ModXor.modOp
+
+# Run progress: 0.00% complete, ETA 00:02:40
+# Fork: 1 of 1
+# Warmup Iteration   1: 79197528.919 ops/s
+# Warmup Iteration   2: 82363209.371 ops/s
+# Warmup Iteration   3: 79572436.642 ops/s
+Iteration   1: 80392369.079 ops/s
+Iteration   2: 80622564.454 ops/s
+Iteration   3: 80944105.170 ops/s
+Iteration   4: 80545535.524 ops/s
+Iteration   5: 80223452.756 ops/s
+
+
+Result "com.carrotsearch.hppc.benchmarks.B001_ModXor.modOp":
+  80545605.396 ±(99.9%) 1040366.146 ops/s [Average]
+  (min, avg, max) = (80223452.756, 80545605.396, 80944105.170), stdev = 270179.784
+  CI (99.9%): [79505239.250, 81585971.543] (assumes normal distribution)
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, 10 s each
+# Measurement: 5 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B001_ModXor.xorOp
+
+# Run progress: 49.97% complete, ETA 00:01:20
+# Fork: 1 of 1
+# Warmup Iteration   1: 314567879.827 ops/s
+# Warmup Iteration   2: 330605374.563 ops/s
+# Warmup Iteration   3: 281145170.621 ops/s
+Iteration   1: 281001710.969 ops/s
+Iteration   2: 281085391.407 ops/s
+Iteration   3: 277374596.596 ops/s
+Iteration   4: 281248595.732 ops/s
+Iteration   5: 281235672.792 ops/s
+
+
+Result "com.carrotsearch.hppc.benchmarks.B001_ModXor.xorOp":
+  280389193.499 ±(99.9%) 6501422.881 ops/s [Average]
+  (min, avg, max) = (277374596.596, 280389193.499, 281248595.732), stdev = 1688398.876
+  CI (99.9%): [273887770.618, 286890616.380] (assumes normal distribution)
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk
+# Parameters: (library = HPPC, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.94% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.283 s/op
+# Warmup Iteration   2: 1.292 s/op
+# Warmup Iteration   3: 1.226 s/op
+Iteration   1: 1.242 s/op
+Iteration   2: 1.222 s/op
+Iteration   3: 1.237 s/op
+Iteration   4: 1.223 s/op
+Iteration   5: 1.240 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk":
+  N = 5
+  mean =      1.233 ±(99.9%) 0.038 s/op
+
+  Histogram, s/op:
+    [1.220, 1.223) = 1 
+    [1.223, 1.225) = 1 
+    [1.225, 1.228) = 0 
+    [1.228, 1.230) = 0 
+    [1.230, 1.233) = 0 
+    [1.233, 1.235) = 0 
+    [1.235, 1.238) = 1 
+    [1.238, 1.240) = 0 
+    [1.240, 1.243) = 2 
+    [1.243, 1.245) = 0 
+    [1.245, 1.248) = 0 
+    [1.248, 1.250) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.222 s/op
+     p(50.0000) =      1.237 s/op
+     p(90.0000) =      1.242 s/op
+     p(95.0000) =      1.242 s/op
+     p(99.0000) =      1.242 s/op
+     p(99.9000) =      1.242 s/op
+     p(99.9900) =      1.242 s/op
+     p(99.9990) =      1.242 s/op
+     p(99.9999) =      1.242 s/op
+    p(100.0000) =      1.242 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk
+# Parameters: (library = HPPC_SCATTER, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.95% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.116 s/op
+# Warmup Iteration   2: 1.116 s/op
+# Warmup Iteration   3: 1.053 s/op
+Iteration   1: 1.073 s/op
+Iteration   2: 1.051 s/op
+Iteration   3: 1.064 s/op
+Iteration   4: 1.052 s/op
+Iteration   5: 1.067 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk":
+  N = 5
+  mean =      1.061 ±(99.9%) 0.036 s/op
+
+  Histogram, s/op:
+    [1.050, 1.053) = 2 
+    [1.053, 1.055) = 0 
+    [1.055, 1.058) = 0 
+    [1.058, 1.060) = 0 
+    [1.060, 1.063) = 0 
+    [1.063, 1.065) = 1 
+    [1.065, 1.068) = 1 
+    [1.068, 1.070) = 0 
+    [1.070, 1.073) = 0 
+    [1.073, 1.075) = 1 
+    [1.075, 1.078) = 0 
+    [1.078, 1.080) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.051 s/op
+     p(50.0000) =      1.064 s/op
+     p(90.0000) =      1.073 s/op
+     p(95.0000) =      1.073 s/op
+     p(99.0000) =      1.073 s/op
+     p(99.9000) =      1.073 s/op
+     p(99.9900) =      1.073 s/op
+     p(99.9990) =      1.073 s/op
+     p(99.9999) =      1.073 s/op
+    p(100.0000) =      1.073 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk
+# Parameters: (library = FASTUTIL, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.95% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.111 s/op
+# Warmup Iteration   2: 1.121 s/op
+# Warmup Iteration   3: 1.066 s/op
+Iteration   1: 1.090 s/op
+Iteration   2: 1.066 s/op
+Iteration   3: 1.075 s/op
+Iteration   4: 1.064 s/op
+Iteration   5: 1.082 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk":
+  N = 5
+  mean =      1.075 ±(99.9%) 0.042 s/op
+
+  Histogram, s/op:
+    [1.060, 1.063) = 0 
+    [1.063, 1.065) = 1 
+    [1.065, 1.068) = 1 
+    [1.068, 1.070) = 0 
+    [1.070, 1.073) = 0 
+    [1.073, 1.075) = 0 
+    [1.075, 1.078) = 1 
+    [1.078, 1.080) = 0 
+    [1.080, 1.083) = 1 
+    [1.083, 1.085) = 0 
+    [1.085, 1.088) = 0 
+    [1.088, 1.090) = 1 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.064 s/op
+     p(50.0000) =      1.075 s/op
+     p(90.0000) =      1.090 s/op
+     p(95.0000) =      1.090 s/op
+     p(99.0000) =      1.090 s/op
+     p(99.9000) =      1.090 s/op
+     p(99.9900) =      1.090 s/op
+     p(99.9990) =      1.090 s/op
+     p(99.9999) =      1.090 s/op
+    p(100.0000) =      1.090 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk
+# Parameters: (library = KOLOBOKE, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.96% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.132 s/op
+# Warmup Iteration   2: 1.184 s/op
+# Warmup Iteration   3: 1.108 s/op
+Iteration   1: 1.121 s/op
+Iteration   2: 1.114 s/op
+Iteration   3: 1.121 s/op
+Iteration   4: 1.115 s/op
+Iteration   5: 1.126 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B002_HashSet_Add.bulk":
+  N = 5
+  mean =      1.119 ±(99.9%) 0.019 s/op
+
+  Histogram, s/op:
+    [1.110, 1.111) = 0 
+    [1.111, 1.113) = 0 
+    [1.113, 1.114) = 1 
+    [1.114, 1.115) = 0 
+    [1.115, 1.116) = 1 
+    [1.116, 1.118) = 0 
+    [1.118, 1.119) = 0 
+    [1.119, 1.120) = 0 
+    [1.120, 1.121) = 1 
+    [1.121, 1.123) = 1 
+    [1.123, 1.124) = 0 
+    [1.124, 1.125) = 0 
+    [1.125, 1.126) = 1 
+    [1.126, 1.128) = 0 
+    [1.128, 1.129) = 0 
+    [1.129, 1.130) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.114 s/op
+     p(50.0000) =      1.121 s/op
+     p(90.0000) =      1.126 s/op
+     p(95.0000) =      1.126 s/op
+     p(99.0000) =      1.126 s/op
+     p(99.9000) =      1.126 s/op
+     p(99.9900) =      1.126 s/op
+     p(99.9990) =      1.126 s/op
+     p(99.9999) =      1.126 s/op
+    p(100.0000) =      1.126 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk
+# Parameters: (library = HPPC, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.96% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.582 s/op
+# Warmup Iteration   2: 1.589 s/op
+# Warmup Iteration   3: 1.549 s/op
+Iteration   1: 1.548 s/op
+Iteration   2: 1.537 s/op
+Iteration   3: 1.549 s/op
+Iteration   4: 1.554 s/op
+Iteration   5: 1.561 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk":
+  N = 5
+  mean =      1.550 ±(99.9%) 0.034 s/op
+
+  Histogram, s/op:
+    [1.530, 1.533) = 0 
+    [1.533, 1.535) = 0 
+    [1.535, 1.538) = 1 
+    [1.538, 1.540) = 0 
+    [1.540, 1.543) = 0 
+    [1.543, 1.545) = 0 
+    [1.545, 1.548) = 0 
+    [1.548, 1.550) = 2 
+    [1.550, 1.553) = 0 
+    [1.553, 1.555) = 1 
+    [1.555, 1.558) = 0 
+    [1.558, 1.560) = 0 
+    [1.560, 1.563) = 1 
+    [1.563, 1.565) = 0 
+    [1.565, 1.568) = 0 
+    [1.568, 1.570) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.537 s/op
+     p(50.0000) =      1.549 s/op
+     p(90.0000) =      1.561 s/op
+     p(95.0000) =      1.561 s/op
+     p(99.0000) =      1.561 s/op
+     p(99.9000) =      1.561 s/op
+     p(99.9900) =      1.561 s/op
+     p(99.9990) =      1.561 s/op
+     p(99.9999) =      1.561 s/op
+    p(100.0000) =      1.561 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk
+# Parameters: (library = HPPC_SCATTER, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.97% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.240 s/op
+# Warmup Iteration   2: 1.265 s/op
+# Warmup Iteration   3: 1.212 s/op
+Iteration   1: 1.216 s/op
+Iteration   2: 1.222 s/op
+Iteration   3: 1.216 s/op
+Iteration   4: 1.215 s/op
+Iteration   5: 1.207 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk":
+  N = 5
+  mean =      1.215 ±(99.9%) 0.020 s/op
+
+  Histogram, s/op:
+    [1.200, 1.203) = 0 
+    [1.203, 1.205) = 0 
+    [1.205, 1.208) = 1 
+    [1.208, 1.210) = 0 
+    [1.210, 1.213) = 0 
+    [1.213, 1.215) = 1 
+    [1.215, 1.218) = 2 
+    [1.218, 1.220) = 0 
+    [1.220, 1.223) = 1 
+    [1.223, 1.225) = 0 
+    [1.225, 1.228) = 0 
+    [1.228, 1.230) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.207 s/op
+     p(50.0000) =      1.216 s/op
+     p(90.0000) =      1.222 s/op
+     p(95.0000) =      1.222 s/op
+     p(99.0000) =      1.222 s/op
+     p(99.9000) =      1.222 s/op
+     p(99.9900) =      1.222 s/op
+     p(99.9990) =      1.222 s/op
+     p(99.9999) =      1.222 s/op
+    p(100.0000) =      1.222 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk
+# Parameters: (library = FASTUTIL, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.97% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.254 s/op
+# Warmup Iteration   2: 1.263 s/op
+# Warmup Iteration   3: 1.225 s/op
+Iteration   1: 1.225 s/op
+Iteration   2: 1.224 s/op
+Iteration   3: 1.221 s/op
+Iteration   4: 1.221 s/op
+Iteration   5: 1.233 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk":
+  N = 5
+  mean =      1.225 ±(99.9%) 0.020 s/op
+
+  Histogram, s/op:
+    [1.220, 1.221) = 2 
+    [1.221, 1.223) = 0 
+    [1.223, 1.224) = 0 
+    [1.224, 1.225) = 2 
+    [1.225, 1.226) = 0 
+    [1.226, 1.228) = 0 
+    [1.228, 1.229) = 0 
+    [1.229, 1.230) = 0 
+    [1.230, 1.231) = 0 
+    [1.231, 1.233) = 0 
+    [1.233, 1.234) = 1 
+    [1.234, 1.235) = 0 
+    [1.235, 1.236) = 0 
+    [1.236, 1.238) = 0 
+    [1.238, 1.239) = 0 
+    [1.239, 1.240) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.221 s/op
+     p(50.0000) =      1.224 s/op
+     p(90.0000) =      1.233 s/op
+     p(95.0000) =      1.233 s/op
+     p(99.0000) =      1.233 s/op
+     p(99.9000) =      1.233 s/op
+     p(99.9900) =      1.233 s/op
+     p(99.9990) =      1.233 s/op
+     p(99.9999) =      1.233 s/op
+    p(100.0000) =      1.233 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk
+# Parameters: (library = KOLOBOKE, loadFactor = 0.75, mbOfKeys = 200)
+
+# Run progress: 99.98% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.305 s/op
+# Warmup Iteration   2: 1.281 s/op
+# Warmup Iteration   3: 1.263 s/op
+Iteration   1: 1.273 s/op
+Iteration   2: 1.264 s/op
+Iteration   3: 1.278 s/op
+Iteration   4: 1.275 s/op
+Iteration   5: 1.268 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B003_HashSet_Contains.bulk":
+  N = 5
+  mean =      1.272 ±(99.9%) 0.020 s/op
+
+  Histogram, s/op:
+    [1.260, 1.261) = 0 
+    [1.261, 1.263) = 0 
+    [1.263, 1.264) = 0 
+    [1.264, 1.265) = 1 
+    [1.265, 1.266) = 0 
+    [1.266, 1.268) = 0 
+    [1.268, 1.269) = 1 
+    [1.269, 1.270) = 0 
+    [1.270, 1.271) = 0 
+    [1.271, 1.273) = 0 
+    [1.273, 1.274) = 1 
+    [1.274, 1.275) = 0 
+    [1.275, 1.276) = 1 
+    [1.276, 1.278) = 0 
+    [1.278, 1.279) = 1 
+    [1.279, 1.280) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.264 s/op
+     p(50.0000) =      1.273 s/op
+     p(90.0000) =      1.278 s/op
+     p(95.0000) =      1.278 s/op
+     p(99.0000) =      1.278 s/op
+     p(99.9000) =      1.278 s/op
+     p(99.9900) =      1.278 s/op
+     p(99.9990) =      1.278 s/op
+     p(99.9999) =      1.278 s/op
+    p(100.0000) =      1.278 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run
+# Parameters: (library = HPPC, loadFactor = 0.75)
+
+# Run progress: 99.98% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 0.025 s/op
+# Warmup Iteration   2: 0.024 s/op
+# Warmup Iteration   3: 0.023 s/op
+Iteration   1: 0.023 s/op
+Iteration   2: 0.023 s/op
+Iteration   3: 0.023 s/op
+Iteration   4: 0.023 s/op
+Iteration   5: 0.023 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run":
+  N = 5
+  mean =      0.023 ±(99.9%) 0.001 s/op
+
+  Histogram, s/op:
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 2 
+    [0.023, 0.023) = 2 
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 1 
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 0 
+    [0.023, 0.023) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      0.023 s/op
+     p(50.0000) =      0.023 s/op
+     p(90.0000) =      0.023 s/op
+     p(95.0000) =      0.023 s/op
+     p(99.0000) =      0.023 s/op
+     p(99.9000) =      0.023 s/op
+     p(99.9900) =      0.023 s/op
+     p(99.9990) =      0.023 s/op
+     p(99.9999) =      0.023 s/op
+    p(100.0000) =      0.023 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run
+# Parameters: (library = HPPC_SCATTER, loadFactor = 0.75)
+
+# Run progress: 99.99% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.600 s/op
+# Warmup Iteration   2: 1.599 s/op
+# Warmup Iteration   3: 1.600 s/op
+Iteration   1: 1.595 s/op
+Iteration   2: 1.595 s/op
+Iteration   3: 1.596 s/op
+Iteration   4: 1.596 s/op
+Iteration   5: 1.595 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run":
+  N = 5
+  mean =      1.595 ±(99.9%) 0.002 s/op
+
+  Histogram, s/op:
+    [1.594, 1.594) = 0 
+    [1.594, 1.595) = 0 
+    [1.595, 1.595) = 0 
+    [1.595, 1.595) = 1 
+    [1.595, 1.595) = 2 
+    [1.595, 1.596) = 0 
+    [1.596, 1.596) = 1 
+    [1.596, 1.596) = 0 
+    [1.596, 1.596) = 1 
+    [1.596, 1.597) = 0 
+    [1.597, 1.597) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.595 s/op
+     p(50.0000) =      1.595 s/op
+     p(90.0000) =      1.596 s/op
+     p(95.0000) =      1.596 s/op
+     p(99.0000) =      1.596 s/op
+     p(99.9000) =      1.596 s/op
+     p(99.9900) =      1.596 s/op
+     p(99.9990) =      1.596 s/op
+     p(99.9999) =      1.596 s/op
+    p(100.0000) =      1.596 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run
+# Parameters: (library = FASTUTIL, loadFactor = 0.75)
+
+# Run progress: 99.99% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 2.124 s/op
+# Warmup Iteration   2: 1.596 s/op
+# Warmup Iteration   3: 1.594 s/op
+Iteration   1: 1.594 s/op
+Iteration   2: 1.602 s/op
+Iteration   3: 1.602 s/op
+Iteration   4: 1.599 s/op
+Iteration   5: 1.614 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run":
+  N = 5
+  mean =      1.602 ±(99.9%) 0.028 s/op
+
+  Histogram, s/op:
+    [1.590, 1.593) = 0 
+    [1.593, 1.595) = 1 
+    [1.595, 1.598) = 0 
+    [1.598, 1.600) = 1 
+    [1.600, 1.603) = 2 
+    [1.603, 1.605) = 0 
+    [1.605, 1.608) = 0 
+    [1.608, 1.610) = 0 
+    [1.610, 1.613) = 0 
+    [1.613, 1.615) = 1 
+    [1.615, 1.618) = 0 
+    [1.618, 1.620) = 0 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.594 s/op
+     p(50.0000) =      1.602 s/op
+     p(90.0000) =      1.614 s/op
+     p(95.0000) =      1.614 s/op
+     p(99.0000) =      1.614 s/op
+     p(99.9000) =      1.614 s/op
+     p(99.9900) =      1.614 s/op
+     p(99.9990) =      1.614 s/op
+     p(99.9999) =      1.614 s/op
+    p(100.0000) =      1.614 s/op
+
+
+# JMH version: 1.24
+# VM version: JDK 14.0.1, OpenJDK 64-Bit Server VM, 14.0.1+7
+# VM invoker: c:\Tools\java\JDK\bin\java.exe
+# VM options: <none>
+# Warmup: 3 iterations, single-shot each
+# Measurement: 5 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run
+# Parameters: (library = KOLOBOKE, loadFactor = 0.75)
+
+# Run progress: 100.00% complete, ETA 00:00:00
+# Fork: 1 of 1
+# Warmup Iteration   1: 1.299 s/op
+# Warmup Iteration   2: 1.295 s/op
+# Warmup Iteration   3: 1.414 s/op
+Iteration   1: 1.291 s/op
+Iteration   2: 1.292 s/op
+Iteration   3: 1.296 s/op
+Iteration   4: 1.292 s/op
+Iteration   5: 1.294 s/op
+
+
+Result "com.carrotsearch.hppc.benchmarks.B004_HashSet_CollisionAvalanche.run":
+  N = 5
+  mean =      1.293 ±(99.9%) 0.008 s/op
+
+  Histogram, s/op:
+    [1.290, 1.291) = 0 
+    [1.291, 1.291) = 1 
+    [1.291, 1.292) = 0 
+    [1.292, 1.292) = 0 
+    [1.292, 1.293) = 2 
+    [1.293, 1.293) = 0 
+    [1.293, 1.294) = 0 
+    [1.294, 1.294) = 0 
+    [1.294, 1.295) = 1 
+    [1.295, 1.295) = 0 
+    [1.295, 1.296) = 0 
+    [1.296, 1.296) = 1 
+
+  Percentiles, s/op:
+      p(0.0000) =      1.291 s/op
+     p(50.0000) =      1.292 s/op
+     p(90.0000) =      1.296 s/op
+     p(95.0000) =      1.296 s/op
+     p(99.0000) =      1.296 s/op
+     p(99.9000) =      1.296 s/op
+     p(99.9900) =      1.296 s/op
+     p(99.9990) =      1.296 s/op
+     p(99.9999) =      1.296 s/op
+    p(100.0000) =      1.296 s/op
+
+
+# Run complete. Total time: 00:04:52
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+Benchmark                               (library)  (loadFactor)  (mbOfKeys)   Mode  Cnt          Score         Error  Units
+B001_ModXor.modOp                             N/A           N/A         N/A  thrpt    5   80545605.396 ± 1040366.146  ops/s
+B001_ModXor.xorOp                             N/A           N/A         N/A  thrpt    5  280389193.499 ± 6501422.881  ops/s
+B002_HashSet_Add.bulk                        HPPC          0.75         200     ss    5          1.233 ±       0.038   s/op
+B002_HashSet_Add.bulk                HPPC_SCATTER          0.75         200     ss    5          1.061 ±       0.036   s/op
+B002_HashSet_Add.bulk                    FASTUTIL          0.75         200     ss    5          1.075 ±       0.042   s/op
+B002_HashSet_Add.bulk                    KOLOBOKE          0.75         200     ss    5          1.119 ±       0.019   s/op
+B003_HashSet_Contains.bulk                   HPPC          0.75         200     ss    5          1.550 ±       0.034   s/op
+B003_HashSet_Contains.bulk           HPPC_SCATTER          0.75         200     ss    5          1.215 ±       0.020   s/op
+B003_HashSet_Contains.bulk               FASTUTIL          0.75         200     ss    5          1.225 ±       0.020   s/op
+B003_HashSet_Contains.bulk               KOLOBOKE          0.75         200     ss    5          1.272 ±       0.020   s/op
+B004_HashSet_CollisionAvalanche.run          HPPC          0.75         N/A     ss    5          0.023 ±       0.001   s/op
+B004_HashSet_CollisionAvalanche.run  HPPC_SCATTER          0.75         N/A     ss    5          1.595 ±       0.002   s/op
+B004_HashSet_CollisionAvalanche.run      FASTUTIL          0.75         N/A     ss    5          1.602 ±       0.028   s/op
+B004_HashSet_CollisionAvalanche.run      KOLOBOKE          0.75         N/A     ss    5          1.293 ±       0.008   s/op

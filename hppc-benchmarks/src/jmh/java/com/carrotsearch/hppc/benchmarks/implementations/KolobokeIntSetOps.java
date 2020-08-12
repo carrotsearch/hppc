@@ -1,10 +1,10 @@
 package com.carrotsearch.hppc.benchmarks.implementations;
 
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.set.hash.HashIntSet;
-import net.openhft.koloboke.collect.set.hash.HashIntSets;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.set.hash.HashIntSet;
 
 import com.carrotsearch.hppc.benchmarks.IntSetOps;
+import com.koloboke.collect.set.hash.HashIntSets;
 
 public class KolobokeIntSetOps implements IntSetOps {
   private final HashIntSet delegate;
