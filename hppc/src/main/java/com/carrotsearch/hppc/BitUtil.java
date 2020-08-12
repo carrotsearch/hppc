@@ -29,7 +29,7 @@ package com.carrotsearch.hppc;
 /**  
  * A variety of high efficiency bit twiddling routines.
  */
-public final class BitUtil {
+final class BitUtil {
   private BitUtil() {} // no instance
 
   // The pop methods used to rely on bit-manipulation tricks for speed but it

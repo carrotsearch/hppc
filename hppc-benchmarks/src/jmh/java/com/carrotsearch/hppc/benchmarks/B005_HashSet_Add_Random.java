@@ -1,6 +1,5 @@
 package com.carrotsearch.hppc.benchmarks;
 
-import com.carrotsearch.hppc.BitUtil;
 import com.carrotsearch.hppc.XorShift128P;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
