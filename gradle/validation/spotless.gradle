@@ -41,6 +41,8 @@ configure(project(":hppc")) {
   plugins.withId("com.diffplug.gradle.spotless") {
     spotless {
       java {
+        // Exclude templates and generated files, at least for now.
+        // Templates have comments around imports, which confuses GOF.
         targetExclude([
             "build/**",
             "src/main/templates/**",
