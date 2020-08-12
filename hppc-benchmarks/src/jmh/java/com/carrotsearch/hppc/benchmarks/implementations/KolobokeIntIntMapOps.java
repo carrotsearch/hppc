@@ -1,9 +1,10 @@
 package com.carrotsearch.hppc.benchmarks.implementations;
 
 import com.carrotsearch.hppc.benchmarks.IntIntMapOps;
-import net.openhft.koloboke.collect.hash.HashConfig;
-import net.openhft.koloboke.collect.map.hash.HashIntIntMap;
-import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
+import com.koloboke.collect.hash.HashConfig;
+import com.koloboke.collect.map.hash.HashIntIntMap;
+import com.koloboke.collect.map.hash.HashIntIntMaps;
+
 
 public class KolobokeIntIntMapOps implements IntIntMapOps {
   private final HashIntIntMap delegate;
