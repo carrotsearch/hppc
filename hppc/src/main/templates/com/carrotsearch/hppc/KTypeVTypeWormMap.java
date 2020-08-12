@@ -976,23 +976,15 @@ public class KTypeVTypeWormMap<KType, VType>
 
         @Override
         public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
-            KTypeVTypeWormMap.this.forEach(new KTypeVTypeProcedure<KType, VType>() {
-                @Override
-                public void apply(KType key, VType value) {
-                    procedure.apply(key);
-                }
-            });
+            KTypeVTypeWormMap.this.forEach(
+                (KTypeVTypeProcedure<KType, VType>) (key, value) -> procedure.apply(key));
             return procedure;
         }
 
         @Override
         public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
-            KTypeVTypeWormMap.this.forEach(new KTypeVTypePredicate<KType, VType>() {
-                @Override
-                public boolean apply(KType key, VType value) {
-                    return predicate.apply(key);
-                }
-            });
+            KTypeVTypeWormMap.this.forEach(
+                (KTypeVTypePredicate<KType, VType>) (key, value) -> predicate.apply(key));
             return predicate;
         }
 
@@ -1108,22 +1100,12 @@ public class KTypeVTypeWormMap<KType, VType>
 
         @Override
         public int removeAll(final VType e) {
-            return KTypeVTypeWormMap.this.removeAll(new KTypeVTypePredicate<KType, VType>() {
-                @Override
-                public boolean apply(KType key, VType value) {
-                    return Intrinsics.<VType> equals(e, value);
-                }
-            });
+            return KTypeVTypeWormMap.this.removeAll((key, value) -> Intrinsics.<VType> equals(e, value));
         }
 
         @Override
         public int removeAll(final KTypePredicate<? super VType> predicate) {
-            return KTypeVTypeWormMap.this.removeAll(new KTypeVTypePredicate<KType, VType>()  {
-                @Override
-                public boolean apply(KType key, VType value) {
-                    return predicate.apply(value);
-                }
-            });
+            return KTypeVTypeWormMap.this.removeAll((key, value) -> predicate.apply(value));
         }
 
         @Override
