@@ -1,25 +1,34 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
-import static org.junit.Assert.*;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.Test;
 
 public class EntryShiftingOnRemovalTest extends RandomizedTest {
   @Test
   @Repeat(iterations = 10)
   public void testRemoveSanity() {
     @SuppressWarnings("deprecation")
-    IntHashSet v = new IntHashSet(8, 0.5d, HashOrderMixing.none()) {
-      @Override
-      protected int hashKey(int key) {
-        return key & 0xff;
-      }
-    };
+    IntHashSet v =
+        new IntHashSet(8, 0.5d, HashOrderMixing.none()) {
+          @Override
+          protected int hashKey(int key) {
+            return key & 0xff;
+          }
+        };
 
     Set<Integer> ref = new HashSet<Integer>();
     for (int i = 0; i < 4; i++) {

@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator;
 
 import com.carrotsearch.console.jcommander.Parameter;
@@ -13,11 +22,6 @@ import com.carrotsearch.hppc.generator.intrinsics.Equals;
 import com.carrotsearch.hppc.generator.intrinsics.IsEmpty;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
 import com.carrotsearch.hppc.generator.parser.SignatureProcessor;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.runtime.RuntimeInstance;
-import org.apache.velocity.util.ExtProperties;
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +41,10 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.runtime.RuntimeInstance;
+import org.apache.velocity.util.ExtProperties;
+import org.slf4j.Logger;
 
 /** Template processor. */
 public class TemplateProcessor extends Command<ExitCode> {

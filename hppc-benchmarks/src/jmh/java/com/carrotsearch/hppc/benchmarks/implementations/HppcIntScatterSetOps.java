@@ -1,10 +1,18 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks.implementations;
 
 import com.carrotsearch.hppc.IntScatterSet;
 import com.carrotsearch.hppc.benchmarks.*;
 
-public class HppcIntScatterSetOps implements IntSetOps
-{
+public class HppcIntScatterSetOps implements IntSetOps {
   private final IntScatterSet delegate;
 
   public HppcIntScatterSetOps(int expectedElements, double loadFactor) {
@@ -27,7 +35,7 @@ public class HppcIntScatterSetOps implements IntSetOps
       delegate.add(key);
     }
   }
-  
+
   @Override
   public int bulkContains(int[] keys) {
     int v = 0;
@@ -38,7 +46,7 @@ public class HppcIntScatterSetOps implements IntSetOps
     }
     return v;
   }
-  
+
   @Override
   public int[] iterationOrderArray() {
     return delegate.toArray();

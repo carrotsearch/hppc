@@ -1,17 +1,13 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator.parser;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.misc.Interval;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
@@ -28,13 +24,25 @@ import com.carrotsearch.hppc.generator.parser.JavaParser.TypeArgumentContext;
 import com.carrotsearch.hppc.generator.parser.JavaParser.TypeArgumentsContext;
 import com.carrotsearch.hppc.generator.parser.JavaParser.TypeBoundContext;
 import com.carrotsearch.hppc.generator.parser.JavaParser.TypeParameterContext;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement>> {
-  private final static List<Replacement> NONE = Collections.emptyList();
+  private static final List<Replacement> NONE = Collections.emptyList();
   private final TemplateOptions templateOptions;
   private final SignatureProcessor processor;
 
-  public SignatureReplacementVisitor(TemplateOptions templateOptions, SignatureProcessor processor) {
+  public SignatureReplacementVisitor(
+      TemplateOptions templateOptions, SignatureProcessor processor) {
     this.templateOptions = templateOptions;
     this.processor = processor;
   }
@@ -42,7 +50,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   private static class TypeBound {
     private final String originalBound;
     private final Type targetType;
-    
+
     public TypeBound(Type targetType, String originalBound) {
       this.targetType = targetType;
       this.originalBound = originalBound;
@@ -109,7 +117,8 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   }
 
   private TypeBound typeBoundOf(ClassOrInterfaceTypeContext c) {
-    checkArgument(c.identifierTypePair().size() == 1, "Unexpected typeBoundOf context: " + c.getText());
+    checkArgument(
+        c.identifierTypePair().size() == 1, "Unexpected typeBoundOf context: " + c.getText());
 
     for (JavaParser.IdentifierTypePairContext p : c.identifierTypePair()) {
       switch (p.IDENTIFIER().getText()) {
@@ -138,10 +147,14 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
 
       int typeBoundIndex = 0;
       if (className.contains("KType")) {
-        className = className.replace("KType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+        className =
+            className.replace(
+                "KType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
       }
       if (className.contains("VType")) {
-        className = className.replace("VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+        className =
+            className.replace(
+                "VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
       }
       result.add(new Replacement(ctx.IDENTIFIER(), className));
     }
@@ -163,17 +176,19 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
 
       int typeBoundIndex = 0;
       if (className.contains("KType")) {
-        className = className.replace("KType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+        className =
+            className.replace(
+                "KType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
       }
       if (className.contains("VType")) {
-        className = className.replace("VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+        className =
+            className.replace(
+                "VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
       }
       Replacement replaceIdentifier = new Replacement(ctx.IDENTIFIER(), className);
 
       result = new ArrayList<>(result);
-      result.addAll(Arrays.asList(
-          replaceIdentifier,
-          replaceGenericTypes));
+      result.addAll(Arrays.asList(replaceIdentifier, replaceGenericTypes));
     }
 
     return result;
@@ -187,8 +202,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   @Override
   public List<Replacement> visitPrimary(PrimaryContext ctx) {
     TerminalNode identifier = ctx.IDENTIFIER();
-    if (identifier != null && 
-        isTemplateIdentifier(identifier.getText())) {
+    if (identifier != null && isTemplateIdentifier(identifier.getText())) {
       return processIdentifier(identifier, NONE);
     } else {
       return super.visitPrimary(ctx);
@@ -201,33 +215,37 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     for (TypeParameterContext c : ctx.typeParameters().typeParameter()) {
       switch (c.IDENTIFIER().getText()) {
         case "KType":
-          checkArgument(c.typeBound() == null, "Unexpected type bound on template type: " + c.getText());
+          checkArgument(
+              c.typeBound() == null, "Unexpected type bound on template type: " + c.getText());
           if (templateOptions.isKTypeGeneric()) {
             bounds.add(c.getText());
           }
           break;
-          
+
         case "VType":
-          checkArgument(c.typeBound() == null, "Unexpected type bound on template type: " + c.getText());
+          checkArgument(
+              c.typeBound() == null, "Unexpected type bound on template type: " + c.getText());
           if (templateOptions.isVTypeGeneric()) {
             bounds.add(c.getText());
           }
           break;
 
         default:
-          TypeBoundContext tbc = c.typeBound(); 
+          TypeBoundContext tbc = c.typeBound();
           if (tbc != null) {
-            checkArgument(tbc.typeType().size() == 1, "Expected exactly one type bound: " + c.getText());
+            checkArgument(
+                tbc.typeType().size() == 1, "Expected exactly one type bound: " + c.getText());
             JavaParser.TypeTypeContext tctx = tbc.typeType().get(0);
             Interval sourceInterval = tbc.getSourceInterval();
             try {
-              StringWriter sw = processor.reconstruct(
-                  new StringWriter(), 
-                  processor.tokenStream, 
-                  sourceInterval.a, 
-                  sourceInterval.b, 
-                  visitTypeType(tctx),
-                  templateOptions);
+              StringWriter sw =
+                  processor.reconstruct(
+                      new StringWriter(),
+                      processor.tokenStream,
+                      sourceInterval.a,
+                      sourceInterval.b,
+                      visitTypeType(tctx),
+                      templateOptions);
               bounds.add(c.IDENTIFIER() + " extends " + sw.toString());
             } catch (IOException e) {
               throw new RuntimeException(e);
@@ -249,7 +267,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     replacements.addAll(super.visitMethodDeclaration(ctx.methodDeclaration()));
     return replacements;
   }
-  
+
   @Override
   public List<Replacement> visitMethodDeclaration(MethodDeclarationContext ctx) {
     List<Replacement> replacements = new ArrayList<>();
@@ -270,7 +288,8 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   }
 
   @Override
-  public List<Replacement> visitIdentifierTypeOrDiamondPair(JavaParser.IdentifierTypeOrDiamondPairContext ctx) {
+  public List<Replacement> visitIdentifierTypeOrDiamondPair(
+      JavaParser.IdentifierTypeOrDiamondPairContext ctx) {
     if (ctx.typeArgumentsOrDiamond() == null) {
       return processIdentifier(ctx.IDENTIFIER(), NONE);
     } else {
@@ -372,17 +391,17 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
         if (symbol.contains("VType")) {
           symbol = symbol.replace("VType", templateOptions.getVType().getBoxedType());
         }
-        
+
         if (replacements == NONE) {
           replacements = new ArrayList<>();
         }
         replacements.add(new Replacement(identifier, symbol));
       }
     }
-    
+
     return replacements;
   }
-  
+
   @Override
   protected List<Replacement> defaultResult() {
     return NONE;
@@ -391,8 +410,8 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   @Override
   protected List<Replacement> aggregateResult(List<Replacement> first, List<Replacement> second) {
     if (second.size() == 0) return first;
-    if (first.size()  == 0) return second;
-  
+    if (first.size() == 0) return second;
+
     // Treat partial results as immutable.
     List<Replacement> result = new ArrayList<Replacement>();
     result.addAll(first);
@@ -417,14 +436,12 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
       replacements = new ArrayList<>(replacements);
       switch (identifier) {
         case "KType":
-          identifier = templateOptions.isKTypePrimitive()
-                       ? templateOptions.getKType().getType()
-                       : "KType";
+          identifier =
+              templateOptions.isKTypePrimitive() ? templateOptions.getKType().getType() : "KType";
           break;
         case "VType":
-          identifier = templateOptions.isVTypePrimitive()
-                       ? templateOptions.getVType().getType()
-                       : "VType";
+          identifier =
+              templateOptions.isVTypePrimitive() ? templateOptions.getVType().getType() : "VType";
           break;
         default:
           if (identifier.contains("KType")) {
@@ -435,13 +452,13 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
           }
           break;
       }
-      replacements.add(new Replacement(ctx, identifier));      
+      replacements.add(new Replacement(ctx, identifier));
     }
     return replacements;
   }
 
   private String toString(List<TypeBound> typeBounds) {
-    List <String> parts = new ArrayList<>();
+    List<String> parts = new ArrayList<>();
     for (TypeBound tb : typeBounds) {
       if (tb.isTemplateType()) {
         if (!tb.templateBound().isGeneric()) {
@@ -468,8 +485,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
   }
 
   private boolean isTemplateIdentifier(String symbol) {
-    return symbol.contains("KType") ||
-           symbol.contains("VType");
+    return symbol.contains("KType") || symbol.contains("VType");
   }
 
   static void checkArgument(boolean condition, String msg) {

@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc;
 
 import java.util.IllegalFormatException;
@@ -21,9 +30,9 @@ public class BufferAllocationException extends RuntimeException {
     try {
       return String.format(Locale.ROOT, message, args);
     } catch (IllegalFormatException e) {
-      BufferAllocationException substitute = 
+      BufferAllocationException substitute =
           new BufferAllocationException(message + " [ILLEGAL FORMAT, ARGS SUPPRESSED]");
-      if (t != null) { 
+      if (t != null) {
         substitute.addSuppressed(t);
       }
       substitute.addSuppressed(e);

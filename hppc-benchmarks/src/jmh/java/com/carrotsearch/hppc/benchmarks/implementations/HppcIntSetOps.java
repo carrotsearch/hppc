@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks.implementations;
 
 import com.carrotsearch.hppc.IntHashSet;
@@ -37,7 +46,7 @@ public class HppcIntSetOps implements IntSetOps {
     }
     return v;
   }
-  
+
   @Override
   public int[] iterationOrderArray() {
     return delegate.toArray();

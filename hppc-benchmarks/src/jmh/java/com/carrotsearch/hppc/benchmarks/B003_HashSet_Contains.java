@@ -1,5 +1,15 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks;
 
+import com.carrotsearch.hppc.XorShift128P;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -16,8 +26,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import com.carrotsearch.hppc.XorShift128P;
-
 @Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 5)
@@ -26,19 +34,18 @@ public class B003_HashSet_Contains {
   @Param("0.75")
   public double loadFactor;
 
-  @Param
-  public Library library;
+  @Param public Library library;
 
   @Param({"200"})
   public int mbOfKeys;
 
-  public int [] keys;
+  public int[] keys;
   public IntSetOps ops;
-  
+
   @Setup(Level.Trial)
   public void prepare() {
     int keyCount = mbOfKeys * (1024 * 1024) / 4;
-    keys = new int [keyCount];
+    keys = new int[keyCount];
 
     XorShift128P rnd = new XorShift128P(0xdeadbeefL);
     for (int i = 0; i < keys.length; i++) {
@@ -47,7 +54,7 @@ public class B003_HashSet_Contains {
 
     ops = library.newIntSet(keys.length, loadFactor);
 
-    int[] existing = new int [keyCount];
+    int[] existing = new int[keyCount];
     for (int i = 0; i < keys.length; i++) {
       existing[i] = rnd.nextInt(2 * keys.length);
     }

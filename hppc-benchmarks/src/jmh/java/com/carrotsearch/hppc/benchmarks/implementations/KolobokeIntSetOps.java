@@ -1,17 +1,27 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks.implementations;
 
+import com.carrotsearch.hppc.benchmarks.IntSetOps;
 import com.koloboke.collect.hash.HashConfig;
 import com.koloboke.collect.set.hash.HashIntSet;
-
-import com.carrotsearch.hppc.benchmarks.IntSetOps;
 import com.koloboke.collect.set.hash.HashIntSets;
 
 public class KolobokeIntSetOps implements IntSetOps {
   private final HashIntSet delegate;
 
   public KolobokeIntSetOps(int expectedElements, double loadFactor) {
-    this.delegate = HashIntSets.getDefaultFactory()
-        .withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor)).newMutableSet();
+    this.delegate =
+        HashIntSets.getDefaultFactory()
+            .withHashConfig(HashConfig.fromLoads(loadFactor / 2, loadFactor, loadFactor))
+            .newMutableSet();
     this.delegate.ensureCapacity(expectedElements);
   }
 

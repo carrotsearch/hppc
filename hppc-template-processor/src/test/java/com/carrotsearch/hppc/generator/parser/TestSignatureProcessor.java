@@ -1,16 +1,24 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator.parser;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(RandomizedRunner.class)
 public class TestSignatureProcessor {
@@ -345,9 +353,7 @@ public class TestSignatureProcessor {
         "KTypeVTypeClass.java",
         "LongObjectClass.expected");
     checkResource(
-        new TemplateOptions(Type.LONG, Type.INT),
-        "KTypeVTypeClass.java",
-        "LongIntClass.expected");
+        new TemplateOptions(Type.LONG, Type.INT), "KTypeVTypeClass.java", "LongIntClass.expected");
   }
 
   private void checkResource(TemplateOptions options, String input, String expected)

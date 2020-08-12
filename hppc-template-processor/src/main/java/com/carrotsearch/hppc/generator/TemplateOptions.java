@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator;
 
 import java.nio.file.Path;
@@ -5,9 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Template options for velocity directives in templates.
- */
+/** Template options for velocity directives in templates. */
 public class TemplateOptions {
   public static final String TEMPLATE_FILE_TOKEN = "__TEMPLATE_SOURCE__";
 
@@ -108,10 +115,9 @@ public class TemplateOptions {
   }
 
   public String getGeneratedAnnotation() {
-    return String.format(Locale.ROOT, 
-        "@com.carrotsearch.hppc.Generated(\n" + 
-        "    date = \"%s\",\n" +
-        "    value = \"%s\")",
+    return String.format(
+        Locale.ROOT,
+        "@com.carrotsearch.hppc.Generated(\n" + "    date = \"%s\",\n" + "    value = \"%s\")",
         getTimeNow(),
         TEMPLATE_FILE_TOKEN);
   }
