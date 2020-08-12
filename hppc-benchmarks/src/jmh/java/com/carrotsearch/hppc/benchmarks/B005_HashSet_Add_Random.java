@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks;
 
 import com.carrotsearch.hppc.XorShift128P;
@@ -18,10 +27,9 @@ public class B005_HashSet_Add_Random {
   @Param("0.75")
   public double loadFactor;
 
-  @Param
-  public Library library;
+  @Param public Library library;
 
-  @Param({"3","6","12","24"})
+  @Param({"3", "6", "12", "24"})
   public int mbOfKeys;
 
   public int keyCount;
@@ -39,7 +47,8 @@ public class B005_HashSet_Add_Random {
     rnd = new XorShift128P(0xdeadbeefL);
     randomRange = 2 * keyCount;
     if (Integer.bitCount(randomRange) == 1) {
-      // Avoid power-of-2 because XorShift128P.nextInt() is twice faster in this case and that perturbs the measure.
+      // Avoid power-of-2 because XorShift128P.nextInt() is twice faster in this case and that
+      // perturbs the measure.
       randomRange++;
     }
   }
@@ -58,7 +67,8 @@ public class B005_HashSet_Add_Random {
   }
 
   public static void main(String[] args) throws RunnerException {
-    Options opt = new OptionsBuilder().include(B005_HashSet_Add_Random.class.getSimpleName()).build();
+    Options opt =
+        new OptionsBuilder().include(B005_HashSet_Add_Random.class.getSimpleName()).build();
     new Runner(opt).run();
   }
 }

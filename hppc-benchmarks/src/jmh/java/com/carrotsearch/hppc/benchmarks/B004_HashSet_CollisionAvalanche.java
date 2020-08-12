@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks;
 
 import org.openjdk.jmh.annotations.Benchmark;
@@ -24,19 +33,18 @@ public class B004_HashSet_CollisionAvalanche {
   @Param("0.75")
   public double loadFactor;
 
-  @Param
-  public Library library;
+  @Param public Library library;
 
   private IntSetOps source;
   private IntSetOps target;
   private int[] keys;
-  
+
   @Setup(Level.Trial)
   public void prepare() {
     // make sure we have nearly full load (dense source)
     int keyCount = (int) Math.ceil((1 << 19) / loadFactor) - 5000;
-    int [] keys = new int [keyCount];
-    for (int i = keyCount; i-- != 0;) {
+    int[] keys = new int[keyCount];
+    for (int i = keyCount; i-- != 0; ) {
       keys[i] = i;
     }
 
@@ -59,7 +67,8 @@ public class B004_HashSet_CollisionAvalanche {
   }
 
   public static void main(String[] args) throws RunnerException {
-    Options opt = new OptionsBuilder().include(B004_HashSet_CollisionAvalanche.class.getSimpleName()).build();
+    Options opt =
+        new OptionsBuilder().include(B004_HashSet_CollisionAvalanche.class.getSimpleName()).build();
     new Runner(opt).run();
   }
 }

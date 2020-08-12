@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks;
 
 import com.carrotsearch.hppc.XorShift128P;
@@ -17,13 +26,13 @@ public class B008_HashMap_Get_Random {
   @Param("0.75")
   public double loadFactor;
 
-  @Param({"WORM","WORM_SCATTER"})
+  @Param({"WORM", "WORM_SCATTER"})
   public Library library;
 
-  @Param({"16"})//,"17","18","19","20","21","22"})
+  @Param({"16"}) // ,"17","18","19","20","21","22"})
   public int capacityPowerOf2;
 
-  @Param({"0.5","0.6","0.7"})//"0.45","0.5","0.55","0.6","0.65","0.7","0.74"})
+  @Param({"0.5", "0.6", "0.7"}) // "0.45","0.5","0.55","0.6","0.65","0.7","0.74"})
   public float load;
 
   public int keyCount;
@@ -38,7 +47,8 @@ public class B008_HashMap_Get_Random {
     rnd = new XorShift128P(0xdeadbeefL);
     randomRange = 2 * keyCount;
     if (Integer.bitCount(randomRange) == 1) {
-      // Avoid power-of-2 because XorShift128P.nextInt() is twice faster in this case and that perturbs the measure.
+      // Avoid power-of-2 because XorShift128P.nextInt() is twice faster in this case and that
+      // perturbs the measure.
       randomRange++;
     }
 
@@ -67,9 +77,11 @@ public class B008_HashMap_Get_Random {
   }
 
   public static void main(String[] args) throws RunnerException {
-    Options opt = new OptionsBuilder().include(B008_HashMap_Get_Random.class.getSimpleName())
-//            .resultFormat(ResultFormatType.CSV)
-//            .result(args[0])
+    Options opt =
+        new OptionsBuilder()
+            .include(B008_HashMap_Get_Random.class.getSimpleName())
+            //            .resultFormat(ResultFormatType.CSV)
+            //            .result(args[0])
             .build();
     new Runner(opt).run();
   }

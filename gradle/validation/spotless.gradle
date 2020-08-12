@@ -27,7 +27,6 @@ subprojects {
 }
 
 configure([
-           project(":hppc-benchmarks"),
            project(":hppc"),
            project(":hppc-template-intrinsics"),
            project(":hppc-template-processor")]) {

@@ -1,8 +1,16 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.benchmarks.implementations;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-
 import com.carrotsearch.hppc.benchmarks.IntSetOps;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
 public class FastutilIntSetOps implements IntSetOps {
   private final IntOpenHashSet delegate;
@@ -38,7 +46,7 @@ public class FastutilIntSetOps implements IntSetOps {
     }
     return v;
   }
-  
+
   @Override
   public int[] iterationOrderArray() {
     return delegate.toIntArray();
