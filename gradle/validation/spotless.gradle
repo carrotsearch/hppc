@@ -26,11 +26,25 @@ subprojects {
   }
 }
 
-configure([project(":hppc")]) {
-  afterEvaluate {
+configure(project(":hppc-template-processor")) {
+  plugins.withId("com.diffplug.gradle.spotless") {
     spotless {
       java {
-        targetExclude "**/*"
+        // Exclude ANTLR-generated files.
+        targetExclude "build/**"
+      }
+    }
+  }
+}
+
+configure(project(":hppc")) {
+  plugins.withId("com.diffplug.gradle.spotless") {
+    spotless {
+      java {
+        targetExclude([
+            "build/**",
+            "src/main/templates/**",
+            "src/test/templates/**"])
       }
     }
   }

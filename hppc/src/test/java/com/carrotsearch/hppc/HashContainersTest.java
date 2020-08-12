@@ -1,15 +1,22 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.HashContainers.*;
-
-import java.util.HashSet;
-
-import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-import static org.junit.Assert.*;
+import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
+import java.util.HashSet;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
 
 public class HashContainersTest extends RandomizedTest {
   /* */
@@ -49,21 +56,20 @@ public class HashContainersTest extends RandomizedTest {
   @SuppressForbidden("new Integer() intentional.")
   @SuppressWarnings("deprecation")
   @Test
-  public void testAddReplacements()
-  {
-      ObjectHashSet<Integer> set = new ObjectHashSet<>();
-      HashSet<Integer> reference = new HashSet<>();
+  public void testAddReplacements() {
+    ObjectHashSet<Integer> set = new ObjectHashSet<>();
+    HashSet<Integer> reference = new HashSet<>();
 
-      Integer i1 = 1;
-      Integer i2 = new Integer(i1.intValue());
+    Integer i1 = 1;
+    Integer i2 = new Integer(i1.intValue());
 
-      assertTrue(set.add(i1));
-      assertTrue(reference.add(i1));
+    assertTrue(set.add(i1));
+    assertTrue(reference.add(i1));
 
-      assertFalse(set.add(i2));
-      assertFalse(reference.add(i2));
+    assertFalse(set.add(i2));
+    assertFalse(reference.add(i2));
 
-      Assertions.assertThat(reference.iterator().next()).isSameAs(i1);
-      Assertions.assertThat(set.iterator().next().value).isSameAs(i1);
+    Assertions.assertThat(reference.iterator().next()).isSameAs(i1);
+    Assertions.assertThat(set.iterator().next().value).isSameAs(i1);
   }
 }

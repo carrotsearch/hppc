@@ -1,28 +1,30 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
- * Simplifies the implementation of iterators a bit. Modeled loosely after
- * Google Guava's API.
- */
+/** Simplifies the implementation of iterators a bit. Modeled loosely after Google Guava's API. */
 public abstract class AbstractIterator<E> implements Iterator<E> {
-  private final static int NOT_CACHED = 0;
-  private final static int CACHED = 1;
-  private final static int AT_END = 2;
+  private static final int NOT_CACHED = 0;
+  private static final int CACHED = 1;
+  private static final int AT_END = 2;
 
   /** Current iterator state. */
   private int state = NOT_CACHED;
 
-  /**
-   * The next element to be returned from {@link #next()} if fetched.
-   */
+  /** The next element to be returned from {@link #next()} if fetched. */
   private E nextElement;
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public boolean hasNext() {
     if (state == NOT_CACHED) {
@@ -32,9 +34,7 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
     return state == CACHED;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public E next() {
     if (!hasNext()) {
@@ -45,25 +45,23 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
     return nextElement;
   }
 
-  /**
-   * Default implementation throws {@link UnsupportedOperationException}.
-   */
+  /** Default implementation throws {@link UnsupportedOperationException}. */
   @Override
   public void remove() {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Fetch next element. The implementation must return {@link #done()} when all
-   * elements have been fetched.
-   * 
-   * @return Returns the next value for the iterator or chain-calls {@link #done()}. 
+   * Fetch next element. The implementation must return {@link #done()} when all elements have been
+   * fetched.
+   *
+   * @return Returns the next value for the iterator or chain-calls {@link #done()}.
    */
   protected abstract E fetch();
 
   /**
    * Call when done.
-   * 
+   *
    * @return Returns a unique sentinel value to indicate end-of-iteration.
    */
   protected final E done() {

@@ -1,7 +1,15 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc;
 
 import com.carrotsearch.randomizedtesting.RandomizedContext;
-
 
 public final class TightRandomResizingStrategy implements ArraySizingStrategy {
   private final int maxRandomIncrement;
@@ -10,11 +18,11 @@ public final class TightRandomResizingStrategy implements ArraySizingStrategy {
   public TightRandomResizingStrategy(int maxRandomIncrement) {
     this.maxRandomIncrement = maxRandomIncrement;
   }
-  
+
   public TightRandomResizingStrategy() {
     this(10);
   }
-  
+
   @Override
   public int grow(int currentBufferLength, int elementsCount, int expectedAdditions) {
     growCalls++;
