@@ -86,6 +86,7 @@ public class APIExpectationsTest extends RandomizedTest
     }
 
     @SuppressForbidden("new Integer() intentional.")
+    @SuppressWarnings("deprecation")
     @Test
     public void testArrayListEqualsWithOverridenComparisonMethod()
     {
@@ -111,6 +112,7 @@ public class APIExpectationsTest extends RandomizedTest
     }
 
     @SuppressForbidden("new Integer() intentional.")
+    @SuppressWarnings("deprecation")
     @Test
     public void testArrayDequeEqualsWithOverridenComparisonMethod()
     {
@@ -207,6 +209,7 @@ public class APIExpectationsTest extends RandomizedTest
     }
 
     @SuppressForbidden("new Integer() intentional.")
+    @SuppressWarnings("deprecation")
     @Test
     public void testPutOrAddOnEqualKeys()
     {

@@ -95,18 +95,40 @@ class GenerateTemplatesTask extends DefaultTask {
 
   @TaskAction
   public void generate() {
-    project.javaexec {
-      classpath project.configurations.templateProcessor
-      main = 'com.carrotsearch.hppc.generator.TemplateProcessor'
+    def outputFile = project.file("${getTemporaryDir()}/output.txt")
+    outputFile.parentFile.mkdirs()
 
-      if (incremental) {
-        args += "--incremental"
+    def result
+    outputFile.withOutputStream { output ->
+      result = project.javaexec {
+        classpath project.configurations.templateProcessor
+        main = 'com.carrotsearch.hppc.generator.TemplateProcessor'
+
+        standardOutput = output
+        errorOutput = output
+
+        if (incremental) {
+          args += "--incremental"
+        }
+
+        args += [
+            "--templates", templatesDir,
+            "--output", outputDir
+        ]
+
+        ignoreExitValue true
       }
+    }
 
-      args += [
-          "--templates", templatesDir,
-          "--output", outputDir
-      ]
+    if (result.getExitValue() != 0) {
+      def cause
+      try {
+        result.rethrowFailure()
+      } catch (ex) {
+        cause = ex
+      }
+      throw new GradleException("Template generation failed for ${project.path},\n  " +
+          "Command output at ${outputFile}:\n${outputFile.text}", cause)
     }
   }
 }

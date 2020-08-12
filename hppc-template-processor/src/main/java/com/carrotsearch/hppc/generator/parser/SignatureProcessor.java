@@ -17,18 +17,18 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.CompilationUnitContext;
+import com.carrotsearch.hppc.generator.parser.JavaParser.CompilationUnitContext;
 
 /** */
 public class SignatureProcessor {
-  final Java7Parser parser;
+  final JavaParser parser;
   final CommonTokenStream tokenStream;
   final CompilationUnitContext unitContext;
 
   public SignatureProcessor(String input) {
-    Lexer lexer = new Java7Lexer(CharStreams.fromString(input));
+    Lexer lexer = new JavaLexer(CharStreams.fromString(input));
     tokenStream = new CommonTokenStream(lexer);
-    parser = new Java7Parser(tokenStream);
+    parser = new JavaParser(tokenStream);
     parser.setErrorHandler(new BailErrorStrategy());
     unitContext = parser.compilationUnit();
   }
@@ -116,7 +116,7 @@ public class SignatureProcessor {
 
   protected String tokenText(TemplateOptions templateOptions, Token token) {
     String text = token.getText();
-    if (token.getChannel() == Java7Lexer.CHANNEL_COMMENT) {
+    if (token.getChannel() == JavaLexer.CHANNEL_COMMENT) {
       text = processComment(text, templateOptions);
     }
     return text;

@@ -9,6 +9,7 @@ import org.junit.Test;
 public class IdentitySetsTest
 {
     @SuppressForbidden("new Integer() intentional.")
+    @SuppressWarnings("deprecation")
     @Test
     public void testSanity()
     {

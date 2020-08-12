@@ -21,12 +21,7 @@ abstract class AbstractKTypeCollection<KType>
    */
   @Override
   public int removeAll(final KTypeLookupContainer<? super KType> c) {
-    // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
-    return this.removeAll(new KTypePredicate<KType>() {
-      public boolean apply(KType k) {
-        return c.contains(k);
-      }
-    });
+    return this.removeAll(c::contains);
   }
 
   /**
@@ -35,11 +30,7 @@ abstract class AbstractKTypeCollection<KType>
   @Override
   public int retainAll(final KTypeLookupContainer<? super KType> c) {
     // We know c holds sub-types of KType and we're not modifying c, so go unchecked.
-    return this.removeAll(new KTypePredicate<KType>() {
-      public boolean apply(KType k) {
-        return !c.contains(k);
-      }
-    });
+    return this.removeAll(k -> !c.contains(k));
   }
 
   /**
@@ -48,11 +39,7 @@ abstract class AbstractKTypeCollection<KType>
    */
   @Override
   public int retainAll(final KTypePredicate<? super KType> predicate) {
-    return removeAll(new KTypePredicate<KType>() {
-      public boolean apply(KType value) {
-        return !predicate.apply(value);
-      };
-    });
+    return removeAll(value -> !predicate.apply(value));
   }
 
   /**

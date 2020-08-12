@@ -3,7 +3,11 @@
 
 ** New features
 
+HPPC-179: Update java template parser to support Java 8.
+
 ** Improvements
+
+HPPC-183: Simplify IndirectSort comparator to use IntBinaryOperator.
 
 HPPC-177: Modernize the build system to gradle and make it work with IntelliJ.
 

@@ -1,0 +1,27 @@
+package com.carrotsearch.hppc.generator.parser;
+
+import com.carrotsearch.hppc.generator.parser.subpackage.LongObjectInterfaceImported;
+
+/**
+ * A list of longs.
+ */
+public class LongObjectClass<VType>
+       extends    LongObjectSuper<VType>
+       implements LongObjectInterface<VType>,
+                  LongObjectInterfaceImported<VType>,
+                  Cloneable
+{
+  long [] keys;
+
+  public LongObjectClass() {}
+  public LongObjectClass(long[] foo, VType boo) {}
+
+  public LongObjectClass(LongObjectSuper<VType> foo) {}
+  public VType foo(long key, VType value) { throw new RuntimeException(); }
+
+  public void foo(LongObjectSuper<? extends VType> foo) {}
+}
+
+class LongObjectSuper<VType> {}
+
+interface LongObjectInterface<VType> {}

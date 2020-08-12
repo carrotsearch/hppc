@@ -8,6 +8,7 @@ import org.junit.Test;
 public class IdentityMapsTest
 {
     @SuppressForbidden("new Integer() intentional")
+    @SuppressWarnings("deprecation")
     @Test
     public void testSanity()
     {
@@ -60,6 +61,7 @@ public class IdentityMapsTest
     }
 
     @SuppressForbidden("new Double() intentional")
+    @SuppressWarnings("deprecation")
     @Test
     public void testNaNsInValues()
     {

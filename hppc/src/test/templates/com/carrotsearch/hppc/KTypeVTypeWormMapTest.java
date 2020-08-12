@@ -1,7 +1,6 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.hppc.*;
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
@@ -9,9 +8,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 import static com.carrotsearch.hppc.TestUtils.assertEquals2;
 import static com.carrotsearch.hppc.TestUtils.assertSortedListEquals;
@@ -303,39 +300,39 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
 
         map.put(empty, value1);
         assertEquals(1, map.size());
-        assertEquals(false, map.isEmpty());
+        assertFalse(map.isEmpty());
         assertEquals2(value1, map.get(empty));
         assertEquals2(value1, map.getOrDefault(empty, value2));
-        assertEquals(true, map.iterator().hasNext());
+        assertTrue(map.iterator().hasNext());
         assertEquals2(empty, map.iterator().next().key);
         assertEquals2(value1, map.iterator().next().value);
 
-        assertEquals(true, map.forEach(new KTypeVTypeProcedure<KType, VType>() {
+        assertTrue(map.forEach(new KTypeVTypeProcedure<KType, VType>() {
             boolean hadKeyValue;
 
             @Override
             public void apply(KType key, VType value) {
-              hadKeyValue |= (key == empty && value == value1);
+                hadKeyValue |= (key == empty && value == value1);
             }
-          }).hadKeyValue);
+        }).hadKeyValue);
 
-        assertEquals(true, map.forEach(new KTypeVTypePredicate<KType, VType>() {
-          boolean hadKeyValue;
+        assertTrue(map.forEach(new KTypeVTypePredicate<KType, VType>() {
+            boolean hadKeyValue;
 
-          @Override
-          public boolean apply(KType key, VType value) {
-            hadKeyValue |= (key == empty && value == value1);
-            return true;
-          }
+            @Override
+            public boolean apply(KType key, VType value) {
+                hadKeyValue |= (key == empty && value == value1);
+                return true;
+            }
         }).hadKeyValue);
 
         assertEquals(1, map.keys().size());
-        assertEquals(true, map.keys().contains(empty));
+        assertTrue(map.keys().contains(empty));
         assertEquals2(empty, map.keys().iterator().next().value);
         Assertions.assertThat(map.keys().toArray()).containsOnly(empty);
 
         assertEquals(1, map.values().size());
-        assertEquals(true, map.values().contains(value1));
+        assertTrue(map.values().contains(value1));
         assertEquals2(value1, map.values().iterator().next().value);
         Assertions.assertThat(map.values().toArray()).containsOnly(value1);
 
@@ -602,8 +599,8 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
 
-        assertFalse(l1.equals(l3));
-        assertFalse(l2.equals(l3));
+        assertNotEquals(l1, l3);
+        assertNotEquals(l2, l3);
     }
 
     @Test
@@ -617,16 +614,16 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
             newArray(key2),
             newvArray(value1));
 
-        assertFalse(l1.equals(l2));
-        assertFalse(l2.equals(l1));
+        assertNotEquals(l1, l2);
+        assertNotEquals(l2, l1);
     }
 
     /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @Test
     public void testNullValue()
     {
-        assertEquals(null, map.put(key1, null));
-        assertEquals(null, map.get(key1));
+        assertNull(map.put(key1, null));
+        assertNull(map.get(key1));
         assertTrue(map.containsKey(key1));
         map.remove(key1);
         assertFalse(map.containsKey(key1));
@@ -793,8 +790,7 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
     @Test
     public void testEqualsSubClass()
     {
-        class Sub extends KTypeVTypeWormMap<KType, VType> {
-        };
+        class Sub extends KTypeVTypeWormMap<KType, VType> {}
 
         KTypeVTypeWormMap<KType, VType> l1 = newInstance();
         l1.put(k1, value0);
@@ -811,5 +807,199 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
         Assertions.assertThat(l1).isNotEqualTo(l2);
         Assertions.assertThat(l2.hashCode()).isEqualTo(l3.hashCode());
         Assertions.assertThat(l2).isEqualTo(l3);
-    }    
+    }
+
+    /* */
+    @Test
+    public void testIndexOf()
+    {
+        map.put(key1, value3);
+        map.put(key2, value2);
+        map.put(key3, value1);
+        assertTrue(map.indexOf(key1) >= 0);
+        assertTrue(map.indexOf(key2) >= 0);
+        assertTrue(map.indexOf(key3) >= 0);
+        assertTrue(map.indexOf(key4) < 0);
+        assertTrue(map.indexOf(key5) < 0);
+
+        KTypeVTypeWormMap<KType, VType> sameHashMap = new KTypeVTypeWormMap<KType, VType>() {
+            @Override
+            public int hashKey(KType key) {
+                return 0;
+            }
+        };
+        sameHashMap.put(key1, value3);
+        sameHashMap.put(key2, value2);
+        sameHashMap.put(key3, value1);
+        assertTrue(sameHashMap.indexOf(key1) >= 0);
+        assertTrue(sameHashMap.indexOf(key2) >= 0);
+        assertTrue(sameHashMap.indexOf(key3) >= 0);
+        assertTrue(sameHashMap.indexOf(key4) < 0);
+        assertTrue(sameHashMap.indexOf(key5) < 0);
+    }
+
+    /* */
+    @Test
+    public void testIndexReplace()
+    {
+        KTypeVTypeWormMap<KType, VType> sameHashMap = new KTypeVTypeWormMap<KType, VType>() {
+            @Override
+            public int hashKey(KType key) {
+                return 0;
+            }
+        };
+        sameHashMap.put(key1, value1);
+        sameHashMap.put(key2, value2);
+        sameHashMap.put(key3, value3);
+
+        int index = sameHashMap.indexOf(key2);
+        assertTrue(index >= 0);
+        sameHashMap.indexReplace(index, value4);
+
+        assertEquals2(value1, sameHashMap.get(key1));
+        assertEquals2(value4, sameHashMap.get(key2));
+        assertEquals2(value3, sameHashMap.get(key3));
+    }
+
+    /* */
+    @Test
+    public void testIndexInsert()
+    {
+        KTypeVTypeWormMap<KType, VType> sameHashMap = new KTypeVTypeWormMap<KType, VType>() {
+            @Override
+            public int hashKey(KType key) {
+                return 0;
+            }
+        };
+        sameHashMap.put(key1, value1);
+        sameHashMap.put(key2, value2);
+        sameHashMap.put(key3, value3);
+
+        int index = sameHashMap.indexOf(key4);
+        assertTrue(index < 0);
+        sameHashMap.indexInsert(index, key4, value4);
+
+        assertEquals2(value1, sameHashMap.get(key1));
+        assertEquals2(value2, sameHashMap.get(key2));
+        assertEquals2(value3, sameHashMap.get(key3));
+        assertEquals2(value4, sameHashMap.get(key4));
+    }
+
+    /*! #if ($TemplateOptions.AllGeneric) !*/
+    private static final int MIN_RANDOM_KEY = -50;
+    private static final int MAX_RANDOM_KEY = 50;
+
+    @Test
+    public void testAgainstHashMap2()
+    {
+        final int NUM_OPERATIONS = 1000000;
+        KTypeVTypeWormMap<Integer, Integer> wormMap = randomBoolean() ? new KTypeVTypeWormMap<Integer, Integer>() : new KTypeVTypeWormMap<Integer, Integer>(randomIntBetween(0, 100));
+        Map<Integer, Integer> jdkMap = new HashMap<>();
+        for (int i = 0; i < NUM_OPERATIONS; i++) {
+            try {
+                Operation op = Operation.random();
+                op.apply(wormMap, jdkMap);
+                checkEquals(jdkMap, wormMap);
+            } catch (Throwable t) {
+                throw new AssertionError((t.getMessage() == null ? "" : t.getMessage() + " ") + "for i=" + i + ", jdkSet=" + jdkMap + ", wormMap=" + wormMap, t);
+            }
+        }
+    }
+
+    private void checkEquals(final Map<Integer, Integer> jdkMap, final KTypeVTypeWormMap<Integer, Integer> wormMap) {
+        assertEquals(jdkMap.size(), wormMap.size());
+        assertEquals(jdkMap.size(), wormMap.keys().size());
+        assertEquals(jdkMap.size(), wormMap.values().size());
+        for (Map.Entry<Integer, Integer> entry : jdkMap.entrySet()) {
+            assertEquals(entry.getValue(), wormMap.get(entry.getKey()));
+        }
+        if (randomBoolean()) {
+            wormMap.forEach(new KTypeVTypePredicate<Integer, Integer>() {
+                @Override
+                public boolean apply(Integer key, Integer value) {
+                    assertEquals(value, wormMap.get(key));
+                    assertEquals(jdkMap.get(key), value);
+                    return true;
+                }
+            });
+        } else {
+            wormMap.keys().forEach(new KTypePredicate<Integer>() {
+                @Override
+                public boolean apply(Integer key) {
+                    assertEquals(jdkMap.get(key), wormMap.get(key));
+                    return true;
+                }
+            });
+        }
+    }
+
+    private enum Operation {
+        CLEAR(1, new Application() {
+            @Override
+            public void apply(KTypeVTypeWormMap<Integer, Integer> wormMap, Map<Integer, Integer> jdkMap) {
+                wormMap.clear(); jdkMap.clear();
+            }}),
+        PUT(50, new Application() {
+            @Override
+            public void apply(KTypeVTypeWormMap<Integer, Integer> wormMap, Map<Integer, Integer> jdkMap) {
+                int e = randomKey(); wormMap.put(e, value(e)); jdkMap.put(e, value(e));
+            }}),
+        GET(30, new Application() {
+            @Override
+            public void apply(KTypeVTypeWormMap<Integer, Integer> wormMap, Map<Integer, Integer> jdkMap) {
+                int e = randomKey(); assertEquals(jdkMap.get(e), wormMap.get(e));
+            }}),
+        REMOVE(20, new Application() {
+            @Override
+            public void apply(KTypeVTypeWormMap<Integer, Integer> wormMap, Map<Integer, Integer> jdkMap) {
+                int e = randomKey(); wormMap.remove(e); jdkMap.remove(e);
+            }}),
+        ;
+        final int randomRange;
+        final Application application;
+
+        Operation(int randomRange, Application application) {
+            this.randomRange = randomRange;
+            this.application = application;
+        }
+
+        void apply(KTypeVTypeWormMap<Integer, Integer> wormMap, Map<Integer, Integer> jdkMap) {
+            application.apply(wormMap, jdkMap);
+        }
+
+        static Operation random() {
+            int randomValue = randomIntBetween(0, SUM_RANGES - 1);
+            int cumulativeRange = 0;
+            for (Operation op : OPERATIONS) {
+                cumulativeRange += op.randomRange;
+                if (randomValue < cumulativeRange) {
+                    return op;
+                }
+            }
+            throw new IllegalStateException();
+        }
+
+        static int randomKey() {
+            return randomIntBetween(MIN_RANDOM_KEY, MAX_RANDOM_KEY);
+        }
+
+        static int value(int key) {
+            return key + 2 * MAX_RANDOM_KEY;
+        }
+
+        static final Operation[] OPERATIONS = Operation.values();
+        static final int SUM_RANGES;
+        static {
+            int sumRanges = 0;
+            for (Operation op : OPERATIONS) {
+                sumRanges += op.randomRange;
+            }
+            SUM_RANGES = sumRanges;
+        }
+
+        interface Application {
+            void apply(KTypeVTypeWormMap<Integer, Integer> wormMap, Map<Integer, Integer> jdkMap);
+        }
+    }
+    /*! #end !*/
 }

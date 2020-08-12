@@ -813,25 +813,13 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
-      owner.forEach(new KTypeVTypeProcedure<KType, VType>() {
-        @Override
-        public void apply(KType key, VType value) {
-          procedure.apply(key);
-        }
-      });
-
+      owner.forEach((KTypeVTypeProcedure<KType, VType>) (k, v) -> procedure.apply(k));
       return procedure;
     }
 
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
-      owner.forEach(new KTypeVTypePredicate<KType, VType>() {
-        @Override
-        public boolean apply(KType key, VType value) {
-          return predicate.apply(key);
-        }
-      });
-
+      owner.forEach((KTypeVTypePredicate<KType, VType>) (key, value) -> predicate.apply(key));
       return predicate;
     }
 
@@ -867,8 +855,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     public int removeAll(final KType e) {
-      final boolean hasKey = owner.containsKey(e);
-      if (hasKey) {
+      if (owner.containsKey(e)) {
         owner.remove(e);
         return 1;
       } else {
@@ -972,22 +959,12 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     public int removeAll(final VType e) {
-      return owner.removeAll(new KTypeVTypePredicate<KType, VType>() {
-        @Override
-        public boolean apply(KType key, VType value) {
-          return Intrinsics.<VType> equals(e, value);
-        }
-      });
+      return owner.removeAll((key, value) -> Intrinsics.<VType> equals(e, value));
     }
 
     @Override
     public int removeAll(final KTypePredicate<? super VType> predicate) {
-      return owner.removeAll(new KTypeVTypePredicate<KType, VType>() {
-        @Override
-        public boolean apply(KType key, VType value) {
-          return predicate.apply(value);
-        }
-      });
+      return owner.removeAll((key, value) -> predicate.apply(value));
     }
 
     @Override
@@ -1046,7 +1023,7 @@ public class KTypeVTypeHashMap<KType, VType>
       KTypeVTypeHashMap<KType, VType> cloned = (KTypeVTypeHashMap<KType, VType>) super.clone();
       cloned.keys = keys.clone();
       cloned.values = values.clone();
-      cloned.hasEmptyKey = cloned.hasEmptyKey;
+      cloned.hasEmptyKey = hasEmptyKey;
       cloned.orderMixer = orderMixer.clone();
       return cloned;
     } catch (CloneNotSupportedException e) {
