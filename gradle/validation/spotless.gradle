@@ -26,7 +26,7 @@ subprojects {
   }
 }
 
-configure([project(":hppc-examples"),
+configure([
            project(":hppc-benchmarks"),
            project(":hppc"),
            project(":hppc-template-intrinsics"),
