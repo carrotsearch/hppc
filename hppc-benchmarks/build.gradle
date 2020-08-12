@@ -1,0 +1,45 @@
+plugins {
+  id 'java-library'
+  id "me.champeau.gradle.jmh"
+}
+
+dependencies {
+  implementation project(":hppc")
+
+  implementation "it.unimi.dsi:fastutil:8.4.1"
+  implementation "com.koloboke:koloboke-impl-jdk8:1.0.0"
+
+  implementation 'org.openjdk.jmh:jmh-core'
+  jmh 'org.openjdk.jmh:jmh-core'
+  jmh 'org.openjdk.jmh:jmh-generator-annprocess'
+}
+
+jmh {
+  duplicateClassesStrategy = DuplicatesStrategy.WARN
+}
+
+task benchmark() {
+  dependsOn jmhJar
+
+  doFirst {
+    println """JMH benchmarks JAR is at:\n  ${jmhJar.archiveFile.get()}
+
+List benchmarks:
+  java -jar ${jmhJar.archiveFile.get()} -l
+
+Run all benchmarks:
+  java -jar ${jmhJar.archiveFile.get()}
+
+JMH options:
+  java -jar ${jmhJar.archiveFile.get()} -h
+
+Example of filtering to one benchmark and a subset of parameters:
+  java -jar ${jmhJar.archiveFile.get()} B002_HashSet_Add -p library=HPPC,FASTUTIL
+
+"""
+  }
+}
+
+versionsLock {
+  testProject()
+}
