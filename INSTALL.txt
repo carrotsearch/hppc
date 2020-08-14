@@ -20,7 +20,7 @@ wrapper so everything should just work.
 Benchmarks
 ----------
 
-./gradlew benchmarks
+./gradlew benchmark
 
 Will generate and display benchmark JAR location and JMH 
 options.
