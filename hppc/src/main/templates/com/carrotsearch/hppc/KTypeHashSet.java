@@ -236,7 +236,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = mask; slot <= max; slot++) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         cloned[j++] = existing;
@@ -478,8 +478,8 @@ public class KTypeHashSet<KType>
    */
   protected final class EntryIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private int index;
+    private int slot;
 
     public EntryIterator() {
       cursor = new KTypeCursor<KType>();
@@ -487,21 +487,21 @@ public class KTypeHashSet<KType>
 
     @Override
     protected KTypeCursor<KType> fetch() {
-      if (slot < max) {
+      final int mask = KTypeHashSet.this.mask;
+      while (index <= mask) {
         KType existing;
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.value = existing;
-            return cursor;
-          }
+        index++;
+        slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask;
+        if (!Intrinsics.isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.value = existing;
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index++;
         cursor.value = Intrinsics.empty();
-        slot++;
         return cursor;
       }
 
@@ -519,7 +519,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         procedure.apply(existing);
@@ -541,7 +541,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (!predicate.apply(existing)) {
