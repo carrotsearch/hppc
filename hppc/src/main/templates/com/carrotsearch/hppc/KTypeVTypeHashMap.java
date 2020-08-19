@@ -1114,24 +1114,21 @@ public class KTypeVTypeHashMap<KType, VType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
     final int mask = this.mask;
-    final int fromMask = fromKeys.length - 2;
     KType existing;
 
     // Copy the zero element's slot, then rehash everything else.
     int from = fromKeys.length - 1;
-    int fromSlot = 0;
     keys[keys.length - 1] = fromKeys[from];
     values[values.length - 1] = fromValues[from];
     while (--from >= 0) {
-      if (!Intrinsics.<KType> isEmpty(existing = fromKeys[fromSlot])) {
+      if (!Intrinsics.<KType> isEmpty(existing = fromKeys[from])) {
         int slot = hashKey(existing) & mask;
         while (!Intrinsics.<KType> isEmpty(keys[slot])) {
           slot = (slot + 1) & mask;
         }
         keys[slot] = existing;
-        values[slot] = fromValues[fromSlot];
+        values[slot] = fromValues[from];
       }
-      fromSlot = (fromSlot + ITERATION_ORDER_INCREMENT) & fromMask;
     }
   }
 

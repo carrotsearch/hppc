@@ -741,18 +741,15 @@ public class KTypeHashSet<KType>
     // Rehash all stored keys into the new buffers.
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final int mask = this.mask;
-    final int fromMask = fromKeys.length - 2;
-    int fromSlot = 0;
     KType existing;
     for (int i = fromKeys.length - 1; --i >= 0;) {
-      if (!Intrinsics.isEmpty(existing = fromKeys[fromSlot])) {
+      if (!Intrinsics.isEmpty(existing = fromKeys[i])) {
         int slot = hashKey(existing) & mask;
         while (!Intrinsics.isEmpty(keys[slot])) {
           slot = (slot + 1) & mask;
         }
         keys[slot] = existing;
       }
-      fromSlot = (fromSlot + ITERATION_ORDER_INCREMENT) & fromMask;
     }
   }
 
