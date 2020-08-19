@@ -38,17 +38,9 @@ public class KTypeScatterSet<KType> extends KTypeHashSet<KType> {
    */
   @SuppressWarnings("deprecation")
   public KTypeScatterSet(int expectedElements, double loadFactor) {
-    super(expectedElements, loadFactor, HashOrderMixing.none());
+    super(expectedElements, loadFactor);
   }
 
-  /*! #if ($templateonly) !*/
-  @Override
-  public
-  /*! #else protected #end !*/
-  int hashKey(KType key) {
-    return BitMixer.mixPhi(key);
-  }
-  
   /**
    * Create a set from a variable number of arguments or an array of
    * <code>KType</code>. The elements are copied from the argument to the

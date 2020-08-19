@@ -219,13 +219,12 @@ public class APIExpectationsTest extends RandomizedTest {
   }
 
   /*
-   * Even with two different hash distribution keys the
-   * result of hashCode() should be the same.
+   * hashCode() should be the same between instances.
    */
   @Test
   public void testHashCodeOverflowIdentical() {
-    IntHashSet l0 = new IntHashSet(0, 0.5, HashOrderMixing.constant(0xcafe));
-    IntHashSet l1 = new IntHashSet(0, 0.5, HashOrderMixing.constant(0xbabe));
+    IntHashSet l0 = new IntHashSet(0, 0.5);
+    IntHashSet l1 = new IntHashSet(0, 0.5);
 
     for (int i = 100000 + randomIntBetween(0, 100000); i-- > 0; ) {
       l0.add(i);

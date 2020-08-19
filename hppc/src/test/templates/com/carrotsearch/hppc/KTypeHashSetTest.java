@@ -431,24 +431,6 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         assertEquals(l1, l2);
     }
 
-    /* */
-    @Test
-    public void testHashCodeEqualsForDifferentMix()
-    {
-        KTypeHashSet<KType> l0 = new KTypeHashSet<KType>(0, 0.5d, HashOrderMixing.constant(1));
-        KTypeHashSet<KType> l1 = new KTypeHashSet<KType>(0, 0.5d, HashOrderMixing.constant(2));
-
-        assertEquals(0, l0.hashCode());
-        assertEquals(l0.hashCode(), l1.hashCode());
-        assertEquals(l0, l1);
-
-        l0.addAll(newArray(k1, k2, k3));
-        l1.addAll(newArray(k1, k2, k3));
-
-        assertEquals(l0.hashCode(), l1.hashCode());
-        assertEquals(l0, l1);
-    }
-
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
     public void testHashCodeWithNulls()

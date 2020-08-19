@@ -23,7 +23,7 @@ public class EntryShiftingOnRemovalTest extends RandomizedTest {
   public void testRemoveSanity() {
     @SuppressWarnings("deprecation")
     IntHashSet v =
-        new IntHashSet(8, 0.5d, HashOrderMixing.none()) {
+        new IntHashSet(8, 0.5d) {
           @Override
           protected int hashKey(int key) {
             return key & 0xff;

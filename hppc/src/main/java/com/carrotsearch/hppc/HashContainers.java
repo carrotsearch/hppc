@@ -32,7 +32,8 @@ public final class HashContainers {
    * Prime increment to kind of shuffle the iteration order to avoid collision avalanches during
    * hash containers copies.
    */
-  public static final int ITERATION_ORDER_INCREMENT = 29;
+  public static final int ITERATION_ORDER_INCREMENT =
+      29; // TODO: should be removed and inlined in iterationIncrement().
 
   /**
    * Compute and return the maximum number of elements (inclusive) that can be stored in a hash
@@ -100,5 +101,10 @@ public final class HashContainers {
     assert arraySize > 1;
     assert BitUtil.nextHighestPowerOfTwo(arraySize) == arraySize;
     return true;
+  }
+
+  /** Computes a hash iteration order increment based on the provided seed. */
+  static int iterationIncrement(int seed) {
+    return ITERATION_ORDER_INCREMENT + ((seed & 7) << 1);
   }
 }
