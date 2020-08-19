@@ -124,9 +124,14 @@ public class HashCollisionsClusteringTest extends RandomizedTest {
 
     long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(15);
     IntHashSet source = new IntHashSet(expected, 0.9);
+    boolean shouldCreateNewSourceInstances = randomBoolean();
     int unique = 0;
     for (int i = 0; i < 200; i++) {
-      source.clear();
+      if (shouldCreateNewSourceInstances) {
+        source = new IntHashSet(expected, 0.9);
+      } else {
+        source.clear();
+      }
       while (source.size() < keys) {
         source.add(unique++);
       }

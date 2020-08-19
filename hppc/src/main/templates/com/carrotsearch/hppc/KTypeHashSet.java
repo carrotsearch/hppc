@@ -71,7 +71,7 @@ public class KTypeHashSet<KType>
   /**
    * Seed used to ensure the hash iteration order is different from an iteration to another.
    */
-  protected int iterationSeed = 1;
+  protected int iterationSeed;
 
   /**
    * New instance with sane defaults.
@@ -102,6 +102,7 @@ public class KTypeHashSet<KType>
    */
   public KTypeHashSet(int expectedElements, double loadFactor) {
     this.loadFactor = verifyLoadFactor(loadFactor);
+    iterationSeed = HashContainers.nextIterationSeed();
     ensureCapacity(expectedElements);
   }
 
