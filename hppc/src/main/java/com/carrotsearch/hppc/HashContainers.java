@@ -29,6 +29,12 @@ public final class HashContainers {
   public static final float MAX_LOAD_FACTOR = 99 / 100.0f;
 
   /**
+   * Prime increment to kind of shuffle the iteration order to avoid collision avalanches during
+   * hash containers copies.
+   */
+  public static final int ITERATION_ORDER_INCREMENT = 29;
+
+  /**
    * Compute and return the maximum number of elements (inclusive) that can be stored in a hash
    * container for a given load factor.
    */

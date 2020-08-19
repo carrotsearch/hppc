@@ -704,8 +704,8 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
     private final KTypeVTypeCursor<KType, VType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private int index;
+    private int slot;
 
     public EntryIterator() {
       cursor = new KTypeVTypeCursor<KType, VType>();
@@ -713,23 +713,23 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     protected KTypeVTypeCursor<KType, VType> fetch() {
-      if (slot < max) {
+      final int mask = KTypeVTypeHashMap.this.mask;
+      while (index <= mask) {
         KType existing;
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.<KType> isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.key = existing;
-            cursor.value = Intrinsics.<VType> cast(values[slot]);
-            return cursor;
-          }
+        index++;
+        slot = (slot + ITERATION_ORDER_INCREMENT) & mask;
+        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.key = existing;
+          cursor.value = Intrinsics.<VType>cast(values[slot]);
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index;
         cursor.key = Intrinsics.<KType> empty();
-        cursor.value = Intrinsics.<VType> cast(values[max]);
-        slot++;
+        cursor.value = Intrinsics.<VType> cast(values[index++]);
         return cursor;
       }
 
@@ -757,7 +757,7 @@ public class KTypeVTypeHashMap<KType, VType>
       procedure.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]));
     }
 
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + ITERATION_ORDER_INCREMENT) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         procedure.apply(keys[slot], values[slot]);
       }
@@ -780,7 +780,7 @@ public class KTypeVTypeHashMap<KType, VType>
       }
     }
 
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + ITERATION_ORDER_INCREMENT) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         if (!predicate.apply(keys[slot], values[slot])) {
           break;
@@ -869,8 +869,8 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private int index;
+    private int slot;
 
     public KeysIterator() {
       cursor = new KTypeCursor<KType>();
@@ -878,21 +878,21 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     protected KTypeCursor<KType> fetch() {
-      if (slot < max) {
+      final int mask = KTypeVTypeHashMap.this.mask;
+      while (index <= mask) {
         KType existing;
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.<KType> isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.value = existing;
-            return cursor;
-          }
+        index++;
+        slot = (slot + ITERATION_ORDER_INCREMENT) & mask;
+        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.value = existing;
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index++;
         cursor.value = Intrinsics.<KType> empty();
-        slot++;
         return cursor;
       }
 
@@ -983,8 +983,8 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   private final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>> {
     private final KTypeCursor<VType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private int index;
+    private int slot;
 
     public ValuesIterator() {
       cursor = new KTypeCursor<VType>();
@@ -992,20 +992,20 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     protected KTypeCursor<VType> fetch() {
-      if (slot < max) {
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.value = Intrinsics.<VType> cast(values[slot]);
-            return cursor;
-          }
+      final int mask = KTypeVTypeHashMap.this.mask;
+      while (index <= mask) {
+        index++;
+        slot = (slot + ITERATION_ORDER_INCREMENT) & mask;
+        if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.value = Intrinsics.<VType> cast(values[slot]);
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
-        cursor.value = Intrinsics.<VType> cast(values[max]);
-        slot++;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index;
+        cursor.value = Intrinsics.<VType> cast(values[index++]);
         return cursor;
       }
 
@@ -1114,21 +1114,24 @@ public class KTypeVTypeHashMap<KType, VType>
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
     final int mask = this.mask;
+    final int fromMask = fromKeys.length - 2;
     KType existing;
 
     // Copy the zero element's slot, then rehash everything else.
     int from = fromKeys.length - 1;
+    int fromSlot = 0;
     keys[keys.length - 1] = fromKeys[from];
     values[values.length - 1] = fromValues[from];
     while (--from >= 0) {
-      if (!Intrinsics.<KType> isEmpty(existing = fromKeys[from])) {
+      if (!Intrinsics.<KType> isEmpty(existing = fromKeys[fromSlot])) {
         int slot = hashKey(existing) & mask;
         while (!Intrinsics.<KType> isEmpty(keys[slot])) {
           slot = (slot + 1) & mask;
         }
         keys[slot] = existing;
-        values[slot] = fromValues[from];
+        values[slot] = fromValues[fromSlot];
       }
+      fromSlot = (fromSlot + ITERATION_ORDER_INCREMENT) & fromMask;
     }
   }
 

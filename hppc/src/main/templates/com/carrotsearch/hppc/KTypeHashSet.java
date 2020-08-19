@@ -236,7 +236,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + ITERATION_ORDER_INCREMENT) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         cloned[j++] = existing;
@@ -491,7 +491,7 @@ public class KTypeHashSet<KType>
       while (index <= mask) {
         KType existing;
         index++;
-        slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask;
+        slot = (slot + ITERATION_ORDER_INCREMENT) & mask;
         if (!Intrinsics.isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
           cursor.index = slot;
           cursor.value = existing;
@@ -519,7 +519,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + ITERATION_ORDER_INCREMENT) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         procedure.apply(existing);
@@ -541,7 +541,7 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + BitMixer.ITERATION_ORDER_INCREMENT) & mask) {
+    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + ITERATION_ORDER_INCREMENT) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (!predicate.apply(existing)) {
@@ -752,7 +752,7 @@ public class KTypeHashSet<KType>
         }
         keys[slot] = existing;
       }
-      fromSlot = (fromSlot + BitMixer.ITERATION_ORDER_INCREMENT) & fromMask;
+      fromSlot = (fromSlot + ITERATION_ORDER_INCREMENT) & fromMask;
     }
   }
 

@@ -189,10 +189,4 @@ public final class BitMixer {
     final int h = (k == null ? 0 : (k.hashCode() ^ seed) * PHI_C32);
     return h ^ (h >>> 16);
   }
-
-  /**
-   * Prime increment to kind of "shuffle" the iteration order to avoid collision avalanches during
-   * hash containers copies.
-   */
-  public static final int ITERATION_ORDER_INCREMENT = 29;
 }
