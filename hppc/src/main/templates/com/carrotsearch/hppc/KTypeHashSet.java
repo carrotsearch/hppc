@@ -20,7 +20,6 @@ import static com.carrotsearch.hppc.Containers.*;
  * important differences between hash and scatter sets</a>.
  * </p>
  * 
- * @see KTypeScatterSet
  * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/

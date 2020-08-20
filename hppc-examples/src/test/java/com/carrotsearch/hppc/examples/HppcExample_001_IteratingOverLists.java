@@ -45,7 +45,7 @@ public class HppcExample_001_IteratingOverLists {
    * passed to the procedure.
    */
   @Test
-  public void forEachLoop() throws Exception {
+  public void forEachLoop() {
     list.forEach(
         new IntProcedure() {
           int index;
@@ -63,7 +63,7 @@ public class HppcExample_001_IteratingOverLists {
    * over object buffers.
    */
   @Test
-  public void directBufferLoop() throws Exception {
+  public void directBufferLoop() {
     final int[] buffer = list.buffer;
     final int size = list.size();
     for (int i = 0; i < size; i++) {

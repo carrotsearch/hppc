@@ -74,9 +74,6 @@ public final class HashOrderMixing {
    * key distribution but wishes to control it manually.
    *
    * <p>Do not use the same constant for more than one container.
-   *
-   * <p>Consider using {@linkplain ObjectScatterSet scatter maps or sets} instead of constant hash
-   * order mixer.
    */
   public static HashOrderMixingStrategy constant(final long seed) {
     return new HashOrderMixingStrategy() {

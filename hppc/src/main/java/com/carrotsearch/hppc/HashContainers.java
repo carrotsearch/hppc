@@ -107,9 +107,7 @@ public final class HashContainers {
     return true;
   }
 
-  /**
-   * Provides the next hash iteration order seed. It is simply an incrementing atomic counter.
-   */
+  /** Provides the next hash iteration order seed. It is simply an incrementing atomic counter. */
   static int nextIterationSeed() {
     return ITERATION_SEED.incrementAndGet();
   }

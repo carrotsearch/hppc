@@ -25,10 +25,10 @@ public enum Library {
     }
   },
 
-  HPPC_SCATTER {
+  HPPC_SCATTER { // TODO: remove
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntScatterSetOps(expectedElements, loadFactor);
+      return new HppcIntSetOps(expectedElements, loadFactor);
     }
 
     @Override
@@ -76,7 +76,7 @@ public enum Library {
   WORM_SCATTER {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntScatterSetOps(expectedElements, loadFactor); // TODO
+      return new HppcIntSetOps(expectedElements, loadFactor); // TODO
     }
 
     @Override

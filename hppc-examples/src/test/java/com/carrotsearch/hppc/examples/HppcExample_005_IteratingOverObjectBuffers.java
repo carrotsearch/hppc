@@ -26,7 +26,7 @@ public class HppcExample_005_IteratingOverObjectBuffers {
    * <p>A manual cast to the generic type (for every element) is required.
    */
   @Test
-  public void directBufferLoop() throws Exception {
+  public void directBufferLoop() {
     final Object[] buffer = list.buffer;
     final int size = list.size();
     for (int i = 0; i < size; i++) {
