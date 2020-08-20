@@ -410,6 +410,7 @@ public class KTypeHashSet<KType>
       KTypeHashSet<KType> cloned = (KTypeHashSet<KType>) super.clone();
       cloned.keys = keys.clone();
       cloned.hasEmptyKey = hasEmptyKey;
+      cloned.iterationSeed = HashContainers.nextIterationSeed();
       return cloned;
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);

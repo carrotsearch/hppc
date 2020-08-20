@@ -665,15 +665,27 @@ public class KTypeVTypeHashMap<KType, VType>
   }
 
   /**
+   * Provides the next iteration seed used to build the iteration starting slot and offset increment.
+   * This method does not need to be synchronized, what matters is that each thread gets a sequence of varying seeds.
+   */
+  protected int nextIterationSeed() {
+    return iterationSeed = BitMixer.mixPhi(iterationSeed);
+  }
+
+  /**
    * An iterator implementation for {@link #iterator}.
    */
   private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
     private final KTypeVTypeCursor<KType, VType> cursor;
+    private final int increment;
     private int index;
     private int slot;
 
     public EntryIterator() {
       cursor = new KTypeVTypeCursor<KType, VType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
     }
 
     @Override
@@ -682,7 +694,7 @@ public class KTypeVTypeHashMap<KType, VType>
       while (index <= mask) {
         KType existing;
         index++;
-        slot = (slot + ITERATION_ORDER_INCREMENT) & mask;
+        slot = (slot + increment) & mask;
         if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
           cursor.index = slot;
           cursor.key = existing;
@@ -722,7 +734,9 @@ public class KTypeVTypeHashMap<KType, VType>
       procedure.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]));
     }
 
-    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + ITERATION_ORDER_INCREMENT) & mask) {
+    int seed = nextIterationSeed();
+    int inc = iterationIncrement(seed);
+    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         procedure.apply(keys[slot], values[slot]);
       }
@@ -745,7 +759,9 @@ public class KTypeVTypeHashMap<KType, VType>
       }
     }
 
-    for (int i = 0, slot = 0, mask = this.mask; i <= mask; i++, slot = (slot + ITERATION_ORDER_INCREMENT) & mask) {
+    int seed = nextIterationSeed();
+    int inc = iterationIncrement(seed);
+    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         if (!predicate.apply(keys[slot], values[slot])) {
           break;
@@ -834,11 +850,15 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
+    private final int increment;
     private int index;
     private int slot;
 
     public KeysIterator() {
       cursor = new KTypeCursor<KType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
     }
 
     @Override
@@ -847,7 +867,7 @@ public class KTypeVTypeHashMap<KType, VType>
       while (index <= mask) {
         KType existing;
         index++;
-        slot = (slot + ITERATION_ORDER_INCREMENT) & mask;
+        slot = (slot + increment) & mask;
         if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
           cursor.index = slot;
           cursor.value = existing;
@@ -948,11 +968,15 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   private final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>> {
     private final KTypeCursor<VType> cursor;
+    private final int increment;
     private int index;
     private int slot;
 
     public ValuesIterator() {
       cursor = new KTypeCursor<VType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
     }
 
     @Override
@@ -960,7 +984,7 @@ public class KTypeVTypeHashMap<KType, VType>
       final int mask = KTypeVTypeHashMap.this.mask;
       while (index <= mask) {
         index++;
-        slot = (slot + ITERATION_ORDER_INCREMENT) & mask;
+        slot = (slot + increment) & mask;
         if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))) {
           cursor.index = slot;
           cursor.value = Intrinsics.<VType> cast(values[slot]);
@@ -989,6 +1013,7 @@ public class KTypeVTypeHashMap<KType, VType>
       cloned.keys = keys.clone();
       cloned.values = values.clone();
       cloned.hasEmptyKey = hasEmptyKey;
+      cloned.iterationSeed = HashContainers.nextIterationSeed();
       return cloned;
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);

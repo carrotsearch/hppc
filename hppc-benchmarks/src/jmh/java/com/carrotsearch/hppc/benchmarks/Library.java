@@ -25,6 +25,18 @@ public enum Library {
     }
   },
 
+  WORM {
+    @Override
+    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
+      return new HppcIntSetOps(expectedElements, loadFactor); // TODO
+    }
+
+    @Override
+    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
+      return new WormIntIntMapOps(expectedElements);
+    }
+  },
+
   FASTUTIL {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
@@ -46,30 +58,6 @@ public enum Library {
     @Override
     public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
       return new KolobokeIntIntMapOps(expectedElements, loadFactor);
-    }
-  },
-
-  WORM {
-    @Override
-    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntSetOps(expectedElements, loadFactor); // TODO
-    }
-
-    @Override
-    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
-      return new WormIntIntMapOps(expectedElements);
-    }
-  },
-
-  WORM_SCATTER {
-    @Override
-    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntSetOps(expectedElements, loadFactor); // TODO
-    }
-
-    @Override
-    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
-      return new WormIntIntScatterMapOps(expectedElements);
     }
   },
   ;

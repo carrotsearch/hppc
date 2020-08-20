@@ -30,13 +30,6 @@ public final class HashContainers {
   /** Maximum sane load factor (1 empty slot per 100). */
   public static final float MAX_LOAD_FACTOR = 99 / 100.0f;
 
-  /**
-   * Prime increment to kind of shuffle the iteration order to avoid collision avalanches during
-   * hash containers copies.
-   */
-  public static final int ITERATION_ORDER_INCREMENT =
-      29; // TODO: should be removed and inlined in iterationIncrement().
-
   private static final AtomicInteger ITERATION_SEED = new AtomicInteger();
 
   /**
@@ -114,6 +107,6 @@ public final class HashContainers {
 
   /** Computes a hash iteration order increment based on the provided seed. */
   static int iterationIncrement(int seed) {
-    return ITERATION_ORDER_INCREMENT + ((seed & 7) << 1);
+    return 29 + ((seed & 7) << 1); // Small odd integer.
   }
 }
