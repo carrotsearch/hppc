@@ -13,13 +13,7 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A hash set of <code>KType</code>s, implemented using using open addressing
  * with linear probing for collision resolution.
- * 
- * <p>
- * <strong>Note:</strong> read about 
- * <a href="{@docRoot}/overview-summary.html#scattervshash">
- * important differences between hash and scatter sets</a>.
- * </p>
- * 
+ *
  * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
@@ -561,8 +555,8 @@ public class KTypeHashSet<KType>
   /**
    * Returns a hash code for the given key.
    *
-   * The output from this function should evenly distribute keys across the
-   * entire integer range.
+   * <p>The output from this function should evenly distribute keys across the
+   * entire integer range.</p>
    */
   /*! #if ($templateonly) !*/
   @Override

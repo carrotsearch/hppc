@@ -33,8 +33,7 @@ public class ObjectIdentityHashSet<KType> extends ObjectHashSet<KType> {
    *     capacity) are rejected by {@link #verifyLoadFactor(double)}.
    */
   public ObjectIdentityHashSet(int expectedElements, double loadFactor) {
-    this.loadFactor = verifyLoadFactor(loadFactor);
-    ensureCapacity(expectedElements);
+    super(expectedElements, loadFactor);
   }
 
   /** New instance copying elements from another {@link ObjectContainer}. */
@@ -46,7 +45,7 @@ public class ObjectIdentityHashSet<KType> extends ObjectHashSet<KType> {
   @Override
   protected int hashKey(KType key) {
     assert key != null; // Handled as a special case (empty slot marker).
-    return BitMixer.mixPhi(key);
+    return BitMixer.mixPhi(System.identityHashCode(key));
   }
 
   @Override

@@ -698,28 +698,6 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
         assertFalse(l2.equals(l3));
     }
 
-    /* */
-    @Test 
-    public void testHashCodeEqualsForDifferentMix()
-    {
-      KTypeVTypeHashMap<KType, VType> l0 = new KTypeVTypeHashMap<>(0, 0.5d, HashOrderMixing.constant(1));
-      KTypeVTypeHashMap<KType, VType> l1 = new KTypeVTypeHashMap<>(0, 0.5d, HashOrderMixing.constant(2));
-
-      assertEquals(0, l0.hashCode());
-      assertEquals(l0.hashCode(), l1.hashCode());
-      assertEquals(l0, l1);
-
-      KTypeVTypeHashMap<KType, VType> l2 = KTypeVTypeHashMap.from(
-          newArray(key1, key2, key3),
-          newvArray(value1, value2, value3));
-
-      l0.putAll(l2);
-      l1.putAll(l2);
-
-      assertEquals(l0.hashCode(), l1.hashCode());
-      assertEquals(l0, l1);
-    }
-
     @Test
     public void testBug_HPPC37()
     {

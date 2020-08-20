@@ -25,18 +25,6 @@ public enum Library {
     }
   },
 
-  HPPC_SCATTER { // TODO: remove
-    @Override
-    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntSetOps(expectedElements, loadFactor);
-    }
-
-    @Override
-    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
-      return new HppcIntIntScatterMapOps(expectedElements, loadFactor);
-    }
-  },
-
   FASTUTIL {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {

@@ -2,7 +2,6 @@
 package com.carrotsearch.hppc;
 
 /* #if ($TemplateOptions.VTypeGeneric) */
-import java.util.Iterator;
 import com.carrotsearch.hppc.cursors.*;
 /* #end */
 
@@ -34,20 +33,6 @@ public class KTypeVTypeIdentityHashMap<KType, VType>
   }
 
   /**
-   * New instance with sane defaults.
-   * 
-   * @param expectedElements
-   *          The expected number of elements guaranteed not to cause buffer
-   *          expansion (inclusive).
-   * @param loadFactor
-   *          The load factor for internal buffers. Insane load factors (zero, full capacity)
-   *          are rejected by {@link #verifyLoadFactor(double)}.
-   */
-  public KTypeVTypeIdentityHashMap(int expectedElements, double loadFactor) {
-    this(expectedElements, loadFactor, HashOrderMixing.randomized());
-  }
-
-  /**
    * New instance with the provided defaults.
    * 
    * @param expectedElements
@@ -55,15 +40,9 @@ public class KTypeVTypeIdentityHashMap<KType, VType>
    * @param loadFactor
    *          The load factor for internal buffers. Insane load factors (zero, full capacity)
    *          are rejected by {@link #verifyLoadFactor(double)}.
-   * @param orderMixer
-   *          Hash key order mixing strategy. See {@link HashOrderMixing} for predefined
-   *          implementations. Use constant mixers only if you understand the potential
-   *          consequences.
    */
-  public KTypeVTypeIdentityHashMap(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
-    this.orderMixer = orderMixer;
-    this.loadFactor = verifyLoadFactor(loadFactor);
-    ensureCapacity(expectedElements);
+  public KTypeVTypeIdentityHashMap(int expectedElements, double loadFactor) {
+    super(expectedElements, loadFactor);
   }
 
   /**
@@ -77,7 +56,7 @@ public class KTypeVTypeIdentityHashMap<KType, VType>
   @Override
   public int hashKey(KType key) {
     assert !Intrinsics.<KType> isEmpty(key); // Handled as a special case (empty slot marker).
-    return BitMixer.mix(System.identityHashCode(key), this.keyMixer);
+    return BitMixer.mixPhi(System.identityHashCode(key));
   }
 
   @Override
@@ -93,12 +72,10 @@ public class KTypeVTypeIdentityHashMap<KType, VType>
       return false;
     }
 
-    Iterator<? extends KTypeVTypeCursor<?, ?>> i = other.iterator();
-    while (i.hasNext()) {
-      KTypeVTypeCursor<?, ?> c = i.next();
-      KType key = Intrinsics.<KType> cast(c.key);
+    for (KTypeVTypeCursor<?, ?> c : other) {
+      KType key = Intrinsics.<KType>cast(c.key);
       if (!containsKey(key) ||
-          !equals(get(key), c.value)) {   // Compare values using the same function as keys.
+              !equals(c.value, get(key))) {   // Compare values using the same function as keys.
         return false;
       }
     }

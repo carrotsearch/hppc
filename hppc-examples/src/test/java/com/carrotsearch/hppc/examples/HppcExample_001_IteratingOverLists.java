@@ -34,7 +34,7 @@ public class HppcExample_001_IteratingOverLists {
 
   /** A simple loop over indices of a list. */
   @Test
-  public void simpleLoop() throws Exception {
+  public void simpleLoop() {
     for (int i = 0, max = list.size(); i < max; i++) {
       printfln("list[%d] = %d", i, list.get(i));
     }
