@@ -1,0 +1,169 @@
+plugins {
+  id 'java-library'
+}
+
+sourceSets {
+  templates {
+    java {
+      srcDirs += file('src/main/templates')
+    }
+    compileClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.main.output
+  }
+
+  testTemplates {
+    java {
+      srcDirs += file('src/test/templates')
+    }
+    compileClasspath += sourceSets.main.output
+    compileClasspath += sourceSets.test.output
+    compileClasspath += sourceSets.templates.output
+    runtimeClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.test.output
+    runtimeClasspath += sourceSets.templates.output
+  }
+}
+
+configurations {
+  templateProcessor
+  templatesImplementation.extendsFrom implementation
+  testTemplatesImplementation.extendsFrom templatesImplementation, testImplementation
+}
+
+dependencies {
+  templateProcessor project(":hppc-template-processor")
+
+  templatesImplementation project(":hppc-template-intrinsics")
+
+  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
+  testImplementation "org.assertj:assertj-core"
+}
+
+task generateMainTemplates(type: GenerateTemplatesTask) {
+  templatesDir file("src/main/templates")
+  outputDir file("$buildDir/generated/main/templates")
+}
+
+compileJava {
+  dependsOn generateMainTemplates
+}
+
+task generateTestTemplates(type: GenerateTemplatesTask) {
+  templatesDir file("src/test/templates")
+  outputDir file("$buildDir/generated/test/templates")
+}
+
+compileTestJava {
+  dependsOn generateTestTemplates
+}
+
+sourceSets {
+  main {
+    java.srcDirs += generateMainTemplates.outputDir
+  }
+  test {
+    java.srcDirs += generateTestTemplates.outputDir
+  }
+}
+
+task testTemplates(type: Test) {
+  description = 'Runs source template tests.'
+  group = 'verification'
+
+  useJUnit()
+
+  testClassesDirs = sourceSets.testTemplates.output.classesDirs
+  classpath = sourceSets.testTemplates.runtimeClasspath
+}
+
+test.mustRunAfter testTemplates
+check.dependsOn(testTemplates)
+
+class GenerateTemplatesTask extends DefaultTask {
+  @InputDirectory
+  File templatesDir
+
+  @OutputDirectory
+  File outputDir
+
+  @Input
+  boolean incremental = true
+
+  GenerateTemplatesTask() {
+    dependsOn(project.configurations.templateProcessor)
+  }
+
+  @TaskAction
+  public void generate() {
+    def outputFile = project.file("${getTemporaryDir()}/output.txt")
+    outputFile.parentFile.mkdirs()
+
+    def result
+    outputFile.withOutputStream { output ->
+      result = project.javaexec {
+        classpath project.configurations.templateProcessor
+        main = 'com.carrotsearch.hppc.generator.TemplateProcessor'
+
+        standardOutput = output
+        errorOutput = output
+
+        if (incremental) {
+          args += "--incremental"
+        }
+
+        args += [
+            "--templates", templatesDir,
+            "--output", outputDir
+        ]
+
+        ignoreExitValue true
+      }
+    }
+
+    if (result.getExitValue() != 0) {
+      def cause
+      try {
+        result.rethrowFailure()
+      } catch (ex) {
+        cause = ex
+      }
+      throw new GradleException("Template generation failed for ${project.path},\n  " +
+          "Command output at ${outputFile}:\n${outputFile.text}", cause)
+    }
+  }
+}
+
+javadoc {
+  title = "HPPC v${project.version} API Documentation"
+
+  (options as StandardJavadocDocletOptions).with {
+    windowTitle = "HPPC v${version} API Documentation"
+    bottom = "<div id='header'><a class='logo' target='_top' href='https://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>"
+
+    docFilesSubDirs = true
+    use = false
+    noTree = true
+    noIndex = true
+
+    overview = file("src/main/javadoc/overview.html")
+
+    group("HPPC", "com.carrotsearch.hppc*")
+  }
+
+  doLast {
+    project.sync {
+      into file("${destinationDir}/resources")
+      from file("src/main/javadoc/resources")
+    }
+
+    def cssFile = file("${destinationDir}/stylesheet.css")
+    def css = cssFile.getText("UTF-8")
+    css = """
+@import url('resources/custom.css');
+
+""" + css
+    cssFile.write(css, "UTF-8")
+  }
+}
+
+check.dependsOn javadoc

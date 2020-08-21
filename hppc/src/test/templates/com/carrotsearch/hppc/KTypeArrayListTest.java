@@ -1,5 +1,6 @@
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.Arrays;
@@ -203,20 +204,21 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         /*! #end !*/
     }
 
-    /* */
+    /*! #if (not $TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE")) !*/
     @Test
     public void testRemoveAllFromLookupContainer()
     {
         list.add(asArray(0, 1, 2, 1, 0));
 
-        KTypeHashSet<KType> list2 = new KTypeHashSet<>();
-        list2.addAll(asArray(0, 2));
+        KTypeHashSet<KType> set = new KTypeHashSet<>();
+        set.addAll(asArray(0, 2));
 
-        assertEquals(3, list.removeAll(list2));
-        assertEquals(0, list.removeAll(list2));
+        assertEquals(3, list.removeAll(set));
+        assertEquals(0, list.removeAll(set));
 
         assertListEquals(list.toArray(), 1, 1);
     }
+    /*! #end !*/
 
     /* */
     @Test

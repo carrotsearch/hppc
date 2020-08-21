@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator;
 
 import java.util.Locale;
@@ -16,7 +25,7 @@ public enum Type {
     if (this == GENERIC) {
       return "Object";
     } else {
-      String boxed = name().toLowerCase();
+      String boxed = name().toLowerCase(Locale.ROOT);
       return Character.toUpperCase(boxed.charAt(0)) + boxed.substring(1);
     }
   }

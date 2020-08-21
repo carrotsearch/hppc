@@ -1,5 +1,16 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator.parser;
 
+import com.carrotsearch.hppc.generator.TemplateOptions;
+import com.carrotsearch.hppc.generator.parser.JavaParser.CompilationUnitContext;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -8,58 +19,54 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 
-import com.carrotsearch.hppc.generator.TemplateOptions;
-import com.carrotsearch.hppc.generator.parser.Java7Parser.CompilationUnitContext;
-
 /** */
 public class SignatureProcessor {
-  final Java7Parser parser;
+  final JavaParser parser;
   final CommonTokenStream tokenStream;
   final CompilationUnitContext unitContext;
 
   public SignatureProcessor(String input) {
-    Lexer lexer = new Java7Lexer(new ANTLRInputStream(input));
+    Lexer lexer = new JavaLexer(CharStreams.fromString(input));
     tokenStream = new CommonTokenStream(lexer);
-    parser = new Java7Parser(tokenStream);
+    parser = new JavaParser(tokenStream);
     parser.setErrorHandler(new BailErrorStrategy());
     unitContext = parser.compilationUnit();
   }
 
   /*
-   * 
+   *
    */
   public String process(TemplateOptions templateOptions) throws IOException {
     return applyReplacements(findReplacements(templateOptions), templateOptions);
   }
 
   /*
-   * 
+   *
    */
   private List<Replacement> findReplacements(TemplateOptions templateOptions) {
-    List<Replacement> replacements = unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
+    List<Replacement> replacements =
+        unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
     return replacements;
   }
 
   /*
-   * 
+   *
    */
-  private String applyReplacements(List<Replacement> replacements, TemplateOptions options) throws IOException {
+  private String applyReplacements(List<Replacement> replacements, TemplateOptions options)
+      throws IOException {
     StringWriter sw = new StringWriter();
     reconstruct(sw, tokenStream, 0, tokenStream.size() - 1, replacements, options);
     return sw.toString();
   }
 
-  /**
-   * Process references inside comment blocks, javadocs, etc.
-   */
+  /** Process references inside comment blocks, javadocs, etc. */
   private String processComment(String text, TemplateOptions options) {
     if (options.hasKType()) {
       text = text.replaceAll("(KType)(?=\\p{Lu})", options.getKType().getBoxedType());
@@ -73,22 +80,26 @@ public class SignatureProcessor {
   }
 
   /*
-   * 
+   *
    */
   <T extends Writer> T reconstruct(
-      T sw, 
-      BufferedTokenStream tokenStream, 
-      int from, int to, 
+      T sw,
+      BufferedTokenStream tokenStream,
+      int from,
+      int to,
       Collection<Replacement> replacements,
-      TemplateOptions templateOptions) throws IOException {
-    
+      TemplateOptions templateOptions)
+      throws IOException {
+
     ArrayList<Replacement> sorted = new ArrayList<>(replacements);
-    Collections.sort(sorted, new Comparator<Replacement>() {
-      @Override
-      public int compare(Replacement a, Replacement b) {
-        return Integer.compare(a.interval.a, b.interval.b);
-      }
-    });
+    Collections.sort(
+        sorted,
+        new Comparator<Replacement>() {
+          @Override
+          public int compare(Replacement a, Replacement b) {
+            return Integer.compare(a.interval.a, b.interval.b);
+          }
+        });
 
     for (int i = 1; i < sorted.size(); i++) {
       Replacement previous = sorted.get(i - 1);
@@ -116,7 +127,7 @@ public class SignatureProcessor {
 
   protected String tokenText(TemplateOptions templateOptions, Token token) {
     String text = token.getText();
-    if (token.getChannel() == Java7Lexer.CHANNEL_COMMENT) {
+    if (token.getChannel() == JavaLexer.CHANNEL_COMMENT) {
       text = processComment(text, templateOptions);
     }
     return text;

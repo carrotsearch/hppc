@@ -1,5 +1,122 @@
 
-[0.7.0-SNAPSHOT]
+[0.9.0-SNAPSHOT]
+
+** New features and API changes
+
+HPPC-179: Update java template parser to support Java 8.
+
+HPPC-186: A different strategy has been implemented for collision avalanche avoidance. This
+          results in removal of Scatter* maps and sets and their unification with their Hash*
+          counterparts.
+
+          This change should not affect any existing code unless it relied on static, specific
+          ordering of keys. A side effect of this change is that key/value enumerators will return
+          a different ordering of their container's values on each invocation. If your code relies
+          on the order of values in associative arrays, it must order them after they are retrieved.
+
+          (Bruno Roustant).
+
+HPPC-176: A new set of associative containers implementing Worm Hashing has been added.
+          This strategy is appropriate for a medium sized maps and sets (less than 2M entries).
+          It takes more time to put entries in the map because it maintains chains of entries having
+          the same hash. Then the lookup speed is fast even if the map is heavy loaded or hashes are
+          clustered. On average it takes slightly less memory than KTypeVTypeHashMap: even though
+          it allocates more data structures, the reasonable load factor is higher (it varies around 80%)
+          so containers enlarge later.
+
+          (Bruno Roustant, Aleksandr Danilin).
+
+** Improvements
+
+HPPC-183: Simplify IndirectSort comparator to use IntBinaryOperator.
+
+HPPC-177: Modernize the build system to gradle and make it work with IntelliJ.
+
+HPPC-184: Use closures where possible to make the resulting JAR smaller.
+
+** Bugs
+
+HPPC-187: ObjectIdentityHashSet redistributes keys according to key.hashCode rather than object identity's hash code.
+          (Bruno Roustant).
+
+
+[0.8.2]
+https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13522&styleName=Text
+
+** New features
+
+HPPC-175: Method estimating memory usage (Haoyu Zhai)
+
+
+[0.8.1]
+https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13521&styleName=Text
+
+** Bug fixes
+
+HPPC-172: Intrinsics class included by apache felix bundle plugin
+
+
+[0.8.0]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
+
+** API-breaking changes
+
+HPPC-171: Drop esoteric JAR entirely (associative containers keyed using floating 
+          point types).
+
+** New features
+
+   PR #6: Document that map's get() returns the empty value for non-existent 
+          keys. (Michael Ekstrand)
+
+** Other changes
+
+HPPC-169: Modernize build, update dependencies.
+
+
+[0.7.3]
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12932
+
+** Improvements
+
+HPPC-166: More efficient map.putOrAdd and map.putIfAbsent. (Konstantin Pavelko, 
+          Dawid Weiss)
+
+** Other changes
+
+HPPC-164: ObjectHashSet.add() documentation incorrectly states existing 
+          equivalent key would be replaced. (Olivier Garrouste, Dawid Weiss).
+
+
+[0.7.2]
+Released on October 25th, 2016
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12632
+
+** Other changes
+
+   PR #5: OSGi descriptors in JAR manifests, bundle packaging. (Guillaume 
+          Delafosse)
+
+
+[0.7.1]
+Released on May 7th, 2015
+http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
+
+** New features
+
+HPPC-159: Add .visualizeKeyDistribution(int characters) to maps and sets
+
+** Bug fixes
+
+HPPC-156: forEach iterators spin loop endlessly on *HashSet and *ScatterSet. 
+
+HPPC-158: *ScatterMap.from should shadow *HashMap.from with proper covariant.
+
+HPPC-155: *ScatterSet.from should shadow *HashSet.from with proper covariant.
+
+
+[0.7.0] 
+Released on May 5th, 2015
 http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12421
 
 ** API-breaking changes

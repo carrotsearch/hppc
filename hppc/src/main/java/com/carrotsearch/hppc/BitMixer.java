@@ -1,58 +1,55 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc;
 
 /**
- * Key hash bit mixing.
- * 
- * {@link #mix0(Object, int)} allows a <code>null</code> key, other methods are used
- * from generated code and are simply delegations. 
+ * Bit mixing utilities. The purpose of these methods is to evenly distribute key space over int32
+ * range.
  */
 public final class BitMixer {
-  
+
   // Don't bother mixing very small key domains much.
-  public static int mix (byte key)   { return key * 0x85ebca6b; }
-  public static int mix0(byte key)   { return key * 0x85ebca6b; }
+  public static int mix(byte key) {
+    return key * PHI_C32;
+  }
 
-  public static int mix (short key)  { int k = key * 0x85ebca6b; return k ^= k >>> 13; }
-  public static int mix0(short key)  { int k = key * 0x85ebca6b; return k ^= k >>> 13; }
-  public static int mix (char  key)  { int k = key * 0x85ebca6b; return k ^= k >>> 13; }
-  public static int mix0(char  key)  { int k = key * 0x85ebca6b; return k ^= k >>> 13; }
+  public static int mix(short key) {
+    return mixPhi(key);
+  }
 
-  // Do mix larger key domains.
-  public static int mix (int key)    { return mix32(key); }
-  public static int mix0(int key)    { return mix32(key); }
+  public static int mix(char key) {
+    return mixPhi(key);
+  }
 
-  public static int mix (float key)  { return mix32(Float.floatToIntBits(key)); }
-  public static int mix0(float key)  { return mix32(Float.floatToIntBits(key)); }
+  // Better mix for larger key domains.
+  public static int mix(int key) {
+    return mix32(key);
+  }
 
-  public static int mix (double key) { return (int) mix64(Double.doubleToLongBits(key)); }
-  public static int mix0(double key) { return (int) mix64(Double.doubleToLongBits(key)); }
+  public static int mix(float key) {
+    return mix32(Float.floatToIntBits(key));
+  }
 
-  public static int mix (Object key) { return mix32(key.hashCode()); }
-  public static int mix0(Object key) { return key == null ? 0 : mix32(key.hashCode()); }
+  public static int mix(double key) {
+    return (int) mix64(Double.doubleToLongBits(key));
+  }
 
-  public static int mix (byte key, int seed)  { return mix(key ^ seed); }
-  public static int mix0(byte key, int seed)  { return mix0(key ^ seed); }
+  public static int mix(long key) {
+    return (int) mix64(key);
+  }
 
-  public static int mix (short key, int seed) { return mix(key ^ seed); }
-  public static int mix0(short key, int seed) { return mix0(key ^ seed); }
-  public static int mix (char key, int seed)  { return mix(key ^ seed); }
-  public static int mix0(char key, int seed)  { return mix0(key ^ seed); }
+  public static int mix(Object key) {
+    return key == null ? 0 : mix32(key.hashCode());
+  }
 
-  public static int mix (int key, int seed)   { return mix0(key ^ seed); }
-  public static int mix0(int key, int seed)   { return mix0(key ^ seed); }
-
-  public static int mix (float key, int seed)  { return mix32(Float.floatToIntBits(key) ^ seed); }
-  public static int mix0(float key, int seed)  { return mix32(Float.floatToIntBits(key) ^ seed); }
-
-  public static int mix (double key, int seed)  { return (int) mix64(Double.doubleToLongBits(key) ^ seed); }
-  public static int mix0(double key, int seed)  { return (int) mix64(Double.doubleToLongBits(key) ^ seed); }
-
-  public static int mix (Object key, int seed)  { return mix32(key.hashCode() ^ seed); }
-  public static int mix0(Object key, int seed)  { return key == null ? 0 : mix32(key.hashCode() ^ seed); }
-
-  /**
-   * MH3's plain finalization step.
-   */
+  /** MH3's plain finalization step. */
   public static int mix32(int k) {
     k = (k ^ (k >>> 16)) * 0x85ebca6b;
     k = (k ^ (k >>> 13)) * 0xc2b2ae35;
@@ -60,28 +57,64 @@ public final class BitMixer {
   }
 
   /**
-   * Computes David Stafford variant 13 of 64bit mix function (MH3 finalization step,
-   * with different shifts and constants).
-   * 
+   * Computes David Stafford variant 9 of 64bit mix function (MH3 finalization step, with different
+   * shifts and constants).
+   *
+   * <p>Variant 9 is picked because it contains two 32-bit shifts which could be possibly optimized
+   * into better machine code.
+   *
    * @see "http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html"
    */
   public static long mix64(long z) {
-      z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
-      z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
-      return z ^ (z >>> 31);
+    z = (z ^ (z >>> 32)) * 0x4cd6944c5cc20b6dL;
+    z = (z ^ (z >>> 29)) * 0xfc12c5b19d3259e9L;
+    return z ^ (z >>> 32);
   }
-
 
   /*
    * Golden ratio bit mixers.
    */
 
-  public static int phiMix(byte k)   { final int h = k * 0x9E3779B9; return h ^ (h >>> 16); }
-  public static int phiMix(char k)   { final int h = k * 0x9E3779B9; return h ^ (h >>> 16); }
-  public static int phiMix(short k)  { final int h = k * 0x9E3779B9; return h ^ (h >>> 16); }
-  public static int phiMix(int k)    { final int h = k * 0x9E3779B9; return h ^ (h >>> 16); }
-  public static int phiMix(float k)  { final int h = Float.floatToIntBits(k) * 0x9E3779B9; return h ^ (h >>> 16); }
-  public static int phiMix(double k) { final long h = Double.doubleToLongBits(k) * 0x9E3779B97F4A7C15L; return (int) (h ^ (h >>> 32)); }
-  public static int phiMix(long k)   { final long h = k * 0x9E3779B97F4A7C15L; return (int) (h ^ (h >>> 32)); }
-  public static int phiMix(Object k) { final int h = (k == null ? 0 : k.hashCode() * 0x9E3779B9); return h ^ (h >>> 16); }
+  private static final int PHI_C32 = 0x9e3779b9;
+  private static final long PHI_C64 = 0x9e3779b97f4a7c15L;
+
+  public static int mixPhi(byte k) {
+    final int h = k * PHI_C32;
+    return h ^ (h >>> 16);
+  }
+
+  public static int mixPhi(char k) {
+    final int h = k * PHI_C32;
+    return h ^ (h >>> 16);
+  }
+
+  public static int mixPhi(short k) {
+    final int h = k * PHI_C32;
+    return h ^ (h >>> 16);
+  }
+
+  public static int mixPhi(int k) {
+    final int h = k * PHI_C32;
+    return h ^ (h >>> 16);
+  }
+
+  public static int mixPhi(float k) {
+    final int h = Float.floatToIntBits(k) * PHI_C32;
+    return h ^ (h >>> 16);
+  }
+
+  public static int mixPhi(double k) {
+    final long h = Double.doubleToLongBits(k) * PHI_C64;
+    return (int) (h ^ (h >>> 32));
+  }
+
+  public static int mixPhi(long k) {
+    final long h = k * PHI_C64;
+    return (int) (h ^ (h >>> 32));
+  }
+
+  public static int mixPhi(Object k) {
+    final int h = (k == null ? 0 : k.hashCode() * PHI_C32);
+    return h ^ (h >>> 16);
+  }
 }

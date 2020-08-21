@@ -1,0 +1,63 @@
+plugins {
+  id 'java-library'
+}
+
+ext {
+  srcGeneratedGrammars = file("$buildDir/generated/antlr")
+}
+
+configurations {
+  antlr
+}
+
+dependencies {
+  api project(":hppc-template-intrinsics")
+
+  implementation "org.antlr:antlr4-runtime"
+  implementation "org.apache.velocity:velocity-engine-core"
+  implementation "com.carrotsearch.console:launcher"
+
+  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
+  testImplementation "org.assertj:assertj-core"
+
+  antlr "org.antlr:antlr4"
+}
+
+sourceSets {
+  main {
+    java.srcDirs += srcGeneratedGrammars
+  }
+}
+
+task generateGrammars(type: JavaExec) {
+  classpath configurations.antlr
+  main = 'org.antlr.v4.Tool'
+
+  def grammars = fileTree('src/main/antlr').include('**/*.g4').files
+
+  inputs.files(grammars)
+  outputs.dir(srcGeneratedGrammars)
+
+  args = [
+      "-visitor",
+      "-package", "com.carrotsearch.hppc.generator.parser",
+      "-o", "$srcGeneratedGrammars/com/carrotsearch/hppc/generator/parser",
+      grammars,
+  ].flatten()
+
+  def baos = new ByteArrayOutputStream()
+
+  standardOutput = baos
+  errorOutput = baos
+
+  doLast {
+    def txt = new String(baos.toByteArray())
+    if (!txt.trim().isEmpty()) {
+      throw new GradleException("Antlr parser emitted output (possibly warnings)\n: ${txt}")
+    }
+  }
+}
+
+compileJava {
+  dependsOn generateGrammars
+}

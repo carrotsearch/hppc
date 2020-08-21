@@ -1,10 +1,20 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc;
 
 import java.util.Random;
 
 /**
- * A fast pseudo-random number generator. For simplicity, we do not implement all of {@link Random} methods.
- * 
+ * A fast pseudo-random number generator. For simplicity, we do not implement all of {@link Random}
+ * methods.
+ *
  * @see "http://xorshift.di.unimi.it/"
  * @see "http://xorshift.di.unimi.it/xorshift128plus.c"
  */
@@ -18,7 +28,7 @@ public class XorShift128P {
     state0 = notZero(BitMixer.mix64(seed));
     state1 = notZero(BitMixer.mix64(seed + 1));
   }
-  
+
   public XorShift128P() {
     this(Containers.randomSeed64());
   }
@@ -47,12 +57,9 @@ public class XorShift128P {
     int r = (nextInt() >>> 1);
     int m = bound - 1;
     if ((bound & m) == 0) {
-      r = (int)((bound * (long) r) >> 31);
+      r = (int) ((bound * (long) r) >> 31);
     } else {
-      for (int u = r;
-           u - (r = u % bound) + m < 0;
-           u = nextInt() >>> 1) {
-      }
+      for (int u = r; u - (r = u % bound) + m < 0; u = nextInt() >>> 1) {}
     }
 
     return r;

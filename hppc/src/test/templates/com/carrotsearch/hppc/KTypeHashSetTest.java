@@ -1,15 +1,19 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
 /**
  * Unit tests for {@link KTypeHashSet}.
@@ -31,6 +35,26 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         set = new KTypeHashSet<>();
     }
 
+    @Test
+    public void testVisualizeKeys()
+    {
+      set.clear();
+      
+      Assertions.assertThat(set.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      set.add(keyE);
+      Assertions.assertThat(set.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      set.add(key1);
+      Assertions.assertThat(set.visualizeKeyDistribution(20).trim()).matches("\\.*X\\.*");
+      Assertions.assertThat(set.visualizeKeyDistribution(20)).hasSize(20);
+      
+      for (int i = 0; i < 60; i++) {
+        set.add(cast(i));
+      }
+      Assertions.assertThat(set.visualizeKeyDistribution(20)).hasSize(20);
+    }
+    
     @Test
     public void testIndexMethods()
     {
@@ -358,7 +382,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAgainstHashMap()
     {
-        final java.util.Random rnd = new java.util.Random();
+        final java.util.Random rnd = RandomizedTest.getRandom();
         final java.util.HashSet<KType> other = new java.util.HashSet<KType>();
 
         for (int size = 1000; size < 20000; size += 4000)
@@ -405,24 +429,6 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
-    }
-
-    /* */
-    @Test
-    public void testHashCodeEqualsForDifferentMix()
-    {
-        KTypeHashSet<KType> l0 = new KTypeHashSet<KType>(0, 0.5d, HashOrderMixing.constant(1));
-        KTypeHashSet<KType> l1 = new KTypeHashSet<KType>(0, 0.5d, HashOrderMixing.constant(2));
-
-        assertEquals(0, l0.hashCode());
-        assertEquals(l0.hashCode(), l1.hashCode());
-        assertEquals(l0, l1);
-
-        l0.addAll(newArray(k1, k2, k3));
-        l1.addAll(newArray(k1, k2, k3));
-
-        assertEquals(l0.hashCode(), l1.hashCode());
-        assertEquals(l0, l1);
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -478,5 +484,36 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
         Assertions.assertThat(l2).isEqualTo(l3);
         Assertions.assertThat(l1).isNotEqualTo(l2);
-    }    
+    }
+    
+    /* */
+    @Test
+    public void testForEachPredicate()
+    {
+      final KTypeHashSet<KType> set = KTypeHashSet.from(keyE, k1, k2, k3);
+      final KTypeHashSet<KType> other = new KTypeHashSet<>();
+      set.forEach(new KTypePredicate<KType>() {
+        @Override
+        public boolean apply(KType value) {
+          other.add(value);
+          return true;
+        }
+      });
+      Assertions.assertThat(other).isEqualTo(set);
+    }
+    
+    /* */
+    @Test
+    public void testForEachProcedure()
+    {
+      final KTypeHashSet<KType> set = KTypeHashSet.from(keyE, k1, k2, k3);
+      final KTypeHashSet<KType> other = new KTypeHashSet<>();
+      set.forEach(new KTypeProcedure<KType>() {
+        @Override
+        public void apply(KType value) {
+          other.add(value);
+        }
+      });
+      Assertions.assertThat(other).isEqualTo(set);
+    }
 }

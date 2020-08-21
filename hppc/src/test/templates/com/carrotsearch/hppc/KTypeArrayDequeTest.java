@@ -1,5 +1,6 @@
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
@@ -17,7 +18,6 @@ import org.junit.Test;
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
-
 
 /**
  * Unit tests for {@link KTypeArrayDeque}.
@@ -318,7 +318,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         assertEquals(0, deque.size());
     }
 
-    /* */
+    /*! #if (not $TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE")) !*/
     @Test
     public void testRemoveAllInLookupContainer()
     {
@@ -332,7 +332,8 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
         assertListEquals(deque.toArray(), 1, 1);
     }
-
+    /*! #end !*/
+    
     /* */
     @Test
     public void testRemoveAllWithPredicate()

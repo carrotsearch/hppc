@@ -1,14 +1,27 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator.intrinsics;
-
-import java.util.ArrayList;
-import java.util.regex.Matcher;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
 
 public class NewArray extends AbstractIntrinsicMethod {
   @Override
-  public void invoke(Matcher m, StringBuilder sb, TemplateOptions templateOptions, String genericCast, ArrayList<String> params) {
+  public void invoke(
+      Matcher m,
+      StringBuilder sb,
+      TemplateOptions templateOptions,
+      String genericCast,
+      ArrayList<String> params) {
     expectArgumentCount(m, params, 1);
 
     genericCast = inferTemplateCastName(m, templateOptions, genericCast);
@@ -18,7 +31,7 @@ public class NewArray extends AbstractIntrinsicMethod {
       case GENERIC:
         sb.append(format("((%s[]) new Object [%s])", genericCast, params.get(0)));
         break;
-        
+
       case BYTE:
       case CHAR:
       case DOUBLE:

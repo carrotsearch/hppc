@@ -17,7 +17,8 @@ public class KTypeArrayDeque<KType>
   extends AbstractKTypeCollection<KType> 
   implements KTypeDeque<KType>,
              Preallocable, 
-             Cloneable {
+             Cloneable,
+             Accountable {
   /**
    * Internal array for storing elements of the deque.
    */
@@ -581,6 +582,20 @@ public class KTypeArrayDeque<KType>
     return index + 1;
   }
 
+  @Override
+  public long ramBytesAllocated() {
+    // int: head, tail
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + RamUsageEstimator.shallowSizeOf(resizer)
+            + RamUsageEstimator.shallowSizeOf(buffer);
+  }
+
+  @Override
+  public long ramBytesUsed() {
+    // int: head, tail
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + RamUsageEstimator.shallowSizeOf(resizer)
+            + RamUsageEstimator.shallowUsedSizeOfArray(buffer, size());
+  }
+
   /**
    * An iterator implementation for {@link ObjectArrayDeque#iterator}.
    */
@@ -828,7 +843,7 @@ public class KTypeArrayDeque<KType>
 
     final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
     for (int i = fromIndex; i != toIndex; i = oneRight(i, buffer.length)) {
-      h = 31 * h + BitMixer.mix0(this.buffer[i]);
+      h = 31 * h + BitMixer.mix(this.buffer[i]);
     }
     return h;
   }

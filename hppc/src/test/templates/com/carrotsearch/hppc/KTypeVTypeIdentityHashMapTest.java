@@ -1,6 +1,7 @@
-/*! #set($TemplateOptions.ignored = ($TemplateOptions.KTypePrimitive)) !*/
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.KTypePrimitive or $TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT"))) !*/
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 import org.junit.*;

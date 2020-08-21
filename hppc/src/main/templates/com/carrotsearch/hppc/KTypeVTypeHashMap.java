@@ -1,3 +1,4 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
 import java.util.*;
@@ -12,12 +13,8 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
- * 
- * <p><strong>Note:</strong> read about <a href="{@docRoot}/overview-summary.html#scattervshash">important differences 
- * between hash and scatter sets</a>.</p>
- * 
- * @see KTypeVTypeScatterMap
- * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a> 
+ *
+ * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
@@ -26,7 +23,8 @@ public class KTypeVTypeHashMap<KType, VType>
              /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
              KTypeVTypeMap<KType, VType>,
              Preallocable,
-             Cloneable
+             Cloneable,
+             Accountable
 {
   /** 
    * The array holding keys.
@@ -43,17 +41,6 @@ public class KTypeVTypeHashMap<KType, VType>
          Object [] 
          /*! #else VType [] #end !*/ 
          values;
-
-  /**
-   * We perturb hash values with a container-unique
-   * seed to avoid problems with nearly-sorted-by-hash 
-   * values on iterations.
-   * 
-   * @see #hashKey
-   * @see "http://issues.carrot2.org/browse/HPPC-80"
-   * @see "http://issues.carrot2.org/browse/HPPC-103"
-   */
-  protected int keyMixer;
 
   /**
    * The number of stored keys (assigned key slots), excluding the special 
@@ -84,10 +71,9 @@ public class KTypeVTypeHashMap<KType, VType>
   protected double loadFactor;
 
   /**
-   * Per-instance hash order mixing strategy.
-   * @see #keyMixer
+   * Seed used to ensure the hash iteration order is different from an iteration to another.
    */
-  protected HashOrderMixingStrategy orderMixer;
+  protected int iterationSeed;
 
   /**
    * New instance with sane defaults.
@@ -108,20 +94,6 @@ public class KTypeVTypeHashMap<KType, VType>
   }
 
   /**
-   * New instance with sane defaults.
-   * 
-   * @param expectedElements
-   *          The expected number of elements guaranteed not to cause buffer
-   *          expansion (inclusive).
-   * @param loadFactor
-   *          The load factor for internal buffers. Insane load factors (zero, full capacity)
-   *          are rejected by {@link #verifyLoadFactor(double)}.
-   */
-  public KTypeVTypeHashMap(int expectedElements, double loadFactor) {
-    this(expectedElements, loadFactor, HashOrderMixing.defaultStrategy());
-  }
-
-  /**
    * New instance with the provided defaults.
    * 
    * @param expectedElements
@@ -129,14 +101,10 @@ public class KTypeVTypeHashMap<KType, VType>
    * @param loadFactor
    *          The load factor for internal buffers. Insane load factors (zero, full capacity)
    *          are rejected by {@link #verifyLoadFactor(double)}.
-   * @param orderMixer
-   *          Hash key order mixing strategy. See {@link HashOrderMixing} for predefined
-   *          implementations. Use constant mixers only if you understand the potential
-   *          consequences.
    */
-  public KTypeVTypeHashMap(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
-    this.orderMixer = orderMixer;
+  public KTypeVTypeHashMap(int expectedElements, double loadFactor) {
     this.loadFactor = verifyLoadFactor(loadFactor);
+    iterationSeed = HashContainers.nextIterationSeed();
     ensureCapacity(expectedElements);
   }
 
@@ -224,8 +192,9 @@ public class KTypeVTypeHashMap<KType, VType>
    * was placed in the map.
    */
   public boolean putIfAbsent(KType key, VType value) {
-    if (!containsKey(key)) {
-      put(key, value);
+    int keyIndex = indexOf(key);
+    if (!indexExists(keyIndex)) {
+      indexInsert(keyIndex, key, value);
       return true;
     } else {
       return false;
@@ -250,12 +219,13 @@ public class KTypeVTypeHashMap<KType, VType>
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
     assert assigned < mask + 1;
 
-    if (containsKey(key)) {
-      putValue = get(key);
-      putValue = (VType) (Intrinsics.<VType> add(putValue, incrementValue));
+    int keyIndex = indexOf(key);
+    if (indexExists(keyIndex)) {
+      putValue = Intrinsics.<VType> add(Intrinsics.<VType> cast(values[keyIndex]), incrementValue);
+      indexReplace(keyIndex, putValue);
+    } else {
+      indexInsert(keyIndex, key, putValue);
     }
-
-    put(key, putValue);
     return putValue;
   }
   /*! #end !*/
@@ -616,7 +586,7 @@ public class KTypeVTypeHashMap<KType, VType>
     int h = hasEmptyKey ? 0xDEADBEEF : 0;
     for (KTypeVTypeCursor<KType, VType> c : this) {
       h += BitMixer.mix(c.key) +
-           BitMixer.mix0(c.value);
+           BitMixer.mix(c.value);
     }
     return h;
   }
@@ -675,37 +645,68 @@ public class KTypeVTypeHashMap<KType, VType>
     }
   }
 
+  @Override
+  public long ramBytesAllocated() {
+    // int: keyMixer, assigned, mask, resizeAt
+    // double: loadFactor
+    // boolean: hasEmptyKey
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
+            RamUsageEstimator.shallowSizeOf(keys) + RamUsageEstimator.shallowSizeOf(values);
+  }
+
+  @Override
+  public long ramBytesUsed() {
+    // int: keyMixer, assigned, mask, resizeAt
+    // double: loadFactor
+    // boolean: hasEmptyKey
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
+            RamUsageEstimator.shallowUsedSizeOfArray(keys, size()) +
+            RamUsageEstimator.shallowUsedSizeOfArray(values, size());
+  }
+
+  /**
+   * Provides the next iteration seed used to build the iteration starting slot and offset increment.
+   * This method does not need to be synchronized, what matters is that each thread gets a sequence of varying seeds.
+   */
+  protected int nextIterationSeed() {
+    return iterationSeed = BitMixer.mixPhi(iterationSeed);
+  }
+
   /**
    * An iterator implementation for {@link #iterator}.
    */
   private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
     private final KTypeVTypeCursor<KType, VType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private final int increment;
+    private int index;
+    private int slot;
 
     public EntryIterator() {
       cursor = new KTypeVTypeCursor<KType, VType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
     }
 
     @Override
     protected KTypeVTypeCursor<KType, VType> fetch() {
-      if (slot < max) {
+      final int mask = KTypeVTypeHashMap.this.mask;
+      while (index <= mask) {
         KType existing;
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.<KType> isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.key = existing;
-            cursor.value = Intrinsics.<VType> cast(values[slot]);
-            return cursor;
-          }
+        index++;
+        slot = (slot + increment) & mask;
+        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.key = existing;
+          cursor.value = Intrinsics.<VType>cast(values[slot]);
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index;
         cursor.key = Intrinsics.<KType> empty();
-        cursor.value = Intrinsics.<VType> cast(values[max]);
-        slot++;
+        cursor.value = Intrinsics.<VType> cast(values[index++]);
         return cursor;
       }
 
@@ -733,7 +734,9 @@ public class KTypeVTypeHashMap<KType, VType>
       procedure.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]));
     }
 
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    int seed = nextIterationSeed();
+    int inc = iterationIncrement(seed);
+    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         procedure.apply(keys[slot], values[slot]);
       }
@@ -756,7 +759,9 @@ public class KTypeVTypeHashMap<KType, VType>
       }
     }
 
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    int seed = nextIterationSeed();
+    int inc = iterationIncrement(seed);
+    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         if (!predicate.apply(keys[slot], values[slot])) {
           break;
@@ -789,25 +794,13 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
-      owner.forEach(new KTypeVTypeProcedure<KType, VType>() {
-        @Override
-        public void apply(KType key, VType value) {
-          procedure.apply(key);
-        }
-      });
-
+      owner.forEach((KTypeVTypeProcedure<KType, VType>) (k, v) -> procedure.apply(k));
       return procedure;
     }
 
     @Override
     public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
-      owner.forEach(new KTypeVTypePredicate<KType, VType>() {
-        @Override
-        public boolean apply(KType key, VType value) {
-          return predicate.apply(key);
-        }
-      });
-
+      owner.forEach((KTypeVTypePredicate<KType, VType>) (key, value) -> predicate.apply(key));
       return predicate;
     }
 
@@ -843,8 +836,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     public int removeAll(final KType e) {
-      final boolean hasKey = owner.containsKey(e);
-      if (hasKey) {
+      if (owner.containsKey(e)) {
         owner.remove(e);
         return 1;
       } else {
@@ -858,30 +850,34 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private final int increment;
+    private int index;
+    private int slot;
 
     public KeysIterator() {
       cursor = new KTypeCursor<KType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
     }
 
     @Override
     protected KTypeCursor<KType> fetch() {
-      if (slot < max) {
+      final int mask = KTypeVTypeHashMap.this.mask;
+      while (index <= mask) {
         KType existing;
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.<KType> isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.value = existing;
-            return cursor;
-          }
+        index++;
+        slot = (slot + increment) & mask;
+        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.value = existing;
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index++;
         cursor.value = Intrinsics.<KType> empty();
-        slot++;
         return cursor;
       }
 
@@ -948,22 +944,12 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     public int removeAll(final VType e) {
-      return owner.removeAll(new KTypeVTypePredicate<KType, VType>() {
-        @Override
-        public boolean apply(KType key, VType value) {
-          return Intrinsics.<VType> equals(e, value);
-        }
-      });
+      return owner.removeAll((key, value) -> Intrinsics.<VType> equals(e, value));
     }
 
     @Override
     public int removeAll(final KTypePredicate<? super VType> predicate) {
-      return owner.removeAll(new KTypeVTypePredicate<KType, VType>() {
-        @Override
-        public boolean apply(KType key, VType value) {
-          return predicate.apply(value);
-        }
-      });
+      return owner.removeAll((key, value) -> predicate.apply(value));
     }
 
     @Override
@@ -982,29 +968,33 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   private final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>> {
     private final KTypeCursor<VType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private final int increment;
+    private int index;
+    private int slot;
 
     public ValuesIterator() {
       cursor = new KTypeCursor<VType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
     }
 
     @Override
     protected KTypeCursor<VType> fetch() {
-      if (slot < max) {
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.value = Intrinsics.<VType> cast(values[slot]);
-            return cursor;
-          }
+      final int mask = KTypeVTypeHashMap.this.mask;
+      while (index <= mask) {
+        index++;
+        slot = (slot + increment) & mask;
+        if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.value = Intrinsics.<VType> cast(values[slot]);
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
-        cursor.value = Intrinsics.<VType> cast(values[max]);
-        slot++;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index;
+        cursor.value = Intrinsics.<VType> cast(values[index++]);
         return cursor;
       }
 
@@ -1022,8 +1012,8 @@ public class KTypeVTypeHashMap<KType, VType>
       KTypeVTypeHashMap<KType, VType> cloned = (KTypeVTypeHashMap<KType, VType>) super.clone();
       cloned.keys = keys.clone();
       cloned.values = values.clone();
-      cloned.hasEmptyKey = cloned.hasEmptyKey;
-      cloned.orderMixer = orderMixer.clone();
+      cloned.hasEmptyKey = hasEmptyKey;
+      cloned.iterationSeed = HashContainers.nextIterationSeed();
       return cloned;
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
@@ -1052,6 +1042,11 @@ public class KTypeVTypeHashMap<KType, VType>
     return buffer.toString();
   }
 
+  @Override
+  public String visualizeKeyDistribution(int characters) {
+    return KTypeBufferVisualizer.visualizeKeyDistribution(keys, mask, characters);
+  }
+
   /**
    * Creates a hash map from two index-aligned arrays of key-value pairs.
    */
@@ -1070,12 +1065,7 @@ public class KTypeVTypeHashMap<KType, VType>
     
   /**
    * Returns a hash code for the given key.
-   * 
-   * <p>The default implementation mixes the hash of the key with {@link #keyMixer}
-   * to differentiate hash order of keys between hash containers. Helps
-   * alleviate problems resulting from linear conflict resolution in open
-   * addressing.</p>
-   * 
+   *
    * <p>The output from this function should evenly distribute keys across the
    * entire integer range.</p>
    */
@@ -1085,7 +1075,7 @@ public class KTypeVTypeHashMap<KType, VType>
   /*! #else protected #end !*/
   int hashKey(KType key) {
     assert !Intrinsics.<KType> isEmpty(key); // Handled as a special case (empty slot marker).
-    return BitMixer.mix(key, this.keyMixer);
+    return BitMixer.mixPhi(key);
   }
 
   /**
@@ -1133,9 +1123,6 @@ public class KTypeVTypeHashMap<KType, VType>
   protected void allocateBuffers(int arraySize) {
     assert Integer.bitCount(arraySize) == 1;
 
-    // Compute new hash mixer candidate before expanding.
-    final int newKeyMixer = this.orderMixer.newKeyMixer(arraySize);
-
     // Ensure no change is done if we hit an OOM.
     KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     VType[] prevValues = Intrinsics.<VType[]> cast(this.values);
@@ -1154,7 +1141,6 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     this.resizeAt = expandAtCount(arraySize, loadFactor);
-    this.keyMixer = newKeyMixer;
     this.mask = arraySize - 1;
   }
 

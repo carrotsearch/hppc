@@ -1,5 +1,7 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
+import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
 import java.util.HashSet;
@@ -16,7 +18,7 @@ import com.carrotsearch.hppc.procedures.*;
 /**
  * Tests for {@link KTypeVTypeHashMap}.
  */
-/* ! ${TemplateOptions.generatedAnnotation} ! */
+/*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType>
 {
     protected VType value0 = vcast(0);
@@ -107,7 +109,21 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
             }
         });
     }
-    
+
+    @Test
+    public void testVisualizeKeys()
+    {
+      map.clear();
+      
+      Assertions.assertThat(map.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      map.put(keyE, value0);
+      Assertions.assertThat(map.visualizeKeyDistribution(20).trim()).matches("\\.+");
+
+      map.put(key1, value1);
+      Assertions.assertThat(map.visualizeKeyDistribution(20).trim()).matches("\\.*X\\.*");
+    }
+
     /* */
     @Test
     public void testEnsureCapacity()
@@ -397,10 +413,12 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
         map.put(key3, value1);
         map.put(keyE, value1);
 
-        KTypeHashSet<KType> other = new KTypeHashSet<>();
-        other.addAll(newArray(key2, keyE, key4));
+        KTypeVTypeHashMap<KType, VType> other = newInstance();
+        other.put(key2, value1);
+        other.put(keyE, value1);
+        other.put(key4, value1);
 
-        assertEquals(2, map.removeAll(other));
+        assertEquals(2, map.removeAll(other.keys()));
         assertEquals(2, map.size());
         assertTrue(map.containsKey(key1));
     }
@@ -678,28 +696,6 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
 
         assertFalse(l1.equals(l3));
         assertFalse(l2.equals(l3));
-    }
-
-    /* */
-    @Test 
-    public void testHashCodeEqualsForDifferentMix()
-    {
-      KTypeVTypeHashMap<KType, VType> l0 = new KTypeVTypeHashMap<>(0, 0.5d, HashOrderMixing.constant(1));
-      KTypeVTypeHashMap<KType, VType> l1 = new KTypeVTypeHashMap<>(0, 0.5d, HashOrderMixing.constant(2));
-
-      assertEquals(0, l0.hashCode());
-      assertEquals(l0.hashCode(), l1.hashCode());
-      assertEquals(l0, l1);
-
-      KTypeVTypeHashMap<KType, VType> l2 = KTypeVTypeHashMap.from(
-          newArray(key1, key2, key3),
-          newvArray(value1, value2, value3));
-
-      l0.putAll(l2);
-      l1.putAll(l2);
-
-      assertEquals(l0.hashCode(), l1.hashCode());
-      assertEquals(l0, l1);
     }
 
     @Test

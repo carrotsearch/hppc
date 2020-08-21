@@ -1,3 +1,4 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
 import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
@@ -9,13 +10,9 @@ import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
 public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContainer<KType, VType> {
   /**
    * @return Returns the value associated with the given key or the default
-   *         value for the key type, if the key is not associated with any
-   *         value.
-   *
-   *         <b>Important note:</b> For primitive type values, the value
-   *         returned for a non-existing key may not be the default value of the
-   *         primitive type (it may be any value previously assigned to that
-   *         slot).
+   *         value for the value type, if the key is not associated with any
+   *         value.  For numeric value types, this default value is 0, for
+   *         object types it is {@code null}.
    */
   public VType get(KType key);
 
@@ -98,7 +95,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
 
   /**
    * Compares the specified object with this set for equality. Returns
-   * <tt>true</tt> if and only if the specified object is also a
+   * {@code true} if and only if the specified object is also a
    * {@link KTypeVTypeMap} and both objects contains exactly the same key-value
    * pairs.
    */
@@ -207,4 +204,15 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * @see #clear()
    */
   public void release();
+  
+  /**
+   * Visually depict the distribution of keys.
+   * 
+   * @param characters
+   *          The number of characters to "squeeze" the entire buffer into.
+   * @return Returns a sequence of characters where '.' depicts an empty
+   *         fragment of the internal buffer and 'X' depicts full or nearly full
+   *         capacity within the buffer's range and anything between 1 and 9 is between.
+   */
+  public String visualizeKeyDistribution(int characters);  
 }

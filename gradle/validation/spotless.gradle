@@ -1,0 +1,53 @@
+
+configure(rootProject) {
+  ext {
+    licenseHeader = rootProject.file('gradle/validation/spotless/license-header.txt')
+  }
+}
+
+subprojects {
+  plugins.withType(JavaPlugin) {
+    project.apply plugin: 'com.diffplug.gradle.spotless'
+
+    spotless {
+      java {
+        licenseHeaderFile licenseHeader
+        lineEndings 'UNIX'
+        endWithNewline()
+        googleJavaFormat('1.7')
+      }
+    }
+
+    check.dependsOn(spotlessCheck)
+
+    task tidy() {
+      dependsOn spotlessApply
+    }
+  }
+}
+
+configure(project(":hppc-template-processor")) {
+  plugins.withId("com.diffplug.gradle.spotless") {
+    spotless {
+      java {
+        // Exclude ANTLR-generated files.
+        targetExclude "build/**"
+      }
+    }
+  }
+}
+
+configure(project(":hppc")) {
+  plugins.withId("com.diffplug.gradle.spotless") {
+    spotless {
+      java {
+        // Exclude templates and generated files, at least for now.
+        // Templates have comments around imports, which confuses GOF.
+        targetExclude([
+            "build/**",
+            "src/main/templates/**",
+            "src/test/templates/**"])
+      }
+    }
+  }
+}

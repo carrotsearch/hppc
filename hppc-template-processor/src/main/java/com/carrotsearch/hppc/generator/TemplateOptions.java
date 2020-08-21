@@ -1,3 +1,12 @@
+/*
+ * HPPC
+ *
+ * Copyright (C) 2010-2020 Carrot Search s.c.
+ * All rights reserved.
+ *
+ * Refer to the full license file "LICENSE.txt":
+ * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
+ */
 package com.carrotsearch.hppc.generator;
 
 import java.nio.file.Path;
@@ -5,11 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.google.common.base.Preconditions;
-
-/**
- * Template options for velocity directives in templates.
- */
+/** Template options for velocity directives in templates. */
 public class TemplateOptions {
   public static final String TEMPLATE_FILE_TOKEN = "__TEMPLATE_SOURCE__";
 
@@ -35,6 +40,16 @@ public class TemplateOptions {
 
   public boolean isIgnored() {
     return ignore;
+  }
+
+  public boolean isKTypeAnyOf(String... typeNames) {
+    for (String type : typeNames) {
+      Type t = Type.valueOf(type);
+      if (ktype == t) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean isKTypePrimitive() {
@@ -74,12 +89,16 @@ public class TemplateOptions {
   }
 
   public Type getKType() {
-    Preconditions.checkArgument(hasKType(), "Template does not specify KType.");
+    if (!hasKType()) {
+      throw new IllegalArgumentException("Template does not specify KType.");
+    }
     return ktype;
   }
 
   public Type getVType() {
-    Preconditions.checkArgument(hasVType(), "Template does not specify VType.");
+    if (!hasVType()) {
+      throw new IllegalArgumentException("Template does not specify VType.");
+    }
     return vtype;
   }
 
@@ -96,10 +115,9 @@ public class TemplateOptions {
   }
 
   public String getGeneratedAnnotation() {
-    return String.format(Locale.ROOT, 
-        "@javax.annotation.Generated(\n" + 
-        "    date = \"%s\",\n" +
-        "    value = \"%s\")",
+    return String.format(
+        Locale.ROOT,
+        "@com.carrotsearch.hppc.Generated(\n" + "    date = \"%s\",\n" + "    value = \"%s\")",
         getTimeNow(),
         TEMPLATE_FILE_TOKEN);
   }
