@@ -25,15 +25,15 @@ public enum Library {
     }
   },
 
-  HPPC_SCATTER {
+  WORM {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntScatterSetOps(expectedElements, loadFactor);
+      return new HppcIntSetOps(expectedElements, loadFactor); // TODO
     }
 
     @Override
     public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
-      return new HppcIntIntScatterMapOps(expectedElements, loadFactor);
+      return new WormIntIntMapOps(expectedElements);
     }
   },
 
@@ -58,30 +58,6 @@ public enum Library {
     @Override
     public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
       return new KolobokeIntIntMapOps(expectedElements, loadFactor);
-    }
-  },
-
-  WORM {
-    @Override
-    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntSetOps(expectedElements, loadFactor); // TODO
-    }
-
-    @Override
-    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
-      return new WormIntIntMapOps(expectedElements);
-    }
-  },
-
-  WORM_SCATTER {
-    @Override
-    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntScatterSetOps(expectedElements, loadFactor); // TODO
-    }
-
-    @Override
-    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
-      return new WormIntIntScatterMapOps(expectedElements);
     }
   },
   ;

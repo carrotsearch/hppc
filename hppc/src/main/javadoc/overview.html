@@ -159,20 +159,12 @@
         <tr>
             <th scope="row" class="column1">hash sets</th>
             <td><code>java.util.HashSet</code></td>
-            <td><code><span class="red nobr">[keyType]</span>HashSet</code>
-                <div class="vsep"></div>
-                <code><span class="red nobr">[keyType]</span>ScatterSet</code>
-            </td>
+            <td><code><span class="red nobr">[keyType]</span>HashSet</code></td>
             <td>
                 {@linkplain com.carrotsearch.hppc.ObjectHashSet
                 <code>ObjectHashSet&lt;<span class="red nobr">K</span>&gt;</code>}
                 <div class="vsep"></div>
                 <code><span class="red nobr">[keyType]</span>HashSet</code>
-                <div class="vsep"></div>
-                {@linkplain com.carrotsearch.hppc.ObjectScatterSet
-                <code>ObjectScatterSet&lt;<span class="red nobr">K</span>&gt;</code>}
-                <div class="vsep"></div>
-                <code><span class="red nobr">[keyType]</span>ScatterSet</code>
             </td>
         </tr>
 
@@ -187,13 +179,6 @@
                 <code><span class="red nobr">[keyType]</span>ObjectHashMap&lt;<span class="red nobr">V</span>&gt;</code>
                 <div class="vsep"></div>
                 <code>Object<span class="red nobr">[valueType]</span>HashMap&lt;<span class="red nobr">K</span>&gt;</code>
-                <div class="vsep"></div>
-                {@linkplain com.carrotsearch.hppc.ObjectObjectScatterMap
-                <code>ObjectObjectScatterMap&lt;<span class="red nobr">K, V</span>&gt;</code>}
-                <div class="vsep"></div>
-                <code><span class="red nobr">[keyType]</span>ObjectScatterMap&lt;<span class="red nobr">V</span>&gt;</code>
-                <div class="vsep"></div>
-                <code>Object<span class="red nobr">[valueType]</span>ScatterMap&lt;<span class="red nobr">K</span>&gt;</code>
             </td>
         </tr>
         </tbody>
@@ -201,43 +186,6 @@
 
         <p>The method-level API of the corresponding types is also similar, but distinct
         differences exist (consult the JavaDoc of each class).</p>
-
-        <p class="sectionTitle"><a id="scattervshash">Scatter or hash (sets and maps)</a></p>
-
-        <p>
-        All key-redistribution containers (maps and sets) implemented in HPPC use 
-        <a href="http://en.wikipedia.org/wiki/Open_addressing">open addressing</a>
-        with <a href="http://en.wikipedia.org/wiki/Linear_probing">linear probing</a>. Given
-        the speed of access to CPU caches on modern processors this type of key lookup
-        is the fastest one in practice. However, there is a potential problem with this approach:
-        because keys are distributed in the underlying array at approximately their hash value,
-        when they are copied to another hash container, the number of conflicts to find an empty
-        slot may quickly increase. In the worst case this may lead to an exponential cost
-        of any operation that requires a slot-lookup (adding, removal of a key). The "worst" case
-        is, unfortunately, not as unlikely as it may seem; it's enough that keys are just copied
-        from one container to another, in particular with load factors higher than 0.5.      
-        </p>
-
-        <p>
-        In HPPC there is a distinction between "hash" and "scatter" sets and maps. Any hash-based
-        structure will try to redistribute keys differently on a per-object basis. So the likelihood
-        of the worst case (described above) is minimized to nearly zero at the cost of slightly 
-        increased slot lookup cost and lower CPU cache utilization when keys are copied from one
-        container to another. The "scatter" sets and maps will use a very simple hashing strategy
-        to be as fast as possible, but this can lead to conflict avalanches if scatter container's 
-        keys are copied to another scatter container. So when are scatter sets (or maps) useful? In short,
-        whenever there is a need to check for existence of a key or for collecting (aggregating)
-        some value for an existing key but assuming the content of the scatter container is 
-        not later propagated to some other (scatter) set or map.
-        </p>
-        
-        <p>Check out <a href="https://github.com/carrotsearch/hppc/wiki/Scatter-Or-Hash">this example</a>, it provides in-depth information and explanation of the phenomenon.</p>
-        
-        <p>
-        If you're unsure which one to use, use regular hash containers. The difference shows
-        only for large data sets (measured in millions of elements) anyway.
-        </p>
-
 
         <p class="sectionTitle"><a id="interfaces">Interfaces and container inheritance</a></p>
 

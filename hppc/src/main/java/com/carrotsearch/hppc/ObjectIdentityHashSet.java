@@ -24,11 +24,6 @@ public class ObjectIdentityHashSet<KType> extends ObjectHashSet<KType> {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
   }
 
-  /** New instance with sane defaults. */
-  public ObjectIdentityHashSet(int expectedElements, double loadFactor) {
-    this(expectedElements, loadFactor, HashOrderMixing.randomized());
-  }
-
   /**
    * New instance with the provided defaults.
    *
@@ -36,14 +31,9 @@ public class ObjectIdentityHashSet<KType> extends ObjectHashSet<KType> {
    *     (inclusive).
    * @param loadFactor The load factor for internal buffers. Insane load factors (zero, full
    *     capacity) are rejected by {@link #verifyLoadFactor(double)}.
-   * @param orderMixer Hash key order mixing strategy. See {@link HashOrderMixing} for predefined
-   *     implementations. Use constant mixers only if you understand the potential consequences.
    */
-  public ObjectIdentityHashSet(
-      int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
-    this.orderMixer = orderMixer;
-    this.loadFactor = verifyLoadFactor(loadFactor);
-    ensureCapacity(expectedElements);
+  public ObjectIdentityHashSet(int expectedElements, double loadFactor) {
+    super(expectedElements, loadFactor);
   }
 
   /** New instance copying elements from another {@link ObjectContainer}. */

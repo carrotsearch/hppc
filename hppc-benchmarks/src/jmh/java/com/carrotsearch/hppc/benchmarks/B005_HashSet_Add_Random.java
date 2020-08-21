@@ -23,7 +23,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Measurement(iterations = 5)
 @State(Scope.Benchmark)
 public class B005_HashSet_Add_Random {
-
   @Param("0.75")
   public double loadFactor;
 

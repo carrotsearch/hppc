@@ -13,14 +13,7 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A hash set of <code>KType</code>s, implemented using using open addressing
  * with linear probing for collision resolution.
- * 
- * <p>
- * <strong>Note:</strong> read about 
- * <a href="{@docRoot}/overview-summary.html#scattervshash">
- * important differences between hash and scatter sets</a>.
- * </p>
- * 
- * @see KTypeScatterSet
+ *
  * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
 /*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
@@ -54,17 +47,6 @@ public class KTypeHashSet<KType>
   protected int mask;
 
   /**
-   * We perturb hash values with a container-unique
-   * seed to avoid problems with nearly-sorted-by-hash 
-   * values on iterations.
-   * 
-   * @see #hashKey
-   * @see "http://issues.carrot2.org/browse/HPPC-80"
-   * @see "http://issues.carrot2.org/browse/HPPC-103"
-   */
-  protected int keyMixer;
-
-  /**
    * Expand (rehash) {@link #keys} when {@link #assigned} hits this value. 
    */
   protected int resizeAt;
@@ -79,16 +61,15 @@ public class KTypeHashSet<KType>
    */
   protected double loadFactor;
 
-  /** 
-   * Per-instance hash order mixing strategy.
-   * @see #keyMixer
+  /**
+   * Seed used to ensure the hash iteration order is different from an iteration to another.
    */
-  protected HashOrderMixingStrategy orderMixer;
+  protected int iterationSeed;
 
   /**
    * New instance with sane defaults.
    * 
-   * @see #KTypeHashSet(int, double, HashOrderMixingStrategy)
+   * @see #KTypeHashSet(int, double)
    */
   public KTypeHashSet() {
     this(DEFAULT_EXPECTED_ELEMENTS, DEFAULT_LOAD_FACTOR);
@@ -97,19 +78,10 @@ public class KTypeHashSet<KType>
   /**
    * New instance with sane defaults.
    * 
-   * @see #KTypeHashSet(int, double, HashOrderMixingStrategy)
+   * @see #KTypeHashSet(int, double)
    */
   public KTypeHashSet(int expectedElements) {
     this(expectedElements, DEFAULT_LOAD_FACTOR);
-  }
-
-  /**
-   * New instance with sane defaults.
-   * 
-   * @see #KTypeHashSet(int, double, HashOrderMixingStrategy)
-   */
-  public KTypeHashSet(int expectedElements, double loadFactor) {
-    this(expectedElements, loadFactor, HashOrderMixing.defaultStrategy());
   }
 
   /**
@@ -120,14 +92,10 @@ public class KTypeHashSet<KType>
    * @param loadFactor
    *          The load factor for internal buffers. Insane load factors (zero, full capacity)
    *          are rejected by {@link #verifyLoadFactor(double)}.
-   * @param orderMixer
-   *          Hash key order mixing strategy. See {@link HashOrderMixing} for predefined
-   *          implementations. Use constant mixers only if you understand the potential
-   *          consequences.
    */
-  public KTypeHashSet(int expectedElements, double loadFactor, HashOrderMixingStrategy orderMixer) {
-    this.orderMixer = orderMixer;
+  public KTypeHashSet(int expectedElements, double loadFactor) {
     this.loadFactor = verifyLoadFactor(loadFactor);
+    iterationSeed = HashContainers.nextIterationSeed();
     ensureCapacity(expectedElements);
   }
 
@@ -236,7 +204,9 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = mask; slot <= max; slot++) {
+    int seed = nextIterationSeed();
+    int inc = iterationIncrement(seed);
+    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         cloned[j++] = existing;
@@ -440,7 +410,7 @@ public class KTypeHashSet<KType>
       KTypeHashSet<KType> cloned = (KTypeHashSet<KType>) super.clone();
       cloned.keys = keys.clone();
       cloned.hasEmptyKey = hasEmptyKey;
-      cloned.orderMixer = orderMixer.clone();
+      cloned.iterationSeed = HashContainers.nextIterationSeed();
       return cloned;
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
@@ -461,7 +431,7 @@ public class KTypeHashSet<KType>
     // double: loadFactor
     // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
-            RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowSizeOf(keys);
+            RamUsageEstimator.shallowSizeOf(keys);
   }
 
   @Override
@@ -470,7 +440,15 @@ public class KTypeHashSet<KType>
     // double: loadFactor
     // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
-            RamUsageEstimator.shallowSizeOf(orderMixer) + RamUsageEstimator.shallowUsedSizeOfArray(keys, size());
+            RamUsageEstimator.shallowUsedSizeOfArray(keys, size());
+  }
+
+  /**
+   * Provides the next iteration seed used to build the iteration starting slot and offset increment.
+   * This method does not need to be synchronized, what matters is that each thread gets a sequence of varying seeds.
+   */
+  protected int nextIterationSeed() {
+    return iterationSeed = BitMixer.mixPhi(iterationSeed);
   }
 
   /**
@@ -478,30 +456,34 @@ public class KTypeHashSet<KType>
    */
   protected final class EntryIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
-    private final int max = mask + 1;
-    private int slot = -1;
+    private final int increment;
+    private int index;
+    private int slot;
 
     public EntryIterator() {
       cursor = new KTypeCursor<KType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
     }
 
     @Override
     protected KTypeCursor<KType> fetch() {
-      if (slot < max) {
+      final int mask = KTypeHashSet.this.mask;
+      while (index <= mask) {
         KType existing;
-        for (slot++; slot < max; slot++) {
-          if (!Intrinsics.isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
-            cursor.index = slot;
-            cursor.value = existing;
-            return cursor;
-          }
+        index++;
+        slot = (slot + increment) & mask;
+        if (!Intrinsics.isEmpty(existing = Intrinsics.<KType> cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.value = existing;
+          return cursor;
         }
       }
 
-      if (slot == max && hasEmptyKey) {
-        cursor.index = slot;
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index++;
         cursor.value = Intrinsics.empty();
-        slot++;
         return cursor;
       }
 
@@ -519,7 +501,9 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    int seed = nextIterationSeed();
+    int inc = iterationIncrement(seed);
+    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         procedure.apply(existing);
@@ -541,7 +525,9 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max; slot++) {
+    int seed = nextIterationSeed();
+    int inc = iterationIncrement(seed);
+    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (!predicate.apply(existing)) {
@@ -569,14 +555,9 @@ public class KTypeHashSet<KType>
 
   /**
    * Returns a hash code for the given key.
-   * 
-   * The default implementation mixes the hash of the key with {@link #keyMixer}
-   * to differentiate hash order of keys between hash containers. Helps
-   * alleviate problems resulting from linear conflict resolution in open
-   * addressing.
-   * 
-   * The output from this function should evenly distribute keys across the
-   * entire integer range.
+   *
+   * <p>The output from this function should evenly distribute keys across the
+   * entire integer range.</p>
    */
   /*! #if ($templateonly) !*/
   @Override
@@ -584,7 +565,7 @@ public class KTypeHashSet<KType>
   /*! #else protected #end !*/
   int hashKey(KType key) {
     assert !Intrinsics.isEmpty(key); // Handled as a special case (empty slot marker).
-    return BitMixer.mix(key, this.keyMixer);
+    return BitMixer.mixPhi(key);
   }
 
   /**
@@ -760,9 +741,6 @@ public class KTypeHashSet<KType>
   protected void allocateBuffers(int arraySize) {
     assert Integer.bitCount(arraySize) == 1;
 
-    // Compute new hash mixer candidate before expanding.
-    final int newKeyMixer = this.orderMixer.newKeyMixer(arraySize);
-
     // Ensure no change is done if we hit an OOM.
     KType[] prevKeys = Intrinsics.<KType[]> cast(this.keys);
     try {
@@ -778,7 +756,6 @@ public class KTypeHashSet<KType>
     }
 
     this.resizeAt = expandAtCount(arraySize, loadFactor);
-    this.keyMixer = newKeyMixer;
     this.mask = arraySize - 1;
   }
 

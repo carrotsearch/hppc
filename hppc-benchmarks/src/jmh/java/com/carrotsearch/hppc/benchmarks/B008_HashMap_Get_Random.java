@@ -26,13 +26,12 @@ public class B008_HashMap_Get_Random {
   @Param("0.75")
   public double loadFactor;
 
-  @Param({"WORM", "WORM_SCATTER"})
-  public Library library;
+  @Param public Library library;
 
-  @Param({"16"}) // ,"17","18","19","20","21","22"})
+  @Param({"16"}) // {"16", "18", "20"}
   public int capacityPowerOf2;
 
-  @Param({"0.5", "0.6", "0.7"}) // "0.45","0.5","0.55","0.6","0.65","0.7","0.74"})
+  @Param({"0.45", "0.5", "0.55", "0.6", "0.65", "0.7", "0.74"})
   public float load;
 
   public int keyCount;

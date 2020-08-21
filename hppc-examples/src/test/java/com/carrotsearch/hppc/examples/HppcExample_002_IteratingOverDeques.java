@@ -54,7 +54,7 @@ public class HppcExample_002_IteratingOverDeques {
 
   /** A for-each type loop with an anonymous class. */
   @Test
-  public void forEachLoop() throws Exception {
+  public void forEachLoop() {
     deque.forEach(
         new IntProcedure() {
           public void apply(int value) {
@@ -65,7 +65,7 @@ public class HppcExample_002_IteratingOverDeques {
 
   /** A for-each type loop with an anonymous class. */
   @Test
-  public void forEachLoopReversed() throws Exception {
+  public void forEachLoopReversed() {
     deque.descendingForEach(
         new IntProcedure() {
           public void apply(int value) {

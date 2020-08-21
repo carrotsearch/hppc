@@ -13,7 +13,6 @@ import static com.carrotsearch.hppc.examples.Helpers.*;
 import static org.assertj.core.api.Assertions.*;
 
 import com.carrotsearch.hppc.IntLongHashMap;
-import com.carrotsearch.hppc.IntLongScatterMap;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
 import com.carrotsearch.hppc.procedures.IntLongProcedure;
 import org.junit.Before;
@@ -23,17 +22,10 @@ import org.junit.Test;
 public class HppcExample_004_IteratingOverMaps {
 
   public IntLongHashMap hashMap;
-  public IntLongScatterMap scatterMap;
 
   @Before
   public void setup() {
-    // Note that copying the other way around wouldn't be safe (and is thus impossible
-    // because there is no IntLongHashMap constructor that can copy keys from another
-    // container).
-    scatterMap =
-        IntLongScatterMap.from(new int[] {1, 1, 2, 3, 5, 0}, new long[] {1, 2, 3, 4, 5, 6});
-
-    hashMap = new IntLongHashMap(scatterMap);
+    hashMap = IntLongHashMap.from(new int[] {1, 1, 2, 3, 5, 0}, new long[] {1, 2, 3, 4, 5, 6});
   }
 
   /**
@@ -46,12 +38,6 @@ public class HppcExample_004_IteratingOverMaps {
    */
   @Test
   public void cursor() {
-    for (IntLongCursor c : scatterMap) {
-      printfln("scatterMap %d => %d (at buffer index %d)", c.key, c.value, c.index);
-      assertThat(c.value).isEqualTo(scatterMap.values[c.index]);
-      assertThat(c.key).isEqualTo(scatterMap.keys[c.index]);
-    }
-
     for (IntLongCursor c : hashMap) {
       printfln("hashMap %d => %d (at buffer index %d)", c.key, c.value, c.index);
       assertThat(c.value).isEqualTo(hashMap.values[c.index]);
@@ -62,14 +48,6 @@ public class HppcExample_004_IteratingOverMaps {
   /** A for-each type loop with an anonymous class. */
   @Test
   public void forEachLoop() {
-    scatterMap.forEach(
-        new IntLongProcedure() {
-          @Override
-          public void apply(int key, long value) {
-            printfln("scatterMap %d => %d", key, value);
-          }
-        });
-
     hashMap.forEach(
         new IntLongProcedure() {
           @Override

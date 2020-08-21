@@ -9,6 +9,8 @@
  */
 package com.carrotsearch.hppc;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public final class HashContainers {
   /**
    * Maximum array size for hash containers (power-of-two and still allocable in Java, not a
@@ -27,6 +29,8 @@ public final class HashContainers {
 
   /** Maximum sane load factor (1 empty slot per 100). */
   public static final float MAX_LOAD_FACTOR = 99 / 100.0f;
+
+  private static final AtomicInteger ITERATION_SEED = new AtomicInteger();
 
   /**
    * Compute and return the maximum number of elements (inclusive) that can be stored in a hash
@@ -94,5 +98,15 @@ public final class HashContainers {
     assert arraySize > 1;
     assert BitUtil.nextHighestPowerOfTwo(arraySize) == arraySize;
     return true;
+  }
+
+  /** Provides the next hash iteration order seed. It is simply an incrementing atomic counter. */
+  static int nextIterationSeed() {
+    return ITERATION_SEED.incrementAndGet();
+  }
+
+  /** Computes a hash iteration order increment based on the provided seed. */
+  static int iterationIncrement(int seed) {
+    return 29 + ((seed & 7) << 1); // Small odd integer.
   }
 }

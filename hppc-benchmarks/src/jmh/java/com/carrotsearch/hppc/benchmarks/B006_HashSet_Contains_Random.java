@@ -28,7 +28,7 @@ public class B006_HashSet_Contains_Random {
 
   @Param public Library library;
 
-  @Param({"26"}) // "16","17","18","19","20","21","22"})
+  @Param({"16"}) // {"16", "18", "20"}
   public int capacityPowerOf2;
 
   @Param({"0.45", "0.5", "0.55", "0.6", "0.65", "0.7", "0.74"})
