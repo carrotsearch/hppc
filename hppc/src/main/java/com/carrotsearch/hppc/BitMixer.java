@@ -20,24 +20,12 @@ public final class BitMixer {
     return key * PHI_C32;
   }
 
-  public static int mix(byte key, int seed) {
-    return (key ^ seed) * PHI_C32;
-  }
-
   public static int mix(short key) {
     return mixPhi(key);
   }
 
-  public static int mix(short key, int seed) {
-    return mixPhi(key ^ seed);
-  }
-
   public static int mix(char key) {
     return mixPhi(key);
-  }
-
-  public static int mix(char key, int seed) {
-    return mixPhi(key ^ seed);
   }
 
   // Better mix for larger key domains.
@@ -45,40 +33,20 @@ public final class BitMixer {
     return mix32(key);
   }
 
-  public static int mix(int key, int seed) {
-    return mix32(key ^ seed);
-  }
-
   public static int mix(float key) {
     return mix32(Float.floatToIntBits(key));
-  }
-
-  public static int mix(float key, int seed) {
-    return mix32(Float.floatToIntBits(key) ^ seed);
   }
 
   public static int mix(double key) {
     return (int) mix64(Double.doubleToLongBits(key));
   }
 
-  public static int mix(double key, int seed) {
-    return (int) mix64(Double.doubleToLongBits(key) ^ seed);
-  }
-
   public static int mix(long key) {
     return (int) mix64(key);
   }
 
-  public static int mix(long key, int seed) {
-    return (int) mix64(key ^ seed);
-  }
-
   public static int mix(Object key) {
     return key == null ? 0 : mix32(key.hashCode());
-  }
-
-  public static int mix(Object key, int seed) {
-    return key == null ? 0 : mix32(key.hashCode() ^ seed);
   }
 
   /** MH3's plain finalization step. */
@@ -115,18 +83,8 @@ public final class BitMixer {
     return h ^ (h >>> 16);
   }
 
-  public static int mixPhi(byte k, int seed) {
-    final int h = (k ^ seed) * PHI_C32;
-    return h ^ (h >>> 16);
-  }
-
   public static int mixPhi(char k) {
     final int h = k * PHI_C32;
-    return h ^ (h >>> 16);
-  }
-
-  public static int mixPhi(char k, int seed) {
-    final int h = (k ^ seed) * PHI_C32;
     return h ^ (h >>> 16);
   }
 
@@ -135,18 +93,8 @@ public final class BitMixer {
     return h ^ (h >>> 16);
   }
 
-  public static int mixPhi(short k, int seed) {
-    final int h = (k ^ seed) * PHI_C32;
-    return h ^ (h >>> 16);
-  }
-
   public static int mixPhi(int k) {
     final int h = k * PHI_C32;
-    return h ^ (h >>> 16);
-  }
-
-  public static int mixPhi(int k, int seed) {
-    final int h = (k ^ seed) * PHI_C32;
     return h ^ (h >>> 16);
   }
 
@@ -155,18 +103,8 @@ public final class BitMixer {
     return h ^ (h >>> 16);
   }
 
-  public static int mixPhi(float k, int seed) {
-    final int h = (Float.floatToIntBits(k) ^ seed) * PHI_C32;
-    return h ^ (h >>> 16);
-  }
-
   public static int mixPhi(double k) {
     final long h = Double.doubleToLongBits(k) * PHI_C64;
-    return (int) (h ^ (h >>> 32));
-  }
-
-  public static int mixPhi(double k, int seed) {
-    final long h = (Double.doubleToLongBits(k) ^ seed) * PHI_C64;
     return (int) (h ^ (h >>> 32));
   }
 
@@ -175,18 +113,8 @@ public final class BitMixer {
     return (int) (h ^ (h >>> 32));
   }
 
-  public static int mixPhi(long k, int seed) {
-    final long h = (k ^ seed) * PHI_C64;
-    return (int) (h ^ (h >>> 32));
-  }
-
   public static int mixPhi(Object k) {
     final int h = (k == null ? 0 : k.hashCode() * PHI_C32);
-    return h ^ (h >>> 16);
-  }
-
-  public static int mixPhi(Object k, int seed) {
-    final int h = (k == null ? 0 : (k.hashCode() ^ seed) * PHI_C32);
     return h ^ (h >>> 16);
   }
 }
