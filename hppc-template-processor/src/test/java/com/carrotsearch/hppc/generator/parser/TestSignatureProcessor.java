@@ -31,6 +31,13 @@ public class TestSignatureProcessor {
   }
 
   @Test
+  public void testClassMultipleMixedBound() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor("public class KTypeFoo<T, KType, F> {}");
+    check(Type.INT, sp, "public class IntFoo<T, F> {}");
+    check(Type.GENERIC, sp, "public class ObjectFoo<T, KType, F> {}");
+  }
+
+  @Test
   public void testClassKV() throws IOException {
     SignatureProcessor sp = new SignatureProcessor("public class KTypeVTypeClass<KType, VType> {}");
     check(Type.INT, Type.LONG, sp, "public class IntLongClass {}");

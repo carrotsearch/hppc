@@ -31,7 +31,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -71,6 +74,11 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
 
     public String getBoxedType() {
       return templateBound().getBoxedType();
+    }
+
+    @Override
+    public String toString() {
+      return String.format(Locale.ROOT, "Bound(original=%s, target=%s)", originalBound, targetType);
     }
   }
 
@@ -145,21 +153,34 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
         result.add(new Replacement(ctx.typeParameters(), toString(typeBounds)));
       }
 
-      int typeBoundIndex = 0;
+      Iterator<TypeBound> templateBounds =
+          typeBounds.stream()
+              .filter(TypeBound::isTemplateType)
+              .collect(Collectors.toList())
+              .iterator();
+
       if (className.contains("KType")) {
         className =
-            className.replace(
-                "KType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+            className.replace("KType", templateBounds.next().templateBound().getBoxedType());
       }
       if (className.contains("VType")) {
         className =
-            className.replace(
-                "VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+            className.replace("VType", templateBounds.next().templateBound().getBoxedType());
       }
       result.add(new Replacement(ctx.IDENTIFIER(), className));
     }
 
     return result;
+  }
+
+  private TypeBound lookup(List<TypeBound> typeBounds, String name) {
+    for (TypeBound bound : typeBounds) {
+      if (bound.isTemplateType() && bound.originalBound().equals(name)) {
+        return bound;
+      }
+    }
+    throw new RuntimeException(
+        String.format(Locale.ROOT, "Type bound for %s not found among: %s", name, typeBounds));
   }
 
   @Override
@@ -174,16 +195,19 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
       }
       Replacement replaceGenericTypes = new Replacement(ctx.typeParameters(), toString(typeBounds));
 
-      int typeBoundIndex = 0;
+      Iterator<TypeBound> templateBounds =
+          typeBounds.stream()
+              .filter(TypeBound::isTemplateType)
+              .collect(Collectors.toList())
+              .iterator();
+
       if (className.contains("KType")) {
         className =
-            className.replace(
-                "KType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+            className.replace("KType", templateBounds.next().templateBound().getBoxedType());
       }
       if (className.contains("VType")) {
         className =
-            className.replace(
-                "VType", typeBounds.get(typeBoundIndex++).templateBound().getBoxedType());
+            className.replace("VType", templateBounds.next().templateBound().getBoxedType());
       }
       Replacement replaceIdentifier = new Replacement(ctx.IDENTIFIER(), className);
 
