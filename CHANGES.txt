@@ -11,6 +11,11 @@ HPPC-183: Simplify IndirectSort comparator to use IntBinaryOperator.
 
 HPPC-177: Modernize the build system to gradle and make it work with IntelliJ.
 
+** Bugs
+
+HPPC-187: ObjectIdentityHashSet redistributes keys according to key.hashCode rather than object identity's hash code.
+          (Bruno Roustant).
+
 
 [0.8.2]
 https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13522&styleName=Text

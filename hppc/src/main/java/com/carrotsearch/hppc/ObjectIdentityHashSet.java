@@ -55,7 +55,7 @@ public class ObjectIdentityHashSet<KType> extends ObjectHashSet<KType> {
   @Override
   protected int hashKey(KType key) {
     assert key != null; // Handled as a special case (empty slot marker).
-    return BitMixer.mix(key, this.keyMixer);
+    return BitMixer.mixPhi(System.identityHashCode(key));
   }
 
   @Override
