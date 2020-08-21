@@ -11,6 +11,7 @@ package com.carrotsearch.hppc;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -18,6 +19,7 @@ public class ObjectIdentityHashSetTest extends RandomizedTest {
   /* */
   @Repeat(iterations = 500)
   @Test
+  @SuppressForbidden("Legitimate use of new Integer()")
   public void testHashKeyUsesSystemIdentity() {
     int expectedElements = 200;
     ObjectIdentityHashSet<Integer> foo = new ObjectIdentityHashSet<>(expectedElements);
