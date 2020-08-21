@@ -23,10 +23,12 @@ class WormUtil {
    * a compromise between memory reduction and performance.
    */
   static final int[] RECURSIVE_MOVE_ATTEMPTS = {10, 1, 0};
+
   /**
    * Marks an entry at the end of a chain. This value is stored in the "next offset" of the entry.
    */
   static final int END_OF_CHAIN = 127;
+
   /**
    * Target load factor for the {@code KTypeVTypeWormMap#ensureCapacity(int)} method. The method
    * sets the map capacity according to the map size and this load factor. If the map cannot fit
