@@ -1,15 +1,38 @@
 
 [0.9.0-SNAPSHOT]
 
-** New features
+** New features and API changes
 
 HPPC-179: Update java template parser to support Java 8.
+
+HPPC-186: A different strategy has been implemented for collision avalanche avoidance. This
+          results in removal of Scatter* maps and sets and their unification with their Hash*
+          counterparts.
+
+          This change should not affect any existing code unless it relied on static, specific
+          ordering of keys. A side effect of this change is that key/value enumerators will return
+          a different ordering of their container's values on each invocation. If your code relies
+          on the order of values in associative arrays, it must order them after they are retrieved.
+
+          (Bruno Roustant).
+
+HPPC-176: A new set of associative containers implementing Worm Hashing has been added.
+          This strategy is appropriate for a medium sized maps and sets (less than 2M entries).
+          It takes more time to put entries in the map because it maintains chains of entries having
+          the same hash. Then the lookup speed is fast even if the map is heavy loaded or hashes are
+          clustered. On average it takes slightly less memory than KTypeVTypeHashMap: even though
+          it allocates more data structures, the reasonable load factor is higher (it varies around 80%)
+          so containers enlarge later.
+
+          (Bruno Roustant, Aleksandr Danilin).
 
 ** Improvements
 
 HPPC-183: Simplify IndirectSort comparator to use IntBinaryOperator.
 
 HPPC-177: Modernize the build system to gradle and make it work with IntelliJ.
+
+HPPC-184: Use closures where possible to make the resulting JAR smaller.
 
 ** Bugs
 
