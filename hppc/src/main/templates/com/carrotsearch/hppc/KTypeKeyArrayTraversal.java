@@ -1,8 +1,5 @@
 package com.carrotsearch.hppc;
 
-import java.util.Objects;
-import java.util.function.IntFunction;
-
 import static com.carrotsearch.hppc.HashContainers.iterationIncrement;
 
 final class KTypeKeyArrayTraversal<KType> {

@@ -822,18 +822,13 @@ public class KTypeVTypeHashMap<KType, VType>
       @Override
       protected KTypeCursor<KType> fetch() {
         int slot = traversal.nextSlot();
-        if (slot < 0) {
-          return done();
-        }
-
-        if (slot <= mask) {
+        if (slot >= 0) {
           cursor.index = slot;
-          cursor.value = Intrinsics.<KType> cast(owner.keys[slot]);
+          cursor.value =
+              (slot <= mask ? Intrinsics.<KType>cast(owner.keys[slot]) : Intrinsics.<KType>empty());
           return cursor;
         } else {
-          cursor.index = slot;
-          cursor.value = Intrinsics.<KType> empty();
-          return cursor;
+          return done();
         }
       }
     }
