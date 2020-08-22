@@ -31,6 +31,19 @@ public class TestSignatureProcessor {
   }
 
   @Test
+  public void testComplexMixedSignature() throws IOException {
+    SignatureProcessor sp =
+        new SignatureProcessor(
+            "public class KTypeVTypeClass<KType, VType> {\n"
+                + "  public Iterator<KTypeCursor<KType>> iterator() {\n"
+                + "    return new KTypeFoo<KType, KTypeCursor<KType>>();\n"
+                + "  }\n"
+                + "}");
+    check(Type.INT, Type.LONG, sp, "");
+    check(Type.GENERIC, Type.LONG, sp, "");
+  }
+
+  @Test
   public void testClassMultipleMixedBound() throws IOException {
     SignatureProcessor sp = new SignatureProcessor("public class KTypeFoo<T, KType, F> {}");
     check(Type.INT, sp, "public class IntFoo<T, F> {}");

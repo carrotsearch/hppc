@@ -1,10 +1,8 @@
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.hppc.cursors.KTypeCursor;
-
 import static com.carrotsearch.hppc.HashContainers.iterationIncrement;
 
-final class KTypeKeyArrayTraversal<KType> extends AbstractIterator<KTypeCursor<KType>> {
+final class KTypeKeyArrayTraversal<KType, T> extends AbstractIterator<T> {
   private final KType[] keys;
   private final int increment;
   private final int mask;
@@ -38,7 +36,7 @@ final class KTypeKeyArrayTraversal<KType> extends AbstractIterator<KTypeCursor<K
   }
 
   @Override
-  protected KTypeCursor<KType> fetch() {
+  protected T fetch() {
     return null;
   }
 }
