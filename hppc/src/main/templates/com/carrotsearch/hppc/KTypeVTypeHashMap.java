@@ -811,8 +811,26 @@ public class KTypeVTypeHashMap<KType, VType>
 
     @Override
     public Iterator<KTypeCursor<KType>> iterator() {
-      return new KTypeKeyArrayTraversal<KType, KTypeCursor<KType>>(
+      return new KeysIterator();
+    }
+
+    private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
+      private final KTypeCursor<KType> cursor = new KTypeCursor<>();
+      private final KTypeKeyArrayTraversal<KType> traversal = new KTypeKeyArrayTraversal<KType>(
           Intrinsics.<KType[]> cast(keys), nextIterationSeed(), owner.mask, hasEmptyKey);
+
+      @Override
+      protected KTypeCursor<KType> fetch() {
+        int slot = traversal.nextSlot();
+        if (slot >= 0) {
+          cursor.index = slot;
+          cursor.value =
+              (slot <= mask ? Intrinsics.<KType>cast(owner.keys[slot]) : Intrinsics.<KType>empty());
+          return cursor;
+        } else {
+          return done();
+        }
+      }
     }
 
     @Override

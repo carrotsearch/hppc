@@ -57,7 +57,6 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     public TypeBound(Type targetType, String originalBound) {
       this.targetType = targetType;
       this.originalBound = originalBound;
-      System.out.println("Bound: " + this);
     }
 
     public Type templateBound() {
@@ -130,12 +129,6 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
         c.identifierTypePair().size() == 1, "Unexpected typeBoundOf context: " + c.getText());
 
     for (JavaParser.IdentifierTypePairContext p : c.identifierTypePair()) {
-      // TODO: if type arguments != null: should process them.
-      // p.typeArguments();
-      if (p.typeArguments() != null) {
-        return new TypeBound(Type.GENERIC, p.getText());
-      }
-      // System.out.println("# " + p.IDENTIFIER() + p.typeArguments());
       switch (p.IDENTIFIER().getText()) {
         case "KType":
           return new TypeBound(templateOptions.getKType(), p.getText());
@@ -178,6 +171,16 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     }
 
     return result;
+  }
+
+  private TypeBound lookup(List<TypeBound> typeBounds, String name) {
+    for (TypeBound bound : typeBounds) {
+      if (bound.isTemplateType() && bound.originalBound().equals(name)) {
+        return bound;
+      }
+    }
+    throw new RuntimeException(
+        String.format(Locale.ROOT, "Type bound for %s not found among: %s", name, typeBounds));
   }
 
   @Override
