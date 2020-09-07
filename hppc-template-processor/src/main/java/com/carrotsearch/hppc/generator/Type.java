@@ -41,4 +41,8 @@ public enum Type {
   public boolean isGeneric() {
     return this == GENERIC;
   }
+
+  public boolean isPrimitive() {
+    return !isGeneric();
+  }
 }
