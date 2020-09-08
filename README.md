@@ -1,4 +1,3 @@
-
 HPPC: High Performance Primitive Collections
 --------------------------------------------
 
@@ -17,3 +16,5 @@ See LICENSE.txt to make your company's lawyer happy.
 See CHANGES.txt for API changes and updates.
 
 (c) Carrot Search s.c., http://carrotsearch.com/
+
+[![Build Status](https://travis-ci.org/carrotsearch/hppc.svg?branch=master)](https://travis-ci.org/carrotsearch/hppc)
