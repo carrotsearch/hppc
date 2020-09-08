@@ -24,13 +24,8 @@ import com.carrotsearch.hppc.generator.parser.JavaParser.TypeArgumentContext;
 import com.carrotsearch.hppc.generator.parser.JavaParser.TypeArgumentsContext;
 import com.carrotsearch.hppc.generator.parser.JavaParser.TypeBoundContext;
 import com.carrotsearch.hppc.generator.parser.JavaParser.TypeParameterContext;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.misc.Interval;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +35,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement>> {
   private static final List<Replacement> NONE = Collections.emptyList();
@@ -52,11 +50,11 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     this.processor = processor;
   }
 
-  public class TypeBound {
-    private final ParserRuleContext originalBound;
+  private static class TypeBound {
+    private final String originalBound;
     private final Type targetType;
 
-    public TypeBound(Type targetType, ParserRuleContext originalBound) {
+    public TypeBound(Type targetType, String originalBound) {
       this.targetType = targetType;
       this.originalBound = originalBound;
     }
@@ -71,25 +69,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     }
 
     public String originalBound() {
-      if (originalBound == null) {
-        return null;
-      } else {
-        List<Replacement> repl = originalBound.accept(SignatureReplacementVisitor.this);
-        try {
-          StringWriter sw =
-              processor.reconstruct(
-                  new StringWriter(),
-                  processor.tokenStream,
-                  originalBound.start.getTokenIndex(),
-                  originalBound.stop.getTokenIndex(),
-                  repl,
-                  templateOptions);
-          System.out.println(processor.tokenStream.getText(originalBound.getSourceInterval()) + " => " + sw.toString());
-          return sw.toString();
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      }
+      return originalBound;
     }
 
     public String getBoxedType() {
@@ -98,8 +78,7 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
 
     @Override
     public String toString() {
-      return String.format(
-          Locale.ROOT, "Bound(original=%s, target=%s)", originalBound(), targetType);
+      return String.format(Locale.ROOT, "Bound(original=%s, target=%s)", originalBound, targetType);
     }
   }
 
@@ -107,49 +86,40 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     String symbol = c.IDENTIFIER().getText();
     switch (symbol) {
       case "KType":
-        return new TypeBound(templateOptions.getKType(), c);
+        return new TypeBound(templateOptions.getKType(), c.getText());
       case "VType":
-        return new TypeBound(templateOptions.getVType(), c);
+        return new TypeBound(templateOptions.getVType(), c.getText());
       default:
-        return new TypeBound(null, c);
+        return new TypeBound(null, c.getText());
     }
   }
 
   private TypeBound typeBoundOf(TypeArgumentContext c, Deque<Type> wildcards) {
-    return c.accept(
-        new JavaParserBaseVisitor<>() {
-          @Override
-          public TypeBound visitWildcardTypeType(JavaParser.WildcardTypeTypeContext ctx) {
-            return new TypeBound(wildcards.removeFirst(), ctx);
-          }
+    if (c.getText().equals("?")) {
+      return new TypeBound(wildcards.removeFirst(), c.getText());
+    }
 
-          @Override
-          public TypeBound visitSuperTypeType(JavaParser.SuperTypeTypeContext ctx) {
-            return new TypeBound(super.visitSuperTypeType(ctx).targetType, ctx);
-          }
+    TypeBound t = typeBoundOf(c.typeType());
+    if (t.isTemplateType()) {
+      return new TypeBound(t.templateBound(), getSourceText(c));
+    } else {
+      return new TypeBound(null, getSourceText(c));
+    }
+  }
 
-          @Override
-          public TypeBound visitExtendsTypeType(JavaParser.ExtendsTypeTypeContext ctx) {
-            return new TypeBound(super.visitExtendsTypeType(ctx).targetType, ctx);
-          }
-
-          @Override
-          public TypeBound visitTypeType(JavaParser.TypeTypeContext ctx) {
-            TypeBound t = typeBoundOf(ctx);
-            return new TypeBound(t.isTemplateType() ? t.templateBound() : null, ctx);
-          }
-        });
+  private String getSourceText(ParserRuleContext c) {
+    return this.processor.tokenStream.getText(c.getSourceInterval());
   }
 
   private TypeBound typeBoundOf(JavaParser.TypeTypeContext c) {
     if (c.primitiveType() != null) {
-      return new TypeBound(null, c);
+      return new TypeBound(null, c.getText());
     } else {
       TypeBound t = typeBoundOf(c.classOrInterfaceType());
       if (t.isTemplateType()) {
-        return new TypeBound(t.templateBound(), c);
+        return new TypeBound(t.templateBound(), c.getText());
       } else {
-        return new TypeBound(null, c);
+        return new TypeBound(null, c.getText());
       }
     }
   }
@@ -161,13 +131,13 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     for (JavaParser.IdentifierTypePairContext p : c.identifierTypePair()) {
       switch (p.IDENTIFIER().getText()) {
         case "KType":
-          return new TypeBound(templateOptions.getKType(), p);
+          return new TypeBound(templateOptions.getKType(), p.getText());
         case "VType":
-          return new TypeBound(templateOptions.getVType(), p);
+          return new TypeBound(templateOptions.getVType(), p.getText());
       }
     }
 
-    return new TypeBound(null, c);
+    return new TypeBound(null, c.getText());
   }
 
   public List<Replacement> visitClassDeclaration(ClassDeclarationContext ctx) {
@@ -175,8 +145,11 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
 
     String className = ctx.IDENTIFIER().getText();
     if (isTemplateIdentifier(className) || true) {
-      List<TypeBound> typeBounds = getTypeBounds(ctx.typeParameters());
-      if (!typeBounds.isEmpty()) {
+      List<TypeBound> typeBounds = new ArrayList<>();
+      if (ctx.typeParameters() != null) {
+        for (TypeParameterContext c : ctx.typeParameters().typeParameter()) {
+          typeBounds.add(typeBoundOf(c));
+        }
         result.add(new Replacement(ctx.typeParameters(), toString(typeBounds)));
       }
 
@@ -200,13 +173,26 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     return result;
   }
 
+  private TypeBound lookup(List<TypeBound> typeBounds, String name) {
+    for (TypeBound bound : typeBounds) {
+      if (bound.isTemplateType() && bound.originalBound().equals(name)) {
+        return bound;
+      }
+    }
+    throw new RuntimeException(
+        String.format(Locale.ROOT, "Type bound for %s not found among: %s", name, typeBounds));
+  }
+
   @Override
   public List<Replacement> visitInterfaceDeclaration(InterfaceDeclarationContext ctx) {
     List<Replacement> result = super.visitInterfaceDeclaration(ctx);
 
     String className = ctx.IDENTIFIER().getText();
     if (isTemplateIdentifier(className)) {
-      List<TypeBound> typeBounds = getTypeBounds(ctx.typeParameters());
+      List<TypeBound> typeBounds = new ArrayList<>();
+      for (TypeParameterContext c : ctx.typeParameters().typeParameter()) {
+        typeBounds.add(typeBoundOf(c));
+      }
       Replacement replaceGenericTypes = new Replacement(ctx.typeParameters(), toString(typeBounds));
 
       Iterator<TypeBound> templateBounds =
@@ -230,16 +216,6 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     }
 
     return result;
-  }
-
-  private List<TypeBound> getTypeBounds(JavaParser.TypeParametersContext ctx) {
-    List<TypeBound> typeBounds = new ArrayList<>();
-    if (ctx != null) {
-      for (TypeParameterContext c : ctx.typeParameter()) {
-        typeBounds.add(typeBoundOf(c));
-      }
-    }
-    return typeBounds;
   }
 
   @Override

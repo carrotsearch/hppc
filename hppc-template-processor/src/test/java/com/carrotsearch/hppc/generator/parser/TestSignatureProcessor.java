@@ -12,30 +12,16 @@ package com.carrotsearch.hppc.generator.parser;
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(RandomizedRunner.class)
 public class TestSignatureProcessor {
-  @Test
-  public void testComplexMixedSignature() throws IOException {
-    SignatureProcessor sp =
-        new SignatureProcessor(
-            "public class KTypeVTypeClass<KType, VType> {\n"
-                + "  public Iterator<KTypeCursor<KType>> iterator() {\n"
-                + "    return new KTypeFoo<KType, KTypeCursor<KType>>();\n"
-                + "  }\n"
-                + "}");
-    check(Type.INT, Type.LONG, sp, "");
-    check(Type.GENERIC, Type.LONG, sp, "");
-  }
-
   @Test
   public void testComplexClassInterfaceDeclaration() throws IOException {
     checkResource(
