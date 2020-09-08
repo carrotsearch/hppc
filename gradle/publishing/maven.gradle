@@ -58,6 +58,30 @@ configure(rootProject) {
               url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
             }
           }
+
+          organization {
+            name = "Carrot Search s.c."
+            url = "https://www.carrotsearch.com"
+          }
+
+          developers {
+            developer {
+              id = 'stanislaw.osinski'
+              name = 'Stanisław Osiński'
+              email = 'stanislaw.osinski@carrotsearch.com'
+            }
+            developer {
+              id = 'dawid.weiss'
+              name = 'Dawid Weiss'
+              email = 'dawid.weiss@carrotsearch.com'
+            }
+          }
+
+          scm {
+            connection = 'scm:git:git@github.com:carrotsearch/hppc.git'
+            developerConnection = 'scm:git:git@github.com:carrotsearch/hppc.git'
+            url = 'https://github.com/carrotsearch/hppc'
+          }
         }
 
         publications {
