@@ -11,14 +11,20 @@ package com.carrotsearch.hppc.generator.parser;
 
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.parser.JavaParser.CompilationUnitContext;
-import org.antlr.v4.runtime.*;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import org.antlr.v4.runtime.BailErrorStrategy;
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
 
 /** */
 public class SignatureProcessor {
@@ -30,7 +36,6 @@ public class SignatureProcessor {
     Lexer lexer = new JavaLexer(CharStreams.fromString(input));
     tokenStream = new CommonTokenStream(lexer);
     parser = new JavaParser(tokenStream);
-    // parser.setTrace(true);
     parser.setErrorHandler(new BailErrorStrategy());
     unitContext = parser.compilationUnit();
   }
@@ -39,21 +44,22 @@ public class SignatureProcessor {
    *
    */
   public String process(TemplateOptions templateOptions) throws IOException {
-    return applyReplacements(tokenStream, findReplacements(templateOptions), templateOptions);
+    return applyReplacements(findReplacements(templateOptions), templateOptions);
   }
 
   /*
    *
    */
   private List<Replacement> findReplacements(TemplateOptions templateOptions) {
-    return unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
+    List<Replacement> replacements =
+        unitContext.accept(new SignatureReplacementVisitor(templateOptions, this));
+    return replacements;
   }
 
   /*
    *
    */
-  static String applyReplacements(
-      CommonTokenStream tokenStream, List<Replacement> replacements, TemplateOptions options)
+  private String applyReplacements(List<Replacement> replacements, TemplateOptions options)
       throws IOException {
     StringWriter sw = new StringWriter();
     reconstruct(sw, tokenStream, 0, tokenStream.size() - 1, replacements, options);
@@ -61,7 +67,7 @@ public class SignatureProcessor {
   }
 
   /** Process references inside comment blocks, javadocs, etc. */
-  private static String processComment(String text, TemplateOptions options) {
+  private String processComment(String text, TemplateOptions options) {
     if (options.hasKType()) {
       text = text.replaceAll("(KType)(?=\\p{Lu})", options.getKType().getBoxedType());
       text = text.replace("KType", options.getKType().getType());
@@ -76,7 +82,7 @@ public class SignatureProcessor {
   /*
    *
    */
-  static <T extends Writer> T reconstruct(
+  <T extends Writer> T reconstruct(
       T sw,
       BufferedTokenStream tokenStream,
       int from,
@@ -86,7 +92,14 @@ public class SignatureProcessor {
       throws IOException {
 
     ArrayList<Replacement> sorted = new ArrayList<>(replacements);
-    sorted.sort((a, b) -> Integer.compare(a.interval.a, b.interval.b));
+    Collections.sort(
+        sorted,
+        new Comparator<Replacement>() {
+          @Override
+          public int compare(Replacement a, Replacement b) {
+            return Integer.compare(a.interval.a, b.interval.b);
+          }
+        });
 
     for (int i = 1; i < sorted.size(); i++) {
       Replacement previous = sorted.get(i - 1);
@@ -112,7 +125,7 @@ public class SignatureProcessor {
     return sw;
   }
 
-  protected static String tokenText(TemplateOptions templateOptions, Token token) {
+  protected String tokenText(TemplateOptions templateOptions, Token token) {
     String text = token.getText();
     if (token.getChannel() == JavaLexer.CHANNEL_COMMENT) {
       text = processComment(text, templateOptions);

@@ -112,7 +112,6 @@ class GenerateTemplatesTask extends DefaultTask {
         }
 
         args += [
-            "--verbose",
             "--templates", templatesDir,
             "--output", outputDir
         ]

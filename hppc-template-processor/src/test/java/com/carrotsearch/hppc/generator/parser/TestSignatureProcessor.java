@@ -13,7 +13,6 @@ import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
 import org.assertj.core.api.Assertions;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,24 +24,6 @@ import java.nio.charset.StandardCharsets;
 @RunWith(RandomizedRunner.class)
 public class TestSignatureProcessor {
   @Test
-  public void testClassK() throws IOException {
-    SignatureProcessor sp = new SignatureProcessor("public class KTypeClass<KType> {}");
-    check(Type.INT, sp, "public class IntClass {}");
-    check(Type.GENERIC, sp, "public class ObjectClass<KType> {}");
-  }
-
-  // -- tests above ported.
-
-  @Test
-  public void testComplexClassInterfaceDeclaration() throws IOException {
-    checkResource(
-        new TemplateOptions(Type.GENERIC, Type.GENERIC),
-        "testComplexClassInterfaceDeclaration.java",
-        "testComplexClassInterfaceDeclaration.java");
-  }
-
-  @Test
-  @Ignore
   public void testComplexMixedSignature() throws IOException {
     SignatureProcessor sp =
         new SignatureProcessor(
@@ -51,9 +32,16 @@ public class TestSignatureProcessor {
                 + "    return new KTypeFoo<KType, KTypeCursor<KType>>();\n"
                 + "  }\n"
                 + "}");
-
     check(Type.INT, Type.LONG, sp, "");
     check(Type.GENERIC, Type.LONG, sp, "");
+  }
+
+  @Test
+  public void testComplexClassInterfaceDeclaration() throws IOException {
+    checkResource(
+        new TemplateOptions(Type.GENERIC, Type.GENERIC),
+        "testComplexClassInterfaceDeclaration.java",
+        "testComplexClassInterfaceDeclaration.java");
   }
 
   @Test
@@ -79,6 +67,13 @@ public class TestSignatureProcessor {
     check(Type.INT, Type.GENERIC, sp, "public class ObjectIntClass<VType> {}");
     check(Type.GENERIC, Type.LONG, sp, "public class LongObjectClass<KType> {}");
     check(Type.GENERIC, Type.GENERIC, sp, "public class ObjectObjectClass<VType, KType> {}");
+  }
+
+  @Test
+  public void testClassK() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor("public class KTypeClass<KType> {}");
+    check(Type.INT, sp, "public class IntClass {}");
+    check(Type.GENERIC, sp, "public class ObjectClass<KType> {}");
   }
 
   @Test

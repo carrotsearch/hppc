@@ -250,7 +250,21 @@ identifierTypePair
 
 typeArgument
     : typeType
-    | '?' ((EXTENDS | SUPER) typeType)?
+    | extendsTypeType
+    | superTypeType
+    | wildcardTypeType
+    ;
+
+wildcardTypeType
+    : '?'
+    ;
+
+extendsTypeType
+    : '?' EXTENDS typeType
+    ;
+
+superTypeType
+    : '?' SUPER typeType
     ;
 
 qualifiedNameList
@@ -590,7 +604,11 @@ typeList
     ;
 
 typeType
-    : annotation? (classOrInterfaceType | primitiveType) ('[' ']')*
+    : annotation? (classOrInterfaceType | primitiveType) arrayBrackets
+    ;
+
+arrayBrackets
+    : ('[' ']')*
     ;
 
 primitiveType

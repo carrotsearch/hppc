@@ -814,25 +814,6 @@ public class KTypeVTypeHashMap<KType, VType>
       return new KeysIterator();
     }
 
-    private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
-      private final KTypeCursor<KType> cursor = new KTypeCursor<>();
-      private final KTypeKeyArrayTraversal<KType> traversal = new KTypeKeyArrayTraversal<KType>(
-          Intrinsics.<KType[]> cast(keys), nextIterationSeed(), owner.mask, hasEmptyKey);
-
-      @Override
-      protected KTypeCursor<KType> fetch() {
-        int slot = traversal.nextSlot();
-        if (slot >= 0) {
-          cursor.index = slot;
-          cursor.value =
-              (slot <= mask ? Intrinsics.<KType>cast(owner.keys[slot]) : Intrinsics.<KType>empty());
-          return cursor;
-        } else {
-          return done();
-        }
-      }
-    }
-
     @Override
     public int size() {
       return owner.size();
@@ -863,6 +844,46 @@ public class KTypeVTypeHashMap<KType, VType>
       }
     }
   };
+
+  /**
+   * An iterator over the set of assigned keys.
+   */
+  private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
+    private final KTypeCursor<KType> cursor;
+    private final int increment;
+    private int index;
+    private int slot;
+
+    public KeysIterator() {
+      cursor = new KTypeCursor<KType>();
+      int seed = nextIterationSeed();
+      increment = iterationIncrement(seed);
+      slot = seed & mask;
+    }
+
+    @Override
+    protected KTypeCursor<KType> fetch() {
+      final int mask = KTypeVTypeHashMap.this.mask;
+      while (index <= mask) {
+        KType existing;
+        index++;
+        slot = (slot + increment) & mask;
+        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
+          cursor.index = slot;
+          cursor.value = existing;
+          return cursor;
+        }
+      }
+
+      if (index == mask + 1 && hasEmptyKey) {
+        cursor.index = index++;
+        cursor.value = Intrinsics.<KType> empty();
+        return cursor;
+      }
+
+      return done();
+    }
+  }
 
   /**
    * @return Returns a container with all values stored in this map.
