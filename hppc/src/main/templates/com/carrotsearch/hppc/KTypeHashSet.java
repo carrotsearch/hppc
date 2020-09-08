@@ -250,6 +250,42 @@ public class KTypeHashSet<KType>
   }
 
   /**
+   * Removes all keys present in a given container.
+   *
+   * @return Returns the number of elements actually removed as a result of this call.
+   */
+  public int removeAll(KTypeContainer<? super KType> other) {
+    final int before = size();
+
+    // Try to iterate over the smaller set or over the container that isn't implementing
+    // efficient contains() lookup.
+
+    if (other.size() >= size() &&
+            other instanceof KTypeLookupContainer<?>) {
+      if (hasEmptyKey && other.contains(Intrinsics.<KType> empty())) {
+        hasEmptyKey = false;
+      }
+
+      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+      for (int slot = 0, max = this.mask; slot <= max;) {
+        KType existing;
+        if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && other.contains(existing)) {
+          // Shift, do not increment slot.
+          shiftConflictingKeys(slot);
+        } else {
+          slot++;
+        }
+      }
+    } else {
+      for (KTypeCursor<?> c : other) {
+        remove(Intrinsics.<KType> cast(c.value));
+      }
+    }
+
+    return before - size();
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override

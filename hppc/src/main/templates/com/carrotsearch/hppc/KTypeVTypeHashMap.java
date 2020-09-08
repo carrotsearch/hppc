@@ -288,11 +288,9 @@ public class KTypeVTypeHashMap<KType, VType>
 
     if (other.size() >= size() &&
         other instanceof KTypeLookupContainer<?>) {
-      if (hasEmptyKey) {
-        if (other.contains(Intrinsics.<KType> empty())) {
-          hasEmptyKey = false;
-          values[mask + 1] = Intrinsics.<VType> empty();
-        }
+      if (hasEmptyKey && other.contains(Intrinsics.<KType> empty())) {
+        hasEmptyKey = false;
+        values[mask + 1] = Intrinsics.<VType> empty();
       }
 
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
@@ -307,7 +305,7 @@ public class KTypeVTypeHashMap<KType, VType>
       }
     } else {
       for (KTypeCursor<?> c : other) {
-        this.remove(Intrinsics.<KType> cast(c.value));
+        remove(Intrinsics.<KType> cast(c.value));
       }
     }
 
