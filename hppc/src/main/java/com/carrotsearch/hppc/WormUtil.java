@@ -12,7 +12,7 @@ package com.carrotsearch.hppc;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-/** Utility methods for {@link KTypeVTypeWormMap}. */
+/** Utility methods for {@code Worm} Map and Set. */
 class WormUtil {
   /**
    * The number of recursive move attempts per recursive call level. {@link
@@ -36,32 +36,6 @@ class WormUtil {
    * {@link #FIT_LOAD_FACTOR} must be chosen carefully to work in most cases.
    */
   static final float FIT_LOAD_FACTOR = 0.75f;
-
-  /** Hashes a char. Improves distribution for Map or Set. */
-  static int hash(char value) {
-    return hash((int) value);
-  }
-
-  /** Hashes a short. Improves distribution for Map or Set. */
-  static int hash(short value) {
-    return hash((int) value);
-  }
-
-  /** Hashes an int. Improves distribution for Map or Set. */
-  static int hash(int value) {
-    int h = value * -1640531527;
-    return h ^ h >> 16;
-  }
-
-  /** Hashes a long. Improves distribution for Map or Set. */
-  static int hash(long value) {
-    return hash((int) ((value >>> 32) ^ value));
-  }
-
-  /** Hashes an Object. Improves distribution for Map or Set. */
-  static int hash(Object o) {
-    return hash(o.hashCode());
-  }
 
   /**
    * Adds a positive offset to the provided index, handling rotation around the circular array.

@@ -1,30 +1,29 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
-import static com.carrotsearch.hppc.TestUtils.*;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.carrotsearch.hppc.cursors.KTypeCursor;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.carrotsearch.hppc.cursors.KTypeCursor;
-import com.carrotsearch.hppc.predicates.KTypePredicate;
-import com.carrotsearch.hppc.procedures.KTypeProcedure;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.carrotsearch.hppc.TestUtils.assertSortedListEquals;
+import static org.junit.Assert.*;
 
 /**
- * Unit tests for {@link KTypeHashSet}.
+ * Unit tests for {@link KTypeWormSet}.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
+public class KTypeWormSetTest<KType> extends AbstractKTypeTest<KType>
 {
     /**
      * Per-test fresh initialized instance.
      */
-    public KTypeHashSet<KType> set;
+    public KTypeWormSet<KType> set;
 
     public final KType EMPTY_KEY = Intrinsics.<KType> empty();
 
@@ -32,7 +31,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Before
     public void initialize()
     {
-        set = new KTypeHashSet<>();
+        set = new KTypeWormSet<>();
     }
 
     @Test
@@ -103,7 +102,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testEmptyKey()
     {
-        KTypeHashSet<KType> set = new KTypeHashSet<KType>();
+        KTypeWormSet<KType> set = new KTypeWormSet<KType>();
         set.add(EMPTY_KEY);
 
         Assertions.assertThat(set.size()).isEqualTo(1);
@@ -124,7 +123,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     public void testEnsureCapacity()
     {
         final AtomicInteger expands = new AtomicInteger();
-        KTypeHashSet<KType> set = new KTypeHashSet<KType>(0) {
+        KTypeWormSet<KType> set = new KTypeWormSet<KType>(0) {
           @Override
           protected void allocateBuffers(int arraySize) {
             super.allocateBuffers(arraySize);
@@ -186,7 +185,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testAddAll()
     {
-        KTypeHashSet<KType> set2 = new KTypeHashSet<KType>();
+        KTypeWormSet<KType> set2 = new KTypeWormSet<KType>();
         set2.addAll(asArray(1, 2));
         set.addAll(asArray(0, 1));
 
@@ -215,7 +214,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         for (int i = 0; i < 256; i++)
         {
-            KTypeHashSet<KType> set = new KTypeHashSet<KType>(i);
+            KTypeWormSet<KType> set = new KTypeWormSet<KType>(i);
             
             for (int j = 0; j < i; j++)
             {
@@ -228,58 +227,11 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testBug_HPPC73_FullCapacityGet()
-    {
-        final AtomicInteger reallocations = new AtomicInteger();
-        final int elements = 0x7F;
-        set = new KTypeHashSet<KType>(elements, 1f) {
-          @Override
-          protected double verifyLoadFactor(double loadFactor) {
-            // Skip load factor sanity range checking.
-            return loadFactor;
-          }
-          
-          @Override
-          protected void allocateBuffers(int arraySize) {
-            super.allocateBuffers(arraySize);
-            reallocations.incrementAndGet();
-          }
-        };
-
-        int reallocationsBefore = reallocations.get();
-        assertEquals(reallocationsBefore, 1);
-        for (int i = 1; i <= elements; i++)
-        {
-            set.add(cast(i));
-        }
-
-        // Non-existent key.
-        KType outOfSet = cast(elements + 1);
-        set.remove(outOfSet);
-        assertFalse(set.contains(outOfSet));
-        assertEquals(reallocationsBefore, reallocations.get());
-
-        // Should not expand because we're replacing an existing element.
-        assertFalse(set.add(k1));
-        assertEquals(reallocationsBefore, reallocations.get());
-
-        // Remove from a full set.
-        set.remove(k1);
-        assertEquals(reallocationsBefore, reallocations.get());
-        set.add(k1);
-
-        // Check expand on "last slot of a full map" condition.
-        set.add(outOfSet);
-        assertEquals(reallocationsBefore + 1, reallocations.get());
-    }
-    
-    /* */
-    @Test
     public void testRemoveAllFromLookupContainer()
     {
         set.addAll(asArray(0, 1, 2, 3, 4));
 
-        KTypeHashSet<KType> list2 = new KTypeHashSet<KType>();
+        KTypeWormSet<KType> list2 = new KTypeWormSet<KType>();
         list2.addAll(asArray(1, 3, 5));
 
         assertEquals(2, set.removeAll(list2));
@@ -298,7 +250,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
             public boolean apply(KType v)
             {
                 return v == key1;
-            };
+            }
         }));
 
         assertSortedListEquals(set.toArray(), 0, key2);
@@ -315,7 +267,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
             public boolean apply(KType v)
             {
                 return v == key1 || v == key2;
-            };
+            }
         }));
 
         assertSortedListEquals(set.toArray(), key1, key2);
@@ -365,7 +317,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testNullKey()
     {
-        assertTrue(set.add((KType) null));
+        assertTrue(set.add(null));
         assertEquals(1, set.size());
         assertTrue(set.contains(null));
         assertTrue(set.remove(null));
@@ -419,12 +371,12 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeEquals()
     {
-        KTypeHashSet<KType> l0 = new KTypeHashSet<>();
+        KTypeWormSet<KType> l0 = new KTypeWormSet<>();
         assertEquals(0, l0.hashCode());
-        assertEquals(l0, new KTypeHashSet<>());
+        assertEquals(l0, new KTypeWormSet<>());
 
-        KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, k2, k3);
-        KTypeHashSet<KType> l2 = KTypeHashSet.from(k1, k2);
+        KTypeWormSet<KType> l1 = KTypeWormSet.from(k1, k2, k3);
+        KTypeWormSet<KType> l2 = KTypeWormSet.from(k1, k2);
         l2.add(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
@@ -435,8 +387,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testHashCodeWithNulls()
     {
-        KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, null, k3);
-        KTypeHashSet<KType> l2 = KTypeHashSet.from(k1, null);
+        KTypeWormSet<KType> l1 = KTypeWormSet.from(k1, null, k3);
+        KTypeWormSet<KType> l2 = KTypeWormSet.from(k1, null);
         l2.add(k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
@@ -449,7 +401,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     {
         this.set.addAll(key1, key2, key3);
 
-        KTypeHashSet<KType> cloned = set.clone();
+        KTypeWormSet<KType> cloned = set.clone();
         cloned.removeAll(key1);
 
         assertSortedListEquals(set.toArray(), key1, key2, key3);
@@ -460,9 +412,9 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testEqualsSameClass()
     {
-      KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, k2, k3);
-      KTypeHashSet<KType> l2 = KTypeHashSet.from(k1, k2, k3);
-      KTypeHashSet<KType> l3 = KTypeHashSet.from(k1, k2, k4);
+      KTypeWormSet<KType> l1 = KTypeWormSet.from(k1, k2, k3);
+      KTypeWormSet<KType> l2 = KTypeWormSet.from(k1, k2, k3);
+      KTypeWormSet<KType> l3 = KTypeWormSet.from(k1, k2, k4);
 
         Assertions.assertThat(l1).isEqualTo(l2);
         Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
@@ -473,12 +425,11 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testEqualsSubClass()
     {
-        class Sub extends KTypeHashSet<KType> {
-        };
+        class Sub extends KTypeWormSet<KType> {}
 
-        KTypeHashSet<KType> l1 = KTypeHashSet.from(k1, k2, k3);
-        KTypeHashSet<KType> l2 = new Sub();
-        KTypeHashSet<KType> l3 = new Sub();
+        KTypeWormSet<KType> l1 = KTypeWormSet.from(k1, k2, k3);
+        KTypeWormSet<KType> l2 = new Sub();
+        KTypeWormSet<KType> l3 = new Sub();
         l2.addAll(l1);
         l3.addAll(l1);
 
@@ -490,8 +441,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testForEachPredicate()
     {
-      final KTypeHashSet<KType> set = KTypeHashSet.from(keyE, k1, k2, k3);
-      final KTypeHashSet<KType> other = new KTypeHashSet<>();
+      final KTypeWormSet<KType> set = KTypeWormSet.from(keyE, k1, k2, k3);
+      final KTypeWormSet<KType> other = new KTypeWormSet<>();
       set.forEach(new KTypePredicate<KType>() {
         @Override
         public boolean apply(KType value) {
@@ -506,8 +457,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testForEachProcedure()
     {
-      final KTypeHashSet<KType> set = KTypeHashSet.from(keyE, k1, k2, k3);
-      final KTypeHashSet<KType> other = new KTypeHashSet<>();
+      final KTypeWormSet<KType> set = KTypeWormSet.from(keyE, k1, k2, k3);
+      final KTypeWormSet<KType> other = new KTypeWormSet<>();
       set.forEach(new KTypeProcedure<KType>() {
         @Override
         public void apply(KType value) {
