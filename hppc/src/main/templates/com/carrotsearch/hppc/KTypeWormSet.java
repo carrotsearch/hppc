@@ -538,17 +538,17 @@ public class KTypeWormSet<KType>
   /** {@inheritDoc} */
   @Override
   public long ramBytesAllocated() {
-    // int: size
-    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES
-            + RamUsageEstimator.shallowSizeOf(keys)
-            + RamUsageEstimator.shallowSizeOf(next);
+    // int: size, iterationSeed
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2
+            + RamUsageEstimator.shallowSizeOfArray(keys)
+            + RamUsageEstimator.shallowSizeOfArray(next);
   }
 
   /** {@inheritDoc} */
   @Override
   public long ramBytesUsed() {
-    // int: size
-    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES
+    // int: size, iterationSeed
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2
             + RamUsageEstimator.shallowUsedSizeOfArray(keys, size())
             + RamUsageEstimator.shallowUsedSizeOfArray(next, size());
   }

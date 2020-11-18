@@ -26,7 +26,7 @@ public class KTypeVTypeHashMap<KType, VType>
              Cloneable,
              Accountable
 {
-  /** 
+  /**
    * The array holding keys.
    */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
@@ -645,16 +645,16 @@ public class KTypeVTypeHashMap<KType, VType>
 
   @Override
   public long ramBytesAllocated() {
-    // int: keyMixer, assigned, mask, resizeAt
+    // int: iterationSeed, assigned, mask, resizeAt
     // double: loadFactor
     // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
-            RamUsageEstimator.shallowSizeOf(keys) + RamUsageEstimator.shallowSizeOf(values);
+            RamUsageEstimator.shallowSizeOfArray(keys) + RamUsageEstimator.shallowSizeOfArray(values);
   }
 
   @Override
   public long ramBytesUsed() {
-    // int: keyMixer, assigned, mask, resizeAt
+    // int: iterationSeed, assigned, mask, resizeAt
     // double: loadFactor
     // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +

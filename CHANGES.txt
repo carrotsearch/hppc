@@ -28,6 +28,8 @@ HPPC-176: A new set of associative containers implementing Worm Hashing has been
 
 ** Improvements
 
+HPPC-191: Improve Accountable implementation (Haoyu Zhai)
+
 HPPC-183: Simplify IndirectSort comparator to use IntBinaryOperator.
 
 HPPC-177: Modernize the build system to gradle and make it work with IntelliJ.

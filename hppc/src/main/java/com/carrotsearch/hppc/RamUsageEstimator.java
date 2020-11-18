@@ -12,9 +12,6 @@ package com.carrotsearch.hppc;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -155,58 +152,6 @@ public class RamUsageEstimator {
   }
 
   /**
-   * Returns the shallow instance size in bytes an instance of the given class would occupy. This
-   * works with all conventional classes and primitive types, but not with arrays (the size then
-   * depends on the number of elements and varies from object to object).
-   *
-   * @see #shallowSizeOf(Object)
-   * @throws IllegalArgumentException if {@code clazz} is an array class.
-   */
-  public static long shallowSizeOfInstance(Class<?> clazz) {
-    if (clazz.isArray())
-      throw new IllegalArgumentException("This method does not work with array classes.");
-    if (clazz.isPrimitive()) return primitiveSizes.get(clazz);
-
-    long size = NUM_BYTES_OBJECT_HEADER;
-
-    // Walk type hierarchy
-    for (; clazz != null; clazz = clazz.getSuperclass()) {
-      final Class<?> target = clazz;
-      final Field[] fields =
-          AccessController.doPrivileged(
-              new PrivilegedAction<Field[]>() {
-                @Override
-                public Field[] run() {
-                  return target.getDeclaredFields();
-                }
-              });
-      for (Field f : fields) {
-        if (!Modifier.isStatic(f.getModifiers())) {
-          size = adjustForField(size, f);
-        }
-      }
-    }
-    return alignObjectSize(size);
-  }
-
-  /**
-   * Estimates a "shallow" memory usage of the given object. For arrays, this will be the memory
-   * taken by array storage (no subreferences will be followed). For objects, this will be the
-   * memory taken by the fields.
-   *
-   * <p>JVM object alignments are also applied.
-   */
-  public static long shallowSizeOf(Object obj) {
-    if (obj == null) return 0;
-    final Class<?> clz = obj.getClass();
-    if (clz.isArray()) {
-      return shallowSizeOfArray(obj);
-    } else {
-      return shallowSizeOfInstance(clz);
-    }
-  }
-
-  /**
    * Return used part of shallow size of any <code>array</code>.
    *
    * @param usedSize Size that array is actually used
@@ -225,7 +170,7 @@ public class RamUsageEstimator {
   }
 
   /** Return shallow size of any <code>array</code>. */
-  private static long shallowSizeOfArray(Object array) {
+  public static long shallowSizeOfArray(Object array) {
     long size = NUM_BYTES_ARRAY_HEADER;
     final int len = Array.getLength(array);
     if (len > 0) {
