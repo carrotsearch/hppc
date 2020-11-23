@@ -585,14 +585,14 @@ public class KTypeArrayDeque<KType>
   @Override
   public long ramBytesAllocated() {
     // int: head, tail
-    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + RamUsageEstimator.shallowSizeOf(resizer)
-            + RamUsageEstimator.shallowSizeOf(buffer);
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + resizer.ramBytesAllocated()
+            + RamUsageEstimator.shallowSizeOfArray(buffer);
   }
 
   @Override
   public long ramBytesUsed() {
     // int: head, tail
-    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + RamUsageEstimator.shallowSizeOf(resizer)
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + resizer.ramBytesUsed()
             + RamUsageEstimator.shallowUsedSizeOfArray(buffer, size());
   }
 

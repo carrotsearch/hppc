@@ -10,7 +10,7 @@
 package com.carrotsearch.hppc;
 
 /** Resizing (growth) strategy for array-backed buffers. */
-public interface ArraySizingStrategy {
+public interface ArraySizingStrategy extends Accountable {
   /**
    * @param currentBufferLength Current size of the array (buffer). This number should comply with
    *     the strategy's policies (it is a result of initial rounding or further growCalls). It can

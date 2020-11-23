@@ -467,7 +467,7 @@ public class KTypeHashSet<KType>
     // double: loadFactor
     // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
-            RamUsageEstimator.shallowSizeOf(keys);
+            RamUsageEstimator.shallowSizeOfArray(keys);
   }
 
   @Override

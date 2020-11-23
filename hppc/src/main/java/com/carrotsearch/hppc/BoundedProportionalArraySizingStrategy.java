@@ -95,4 +95,16 @@ public final class BoundedProportionalArraySizingStrategy implements ArraySizing
 
     return (int) newSize;
   }
+
+  @Override
+  public long ramBytesAllocated() {
+    // int: minGrowCount, maxGrowCount
+    // float: growRatio
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2 + Float.BYTES;
+  }
+
+  @Override
+  public long ramBytesUsed() {
+    return ramBytesAllocated();
+  }
 }
