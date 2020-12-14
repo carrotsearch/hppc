@@ -34,4 +34,15 @@ public final class TightRandomResizingStrategy implements ArraySizingStrategy {
 
     return Math.max(currentBufferLength, elementsCount + expectedAdditions) + r;
   }
+
+  @Override
+  public long ramBytesAllocated() {
+    // int: maxRandomIncrement, growCalls
+    return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2;
+  }
+
+  @Override
+  public long ramBytesUsed() {
+    return ramBytesAllocated();
+  }
 }

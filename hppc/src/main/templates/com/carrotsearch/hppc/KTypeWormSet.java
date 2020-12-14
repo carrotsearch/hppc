@@ -1,33 +1,35 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
-import java.util.*;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
 
-import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.predicates.*;
-import com.carrotsearch.hppc.procedures.*;
+import java.util.Arrays;
+import java.util.Iterator;
 
+import static com.carrotsearch.hppc.Containers.DEFAULT_EXPECTED_ELEMENTS;
 import static com.carrotsearch.hppc.HashContainers.*;
-import static com.carrotsearch.hppc.Containers.*;
 import static com.carrotsearch.hppc.WormUtil.*;
 
 /**
- * A hash map of <code>KType</code> to <code>VType</code>, implemented using Worm Hashing strategy.
+ * A hash set of <code>KType</code>s, implemented using Worm Hashing strategy.
  *
- * <p>This strategy is appropriate for a medium sized map (less than 2M entries). It takes more time
- * to put entries in the map because it maintains chains of entries having the same hash. Then the
- * lookup speed is fast even if the map is heavy loaded or hashes are clustered. On average it takes
- * slightly less memory than {@link KTypeVTypeHashMap}: slightly heavier but the load factor is higher
+ * <p>This strategy is appropriate for a medium sized set (less than 2M keys). It takes more time
+ * to put keys in the set because it maintains chains of keys having the same hash. Then the
+ * lookup speed is fast even if the set is heavy loaded or hashes are clustered. On average it takes
+ * slightly more memory than {@link KTypeHashSet}: heavier but the load factor is higher
  * (it varies around 80%) so it enlarges later.</p>
  *
  * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
-/*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
+/*! #if ($TemplateOptions.KTypeGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeVTypeWormMap<KType, VType>
-        implements /*! #if ($templateonly) !*/ Intrinsics.EqualityFunction, /*! #end !*/
-        /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
-        KTypeVTypeMap<KType, VType>,
+public class KTypeWormSet<KType>
+        extends AbstractKTypeCollection<KType>
+        implements /*! #if ($templateonly) !*/ Intrinsics.KeyHasher<KType>, /*! #end !*/
+        KTypeLookupContainer<KType>,
+        KTypeSet<KType>,
         Preallocable,
         Cloneable,
         Accountable {
@@ -40,14 +42,6 @@ public class KTypeVTypeWormMap<KType, VType>
           keys;
 
   /**
-   * The array holding values.
-   */
-  public /*! #if ($TemplateOptions.VTypeGeneric) !*/
-          Object[]
-          /*! #else VType [] #end !*/
-          values;
-
-  /**
    * {@code abs(next[i])=offset} to next chained entry index. <p>{@code next[i]=0} for free bucket.</p> <p>The
    * offset is always forward, and the array is considered circular, meaning that an entry at the end of the
    * array may point to an entry at the beginning with a positive offset.</p> <p>The offset is always forward, but the
@@ -58,7 +52,7 @@ public class KTypeVTypeWormMap<KType, VType>
   public byte[] next;
 
   /**
-   * Map size (number of entries).
+   * Set size (number of entries).
    */
   protected int size;
 
@@ -70,19 +64,19 @@ public class KTypeVTypeWormMap<KType, VType>
   /**
    * New instance with sane defaults.
    */
-  public KTypeVTypeWormMap() {
+  public KTypeWormSet() {
     this(DEFAULT_EXPECTED_ELEMENTS);
   }
 
   /**
    * New instance with the provided defaults.
    *
-   * <p>There is no load factor parameter as this map enlarges automatically. In practice the load factor
-   * varies around 80% (between 75% and 90%). The load factor is 100% for tiny maps.</p>
+   * <p>There is no load factor parameter as this set enlarges automatically. In practice the load factor
+   * varies around 80% (between 75% and 90%). The load factor is 100% for tiny sets.</p>
    *
-   * @param expectedElements The expected number of elements. The capacity of the map is calculated based on it.
+   * @param expectedElements The expected number of elements. The capacity of the set is calculated based on it.
    */
-  public KTypeVTypeWormMap(int expectedElements) {
+  public KTypeWormSet(int expectedElements) {
     if (expectedElements < 0) {
       throw new IllegalArgumentException("Invalid expectedElements=" + expectedElements);
     }
@@ -91,56 +85,45 @@ public class KTypeVTypeWormMap<KType, VType>
   }
 
   /**
-   * Creates a new instance from all key-value pairs of another container.
+   * Creates a new instance from all elements of another container.
    */
-  public KTypeVTypeWormMap(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
+  public KTypeWormSet(KTypeContainer<? extends KType> container) {
     this(container.size());
-    putAll(container);
+    addAll(container);
   }
 
   /**
-   * Creates a new instance from two index-aligned arrays of key-value pairs.
+   * Create a set from a variable number of arguments or an array of
+   * <code>KType</code>. The elements are copied from the argument to the
+   * internal buffer.
    */
-  public static <KType, VType> KTypeVTypeWormMap<KType, VType> from(KType[] keys, VType[] values) {
-    if (keys.length != values.length) {
-      throw new IllegalArgumentException("Arrays of keys and values must have an identical length.");
-    }
-    KTypeVTypeWormMap<KType, VType> map = new KTypeVTypeWormMap<>(keys.length);
-    for (int i = 0; i < keys.length; i++) {
-      map.put(keys[i], values[i]);
-    }
-    return map;
+  /* #if ($TemplateOptions.KTypeGeneric) */
+  @SafeVarargs
+  /* #end */
+  public static <KType> KTypeWormSet<KType> from(KType... elements) {
+    KTypeWormSet<KType> set = new KTypeWormSet<KType>(elements.length);
+    set.addAll(elements);
+    return set;
   }
 
   /**
-   * Clones this map. The cloning operation is efficient because it copies directly the internal arrays, without
-   * having to put entries in the cloned map. The cloned map has the same entries and the same capacity as this map.
+   * Clones this set. The cloning operation is efficient because it copies directly the internal arrays, without
+   * having to put elements in the cloned set. The cloned set has the same elements and the same capacity as this set.
    *
-   * @return A shallow copy of this map.
+   * @return A shallow copy of this set.
    */
   @Override
-  public KTypeVTypeWormMap<KType, VType> clone() {
+  public KTypeWormSet<KType> clone() {
     try {
       /* #if ($templateOnly) */ @SuppressWarnings("unchecked") /* #end */
-              KTypeVTypeWormMap<KType, VType> cloneMap = (KTypeVTypeWormMap<KType, VType>) super.clone();
-      cloneMap.keys = keys.clone();
-      cloneMap.values = values.clone();
-      cloneMap.next = next.clone();
-      cloneMap.iterationSeed = HashContainers.nextIterationSeed();
-      return cloneMap;
+              KTypeWormSet<KType> cloneSet = (KTypeWormSet<KType>) super.clone();
+      cloneSet.keys = keys.clone();
+      cloneSet.next = next.clone();
+      cloneSet.iterationSeed = HashContainers.nextIterationSeed();
+      return cloneSet;
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  /**
-   * The value returned when there is no value associated to a key in this map.
-   * This method can be extended to change it.
-   */
-  public VType noValue() {
-    /*! #if ($TemplateOptions.VTypeGeneric) !*/
-    return null;
-    /*! #else return 0; #end !*/
   }
 
   /** {@inheritDoc} */
@@ -157,92 +140,78 @@ public class KTypeVTypeWormMap<KType, VType>
 
   /** {@inheritDoc} */
   @Override
-  public VType get(KType key) {
+  public boolean contains(KType key) {
     // Compute the key hash index.
     int hashIndex = hashMod(key);
     int nextOffset = next[hashIndex];
 
     if (nextOffset <= 0) {
       // The bucket is either free, or only used for chaining, so no entry for the key.
-      return noValue();
+      return false;
     }
 
     // The bucket contains a head-of-chain entry.
     // Look for the key in the chain.
-    int entryIndex = searchInChain(key, hashIndex, nextOffset);
-
-    // Return the value if an entry in the chain matches the key.
-    return entryIndex < 0 ? noValue() : Intrinsics.<VType>cast(values[entryIndex]);
+    return searchInChain(key, hashIndex, nextOffset) >= 0;
   }
 
   /** {@inheritDoc} */
   @Override
-  public VType getOrDefault(KType key, VType defaultValue) {
-    VType value;
-    return (value = get(key)) == noValue() ? defaultValue : value;
+  public boolean add(KType key) {
+    return add(key, false, true);
   }
-
-  /** {@inheritDoc} */
-  @Override
-  public VType put(KType key, VType value) {
-    return put(key, value, PutPolicy.NEW_OR_REPLACE, true);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int putAll(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
-    final int initialSize = size();
-    for (KTypeVTypeCursor<? extends KType, ? extends VType> c : container) {
-      put(c.key, c.value);
-    }
-    return size() - initialSize;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int putAll(Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable) {
-    final int initialSize = size();
-    for (KTypeVTypeCursor<? extends KType, ? extends VType> c : iterable) {
-      put(c.key, c.value);
-    }
-    return size() - initialSize;
-  }
-
-  /*! #if ($TemplateOptions.VTypePrimitive) !*/
-  /** {@inheritDoc} */
-  @Override
-  public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
-    int keyIndex = indexOf(key);
-    if (indexExists(keyIndex)) {
-      putValue = Intrinsics.<VType>add(Intrinsics.<VType>cast(values[keyIndex]), incrementValue);
-      indexReplace(keyIndex, putValue);
-    } else {
-      indexInsert(keyIndex, key, putValue);
-    }
-    return putValue;
-  }
-  /*! #end !*/
-
-  /*! #if ($TemplateOptions.VTypePrimitive) !*/
-  /** {@inheritDoc} */
-  @Override
-  public VType addTo(KType key, VType additionValue) {
-    return putOrAdd(key, additionValue, additionValue);
-  }
-  /*! #end !*/
 
   /**
-   * @param key   The key of the value to check.
-   * @param value The value to put if <code>key</code> does not exist.
-   * @return <code>true</code> if <code>key</code> did not exist and <code>value</code> was placed in the map.
+   * Adds all elements from the given list (vararg) to this set.
+   *
+   * @return Returns the number of elements actually added as a result of this
+   *         call (not previously present in the set).
    */
-  public boolean putIfAbsent(KType key, VType value) {
-    return noValue() == put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, true);
+  /* #if ($TemplateOptions.KTypeGeneric) */
+  @SafeVarargs
+  /* #end */
+  public final int addAll(KType... elements) {
+    ensureCapacity(elements.length);
+    int count = 0;
+    for (KType e : elements) {
+      if (add(e)) {
+        count++;
+      }
+    }
+    return count;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public VType remove(KType key) {
+  /**
+   * Adds all elements from the given {@link KTypeContainer} to this set.
+   *
+   * @return Returns the number of elements actually added as a result of this
+   *         call (not previously present in the set).
+   */
+  public int addAll(KTypeContainer<? extends KType> container) {
+    ensureCapacity(container.size());
+    return addAll((Iterable<? extends KTypeCursor<? extends KType>>) container);
+  }
+
+  /**
+   * Adds all elements from the given iterable to this set.
+   *
+   * @return Returns the number of elements actually added as a result of this
+   *         call (not previously present in the set).
+   */
+  public int addAll(Iterable<? extends KTypeCursor<? extends KType>> iterable) {
+    int count = 0;
+    for (KTypeCursor<? extends KType> cursor : iterable) {
+      if (add(cursor.value)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * An alias for the (preferred) {@link #removeAll}.
+   */
+  public boolean remove(KType key) {
     final byte[] next = this.next;
 
     // Compute the key hash index.
@@ -250,25 +219,35 @@ public class KTypeVTypeWormMap<KType, VType>
     int nextOffset = next[hashIndex];
     if (nextOffset <= 0) {
       // The bucket is either free, or in tail-of-chain, so no entry for the key.
-      return noValue();
+      return false;
     }
     // The bucket contains a head-of-chain entry.
     // Look for the key in the chain.
     int previousEntryIndex = searchInChainReturnPrevious(key, hashIndex, nextOffset);
     if (previousEntryIndex < 0) {
       // No entry matches the key.
-      return noValue();
+      return false;
     }
     int entryToRemoveIndex = previousEntryIndex == Integer.MAX_VALUE ?
             hashIndex : addOffset(previousEntryIndex, Math.abs(next[previousEntryIndex]), next.length);
-    return remove(hashIndex, previousEntryIndex, entryToRemoveIndex);
+    remove(hashIndex, previousEntryIndex, entryToRemoveIndex);
+    return true;
   }
 
   /** {@inheritDoc} */
   @Override
+  public int removeAll(KType key) {
+    return remove(key) ? 1 : 0;
+  }
+
+  /**
+   * Removes all keys present in a given container.
+   *
+   * @return Returns the number of elements actually removed as a result of this call.
+   */
   public int removeAll(KTypeContainer<? super KType> other) {
-    // Try to iterate over the smaller set of values
-    // or over the container that isn't implementing efficient contains() lookup.
+    // Try to iterate over the smaller set or over the container that isn't implementing
+    // efficient contains() lookup.
     int size = size();
     if (other.size() >= size && other instanceof KTypeLookupContainer<?>) {
       final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
@@ -313,35 +292,14 @@ public class KTypeVTypeWormMap<KType, VType>
 
   /** {@inheritDoc} */
   @Override
-  public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate) {
+  public <T extends KTypeProcedure<? super KType>> T forEach(T procedure) {
     final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
-    final VType[] values = Intrinsics.<VType[]>cast(this.values);
-    final byte[] next = this.next;
-    final int capacity = next.length;
-    int size = size();
-    int entryIndex = 0;
-    while (entryIndex < capacity) {
-      KType key;
-      if (next[entryIndex] != 0 && predicate.apply(key = keys[entryIndex], values[entryIndex])) {
-        this.remove(key);
-      } else {
-        entryIndex++;
-      }
-    }
-    return size - size();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(T procedure) {
-    final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
-    final VType[] values = Intrinsics.<VType[]>cast(this.values);
     final byte[] next = this.next;
     int seed = nextIterationSeed();
     int inc = iterationIncrement(seed);
     for (int i = 0, mask = next.length - 1, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (next[slot] != 0) {
-        procedure.apply(keys[slot], values[slot]);
+        procedure.apply(keys[slot]);
       }
     }
     return procedure;
@@ -349,15 +307,14 @@ public class KTypeVTypeWormMap<KType, VType>
 
   /** {@inheritDoc} */
   @Override
-  public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(T predicate) {
+  public <T extends KTypePredicate<? super KType>> T forEach(T predicate) {
     final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
-    final VType[] values = Intrinsics.<VType[]>cast(this.values);
     final byte[] next = this.next;
     int seed = nextIterationSeed();
     int inc = iterationIncrement(seed);
     for (int i = 0, mask = next.length - 1, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (next[slot] != 0) {
-        if (!predicate.apply(keys[slot], values[slot])) {
+        if (!predicate.apply(keys[slot])) {
           break;
         }
       }
@@ -367,31 +324,8 @@ public class KTypeVTypeWormMap<KType, VType>
 
   /** {@inheritDoc} */
   @Override
-  public KeysContainer keys() {
-    return new KeysContainer();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public KTypeCollection<VType> values() {
-    return new ValuesContainer();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public Iterator<KTypeVTypeCursor<KType, VType>> iterator() {
+  public Iterator<KTypeCursor<KType>> iterator() {
     return new EntryIterator();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public boolean containsKey(KType key) {
-    int hashIndex = hashMod(key);
-    int nextOffset = next[hashIndex];
-    if (nextOffset <= 0) {
-      return false;
-    }
-    return searchInChain(key, hashIndex, nextOffset) >= 0;
   }
 
   /** {@inheritDoc} */
@@ -402,16 +336,12 @@ public class KTypeVTypeWormMap<KType, VType>
     /* #if ($TemplateOptions.KTypeGeneric) */
     Arrays.fill(keys, Intrinsics.<KType>empty());
     /* #end */
-    /* #if ($TemplateOptions.VTypeGeneric) */
-    Arrays.fill(values, noValue());
-    /* #end */
   }
 
   /** {@inheritDoc} */
   @Override
   public void release() {
     keys = null;
-    values = null;
     next = null;
     size = 0;
     ensureCapacity(DEFAULT_EXPECTED_ELEMENTS);
@@ -425,18 +355,17 @@ public class KTypeVTypeWormMap<KType, VType>
       return false;
     }
 
-    KTypeVTypeMap<KType, VType> map = (KTypeVTypeMap<KType, VType>) o;
+    KTypeSet<KType> set = (KTypeSet<KType>) o;
     final int size = this.size;
-    if (size != map.size()) {
+    if (size != set.size()) {
       return false;
     }
     final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
-    final VType[] values = Intrinsics.<VType[]>cast(this.values);
     final byte[] next = this.next;
     // Iterate all entries.
     for (int index = 0, entryCount = 0; entryCount < size; index++) {
       if (next[index] != 0) {
-        if (!Intrinsics.<VType>equals(values[index], map.get(keys[index]))) {
+        if (!set.contains(keys[index])) {
           return false;
         }
         entryCount++;
@@ -444,16 +373,6 @@ public class KTypeVTypeWormMap<KType, VType>
     }
     return true;
   }
-
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/
-  /*! #if ($templateonly) !*/
-  /** {@inheritDoc} */
-  @Override
-  public
-  /*! #else protected #end !*/ boolean equals(Object v1, Object v2) {
-    return Objects.equals(v1, v2);
-  }
-  /*! #end !*/
 
   /** {@inheritDoc} */
   @Override
@@ -463,7 +382,7 @@ public class KTypeVTypeWormMap<KType, VType>
     final int size = this.size;
     for (int index = 0, entryCount = 0; entryCount < size; index++) {
       if (next[index] != 0) {
-        hashCode += BitMixer.mixPhi(keys[index]) ^ BitMixer.mixPhi(values[index]);
+        hashCode += BitMixer.mixPhi(keys[index]);
         entryCount++;
       }
     }
@@ -483,8 +402,26 @@ public class KTypeVTypeWormMap<KType, VType>
     return hashKey(key) & (next.length - 1);
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Returns a logical "index" of a given key that can be used to speed up
+   * follow-up logic in certain scenarios (conditional logic).
+   *
+   * The semantics of "indexes" are not strictly defined. Indexes may
+   * (and typically won't be) contiguous.
+   *
+   * The index is valid only between modifications (it will not be affected
+   * by read-only operations).
+   *
+   * @see #indexExists
+   * @see #indexGet
+   * @see #indexInsert
+   * @see #indexReplace
+   *
+   * @param key
+   *          The key to locate in the set.
+   * @return A non-negative value of the logical "index" of the key in the set
+   *         or a negative value if the key did not exist.
+   */
   public int indexOf(KType key) {
     int hashIndex = hashMod(key);
     int nextOffset = next[hashIndex];
@@ -494,41 +431,76 @@ public class KTypeVTypeWormMap<KType, VType>
     return searchInChain(key, hashIndex, nextOffset);
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * @see #indexOf
+   *
+   * @param index The index of a given key, as returned from {@link #indexOf}.
+   * @return Returns <code>true</code> if the index corresponds to an existing key
+   *         or false otherwise. This is equivalent to checking whether the index is
+   *         a positive value (existing keys) or a negative value (non-existing keys).
+   */
   public boolean indexExists(int index) {
     assert index < next.length;
     return index >= 0;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public VType indexGet(int index) {
+  /**
+   * Returns the exact value of the existing key. This method makes sense for sets
+   * of objects which define custom key-equality relationship.
+   *
+   * @see #indexOf
+   *
+   * @param index The index of an existing key.
+   * @return Returns the equivalent key currently stored in the set.
+   * @throws AssertionError If assertions are enabled and the index does
+   *         not correspond to an existing key.
+   */
+  public KType indexGet(int index) {
     assert checkIndex(index, next.length);
-    return Intrinsics.<VType>cast(values[index]);
+    return Intrinsics.<KType>cast(keys[index]);
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public VType indexReplace(int index, VType newValue) {
+  /**
+   * Replaces the existing equivalent key with the given one and returns any previous value
+   * stored for that key.
+   *
+   * @see #indexOf
+   *
+   * @param index The index of an existing key.
+   * @param equivalentKey The key to put in the set as a replacement. Must be equivalent to
+   *        the key currently stored at the provided index.
+   * @return Returns the previous key stored in the set.
+   * @throws AssertionError If assertions are enabled and the index does
+   *         not correspond to an existing key.
+   */
+  public KType indexReplace(int index, KType equivalentKey) {
     assert checkIndex(index, next.length);
-    VType previousValue = Intrinsics.<VType>cast(values[index]);
-    values[index] = newValue;
-    return previousValue;
+    assert Intrinsics.equals(this, keys[index], equivalentKey);
+    KType previousKey = Intrinsics.<KType>cast(keys[index]);
+    keys[index] = equivalentKey;
+    return previousKey;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public void indexInsert(int index, KType key, VType value) {
+  /**
+   * Inserts a key for an index that is not present in the set. This method
+   * may help in avoiding double recalculation of the key's hash.
+   *
+   * @see #indexOf
+   *
+   * @param index The index of a previously non-existing key, as returned from
+   *              {@link #indexOf}.
+   * @throws AssertionError If assertions are enabled and the index does
+   *         not correspond to an existing key.
+   */
+  public void indexInsert(int index, KType key) {
     assert index < 0 : "The index must not point at an existing key.";
     index = ~index;
     if (next[index] == 0) {
       keys[index] = key;
-      values[index] = value;
       next[index] = END_OF_CHAIN;
       size++;
     } else {
-      put(key, value, PutPolicy.NEW_GUARANTEED, true);
+      add(key, true, true);
     }
   }
 
@@ -544,8 +516,6 @@ public class KTypeVTypeWormMap<KType, VType>
           sBuilder.append(", ");
         }
         sBuilder.append(keys[index]);
-        sBuilder.append("=>");
-        sBuilder.append(values[index]);
         entryCount++;
       }
     }
@@ -571,7 +541,6 @@ public class KTypeVTypeWormMap<KType, VType>
     // int: size, iterationSeed
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2
             + RamUsageEstimator.shallowSizeOfArray(keys)
-            + RamUsageEstimator.shallowSizeOfArray(values)
             + RamUsageEstimator.shallowSizeOfArray(next);
   }
 
@@ -581,7 +550,6 @@ public class KTypeVTypeWormMap<KType, VType>
     // int: size, iterationSeed
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + Integer.BYTES * 2
             + RamUsageEstimator.shallowUsedSizeOfArray(keys, size())
-            + RamUsageEstimator.shallowUsedSizeOfArray(values, size())
             + RamUsageEstimator.shallowUsedSizeOfArray(next, size());
   }
 
@@ -596,68 +564,60 @@ public class KTypeVTypeWormMap<KType, VType>
     }
 
     KType[] oldKeys = Intrinsics.<KType[]>cast(keys);
-    VType[] oldValues = Intrinsics.<VType[]>cast(values);
     byte[] oldNext = next;
     keys = Intrinsics.<KType>newArray(capacity);
-    values = Intrinsics.<VType>newArray(capacity);
     next = new byte[capacity];
 
     if (oldKeys != null) {
-      putOldEntries(oldKeys, oldValues, oldNext, size);
+      putOldEntries(oldKeys, oldNext, size);
     }
   }
 
   /**
-   * Puts old entries after enlarging this map. Old entries are guaranteed not to be already contained by this map.
-   * <p>This method does not modify this map {@link #size}. It may enlarge this map if it needs room to put the entry.</p>
+   * Puts old entries after enlarging this set. Old entries are guaranteed not to be already contained by this set.
+   * <p>This method does not modify this set {@link #size}. It may enlarge this set if it needs room to put the entry.</p>
    *
    * @param oldKeys   The old keys.
-   * @param oldValues The old values.
    * @param oldNext   The old next offsets.
    * @param entryNum  The number of non null old entries. It is supported to set a value larger than the real count.
    */
-  private void putOldEntries(KType[] oldKeys, VType[] oldValues, byte[] oldNext, int entryNum) {
+  private void putOldEntries(KType[] oldKeys, byte[] oldNext, int entryNum) {
     int entryCount = 0;
     // Iterate new entries.
     // The condition on index < endIndex is required because the putNewEntry() call below may need to
-    // enlarge the map, which calls this method again. And in this case entryNum is larger than the real number.
+    // enlarge the set, which calls this method again. And in this case entryNum is larger than the real number.
     for (int index = 0, endIndex = oldNext.length; entryCount < entryNum && index < endIndex; index++) {
       if (oldNext[index] != 0) {
         // Compute the key hash index.
         KType oldKey = oldKeys[index];
         int hashIndex = hashMod(oldKey);
-        putNewEntry(hashIndex, next[hashIndex], oldKey, oldValues[index]);
+        putNewEntry(hashIndex, next[hashIndex], oldKey);
         entryCount++;
       }
     }
   }
 
   /**
-   * Puts an entry in this map.
+   * Adds an element in this set.
    *
+   * @param newGuaranteed Whether the element is guaranteed to not be already present.
    * @param sizeIncrease Whether to increment {@link #size}.
-   * @return The previous entry value (exact {@code requiredPreviousValue} reference if it matches);
-   * or {@link #noValue()} if there was no previous entry.
-   * @see #put(KType, VType)
+   * @return {@code true} if the element has been added; {@code false} otherwise.
    */
-  private VType put(KType key, VType value, PutPolicy policy, boolean sizeIncrease) {
+  private boolean add(KType key, boolean newGuaranteed, boolean sizeIncrease) {
     // Compute the key hash index.
     int hashIndex = hashMod(key);
     int nextOffset = next[hashIndex];
 
     boolean added = false;
-    if (nextOffset > 0 && policy != PutPolicy.NEW_GUARANTEED) {
+    if (nextOffset > 0 && !newGuaranteed) {
       // The bucket contains a head-of-chain entry.
 
       // Look for the key in the chain.
       int entryIndex = searchInChain(key, hashIndex, nextOffset);
       if (entryIndex >= 0) {
-        // An entry in the chain matches the key. Replace the value and return the previous one.
-        VType previousValue = Intrinsics.<VType>cast(values[entryIndex]);
-        if (policy != PutPolicy.NEW_ONLY_IF_ABSENT) {
-          values[entryIndex] = value;
-        }
-        return previousValue;
+        // An entry in the chain matches the key. Do not replace the existing element.
+        return false;
       }
 
       if (enlargeIfNeeded()) {
@@ -666,9 +626,9 @@ public class KTypeVTypeWormMap<KType, VType>
       } else {
         // No entry matches the key. Append the new entry at the tail of the chain.
         // ~entryIndex is the index of the last entry in the chain.
-        if (!appendTailOfChain(~entryIndex, key, value)) {
-          // No free bucket in the range. Enlarge the map and put again.
-          enlargeAndPutNewEntry(key, value);
+        if (!appendTailOfChain(~entryIndex, key)) {
+          // No free bucket in the range. Enlarge the set and put again.
+          enlargeAndPutNewEntry(key);
         }
         added = true;
       }
@@ -679,13 +639,13 @@ public class KTypeVTypeWormMap<KType, VType>
 
     if (!added) {
       // No entry matches the key. Add the new entry.
-      putNewEntry(hashIndex, nextOffset, key, value);
+      putNewEntry(hashIndex, nextOffset, key);
     }
 
     if (sizeIncrease) {
       size++;
     }
-    return noValue();
+    return true;
   }
 
   private boolean enlargeIfNeeded() {
@@ -696,9 +656,9 @@ public class KTypeVTypeWormMap<KType, VType>
     return false;
   }
 
-  private void enlargeAndPutNewEntry(KType key, VType value) {
+  private void enlargeAndPutNewEntry(KType key) {
     allocateBuffers(next.length << 1);
-    put(key, value, PutPolicy.NEW_GUARANTEED, false);
+    add(key, true, false);
   }
 
   /**
@@ -709,16 +669,14 @@ public class KTypeVTypeWormMap<KType, VType>
    * @param previousEntryIndex The index of the entry in the chain preceding the entry to remove; or
    *                           {@link Integer#MAX_VALUE} if the entry to remove is the head-of-chain.
    * @param entryToRemoveIndex The index of the entry to remove.
-   * @return The value of the removed entry.
    */
-  private VType remove(int headIndex, int previousEntryIndex, int entryToRemoveIndex) {
+  private void remove(int headIndex, int previousEntryIndex, int entryToRemoveIndex) {
     assert checkIndex(headIndex, next.length);
     assert next[headIndex] > 0;
     assert previousEntryIndex == Integer.MAX_VALUE || checkIndex(previousEntryIndex, next.length);
     assert checkIndex(entryToRemoveIndex, next.length);
 
     final byte[] next = this.next;
-    VType previousValue = Intrinsics.<VType>cast(values[entryToRemoveIndex]);
 
     // Find the last entry of the chain.
     int beforeLastIndex = findLastOfChain(entryToRemoveIndex, next[entryToRemoveIndex], true, next);
@@ -734,7 +692,6 @@ public class KTypeVTypeWormMap<KType, VType>
     if (entryToRemoveIndex != lastIndex) {
       // Removing an entry before the last of the chain. Replace it by the last one.
       keys[entryToRemoveIndex] = keys[lastIndex];
-      values[entryToRemoveIndex] = values[lastIndex];
     }
     if (lastIndex != headIndex) {
       // Removing an entry in a chain of at least two entries. Unlink the last entry which replaces the removed entry.
@@ -742,10 +699,8 @@ public class KTypeVTypeWormMap<KType, VType>
     }
     // Free the last entry of the chain.
     keys[lastIndex] = Intrinsics.<KType>empty();
-    values[lastIndex] = noValue();
     next[lastIndex] = 0;
     size--;
-    return previousValue;
   }
 
   /**
@@ -753,10 +708,10 @@ public class KTypeVTypeWormMap<KType, VType>
    *
    * @param lastEntryIndex The index of the last entry in the chain.
    * @return <code>true</code> if the new entry is added successfully; <code>false</code> if there is no free bucket
-   * in the range (so this map needs to be enlarged to make room).
+   * in the range (so this set needs to be enlarged to make room).
    */
-  private boolean appendTailOfChain(int lastEntryIndex, KType key, VType value) {
-    return appendTailOfChain(lastEntryIndex, key, value, ExcludedIndexes.NONE, 0);
+  private boolean appendTailOfChain(int lastEntryIndex, KType key) {
+    return appendTailOfChain(lastEntryIndex, key, ExcludedIndexes.NONE, 0);
   }
 
   /**
@@ -766,9 +721,9 @@ public class KTypeVTypeWormMap<KType, VType>
    * @param excludedIndexes    Indexes to exclude from the search.
    * @param recursiveCallLevel Keeps track of the recursive call level (starts at 0).
    * @return <code>true</code> if the new entry is added successfully; <code>false</code> if there is no free bucket
-   * in the range (so this map needs to be enlarged to make room).
+   * in the range (so this set needs to be enlarged to make room).
    */
-  private boolean appendTailOfChain(int lastEntryIndex, KType key, VType value, ExcludedIndexes excludedIndexes, int recursiveCallLevel) {
+  private boolean appendTailOfChain(int lastEntryIndex, KType key, ExcludedIndexes excludedIndexes, int recursiveCallLevel) {
     // Find the next free bucket by linear probing.
     final int capacity = next.length;
     int searchFromIndex = addOffset(lastEntryIndex, 1, capacity);
@@ -779,7 +734,6 @@ public class KTypeVTypeWormMap<KType, VType>
         return false;
     }
     keys[freeIndex] = key;
-    values[freeIndex] = value;
     next[freeIndex] = -END_OF_CHAIN;
     int nextOffset = getOffsetBetweenIndexes(lastEntryIndex, freeIndex, next.length);
     next[lastEntryIndex] = (byte) (next[lastEntryIndex] > 0 ? nextOffset : -nextOffset); // Keep the offset sign.
@@ -825,13 +779,13 @@ public class KTypeVTypeWormMap<KType, VType>
   }
 
   /**
-   * Puts a new entry that is guaranteed not to be already contained by this map. <p>This method does not modify this
-   * map {@link #size}. It may enlarge this map if it needs room to put the entry.</p>
+   * Puts a new entry that is guaranteed not to be already contained by this set. <p>This method does not modify this
+   * set {@link #size}. It may enlarge this set if it needs room to put the entry.</p>
    *
    * @param hashIndex  The hash index where to put the entry (= {@link #hashMod}(key)).
    * @param nextOffset The current value of {@link #next}[hashIndex].
    */
-  private void putNewEntry(int hashIndex, int nextOffset, KType key, VType value) {
+  private void putNewEntry(int hashIndex, int nextOffset, KType key) {
     assert hashIndex == hashMod(key) : "hashIndex=" + hashIndex + ", hashReduce(key)=" + hashMod(key);
     assert checkIndex(hashIndex, next.length);
     assert Math.abs(nextOffset) <= END_OF_CHAIN : "nextOffset=" + nextOffset;
@@ -840,22 +794,21 @@ public class KTypeVTypeWormMap<KType, VType>
     if (nextOffset > 0) {
       // The bucket contains a head-of-chain entry.
       // Append the new entry at the chain tail, after the last entry of the chain. If there is no free bucket in
-      // the range, enlarge this map and put the new entry.
-      if (!appendTailOfChain(findLastOfChain(hashIndex, nextOffset, false, next), key, value)) {
-        enlargeAndPutNewEntry(key, value);
+      // the range, enlarge this set and put the new entry.
+      if (!appendTailOfChain(findLastOfChain(hashIndex, nextOffset, false, next), key)) {
+        enlargeAndPutNewEntry(key);
       }
     } else {
       if (nextOffset < 0) {
         // Bucket at hash index contains a movable tail-of-chain entry. Move it to free the bucket.
         if (!moveTailOfChain(hashIndex, nextOffset, ExcludedIndexes.NONE, 0)) {
-          // No free bucket in the range. Enlarge the map and put again.
-          enlargeAndPutNewEntry(key, value);
+          // No free bucket in the range. Enlarge the set and put again.
+          enlargeAndPutNewEntry(key);
           return;
         }
       }
       // Bucket at hash index is free. Add the new head-of-chain entry.
       keys[hashIndex] = key;
-      values[hashIndex] = value;
       next[hashIndex] = END_OF_CHAIN;
     }
   }
@@ -913,7 +866,7 @@ public class KTypeVTypeWormMap<KType, VType>
     if (freeIndex == -1) {
       // No free bucket in the range.
       if (nextIndexWithinRange && appendTailOfChain(
-              findLastOfChain(nextIndex, next[nextIndex], false, next), Intrinsics.<KType>cast(keys[tailIndex]), Intrinsics.<VType>cast(values[tailIndex]), excludedIndexes, recursiveCallLevel)) {
+              findLastOfChain(nextIndex, next[nextIndex], false, next), Intrinsics.<KType>cast(keys[tailIndex]), excludedIndexes, recursiveCallLevel)) {
         // The entry to move has been appended to the tail of the chain.
         // Complete the move by linking the previous entry to the next entry (which is within range).
         int previousOffset = getOffsetBetweenIndexes(previousIndex, nextIndex, capacity);
@@ -923,16 +876,15 @@ public class KTypeVTypeWormMap<KType, VType>
         ExcludedIndexes recursiveExcludedIndexes = excludedIndexes.union(ExcludedIndexes.fromChain(previousIndex, next));
         if ((freeIndex = searchAndMoveBucket(searchFromIndex, searchRange, recursiveExcludedIndexes, recursiveCallLevel)) == -1) {
           // No free bucket after the tail of the chain, and no movable entry. No bucket available around.
-          // The move fails (and this map will be enlarged by the calling method).
+          // The move fails (and this set will be enlarged by the calling method).
           return false;
         }
       }
     }
     // Move the entry to the free index.
-    // No need to set keys[tailIndex] and values[tailIndex] to null here because they will be set when this method returns,
-    // or the map will be enlarged and rehashed.
+    // No need to set keys[tailIndex] to null here because they will be set when this method returns,
+    // or the set will be enlarged and rehashed.
     keys[freeIndex] = keys[tailIndex];
-    values[freeIndex] = values[tailIndex];
     next[freeIndex] = (byte) (nextOffset == -END_OF_CHAIN ? nextOffset : -getOffsetBetweenIndexes(freeIndex, nextIndex, capacity));
     int previousOffset = getOffsetBetweenIndexes(previousIndex, freeIndex, capacity);
     next[previousIndex] = (byte) (next[previousIndex] > 0 ? previousOffset : -previousOffset); // Keep the offset sign.
@@ -1021,75 +973,15 @@ public class KTypeVTypeWormMap<KType, VType>
   }
 
   /**
-   * A view of the keys inside this map.
+   * An iterator over the elements.
    */
-  final class KeysContainer extends AbstractKTypeCollection<KType>
-          implements KTypeLookupContainer<KType> {
-    @Override
-    public boolean contains(KType e) {
-      return KTypeVTypeWormMap.this.containsKey(e);
-    }
-
-    @Override
-    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
-      KTypeVTypeWormMap.this.forEach(
-              (KTypeVTypeProcedure<KType, VType>) (key, value) -> procedure.apply(key));
-      return procedure;
-    }
-
-    @Override
-    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
-      KTypeVTypeWormMap.this.forEach(
-              (KTypeVTypePredicate<KType, VType>) (key, value) -> predicate.apply(key));
-      return predicate;
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return KTypeVTypeWormMap.this.isEmpty();
-    }
-
-    @Override
-    public Iterator<KTypeCursor<KType>> iterator() {
-      return new KeysIterator();
-    }
-
-    @Override
-    public int size() {
-      return KTypeVTypeWormMap.this.size();
-    }
-
-    @Override
-    public void clear() {
-      KTypeVTypeWormMap.this.clear();
-    }
-
-    @Override
-    public void release() {
-      KTypeVTypeWormMap.this.release();
-    }
-
-    @Override
-    public int removeAll(KTypePredicate<? super KType> predicate) {
-      return KTypeVTypeWormMap.this.removeAll(predicate);
-    }
-
-    @Override
-    public int removeAll(final KType e) {
-      return KTypeVTypeWormMap.this.remove(e) == noValue() ? 0 : 1;
-    }
-  }
-
-  /**
-   * An iterator over the set of assigned keys.
-   */
-  private class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
+  private class EntryIterator extends AbstractIterator<KTypeCursor<KType>> {
     private final KTypeCursor<KType> cursor;
     private final int increment;
     private int index;
     private int slot;
 
-    public KeysIterator() {
+    public EntryIterator() {
       cursor = new KTypeCursor<KType>();
       int seed = nextIterationSeed();
       increment = iterationIncrement(seed);
@@ -1105,139 +997,6 @@ public class KTypeVTypeWormMap<KType, VType>
         if (next[slot] != 0) {
           cursor.index = slot;
           cursor.value = Intrinsics.<KType>cast(keys[slot]);
-          return cursor;
-        }
-      }
-      return done();
-    }
-  }
-
-  /**
-   * A view over the set of values of this map.
-   */
-  private class ValuesContainer extends AbstractKTypeCollection<VType> {
-    @Override
-    public int size() {
-      return KTypeVTypeWormMap.this.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return KTypeVTypeWormMap.this.isEmpty();
-    }
-
-    @Override
-    public boolean contains(VType value) {
-      for (KTypeVTypeCursor<KType, VType> c : KTypeVTypeWormMap.this) {
-        if (Intrinsics.<VType>equals(value, c.value)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    @Override
-    public <T extends KTypeProcedure<? super VType>> T forEach(T procedure) {
-      for (KTypeVTypeCursor<KType, VType> c : KTypeVTypeWormMap.this) {
-        procedure.apply(c.value);
-      }
-      return procedure;
-    }
-
-    @Override
-    public <T extends KTypePredicate<? super VType>> T forEach(T predicate) {
-      for (KTypeVTypeCursor<KType, VType> c : KTypeVTypeWormMap.this) {
-        if (!predicate.apply(c.value)) {
-          break;
-        }
-      }
-      return predicate;
-    }
-
-    @Override
-    public Iterator<KTypeCursor<VType>> iterator() {
-      return new ValuesIterator();
-    }
-
-    @Override
-    public int removeAll(final VType e) {
-      return KTypeVTypeWormMap.this.removeAll((key, value) -> Intrinsics.<VType>equals(e, value));
-    }
-
-    @Override
-    public int removeAll(final KTypePredicate<? super VType> predicate) {
-      return KTypeVTypeWormMap.this.removeAll((key, value) -> predicate.apply(value));
-    }
-
-    @Override
-    public void clear() {
-      KTypeVTypeWormMap.this.clear();
-    }
-
-    @Override
-    public void release() {
-      KTypeVTypeWormMap.this.release();
-    }
-  }
-
-  /**
-   * An iterator over the set of assigned values.
-   */
-  private class ValuesIterator extends AbstractIterator<KTypeCursor<VType>> {
-    private final KTypeCursor<VType> cursor;
-    private final int increment;
-    private int index;
-    private int slot;
-
-    public ValuesIterator() {
-      cursor = new KTypeCursor<VType>();
-      int seed = nextIterationSeed();
-      increment = iterationIncrement(seed);
-      slot = seed & (next.length - 1);
-    }
-
-    @Override
-    protected KTypeCursor<VType> fetch() {
-      final int mask = next.length - 1;
-      while (index <= mask) {
-        index++;
-        slot = (slot + increment) & mask;
-        if (next[slot] != 0) {
-          cursor.index = slot;
-          cursor.value = Intrinsics.<VType>cast(values[slot]);
-          return cursor;
-        }
-      }
-      return done();
-    }
-  }
-
-  /**
-   * An iterator implementation for {@link #iterator}.
-   */
-  private class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
-    private final KTypeVTypeCursor<KType, VType> cursor;
-    private final int increment;
-    private int index;
-    private int slot;
-
-    public EntryIterator() {
-      cursor = new KTypeVTypeCursor<KType, VType>();
-      int seed = nextIterationSeed();
-      increment = iterationIncrement(seed);
-      slot = seed & (next.length - 1);
-    }
-
-    @Override
-    protected KTypeVTypeCursor<KType, VType> fetch() {
-      final int mask = next.length - 1;
-      while (index <= mask) {
-        index++;
-        slot = (slot + increment) & mask;
-        if (next[slot] != 0) {
-          cursor.index = slot;
-          cursor.key = Intrinsics.<KType>cast(keys[slot]);
-          cursor.value = Intrinsics.<VType>cast(values[slot]);
           return cursor;
         }
       }

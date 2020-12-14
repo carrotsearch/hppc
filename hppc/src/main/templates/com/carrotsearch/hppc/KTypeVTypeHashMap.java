@@ -26,7 +26,7 @@ public class KTypeVTypeHashMap<KType, VType>
              Cloneable,
              Accountable
 {
-  /** 
+  /**
    * The array holding keys.
    */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
@@ -288,11 +288,9 @@ public class KTypeVTypeHashMap<KType, VType>
 
     if (other.size() >= size() &&
         other instanceof KTypeLookupContainer<?>) {
-      if (hasEmptyKey) {
-        if (other.contains(Intrinsics.<KType> empty())) {
-          hasEmptyKey = false;
-          values[mask + 1] = Intrinsics.<VType> empty();
-        }
+      if (hasEmptyKey && other.contains(Intrinsics.<KType> empty())) {
+        hasEmptyKey = false;
+        values[mask + 1] = Intrinsics.<VType> empty();
       }
 
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
@@ -307,7 +305,7 @@ public class KTypeVTypeHashMap<KType, VType>
       }
     } else {
       for (KTypeCursor<?> c : other) {
-        this.remove(Intrinsics.<KType> cast(c.value));
+        remove(Intrinsics.<KType> cast(c.value));
       }
     }
 
@@ -647,16 +645,16 @@ public class KTypeVTypeHashMap<KType, VType>
 
   @Override
   public long ramBytesAllocated() {
-    // int: keyMixer, assigned, mask, resizeAt
+    // int: iterationSeed, assigned, mask, resizeAt
     // double: loadFactor
     // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +
-            RamUsageEstimator.shallowSizeOf(keys) + RamUsageEstimator.shallowSizeOf(values);
+            RamUsageEstimator.shallowSizeOfArray(keys) + RamUsageEstimator.shallowSizeOfArray(values);
   }
 
   @Override
   public long ramBytesUsed() {
-    // int: keyMixer, assigned, mask, resizeAt
+    // int: iterationSeed, assigned, mask, resizeAt
     // double: loadFactor
     // boolean: hasEmptyKey
     return RamUsageEstimator.NUM_BYTES_OBJECT_HEADER + 4 * Integer.BYTES + Double.BYTES + 1 +

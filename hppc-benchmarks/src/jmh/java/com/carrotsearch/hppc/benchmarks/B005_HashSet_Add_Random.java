@@ -32,16 +32,16 @@ public class B005_HashSet_Add_Random {
   public int mbOfKeys;
 
   public int keyCount;
-  public IntIntMapOps[] ops;
+  public IntSetOps[] ops;
   public XorShift128P rnd;
   public int randomRange;
 
   @Setup(Level.Trial)
   public void prepare() {
     keyCount = mbOfKeys * (1024 * 1024) / 8;
-    ops = new IntIntMapOps[10];
+    ops = new IntSetOps[10];
     for (int i = 0; i < ops.length; i++) {
-      ops[i] = library.newIntIntMap(keyCount, loadFactor);
+      ops[i] = library.newIntSet(keyCount, loadFactor);
     }
     rnd = new XorShift128P(0xdeadbeefL);
     randomRange = 2 * keyCount;
@@ -54,12 +54,12 @@ public class B005_HashSet_Add_Random {
 
   @Benchmark()
   @BenchmarkMode(Mode.SingleShotTime)
-  public Object put() {
+  public Object add() {
     final XorShift128P rnd = this.rnd;
     final int randomRange = this.randomRange;
-    for (final IntIntMapOps ops : ops) {
+    for (final IntSetOps ops : ops) {
       for (int i = 0, numLoops = keyCount; i < numLoops; i++) {
-        ops.put(rnd.nextInt(randomRange), i);
+        ops.add(rnd.nextInt(randomRange));
       }
     }
     return ops;

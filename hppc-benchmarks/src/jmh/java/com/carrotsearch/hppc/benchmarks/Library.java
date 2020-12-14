@@ -28,7 +28,7 @@ public enum Library {
   WORM {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new HppcIntSetOps(expectedElements, loadFactor); // TODO
+      return new WormIntSetOps(expectedElements);
     }
 
     @Override

@@ -3,6 +3,8 @@
 
 ** New features and API changes
 
+   GH-13: Add automatic module name to the generated JAR's manifest ("com.carrotsearch.hppc")
+
 HPPC-179: Update java template parser to support Java 8.
 
 HPPC-186: A different strategy has been implemented for collision avalanche avoidance. This
@@ -27,6 +29,8 @@ HPPC-176: A new set of associative containers implementing Worm Hashing has been
           (Bruno Roustant, Aleksandr Danilin).
 
 ** Improvements
+
+HPPC-191: Improve Accountable implementation (Haoyu Zhai)
 
 HPPC-183: Simplify IndirectSort comparator to use IntBinaryOperator.
 
