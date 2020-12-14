@@ -18,5 +18,11 @@ allprojects {
           "-Werror",
       ]
     }
+
+    tasks.jar {
+      manifest {
+        attributes('Automatic-Module-Name': "com.carrotsearch.${project.name.replace('-', '.')}")
+      }
+    }
   }
 }
