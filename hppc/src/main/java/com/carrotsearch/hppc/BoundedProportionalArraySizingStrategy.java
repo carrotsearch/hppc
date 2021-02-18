@@ -22,6 +22,11 @@ import java.util.ArrayList;
  * </pre>
  */
 public final class BoundedProportionalArraySizingStrategy implements ArraySizingStrategy {
+
+  /** Instance of {@link BoundedProportionalArraySizingStrategy} with default values. */
+  public static final BoundedProportionalArraySizingStrategy DEFAULT_INSTANCE =
+      new BoundedProportionalArraySizingStrategy();
+
   /**
    * Maximum allocable array length (approximately the largest positive integer decreased by the
    * array's object header).

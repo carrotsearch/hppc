@@ -37,6 +37,12 @@ public class KTypeArrayList<KType>
       /*! #end !*/; 
 
   /**
+   * Reuse the same strategy instance.
+   */
+  private static final BoundedProportionalArraySizingStrategy DEFAULT_SIZING_STRATEGY =
+      BoundedProportionalArraySizingStrategy.DEFAULT_INSTANCE;
+
+  /**
    * Internal array for storing the list. The array may be larger than the current size
    * ({@link #size()}).
    */
@@ -73,7 +79,7 @@ public class KTypeArrayList<KType>
    *          expansion (inclusive).
    */
   public KTypeArrayList(int expectedElements) {
-    this(expectedElements, new BoundedProportionalArraySizingStrategy());
+    this(expectedElements, DEFAULT_SIZING_STRATEGY);
   }
 
 
