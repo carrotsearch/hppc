@@ -1,0 +1,19 @@
+
+a.logo {
+  float: right;
+  padding-left: 10px;
+  position: relative;
+  width: 82px;
+  height: 35px;
+  background: url('logo.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+
+/* Page background color */
+body {
+  font-family: Trebuchet MS, Arial;
+  background-color: white;
+  font-size: 10pt;
+}
+
