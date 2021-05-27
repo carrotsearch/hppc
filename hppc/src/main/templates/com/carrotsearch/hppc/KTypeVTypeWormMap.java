@@ -1,6 +1,8 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
@@ -46,6 +48,12 @@ public class KTypeVTypeWormMap<KType, VType>
           Object[]
           /*! #else VType [] #end !*/
           values;
+
+  static final private VarHandle varHandle = MethodHandles.arrayElementVarHandle(
+          /*! #if ($TemplateOptions.VTypeGeneric) !*/
+          Object [].class
+          /*! #else VType [].class #end !*/
+  );
 
   /**
    * {@code abs(next[i])=offset} to next chained entry index. <p>{@code next[i]=0} for free bucket.</p> <p>The
@@ -530,6 +538,34 @@ public class KTypeVTypeWormMap<KType, VType>
     } else {
       put(key, value, PutPolicy.NEW_GUARANTEED, true);
     }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public VType indexGetVolatile(int index) {
+    assert checkIndex(index, next.length);
+    return (VType) varHandle.getVolatile(values, index);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void indexSetVolatile(int index, VType newValue) {
+    assert checkIndex(index, next.length);
+    varHandle.setVolatile(values, index, newValue);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public VType indexReplaceVolatile(int index, VType newValue) {
+    assert checkIndex(index, next.length);
+    return (VType) varHandle.getAndSet(values, index, newValue);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public VType indexCompareAndExchange(int index, VType expectedValue, VType newValue) {
+    assert checkIndex(index, next.length);
+    return (VType) varHandle.compareAndExchange(values, index, expectedValue, newValue);
   }
 
   /** {@inheritDoc} */

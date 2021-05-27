@@ -150,6 +150,42 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
       Assertions.assertThat(map.size()).isEqualTo(3);
     }
 
+    @Test
+    public void testVolatileIndexMethods()
+    {
+        map.put(keyE, value1);
+        map.put(key1, value2);
+
+        map.indexSetVolatile(map.indexOf(keyE), value3);
+        map.indexSetVolatile(map.indexOf(key1), value4);
+        Assertions.assertThat(map.indexGetVolatile(map.indexOf(keyE))).isEqualTo(value3);
+        Assertions.assertThat(map.indexGetVolatile(map.indexOf(key1))).isEqualTo(value4);
+
+        Assertions.assertThat(map.indexReplaceVolatile(map.indexOf(keyE), value1)).isEqualTo(value3);
+        Assertions.assertThat(map.indexReplaceVolatile(map.indexOf(key1), value2)).isEqualTo(value4);
+        Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value1);
+        Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value2);
+    }
+
+    @Test
+    public void testCompareAndExchange()
+    {
+        map.put(keyE, value1);
+        map.put(key1, value2);
+
+        // Comparison succeeds
+        Assertions.assertThat(map.indexCompareAndExchange(map.indexOf(keyE), value1, value3)).isEqualTo(value1);
+        Assertions.assertThat(map.indexCompareAndExchange(map.indexOf(key1), value2, value4)).isEqualTo(value2);
+        Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value3);
+        Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value4);
+
+        // Comparison fails
+        Assertions.assertThat(map.indexCompareAndExchange(map.indexOf(keyE), value1, value1)).isEqualTo(value3);
+        Assertions.assertThat(map.indexCompareAndExchange(map.indexOf(key1), value2, value2)).isEqualTo(value4);
+        Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value3);
+        Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value4);
+    }
+
     /* */
     @Test
     public void testCloningConstructor()

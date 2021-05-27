@@ -174,6 +174,64 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   public VType indexReplace(int index, VType newValue);
 
   /**
+   * Returns the value associated with an existing key with volatile memory semantics.
+   *
+   * @see #indexOf
+   *
+   * @param index
+   *          The index of an existing key.
+   * @return Returns the value currently associated with the key.
+   * @throws AssertionError
+   *           If assertions are enabled and the index does not correspond to an
+   *           existing key.
+   */
+  public VType indexGetVolatile(int index);
+
+  /**
+   * Sets the value associated with an existing key with volatile memory semantics.
+   *
+   * @see #indexOf
+   *
+   * @param index
+   *          The index of an existing key.
+   * @throws AssertionError
+   *           If assertions are enabled and the index does not correspond to an
+   *           existing key.
+   */
+  public void indexSetVolatile(int index, VType newValue);
+
+  /**
+   * Atomically replaces the value associated with an existing key and returns any previous
+   * value stored for that key with volatile memory semantics.
+   *
+   * @see #indexOf
+   *
+   * @param index
+   *          The index of an existing key.
+   * @return Returns the previous value associated with the key.
+   * @throws AssertionError
+   *           If assertions are enabled and the index does not correspond to an
+   *           existing key.
+   */
+  public VType indexReplaceVolatile(int index, VType newValue);
+
+  /**
+   * Atomically replaces the value associated with an existing key and returns the previous
+   * value stored for that key but only if the previous value is equal to the expected
+   * value.
+   *
+   * @see #indexOf
+   *
+   * @param index
+   *          The index of an existing key.
+   * @return Returns the previous value associated with the key.
+   * @throws AssertionError
+   *           If assertions are enabled and the index does not correspond to an
+   *           existing key.
+   */
+  public VType indexCompareAndExchange(int index, VType expectedValue, VType newValue);
+
+  /**
    * Inserts a key-value pair for a key that is not present in the map. This
    * method may help in avoiding double recalculation of the key's hash.
    * 

@@ -1,6 +1,8 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.*;
 
 import com.carrotsearch.hppc.cursors.*;
@@ -41,6 +43,12 @@ public class KTypeVTypeHashMap<KType, VType>
          Object [] 
          /*! #else VType [] #end !*/ 
          values;
+
+  static final private VarHandle varHandle = MethodHandles.arrayElementVarHandle(
+          /*! #if ($TemplateOptions.VTypeGeneric) !*/
+          Object [].class
+          /*! #else VType [].class #end !*/
+  );
 
   /**
    * The number of stored keys (assigned key slots), excluding the special 
@@ -531,6 +539,48 @@ public class KTypeVTypeHashMap<KType, VType>
 
       assigned++;
     }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public VType indexGetVolatile(int index) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+            (index == mask + 1 && hasEmptyKey);
+
+    return (VType) varHandle.getVolatile(values, index);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void indexSetVolatile(int index, VType newValue) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+            (index == mask + 1 && hasEmptyKey);
+
+    varHandle.setVolatile(values, index, newValue);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public VType indexReplaceVolatile(int index, VType newValue) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+            (index == mask + 1 && hasEmptyKey);
+
+    return (VType) varHandle.getAndSet(values, index, newValue);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public VType indexCompareAndExchange(int index, VType expectedValue, VType newValue) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+            (index == mask + 1 && hasEmptyKey);
+
+    return (VType) varHandle.compareAndExchange(values, index, expectedValue, newValue);
   }
 
   /**
