@@ -65,11 +65,14 @@ public class HppcExample_004_IteratingOverMaps {
   /** A for-each type loop on keys. */
   @Test
   public void keys() {
-    wormMap.keys().forEach(new IntProcedure() {
-      @Override
-      public void apply(int key) {
-        printfln("key %d", key);
-      }
-    });
+    wormMap
+        .keys()
+        .forEach(
+            new IntProcedure() {
+              @Override
+              public void apply(int key) {
+                printfln("key %d", key);
+              }
+            });
   }
 }
