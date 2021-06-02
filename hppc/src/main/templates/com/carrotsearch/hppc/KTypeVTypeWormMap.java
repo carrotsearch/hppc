@@ -1023,7 +1023,7 @@ public class KTypeVTypeWormMap<KType, VType>
   /**
    * A view of the keys inside this map.
    */
-  final class KeysContainer extends AbstractKTypeCollection<KType>
+  public final class KeysContainer extends AbstractKTypeCollection<KType>
           implements KTypeLookupContainer<KType> {
     @Override
     public boolean contains(KType e) {

@@ -13,8 +13,10 @@ import static com.carrotsearch.hppc.examples.Helpers.*;
 import static org.assertj.core.api.Assertions.*;
 
 import com.carrotsearch.hppc.IntLongHashMap;
+import com.carrotsearch.hppc.IntLongWormMap;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
 import com.carrotsearch.hppc.procedures.IntLongProcedure;
+import com.carrotsearch.hppc.procedures.IntProcedure;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,10 +24,13 @@ import org.junit.Test;
 public class HppcExample_004_IteratingOverMaps {
 
   public IntLongHashMap hashMap;
+  public IntLongWormMap wormMap;
 
   @Before
   public void setup() {
     hashMap = IntLongHashMap.from(new int[] {1, 1, 2, 3, 5, 0}, new long[] {1, 2, 3, 4, 5, 6});
+    // WormMap is a hash map efficient for less than 2M entries, and more get() than put().
+    wormMap = IntLongWormMap.from(new int[] {1, 1, 2, 3, 5, 0}, new long[] {1, 2, 3, 4, 5, 6});
   }
 
   /**
@@ -55,5 +60,19 @@ public class HppcExample_004_IteratingOverMaps {
             printfln("hashMap %d => %d", key, value);
           }
         });
+  }
+
+  /** A for-each type loop on keys. */
+  @Test
+  public void keys() {
+    wormMap
+        .keys()
+        .forEach(
+            new IntProcedure() {
+              @Override
+              public void apply(int key) {
+                printfln("key %d", key);
+              }
+            });
   }
 }

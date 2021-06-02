@@ -7,10 +7,27 @@
  * Refer to the full license file "LICENSE.txt":
  * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
  */
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.expectations;
 
-import static com.carrotsearch.hppc.TestUtils.*;
+import static com.carrotsearch.hppc.TestUtils.assertEquals2;
 
+import com.carrotsearch.hppc.IntArrayDeque;
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntIntHashMap;
+import com.carrotsearch.hppc.IntLongHashMap;
+import com.carrotsearch.hppc.IntLookupContainer;
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.IntStack;
+import com.carrotsearch.hppc.LongCollection;
+import com.carrotsearch.hppc.ObjectArrayDeque;
+import com.carrotsearch.hppc.ObjectArrayList;
+import com.carrotsearch.hppc.ObjectCollection;
+import com.carrotsearch.hppc.ObjectHashSet;
+import com.carrotsearch.hppc.ObjectIntHashMap;
+import com.carrotsearch.hppc.ObjectLookupContainer;
+import com.carrotsearch.hppc.ObjectObjectHashMap;
+import com.carrotsearch.hppc.ObjectStack;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.assertj.core.api.Assertions;
@@ -82,8 +99,8 @@ public class APIExpectationsTest extends RandomizedTest {
     ObjectArrayList<Integer> l1 = new ObjectArrayList<Integer>();
     ObjectArrayList<Number> l2 = new ObjectArrayList<Number>();
 
-    Assertions.assertThat(l1.equalElements(l2)).isTrue();
-    Assertions.assertThat(l2.equalElements(l1)).isTrue();
+    Assertions.assertThat(l1.equals(l2)).isTrue();
+    Assertions.assertThat(l2.equals(l1)).isTrue();
   }
 
   @SuppressForbidden("new Integer() intentional.")
@@ -107,8 +124,8 @@ public class APIExpectationsTest extends RandomizedTest {
 
     Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
     Assertions.assertThat(l1.hashCode()).isEqualTo(l3.hashCode());
-    Assertions.assertThat(l1.equalElements(l2)).isTrue();
-    Assertions.assertThat(l1.equalElements(l3)).isFalse();
+    Assertions.assertThat(l1.equals(l2)).isTrue();
+    Assertions.assertThat(l1.equals(l3)).isFalse();
   }
 
   @SuppressForbidden("new Integer() intentional.")
@@ -132,8 +149,8 @@ public class APIExpectationsTest extends RandomizedTest {
 
     Assertions.assertThat(l1.hashCode()).isEqualTo(l2.hashCode());
     Assertions.assertThat(l1.hashCode()).isEqualTo(l3.hashCode());
-    Assertions.assertThat(l1.equalElements(l2)).isTrue();
-    Assertions.assertThat(l1.equalElements(l3)).isFalse();
+    Assertions.assertThat(l1.equals(l2)).isTrue();
+    Assertions.assertThat(l1.equals(l3)).isFalse();
   }
 
   @Test
@@ -216,6 +233,22 @@ public class APIExpectationsTest extends RandomizedTest {
     assertEquals2(1, map.putOrAdd(k1, 1, 2));
     Assertions.assertThat(map.containsKey(k1b)).isTrue();
     assertEquals2(3, map.putOrAdd(k1b, 1, 2));
+  }
+
+  @Test
+  public void keysValuesContainerVisibilityPrimitive() {
+    IntLookupContainer keys = new IntLongHashMap().keys();
+    LongCollection values = new IntLongHashMap().values();
+    Assertions.assertThat(keys).isNotNull();
+    Assertions.assertThat(values).isNotNull();
+  }
+
+  @Test
+  public void keysValuesContainerVisibilityGeneric() {
+    ObjectLookupContainer<Integer> keys = new ObjectObjectHashMap<Integer, Long>().keys();
+    ObjectCollection<Long> values = new ObjectObjectHashMap<Integer, Long>().values();
+    Assertions.assertThat(keys).isNotNull();
+    Assertions.assertThat(values).isNotNull();
   }
 
   /*
