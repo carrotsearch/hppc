@@ -189,7 +189,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   public void indexInsert(int index, KType key, VType value);
 
   /**
-   * Removes a key-value pair.
+   * Removes a key-value pair at an index previously acquired from {@link #indexOf}.
    *
    * @see #indexOf
    *

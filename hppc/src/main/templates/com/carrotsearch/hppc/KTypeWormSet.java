@@ -507,7 +507,7 @@ public class KTypeWormSet<KType>
   }
 
   /**
-   * Removes a key.
+   * Removes a key at an index previously acquired from {@link #indexOf}.
    *
    * @see #indexOf
    *

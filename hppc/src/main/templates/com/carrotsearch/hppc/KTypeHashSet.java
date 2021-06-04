@@ -736,7 +736,7 @@ public class KTypeHashSet<KType>
   }
 
   /**
-   * Removes a key.
+   * Removes a key at an index previously acquired from {@link #indexOf}.
    *
    * @see #indexOf
    *

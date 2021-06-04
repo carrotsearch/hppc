@@ -667,16 +667,32 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
 
                 if (rnd.nextBoolean())
                 {
-                    map.put(key, value);
-                    other.put(key, value);
+                    VType previousValue;
+                    if (rnd.nextBoolean()) {
+                        int index = map.indexOf(key);
+                        if (map.indexExists(index)) {
+                            previousValue = map.indexReplace(index, value);
+                        } else {
+                            map.indexInsert(index, key, value);
+                            previousValue = null;
+                        }
+                    } else {
+                        previousValue = map.put(key, value);
+                    }
+                    assertEquals(other.put(key, value), previousValue);
 
                     assertEquals(value, map.get(key));
+                    assertEquals(value, map.indexGet(map.indexOf(key)));
                     assertTrue(map.containsKey(key));
+                    assertTrue(map.indexExists(map.indexOf(key)));
                 }
                 else
                 {
                     assertEquals(other.containsKey(key), map.containsKey(key));
-                    assertEquals(other.remove(key), map.remove(key));
+                    VType previousValue = map.containsKey(key) && rnd.nextBoolean() ?
+                            map.indexRemove(map.indexOf(key))
+                            : map.remove(key);
+                    assertEquals(other.remove(key), previousValue);
                 }
 
                 assertEquals(other.size(), map.size());
