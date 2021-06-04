@@ -84,6 +84,14 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
       set.indexInsert(set.indexOf(key2), key2);
       Assertions.assertThat(set.indexGet(set.indexOf(key2))).isEqualTo(key2);
       Assertions.assertThat(set.size()).isEqualTo(3);
+
+      set.indexRemove(set.indexOf(keyE));
+      Assertions.assertThat(set.size()).isEqualTo(2);
+      set.indexRemove(set.indexOf(key2));
+      Assertions.assertThat(set.size()).isEqualTo(1);
+      Assertions.assertThat(set.indexOf(keyE)).isNegative();
+      Assertions.assertThat(set.indexOf(key1)).isNotNegative();
+      Assertions.assertThat(set.indexOf(key2)).isNegative();
     }
 
     @Test

@@ -735,6 +735,27 @@ public class KTypeHashSet<KType>
     }
   }
 
+  /**
+   * Removes a key.
+   *
+   * @see #indexOf
+   *
+   * @param index The index of the key to remove, as returned from {@link #indexOf}.
+   * @throws AssertionError If assertions are enabled and the index does
+   *         not correspond to an existing key.
+   */
+  public void indexRemove(int index) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+            (index == mask + 1 && hasEmptyKey);
+
+    if (index > mask) {
+      hasEmptyKey = false;
+    } else {
+      shiftConflictingKeys(index);
+    }
+  }
+
   @Override
   public String visualizeKeyDistribution(int characters) {
     return KTypeBufferVisualizer.visualizeKeyDistribution(keys, mask, characters);

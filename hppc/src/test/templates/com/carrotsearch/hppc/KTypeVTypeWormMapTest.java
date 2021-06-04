@@ -148,6 +148,14 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
       map.indexInsert(map.indexOf(key2), key2, value1);
       Assertions.assertThat(map.indexGet(map.indexOf(key2))).isEqualTo(value1);
       Assertions.assertThat(map.size()).isEqualTo(3);
+
+      Assertions.assertThat(map.indexRemove(map.indexOf(keyE))).isEqualTo(value3);
+      Assertions.assertThat(map.size()).isEqualTo(2);
+      Assertions.assertThat(map.indexRemove(map.indexOf(key2))).isEqualTo(value1);
+      Assertions.assertThat(map.size()).isEqualTo(1);
+      Assertions.assertThat(map.indexOf(keyE)).isNegative();
+      Assertions.assertThat(map.indexOf(key1)).isNotNegative();
+      Assertions.assertThat(map.indexOf(key2)).isNegative();
     }
 
     /* */

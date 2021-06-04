@@ -141,7 +141,10 @@ class WormUtil {
    *
    * @param index The index of an entry in the chain.
    * @param nextOffset next[index].
-   * @return The index of the last entry in the chain.
+   * @param returnPrevious Whether to return the entry before the last.
+   * @return The index of the last entry in the chain, or the entry before, depending on {@code
+   *     returnPrevious}. Returns {@code -1} if the entry at index is the last entry of the chain
+   *     and {@code returnPrevious} is true.
    */
   static int findLastOfChain(int index, int nextOffset, boolean returnPrevious, byte[] next) {
     assert checkIndex(index, next.length);
@@ -153,7 +156,7 @@ class WormUtil {
     if (nextOffset < 0) {
       nextOffset = -nextOffset;
     }
-    int previousIndex = Integer.MAX_VALUE;
+    int previousIndex = -1;
     while (nextOffset != END_OF_CHAIN) {
       previousIndex = index;
       index = addOffset(index, nextOffset, capacity); // Jump forward.
