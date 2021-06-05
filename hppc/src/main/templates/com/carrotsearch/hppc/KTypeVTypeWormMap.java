@@ -261,7 +261,7 @@ public class KTypeVTypeWormMap<KType, VType>
     }
     int entryToRemoveIndex = previousEntryIndex == Integer.MAX_VALUE ?
             hashIndex : addOffset(previousEntryIndex, Math.abs(next[previousEntryIndex]), next.length);
-    return remove(hashIndex, previousEntryIndex, entryToRemoveIndex);
+    return remove(entryToRemoveIndex, previousEntryIndex);
   }
 
   /** {@inheritDoc} */
@@ -505,6 +505,7 @@ public class KTypeVTypeWormMap<KType, VType>
   @Override
   public VType indexGet(int index) {
     assert checkIndex(index, next.length);
+    assert next[index] != 0;
     return Intrinsics.<VType>cast(values[index]);
   }
 
@@ -512,6 +513,7 @@ public class KTypeVTypeWormMap<KType, VType>
   @Override
   public VType indexReplace(int index, VType newValue) {
     assert checkIndex(index, next.length);
+    assert next[index] != 0;
     VType previousValue = Intrinsics.<VType>cast(values[index]);
     values[index] = newValue;
     return previousValue;
@@ -530,6 +532,14 @@ public class KTypeVTypeWormMap<KType, VType>
     } else {
       put(key, value, PutPolicy.NEW_GUARANTEED, true);
     }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public VType indexRemove(int index) {
+    assert checkIndex(index, next.length);
+    assert next[index] != 0;
+    return remove(index, Integer.MAX_VALUE);
   }
 
   /** {@inheritDoc} */
@@ -705,40 +715,42 @@ public class KTypeVTypeWormMap<KType, VType>
    * Removes the entry at the specified removal index.
    * Decrements {@link #size}.
    *
-   * @param headIndex          The head-of-chain index.
-   * @param previousEntryIndex The index of the entry in the chain preceding the entry to remove; or
-   *                           {@link Integer#MAX_VALUE} if the entry to remove is the head-of-chain.
    * @param entryToRemoveIndex The index of the entry to remove.
+   * @param previousEntryIndex The index of the entry in the chain preceding the entry to remove; or
+   *                           {@link Integer#MAX_VALUE} if unknown or if the entry to remove is the head-of-chain.
    * @return The value of the removed entry.
    */
-  private VType remove(int headIndex, int previousEntryIndex, int entryToRemoveIndex) {
-    assert checkIndex(headIndex, next.length);
-    assert next[headIndex] > 0;
-    assert previousEntryIndex == Integer.MAX_VALUE || checkIndex(previousEntryIndex, next.length);
+  private VType remove(int entryToRemoveIndex, int previousEntryIndex) {
     assert checkIndex(entryToRemoveIndex, next.length);
+    assert previousEntryIndex == Integer.MAX_VALUE || checkIndex(previousEntryIndex, next.length);
 
     final byte[] next = this.next;
     VType previousValue = Intrinsics.<VType>cast(values[entryToRemoveIndex]);
 
     // Find the last entry of the chain.
-    int beforeLastIndex = findLastOfChain(entryToRemoveIndex, next[entryToRemoveIndex], true, next);
-    int lastIndex;
-    if (beforeLastIndex == Integer.MAX_VALUE) {
-      beforeLastIndex = previousEntryIndex;
-      lastIndex = entryToRemoveIndex;
-    } else {
-      lastIndex = addOffset(beforeLastIndex, Math.abs(next[beforeLastIndex]), next.length);
-    }
-
     // Replace the removed entry by the last entry of the chain.
-    if (entryToRemoveIndex != lastIndex) {
-      // Removing an entry before the last of the chain. Replace it by the last one.
+    int nextOffset = next[entryToRemoveIndex];
+    int beforeLastIndex = findLastOfChain(entryToRemoveIndex, nextOffset, true, next);
+    int lastIndex;
+    if (beforeLastIndex == -1) {
+      // The entry to remove is the last of the chain.
+      lastIndex = entryToRemoveIndex;
+      if (nextOffset < 0) {
+        // Removing the last entry in a chain of at least two entries.
+        beforeLastIndex = previousEntryIndex == Integer.MAX_VALUE ?
+                findPreviousInChain(entryToRemoveIndex, next) : previousEntryIndex;
+        // Unlink the last entry which replaces the removed entry.
+        next[beforeLastIndex] = (byte) (next[beforeLastIndex] > 0 ? END_OF_CHAIN : -END_OF_CHAIN);
+      }
+    } else {
+      int beforeLastNextOffset = next[beforeLastIndex];
+      lastIndex = addOffset(beforeLastIndex, Math.abs(beforeLastNextOffset), next.length);
+      assert entryToRemoveIndex != lastIndex;
+      // The entry to remove is before the last of the chain. Replace it by the last one.
       keys[entryToRemoveIndex] = keys[lastIndex];
       values[entryToRemoveIndex] = values[lastIndex];
-    }
-    if (lastIndex != headIndex) {
-      // Removing an entry in a chain of at least two entries. Unlink the last entry which replaces the removed entry.
-      next[beforeLastIndex] = (byte) (beforeLastIndex == headIndex ? END_OF_CHAIN : -END_OF_CHAIN);
+      // Unlink the last entry which replaces the removed entry.
+      next[beforeLastIndex] = (byte) (beforeLastNextOffset > 0 ? END_OF_CHAIN : -END_OF_CHAIN);
     }
     // Free the last entry of the chain.
     keys[lastIndex] = Intrinsics.<KType>empty();

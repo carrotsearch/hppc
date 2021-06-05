@@ -537,6 +537,25 @@ public class KTypeVTypeHashMap<KType, VType>
    * {@inheritDoc}
    */
   @Override
+  public VType indexRemove(int index) {
+    assert index >= 0 : "The index must point at an existing key.";
+    assert index <= mask ||
+            (index == mask + 1 && hasEmptyKey);
+
+    VType previousValue = Intrinsics.<VType> cast(values[index]);
+    if (index > mask) {
+      hasEmptyKey = false;
+      values[index] = Intrinsics.<VType> empty();
+    } else {
+      shiftConflictingKeys(index);
+    }
+    return previousValue;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void clear() {
     assigned = 0;
     hasEmptyKey = false;

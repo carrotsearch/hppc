@@ -84,6 +84,14 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
       set.indexInsert(set.indexOf(key2), key2);
       Assertions.assertThat(set.indexGet(set.indexOf(key2))).isEqualTo(key2);
       Assertions.assertThat(set.size()).isEqualTo(3);
+
+      set.indexRemove(set.indexOf(keyE));
+      Assertions.assertThat(set.size()).isEqualTo(2);
+      set.indexRemove(set.indexOf(key2));
+      Assertions.assertThat(set.size()).isEqualTo(1);
+      Assertions.assertThat(set.indexOf(keyE)).isNegative();
+      Assertions.assertThat(set.indexOf(key1)).isNotNegative();
+      Assertions.assertThat(set.indexOf(key2)).isNegative();
     }
 
     @Test
@@ -399,14 +407,32 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
                 if (rnd.nextBoolean())
                 {
+                    if (rnd.nextBoolean()) {
+                        int index = set.indexOf(cast(key));
+                        if (set.indexExists(index)) {
+                            set.indexReplace(index, cast(key));
+                        } else {
+                            set.indexInsert(index, cast(key));
+                        }
+                    } else {
+                        set.add(cast(key));
+                    }
                     other.add(cast(key));
-                    set.add(cast(key));
 
                     assertTrue(set.contains(cast(key)));
+                    assertTrue(set.indexExists(set.indexOf(cast(key))));
                 }
                 else
                 {
-                    assertEquals(other.remove(key), set.remove(cast(key)));
+                    assertEquals(other.contains(key), set.contains(cast(key)));
+                    boolean removed;
+                    if (set.contains(cast(key)) && rnd.nextBoolean()) {
+                        set.indexRemove(set.indexOf(cast(key)));
+                        removed = true;
+                    } else {
+                        removed = set.remove(cast(key));
+                    }
+                    assertEquals(other.remove(key), removed);
                 }
 
                 assertEquals(other.size(), set.size());

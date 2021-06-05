@@ -189,6 +189,20 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   public void indexInsert(int index, KType key, VType value);
 
   /**
+   * Removes a key-value pair at an index previously acquired from {@link #indexOf}.
+   *
+   * @see #indexOf
+   *
+   * @param index
+   *          The index of the key to remove, as returned from {@link #indexOf}.
+   * @return Returns the previous value associated with the key.
+   * @throws AssertionError
+   *           If assertions are enabled and the index does not correspond to an
+   *           existing key.
+   */
+  public VType indexRemove(int index);
+
+  /**
    * Clear all keys and values in the container.
    * 
    * @see #release()

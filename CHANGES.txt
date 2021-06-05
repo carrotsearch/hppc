@@ -3,6 +3,8 @@
 
 ** New features and API changes
 
+   GH-24: Support indexRemove in KTypeVTypeHashMap,KTypeHashSet,KTypeWormSet (Bruno Roustant).
+
    GH-20: KeysContainer of WormMap is not public (Haoyu Zhai, Bruno Roustant).
 
    GH-13: Add automatic module name to the generated JAR's manifest ("com.carrotsearch.hppc")
