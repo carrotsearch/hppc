@@ -75,6 +75,11 @@ configure(rootProject) {
               name = 'Dawid Weiss'
               email = 'dawid.weiss@carrotsearch.com'
             }
+            developer {
+              id = 'bruno.roustant'
+              name = 'Bruno Roustant'
+              email = 'bruno.roustant@gmail.com'
+            }
           }
 
           scm {
