@@ -19,6 +19,13 @@ public class KTypeArrayDeque<KType>
              Preallocable, 
              Cloneable,
              Accountable {
+
+  /**
+   * Reuse the same strategy instance.
+   */
+  private static final BoundedProportionalArraySizingStrategy DEFAULT_SIZING_STRATEGY =
+      BoundedProportionalArraySizingStrategy.DEFAULT_INSTANCE;
+
   /**
    * Internal array for storing elements of the deque.
    */
@@ -62,7 +69,7 @@ public class KTypeArrayDeque<KType>
    *          expansion (inclusive).
    */
   public KTypeArrayDeque(int expectedElements) {
-    this(expectedElements, new BoundedProportionalArraySizingStrategy());
+    this(expectedElements, DEFAULT_SIZING_STRATEGY);
   }
 
   /**

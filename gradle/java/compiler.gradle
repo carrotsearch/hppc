@@ -21,7 +21,12 @@ allprojects {
 
     tasks.jar {
       manifest {
-        attributes('Automatic-Module-Name': "com.carrotsearch.${project.name.replace('-', '.')}")
+        attributes([
+            'Automatic-Module-Name' : "com.carrotsearch.${project.name.replace('-', '.')}",
+            "Implementation-Vendor" : "Carrot Search s.c. and contributors",
+            "Implementation-Title"  : "${project.name}",
+            "Implementation-Version": "${project.version}"
+        ])
       }
     }
   }

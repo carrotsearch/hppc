@@ -196,6 +196,14 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
       map.indexInsert(map.indexOf(key2), key2, value1);
       Assertions.assertThat(map.indexGet(map.indexOf(key2))).isEqualTo(value1);
       Assertions.assertThat(map.size()).isEqualTo(3);
+
+      Assertions.assertThat(map.indexRemove(map.indexOf(keyE))).isEqualTo(value3);
+      Assertions.assertThat(map.size()).isEqualTo(2);
+      Assertions.assertThat(map.indexRemove(map.indexOf(key2))).isEqualTo(value1);
+      Assertions.assertThat(map.size()).isEqualTo(1);
+      Assertions.assertThat(map.indexOf(keyE)).isNegative();
+      Assertions.assertThat(map.indexOf(key1)).isNotNegative();
+      Assertions.assertThat(map.indexOf(key2)).isNegative();
     }
 
     /* */
@@ -754,16 +762,32 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
 
                 if (rnd.nextBoolean())
                 {
-                    map.put(key, value);
-                    other.put(key, value);
+                    VType previousValue;
+                    if (rnd.nextBoolean()) {
+                        int index = map.indexOf(key);
+                        if (map.indexExists(index)) {
+                            previousValue = map.indexReplace(index, value);
+                        } else {
+                            map.indexInsert(index, key, value);
+                            previousValue = null;
+                        }
+                    } else {
+                        previousValue = map.put(key, value);
+                    }
+                    assertEquals(other.put(key, value), previousValue);
 
                     assertEquals(value, map.get(key));
+                    assertEquals(value, map.indexGet(map.indexOf(key)));
                     assertTrue(map.containsKey(key));
+                    assertTrue(map.indexExists(map.indexOf(key)));
                 }
                 else
                 {
                     assertEquals(other.containsKey(key), map.containsKey(key));
-                    assertEquals(other.remove(key), map.remove(key));
+                    VType previousValue = map.containsKey(key) && rnd.nextBoolean() ?
+                            map.indexRemove(map.indexOf(key))
+                            : map.remove(key);
+                    assertEquals(other.remove(key), previousValue);
                 }
 
                 assertEquals(other.size(), map.size());
