@@ -12,6 +12,7 @@ package com.carrotsearch.hppc.generator.parser;
 import com.carrotsearch.hppc.generator.TemplateOptions;
 import com.carrotsearch.hppc.generator.Type;
 import com.carrotsearch.randomizedtesting.RandomizedRunner;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -376,8 +377,14 @@ public class TestSignatureProcessor {
           "Could not find this resource: " + name + " relative to class " + getClass().getName());
     }
 
-    try (InputStream ignored = is) {
-      return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+    try (InputStream ignored = is;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      byte[] buffer = new byte[1024];
+      int len;
+      while ((len = is.read(buffer)) >= 0) {
+        baos.write(buffer, 0, len);
+      }
+      return new String(baos.toByteArray(), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
