@@ -1,5 +1,5 @@
 configure(rootProject) {
-  sourceCompatibility = JavaVersion.VERSION_11
+  sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = sourceCompatibility
 }
 
@@ -11,7 +11,7 @@ allprojects {
       options.encoding = "UTF-8"
 
       options.compilerArgs += [
-          "--release", "11",
+          "--release", "8",
           "-Xlint:unchecked",
           "-Xlint:deprecation",
           "-proc:none",
