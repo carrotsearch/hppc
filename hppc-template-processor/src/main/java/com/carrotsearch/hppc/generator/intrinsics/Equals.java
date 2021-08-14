@@ -33,7 +33,7 @@ public class Equals extends AbstractIntrinsicMethod {
     String v1 = arguments.remove(arguments.size() - 1);
     String v2 = arguments.remove(arguments.size() - 1);
 
-    Type type = super.inferTemplateType(m, templateOptions, genericCast);
+    Type type = inferTemplateType(m, templateOptions, genericCast);
     switch (type) {
       case GENERIC:
         String comparer = arguments.isEmpty() ? "java.util.Objects" : arguments.get(0);

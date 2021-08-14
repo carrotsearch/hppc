@@ -3,6 +3,9 @@
 
 ** New features and API changes
 ** Improvements
+
+   GH-25: Added addAll(KTypeContainer) on KTypeSet. (Erich Schubert, Dawid Weiss).
+
 ** Bugs
 
 

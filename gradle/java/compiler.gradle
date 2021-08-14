@@ -12,8 +12,7 @@ allprojects {
 
       options.compilerArgs += [
           "--release", "8",
-          "-Xlint:unchecked",
-          "-Xlint:deprecation",
+          "-Xlint:unchecked,deprecation",
           "-proc:none",
           "-Werror",
       ]

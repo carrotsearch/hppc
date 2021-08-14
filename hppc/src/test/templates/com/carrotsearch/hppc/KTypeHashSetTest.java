@@ -54,7 +54,18 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
       }
       Assertions.assertThat(set.visualizeKeyDistribution(20)).hasSize(20);
     }
-    
+
+    @Test
+    public void testAddAllViaInterface()
+    {
+      set.addAll(key1, key2);
+
+      KTypeSet<KType> iface = new KTypeHashSet<>();
+      iface.clear();
+      iface.addAll(set);
+      Assertions.assertThat(iface.toArray()).containsOnly(key1, key2);
+    }
+
     @Test
     public void testIndexMethods()
     {
