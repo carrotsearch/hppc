@@ -864,11 +864,12 @@ public class KTypeArrayDeque<KType>
 #end 
      */
   @Override
-  public boolean equals(Object obj)
-  {
-    return obj != null &&
-           getClass() == obj.getClass() &&
-           equalElements(getClass().cast(obj));
+  public boolean equals(Object obj) {
+    return (this == obj) || (
+      obj != null &&
+      getClass() == obj.getClass() &&
+      equalElements(getClass().cast(obj))
+    );
   }
 
   /**
