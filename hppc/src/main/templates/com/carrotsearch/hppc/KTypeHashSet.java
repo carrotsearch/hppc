@@ -410,9 +410,11 @@ public class KTypeHashSet<KType>
    */
   @Override
   public boolean equals(Object obj) {
-    return obj != null &&
-           getClass() == obj.getClass() &&
-           sameKeys(getClass().cast(obj));
+    return (this == obj) || (
+      obj != null &&
+      getClass() == obj.getClass() &&
+      sameKeys(getClass().cast(obj))
+    );
   }
 
   /**

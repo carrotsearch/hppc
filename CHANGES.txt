@@ -6,6 +6,8 @@
 
    GH-25: Added addAll(KTypeContainer) on KTypeSet. (Erich Schubert, Dawid Weiss).
 
+   GH-27: Added identity short circuit to existing equals methods. (Callum Galbreath).
+
 ** Bugs
 
 
