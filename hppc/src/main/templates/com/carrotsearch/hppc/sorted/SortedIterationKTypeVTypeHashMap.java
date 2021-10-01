@@ -14,6 +14,16 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.IntBinaryOperator;
 
+/**
+ * Read-only view with sorted iteration order on a delegate {@link KTypeVTypeHashMap}.
+ *
+ * <p>In its constructor, this view creates its own iteration order array and sorts it,
+ * which is in O(n.log(n)) of the size of the delegate map. Afterward, calls to any method
+ * have the same performance as the delegate map.
+ *
+ * <p>This view does not support any modifying method. In addition, the delegate map must
+ * not be modified while the view is used, otherwise the iteration is undefined.
+ */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class SortedIterationKTypeVTypeHashMap<KType, VType>
@@ -22,12 +32,20 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
   public final KTypeVTypeHashMap<KType, VType> delegate;
   public final int[] iterationOrder;
 
+  /**
+   * Creates a read-only view with sorted iteration order on the given delegate map.
+   * The ordering is in natural order of the keys.
+   */
   public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate) {
     this.delegate = delegate;
     this.iterationOrder = sortIterationOrder(createIterationOrder());
   }
 
   /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  /**
+   * Creates a read-only view with sorted iteration order on the given delegate map.
+   * The ordering is based on the provided comparator on the keys.
+   */
   public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate,
                                           Comparator<KType> comparator) {
     this.delegate = delegate;
@@ -36,6 +54,10 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
   }
   /*! #end !*/
 
+  /**
+   * Creates a read-only view with sorted iteration order on the given delegate map.
+   * The ordering is based on the provided comparator on keys and values.
+   */
   public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate,
                                           KTypeVTypeComparator<KType, VType> comparator) {
     this.delegate = delegate;
@@ -55,6 +77,9 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
     return iterationOrder;
   }
 
+  /**
+   * Sort the iteration order array based on the natural ordering of the keys.
+   */
   protected int[] sortIterationOrder(int[] iterationOrder) {
     return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
       final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
@@ -66,6 +91,9 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
   }
 
   /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  /**
+   * Sort the iteration order array based on the provided comparator on the keys.
+   */
   protected int[] sortIterationOrder(int[] iterationOrder, Comparator<KType> comparator) {
     return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
       final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
@@ -77,6 +105,9 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
   }
   /*! #end !*/
 
+  /**
+   * Sort the iteration order array based on the provided comparator on keys and values.
+   */
   protected int[] sortIterationOrder(int[] iterationOrder, KTypeVTypeComparator<KType, VType> comparator) {
     return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
       final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);

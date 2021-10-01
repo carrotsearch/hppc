@@ -106,12 +106,11 @@ public final class Intrinsics {
   /**
    * Compare two arguments for ordering.
    *
-   * <p>Generic types are compared using {@link Comparable#compareTo(Object)}.
-   * Throws a {@link ClassCastException} if the provided arguments do not implement
-   * {@link Comparable}.
+   * <p>Generic types are compared using {@link Comparable#compareTo(Object)}. Throws a {@link
+   * ClassCastException} if the provided arguments do not implement {@link Comparable}.
    *
-   * <p>Primitive types are compared using the corresponding Class {@code compare} method:
-   * {@link Integer#compare(int, int)}, {@link Float#compare(float, float)}, etc.
+   * <p>Primitive types are compared using the corresponding Class {@code compare} method: {@link
+   * Integer#compare(int, int)}, {@link Float#compare(float, float)}, etc.
    */
   @SuppressWarnings("unchecked")
   public static <T> int compare(T e1, T e2) {
