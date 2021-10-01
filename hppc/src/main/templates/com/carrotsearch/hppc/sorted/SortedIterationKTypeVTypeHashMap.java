@@ -1,0 +1,497 @@
+/*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
+package com.carrotsearch.hppc.sorted;
+
+import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.comparators.*;
+import com.carrotsearch.hppc.cursors.*;
+import com.carrotsearch.hppc.predicates.*;
+import com.carrotsearch.hppc.procedures.*;
+import com.carrotsearch.hppc.sorting.IndirectSort;
+
+/*! #if ($TemplateOptions.KTypeGeneric) !*/
+import java.util.Comparator;
+/*! #end !*/
+import java.util.Iterator;
+import java.util.function.IntBinaryOperator;
+
+/*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
+/*! ${TemplateOptions.generatedAnnotation} !*/
+public class SortedIterationKTypeVTypeHashMap<KType, VType>
+  implements KTypeVTypeMap<KType, VType>
+{
+  public final KTypeVTypeHashMap<KType, VType> delegate;
+  public final int[] iterationOrder;
+
+  public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate) {
+    this.delegate = delegate;
+    this.iterationOrder = sortIterationOrder(createIterationOrder());
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate,
+                                          Comparator<KType> comparator) {
+    this.delegate = delegate;
+    int[] iterationOrder = createIterationOrder();
+    this.iterationOrder = sortIterationOrder(iterationOrder, comparator);
+  }
+  /*! #end !*/
+
+  public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate,
+                                          KTypeVTypeComparator<KType, VType> comparator) {
+    this.delegate = delegate;
+    int[] iterationOrder = createIterationOrder();
+    this.iterationOrder = sortIterationOrder(iterationOrder, comparator);
+  }
+
+  private int[] createIterationOrder() {
+    final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
+    int length = delegate.size() - (delegate.hasEmptyKey ? 1 : 0);
+    int[] iterationOrder = new int[length];
+    for (int keyIndex = 0, entry = 0; entry < length; keyIndex++) {
+      if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[keyIndex]))) {
+        iterationOrder[entry++] = keyIndex;
+      }
+    }
+    return iterationOrder;
+  }
+
+  protected int[] sortIterationOrder(int[] iterationOrder) {
+    return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
+      final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
+      @Override
+      public int applyAsInt(int a, int b) {
+        return Intrinsics.<KType> compare(keys[a], keys[b]);
+      }
+    });
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/
+  protected int[] sortIterationOrder(int[] iterationOrder, Comparator<KType> comparator) {
+    return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
+      final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
+      @Override
+      public int applyAsInt(int a, int b) {
+        return comparator.compare(keys[a], keys[b]);
+      }
+    });
+  }
+  /*! #end !*/
+
+  protected int[] sortIterationOrder(int[] iterationOrder, KTypeVTypeComparator<KType, VType> comparator) {
+    return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
+      final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
+      final VType[] values = Intrinsics.<VType[]> cast(delegate.values);
+      @Override
+      public int applyAsInt(int a, int b) {
+        return comparator.compare(keys[a], values[a], keys[b], values[b]);
+      }
+    });
+  }
+
+  @Override
+  public Iterator<KTypeVTypeCursor<KType, VType>> iterator() {
+    assert checkUnmodified();
+    return new EntryIterator();
+  }
+
+  @Override
+  public boolean containsKey(KType key) {
+    return delegate.containsKey(key);
+  }
+
+  @Override
+  public int size() {
+    assert checkUnmodified();
+    return delegate.size();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return delegate.isEmpty();
+  }
+
+  @Override
+  public int removeAll(KTypeContainer<? super KType> container) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public int removeAll(KTypePredicate<? super KType> predicate) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(T procedure) {
+    assert checkUnmodified();
+    final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
+    final VType[] values = Intrinsics.<VType[]> cast(delegate.values);
+    final int[] iterationOrder = this.iterationOrder;
+
+    if (delegate.hasEmptyKey) {
+      procedure.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[delegate.mask + 1]));
+    }
+
+    for (int i = 0, size = size(); i < size; i++) {
+      int slot = iterationOrder[i];
+      procedure.apply(keys[slot], values[slot]);
+    }
+
+    return procedure;
+  }
+
+  @Override
+  public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(T predicate) {
+    assert checkUnmodified();
+    final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
+    final VType[] values = Intrinsics.<VType[]> cast(delegate.values);
+    final int[] iterationOrder = this.iterationOrder;
+
+    if (delegate.hasEmptyKey) {
+      if (!predicate.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[delegate.mask + 1]))) {
+        return predicate;
+      }
+    }
+
+    for (int i = 0, size = size(); i < size; i++) {
+      int slot = iterationOrder[i];
+      if (!predicate.apply(keys[slot], values[slot])) {
+        break;
+      }
+    }
+
+    return predicate;
+  }
+
+  @Override
+  public KTypeCollection<KType> keys() {
+    assert checkUnmodified();
+    return new KeysContainer();
+  }
+
+  @Override
+  public KTypeContainer<VType> values() {
+    assert checkUnmodified();
+    return new ValuesContainer();
+  }
+
+  @Override
+  public VType get(KType key) {
+    return delegate.get(key);
+  }
+
+  @Override
+  public VType getOrDefault(KType key, VType defaultValue) {
+    return delegate.getOrDefault(key, defaultValue);
+  }
+
+  @Override
+  public VType put(KType key, VType value) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public int putAll(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public int putAll(Iterable<? extends KTypeVTypeCursor<? extends KType, ? extends VType>> iterable) {
+    throw readOnlyException();
+  }
+
+  /*! #if ($TemplateOptions.VTypePrimitive) !*/
+  @Override
+  public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
+    throw readOnlyException();
+  }
+  /*! #end !*/
+
+  /*! #if ($TemplateOptions.VTypePrimitive) !*/
+  @Override
+  public VType addTo(KType key, VType additionValue) {
+    throw readOnlyException();
+  }
+  /*! #end !*/
+
+  @Override
+  public VType remove(KType key) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public int indexOf(KType key) {
+    return delegate.indexOf(key);
+  }
+
+  @Override
+  public boolean indexExists(int index) {
+    return delegate.indexExists(index);
+  }
+
+  @Override
+  public VType indexGet(int index) {
+    return delegate.indexGet(index);
+  }
+
+  @Override
+  public VType indexReplace(int index, VType newValue) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public void indexInsert(int index, KType key, VType value) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public VType indexRemove(int index) {
+    throw readOnlyException();
+  }
+
+  @Override
+  public void clear() {
+    throw readOnlyException();
+  }
+
+  @Override
+  public void release() {
+    throw readOnlyException();
+  }
+
+  @Override
+  public String visualizeKeyDistribution(int characters) {
+    return delegate.visualizeKeyDistribution(characters);
+  }
+
+  private static RuntimeException readOnlyException() {
+    throw new UnsupportedOperationException("Read-only view cannot be modified");
+  }
+
+  private boolean checkUnmodified() {
+    // Cheap size comparison.
+    // We could also check the hashcode, but this is heavy for a frequent check.
+    assert delegate.size() == iterationOrder.length + (delegate.hasEmptyKey ? 1 : 0) : "The delegate map changed; this is not supported by this read-only view";
+    return true;
+  }
+
+  /**
+   * An iterator implementation for {@link #iterator}.
+   */
+  private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
+    private final KTypeVTypeCursor<KType, VType> cursor = new KTypeVTypeCursor<KType, VType>();
+    private int index = delegate.hasEmptyKey ? -1 : 0;
+
+    @Override
+    protected KTypeVTypeCursor<KType, VType> fetch() {
+      final KTypeVTypeHashMap<KType, VType> delegate = SortedIterationKTypeVTypeHashMap.this.delegate;
+      final int[] iterationOrder = SortedIterationKTypeVTypeHashMap.this.iterationOrder;
+
+      if (index == -1) {
+        cursor.index = delegate.mask + 1;
+        cursor.key = Intrinsics.<KType> empty();
+        cursor.value = Intrinsics.<VType> cast(delegate.values[cursor.index]);
+        index++;
+        return cursor;
+      }
+
+      if (index < iterationOrder.length) {
+        int slot = iterationOrder[index++];
+        cursor.index = slot;
+        cursor.key = Intrinsics.<KType> cast(delegate.keys[slot]);
+        cursor.value = Intrinsics.<VType> cast(delegate.values[slot]);
+        return cursor;
+      }
+
+      return done();
+    }
+  }
+
+  /**
+   * A view of the keys in sorted order.
+   */
+  private final class KeysContainer extends AbstractKTypeCollection<KType>
+    implements KTypeLookupContainer<KType> {
+    private final SortedIterationKTypeVTypeHashMap<KType, VType> owner = SortedIterationKTypeVTypeHashMap.this;
+
+    @Override
+    public boolean contains(KType e) {
+      return owner.containsKey(e);
+    }
+
+    @Override
+    public <T extends KTypeProcedure<? super KType>> T forEach(final T procedure) {
+      owner.forEach((KTypeVTypeProcedure<KType, VType>) (k, v) -> procedure.apply(k));
+      return procedure;
+    }
+
+    @Override
+    public <T extends KTypePredicate<? super KType>> T forEach(final T predicate) {
+      owner.forEach((KTypeVTypePredicate<KType, VType>) (key, value) -> predicate.apply(key));
+      return predicate;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return owner.isEmpty();
+    }
+
+    @Override
+    public Iterator<KTypeCursor<KType>> iterator() {
+      return new KeysIterator();
+    }
+
+    @Override
+    public int size() {
+      return owner.size();
+    }
+
+    @Override
+    public void clear() {
+      throw readOnlyException();
+    }
+
+    @Override
+    public void release() {
+      throw readOnlyException();
+    }
+
+    @Override
+    public int removeAll(KTypePredicate<? super KType> predicate) {
+      throw readOnlyException();
+    }
+
+    @Override
+    public int removeAll(final KType e) {
+      throw readOnlyException();
+    }
+  }
+
+  /**
+   * A sorted iterator over the set of assigned keys.
+   */
+  private final class KeysIterator extends AbstractIterator<KTypeCursor<KType>> {
+    private final KTypeCursor<KType> cursor = new KTypeCursor<KType>();
+    private int index = delegate.hasEmptyKey ? -1 : 0;
+
+    @Override
+    protected KTypeCursor<KType> fetch() {
+      final KTypeVTypeHashMap<KType, VType> delegate = SortedIterationKTypeVTypeHashMap.this.delegate;
+      final int[] iterationOrder = SortedIterationKTypeVTypeHashMap.this.iterationOrder;
+
+      if (index == -1) {
+        cursor.index = delegate.mask + 1;
+        cursor.value = Intrinsics.<KType> empty();
+        index++;
+        return cursor;
+      }
+
+      if (index < iterationOrder.length) {
+        int slot = iterationOrder[index++];
+        cursor.index = slot;
+        cursor.value = Intrinsics.<KType> cast(delegate.keys[slot]);
+        return cursor;
+      }
+
+      return done();
+    }
+  }
+
+  /**
+   * A view of the values in sorted order.
+   */
+  private final class ValuesContainer extends AbstractKTypeCollection<VType> {
+    private final SortedIterationKTypeVTypeHashMap<KType, VType> owner = SortedIterationKTypeVTypeHashMap.this;
+
+    @Override
+    public int size() {
+      return owner.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return owner.isEmpty();
+    }
+
+    @Override
+    public boolean contains(VType value) {
+      for (KTypeVTypeCursor<KType, VType> c : owner) {
+        if (Intrinsics.<VType> equals(value, c.value)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public <T extends KTypeProcedure<? super VType>> T forEach(T procedure) {
+      owner.forEach((KTypeVTypeProcedure<KType, VType>) (k, v) -> procedure.apply(v));
+      return procedure;
+    }
+
+    @Override
+    public <T extends KTypePredicate<? super VType>> T forEach(T predicate) {
+      owner.forEach((KTypeVTypePredicate<KType, VType>) (k, v) -> predicate.apply(v));
+      return predicate;
+    }
+
+    @Override
+    public Iterator<KTypeCursor<VType>> iterator() {
+      return new ValuesIterator();
+    }
+
+    @Override
+    public int removeAll(final VType e) {
+      throw readOnlyException();
+    }
+
+    @Override
+    public int removeAll(final KTypePredicate<? super VType> predicate) {
+      throw readOnlyException();
+    }
+
+    @Override
+    public void clear() {
+      throw readOnlyException();
+    }
+
+    @Override
+    public void release() {
+      throw readOnlyException();
+    }
+  }
+
+  /**
+   * A sorted iterator over the set of assigned values.
+   */
+  private final class ValuesIterator extends AbstractIterator<KTypeCursor<VType>> {
+    private final KTypeCursor<VType> cursor = new KTypeCursor<VType>();
+    private int index = delegate.hasEmptyKey ? -1 : 0;
+
+    @Override
+    protected KTypeCursor<VType> fetch() {
+      final KTypeVTypeHashMap<KType, VType> delegate = SortedIterationKTypeVTypeHashMap.this.delegate;
+      final int[] iterationOrder = SortedIterationKTypeVTypeHashMap.this.iterationOrder;
+
+      if (index == -1) {
+        cursor.index = delegate.mask + 1;
+        cursor.value = Intrinsics.<VType> cast(delegate.values[cursor.index]);
+        index++;
+        return cursor;
+      }
+
+      if (index < iterationOrder.length) {
+        int slot = iterationOrder[index++];
+        cursor.index = slot;
+        cursor.value = Intrinsics.<VType> cast(delegate.values[slot]);
+        return cursor;
+      }
+
+      return done();
+    }
+  }
+}

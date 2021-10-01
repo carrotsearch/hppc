@@ -104,6 +104,24 @@ public final class Intrinsics {
   }
 
   /**
+   * Compare two arguments for ordering.
+   *
+   * <p>Generic types are compared using {@link Comparable#compareTo(Object)}.
+   * Throws a {@link ClassCastException} if the provided arguments do not implement
+   * {@link Comparable}.
+   *
+   * <p>Primitive types are compared using the corresponding Class {@code compare} method:
+   * {@link Integer#compare(int, int)}, {@link Float#compare(float, float)}, etc.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> int compare(T e1, T e2) {
+    if (e1.getClass() != e2.getClass()) {
+      throw new RuntimeException("Arguments of different classes: " + e1 + " " + e2);
+    }
+    return ((Comparable<T>) e1).compareTo(e2);
+  }
+
+  /**
    * An intrinsic that is replaced with plain addition of arguments for primitive template types.
    * Invalid for non-number generic types.
    */

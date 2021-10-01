@@ -12,7 +12,7 @@ import com.carrotsearch.hppc.predicates.KTypePredicate;
 @SuppressWarnings("unchecked")
 /*! #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/
-abstract class AbstractKTypeCollection<KType> 
+public abstract class AbstractKTypeCollection<KType>
   implements /*! #if ($templateonly) !*/ Intrinsics.EqualityFunction, /*! #end !*/
              KTypeCollection<KType>
 {

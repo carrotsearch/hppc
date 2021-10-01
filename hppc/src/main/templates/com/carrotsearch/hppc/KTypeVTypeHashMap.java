@@ -48,32 +48,32 @@ public class KTypeVTypeHashMap<KType, VType>
    * 
    * @see #size()
    */
-  protected int assigned;
+  public int assigned;
 
   /**
    * Mask for slot scans in {@link #keys}.
    */
-  protected int mask;
+  public int mask;
 
   /**
    * Expand (rehash) {@link #keys} when {@link #assigned} hits this value. 
    */
-  protected int resizeAt;
+  public int resizeAt;
 
   /**
    * Special treatment for the "empty slot" key marker.
    */
-  protected boolean hasEmptyKey;
+  public boolean hasEmptyKey;
   
   /**
    * The load factor for {@link #keys}.
    */
-  protected double loadFactor;
+  public double loadFactor;
 
   /**
    * Seed used to ensure the hash iteration order is different from an iteration to another.
    */
-  protected int iterationSeed;
+  public int iterationSeed;
 
   /**
    * New instance with sane defaults.

@@ -14,7 +14,7 @@ import com.carrotsearch.hppc.generator.Type;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-public class Equals extends AbstractIntrinsicMethod {
+public class Compare extends AbstractIntrinsicMethod {
   @Override
   public void invoke(
       Matcher m,
@@ -23,10 +23,10 @@ public class Equals extends AbstractIntrinsicMethod {
       String genericCast,
       ArrayList<String> arguments) {
 
-    if (arguments.size() != 2 && arguments.size() != 3) {
+    if (arguments.size() != 2) {
       throw new RuntimeException(
           format(
-              "Expected exactly 2 or 3 arguments but was %d: %s(%s)",
+              "Expected exactly 2 arguments but was %d: %s(%s)",
               arguments.size(), m.group(), arguments));
     }
 
@@ -36,24 +36,28 @@ public class Equals extends AbstractIntrinsicMethod {
     Type type = inferTemplateType(m, templateOptions, genericCast);
     switch (type) {
       case GENERIC:
-        String comparer = arguments.isEmpty() ? "java.util.Objects" : arguments.get(0);
-        sb.append(format("%s.equals(%s, %s)", comparer, v1, v2));
+        sb.append(format("((Comparable<%s>) %s).compareTo(%s)", genericCast, v1, v2));
         break;
-
       case FLOAT:
-        sb.append(format("(Float.floatToIntBits(%s) == Float.floatToIntBits(%s))", v1, v2));
+        sb.append(format("Float.compare(%s, %s)", v1, v2));
         break;
-
       case DOUBLE:
-        sb.append(format("(Double.doubleToLongBits(%s) == Double.doubleToLongBits(%s))", v1, v2));
+        sb.append(format("Double.compare(%s, %s)", v1, v2));
         break;
-
       case BYTE:
+        sb.append(format("Byte.compare(%s, %s)", v1, v2));
+        break;
       case SHORT:
+        sb.append(format("Short.compare(%s, %s)", v1, v2));
+        break;
       case CHAR:
+        sb.append(format("Character.compare(%s, %s)", v1, v2));
+        break;
       case INT:
+        sb.append(format("Integer.compare(%s, %s)", v1, v2));
+        break;
       case LONG:
-        sb.append(format("((%s) == (%s))", v1, v2));
+        sb.append(format("Long.compare(%s, %s)", v1, v2));
         break;
 
       default:

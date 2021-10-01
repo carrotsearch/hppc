@@ -38,14 +38,21 @@ public final class IndirectSort {
    */
   public static int[] mergesort(int start, int length, IntBinaryOperator comparator) {
     final int[] src = createOrderArray(start, length);
+    return mergesort(src, comparator);
+  }
 
-    if (length > 1) {
-      final int[] dst = (int[]) src.clone();
-      topDownMergeSort(src, dst, 0, length, comparator);
-      return dst;
+  /**
+   * Returns a sorted copy of the order array provided, using the given <code>comparator</code>.
+   *
+   * <p>This routine uses merge sort. It is guaranteed to be stable.
+   */
+  public static int[] mergesort(int[] orderArray, IntBinaryOperator comparator) {
+    if (orderArray.length <= 1) {
+      return orderArray;
     }
-
-    return src;
+    final int[] dst = orderArray.clone();
+    topDownMergeSort(orderArray, dst, 0, orderArray.length, comparator);
+    return dst;
   }
 
   /**

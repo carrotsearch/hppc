@@ -18,14 +18,8 @@ import static org.junit.Assert.*;
  * Tests for {@link KTypeVTypeWormMap}.
  */
 /* ! ${TemplateOptions.generatedAnnotation} ! */
-public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType>
+public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
 {
-    protected VType value0 = vcast(0);
-    protected VType value1 = vcast(1);
-    protected VType value2 = vcast(2);
-    protected VType value3 = vcast(3);
-    protected VType value4 = vcast(4);
-
     /**
      * Per-test fresh initialized instance.
      */
@@ -61,31 +55,6 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
             }
             assertEquals(occupied, map.size());
         }
-    }
-
-    /**
-     * Convert to target type from an integer used to test stuff. 
-     */
-    protected VType vcast(int value)
-    {
-        /*! #if ($TemplateOptions.VTypePrimitive)
-            return (VType) value;
-            #else !*/ 
-            @SuppressWarnings("unchecked")        
-            VType v = (VType)(Object) value;
-            return v;
-        /*! #end !*/
-    }
-
-    /**
-     * Create a new array of a given type and copy the arguments to this array.
-     */
-    /* #if ($TemplateOptions.VTypeGeneric) */
-    @SafeVarargs
-    /* #end */
-    protected final VType [] newvArray(VType... elements)
-    {
-        return elements;
     }
 
     private void assertSameMap(
@@ -133,12 +102,8 @@ public class KTypeVTypeWormMapTest<KType, VType> extends AbstractKTypeTest<KType
 
       Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value1);
       Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value2);
-      try {
-        map.indexGet(map.indexOf(key2));
-        fail();
-      } catch (AssertionError e) {
-        // Expected.
-      }
+      Assertions.assertThatExceptionOfType(AssertionError.class)
+        .isThrownBy(() -> map.indexGet(map.indexOf(key2)));
 
       Assertions.assertThat(map.indexReplace(map.indexOf(keyE), value3)).isEqualTo(value1);
       Assertions.assertThat(map.indexReplace(map.indexOf(key1), value4)).isEqualTo(value2);
