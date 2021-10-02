@@ -60,12 +60,12 @@ public class KTypeVTypeWormMap<KType, VType>
   /**
    * Map size (number of entries).
    */
-  public int size;
+  protected int size;
 
   /**
    * Seed used to ensure the hash iteration order is different from an iteration to another.
    */
-  public int iterationSeed;
+  protected int iterationSeed;
 
   /**
    * New instance with sane defaults.
