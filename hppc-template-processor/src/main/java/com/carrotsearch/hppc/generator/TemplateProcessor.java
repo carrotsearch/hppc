@@ -17,7 +17,6 @@ import com.carrotsearch.console.launcher.Launcher;
 import com.carrotsearch.console.launcher.Loggers;
 import com.carrotsearch.hppc.generator.intrinsics.Add;
 import com.carrotsearch.hppc.generator.intrinsics.Cast;
-import com.carrotsearch.hppc.generator.intrinsics.Compare;
 import com.carrotsearch.hppc.generator.intrinsics.Empty;
 import com.carrotsearch.hppc.generator.intrinsics.Equals;
 import com.carrotsearch.hppc.generator.intrinsics.IsEmpty;
@@ -59,7 +58,6 @@ public class TemplateProcessor extends Command<ExitCode> {
     intrinsics.put("cast", new Cast());
     intrinsics.put("add", new Add());
     intrinsics.put("equals", new Equals());
-    intrinsics.put("compare", new Compare());
   }
 
   @Parameter(names = {"--incremental"})

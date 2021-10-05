@@ -33,25 +33,14 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
 
   /**
    * Creates a read-only view with sorted iteration order on the given delegate map.
-   * The ordering is in natural order of the keys.
-   */
-  public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate) {
-    this.delegate = delegate;
-    this.iterationOrder = sortIterationOrder(createIterationOrder());
-  }
-
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/
-  /**
-   * Creates a read-only view with sorted iteration order on the given delegate map.
    * The ordering is based on the provided comparator on the keys.
    */
   public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate,
-                                          Comparator<KType> comparator) {
+      /*! #if ($TemplateOptions.KTypeGeneric) !*/ Comparator<KType> /*! #else KTypeComparator<KType> #end !*/ comparator
+  ) {
     this.delegate = delegate;
-    int[] iterationOrder = createIterationOrder();
-    this.iterationOrder = sortIterationOrder(iterationOrder, comparator);
+    this.iterationOrder = sortIterationOrder(createIterationOrder(), comparator);
   }
-  /*! #end !*/
 
   /**
    * Creates a read-only view with sorted iteration order on the given delegate map.
@@ -60,8 +49,7 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
   public SortedIterationKTypeVTypeHashMap(KTypeVTypeHashMap<KType, VType> delegate,
                                           KTypeVTypeComparator<KType, VType> comparator) {
     this.delegate = delegate;
-    int[] iterationOrder = createIterationOrder();
-    this.iterationOrder = sortIterationOrder(iterationOrder, comparator);
+    this.iterationOrder = sortIterationOrder(createIterationOrder(), comparator);
   }
 
   private int[] createIterationOrder() {
@@ -77,32 +65,16 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
   }
 
   /**
-   * Sort the iteration order array based on the natural ordering of the keys.
-   */
-  protected int[] sortIterationOrder(int[] iterationOrder) {
-    return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
-      final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
-      @Override
-      public int applyAsInt(int a, int b) {
-        return Intrinsics.<KType> compare(keys[a], keys[b]);
-      }
-    });
-  }
-
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/
-  /**
    * Sort the iteration order array based on the provided comparator on the keys.
    */
-  protected int[] sortIterationOrder(int[] iterationOrder, Comparator<KType> comparator) {
-    return IndirectSort.mergesort(iterationOrder, new IntBinaryOperator() {
-      final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
-      @Override
-      public int applyAsInt(int a, int b) {
-        return comparator.compare(keys[a], keys[b]);
-      }
+  protected int[] sortIterationOrder(int[] iterationOrder,
+      /*! #if ($TemplateOptions.KTypeGeneric) !*/ Comparator<KType> /*! #else KTypeComparator<KType> #end !*/ comparator
+  ) {
+    return IndirectSort.mergesort(iterationOrder, (a, b) -> {
+      KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
+      return comparator.compare(keys[a], keys[b]);
     });
   }
-  /*! #end !*/
 
   /**
    * Sort the iteration order array based on the provided comparator on keys and values.
