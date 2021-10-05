@@ -39,6 +39,13 @@ public class TestSignatureProcessor {
   }
 
   @Test
+  public void testClassWithKTypeComparable() throws IOException {
+    SignatureProcessor sp = new SignatureProcessor("public class KTypeFoo<KType extends Comparable<? extends KType>> {}");
+    check(Type.GENERIC, sp, "public class ObjectFoo<KType extends Comparable<? extends KType>> {}");
+    check(Type.INT, sp, "public class IntFoo {}");
+  }
+
+  @Test
   public void testClassKV() throws IOException {
     SignatureProcessor sp = new SignatureProcessor("public class KTypeVTypeClass<KType, VType> {}");
     check(Type.INT, Type.LONG, sp, "public class IntLongClass {}");

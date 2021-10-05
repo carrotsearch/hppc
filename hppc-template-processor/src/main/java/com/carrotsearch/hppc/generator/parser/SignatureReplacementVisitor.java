@@ -86,9 +86,9 @@ class SignatureReplacementVisitor extends JavaParserBaseVisitor<List<Replacement
     String symbol = c.IDENTIFIER().getText();
     switch (symbol) {
       case "KType":
-        return new TypeBound(templateOptions.getKType(), c.getText());
+        return new TypeBound(templateOptions.getKType(), getSourceText(c));
       case "VType":
-        return new TypeBound(templateOptions.getVType(), c.getText());
+        return new TypeBound(templateOptions.getVType(), getSourceText(c));
       default:
         return new TypeBound(null, c.getText());
     }
