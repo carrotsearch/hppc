@@ -45,7 +45,7 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
   @Test
   public void testGetContains() {
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
-        new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getNaturalComparator());
+        new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(false));
     assertThat(view.get(key3)).isEqualTo(value3);
     assertThat(view.get(keyE)).isEqualTo(hasEmptyKey ? value0 : Intrinsics.<VType>empty());
     assertThat(view.get(key5)).isEqualTo(Intrinsics.<VType>empty());
@@ -60,7 +60,7 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
   @Test
   public void testReadOnly() {
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
-        new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getNaturalComparator());
+        new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(false));
     assertUnsupported(() -> view.put(key1, value2));
     assertUnsupported(
         () -> view.putAll((KTypeVTypeAssociativeContainer<? extends KType, ? extends VType>) null));
@@ -82,53 +82,47 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
 
   @Test
   public void testIterator() {
+    boolean reversedOrder = randomBoolean();
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
-        new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getNaturalComparator());
+        new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(reversedOrder));
     Iterator<KTypeVTypeCursor<KType, VType>> iterator = view.iterator();
     for (int i = 0; i < sortedKeys.length; i++) {
+      int index = reversedOrder ? sortedKeys.length - 1 - i : i;
       assertThat(iterator.hasNext()).isTrue();
       KTypeVTypeCursor<KType, VType> cursor = iterator.next();
-      assertThat(cursor.key).isEqualTo(sortedKeys[i]);
-      assertThat(cursor.value).isEqualTo(sortedValues[i]);
-      assertThat(view.indexGet(cursor.index)).isEqualTo(sortedValues[i]);
+      assertThat(cursor.key).isEqualTo(sortedKeys[index]);
+      assertThat(cursor.value).isEqualTo(sortedValues[index]);
+      assertThat(view.indexGet(cursor.index)).isEqualTo(sortedValues[index]);
     }
     assertThat(iterator.hasNext()).isFalse();
   }
 
   /*! #if ($TemplateOptions.KTypeGeneric) !*/
   @SuppressWarnings("unchecked")
-  private Comparator<KType> getNaturalComparator() {
-    return (a, b) -> ((Comparable<KType>) a).compareTo(b);
+  private Comparator<KType> getComparator(boolean reversedOrder) {
+    int order = reversedOrder ? -1 : 1;
+    return (a, b) -> {
+      int comp;
+      if (a == null) {
+        comp = b == null ? 0 : -1;
+      } else {
+        comp = b == null ? 1 : ((Comparable<KType>) a).compareTo(b);
+      }
+      return comp * order;
+    };
   }
   /*! #end !*/
 
-  /*! #if ($TemplateOptions.isKTypeAnyOf("BYTE"))
-  private KTypeComparator<KType> getNaturalComparator() {
-    return Byte::compare;
-  }
-  #end !*/
-
-  /*! #if ($TemplateOptions.isKTypeAnyOf("CHAR"))
-  private KTypeComparator<KType> getNaturalComparator() {
-    return Character::compare;
-  }
-  #end !*/
-
-  /*! #if ($TemplateOptions.isKTypeAnyOf("INT"))
-  private KTypeComparator<KType> getNaturalComparator() {
-    return Integer::compare;
-  }
-  #end !*/
-
-  /*! #if ($TemplateOptions.isKTypeAnyOf("LONG"))
-  private KTypeComparator<KType> getNaturalComparator() {
-    return Long::compare;
-  }
-  #end !*/
-
-  /*! #if ($TemplateOptions.isKTypeAnyOf("SHORT"))
-  private KTypeComparator<KType> getNaturalComparator() {
-    return Short::compare;
+  /*! #if ($TemplateOptions.KTypePrimitive)
+  private KTypeComparator<KType> getComparator(boolean reversedOrder) {
+    return reversedOrder ?
+      new KTypeComparator<KType>() {
+        @Override
+        public int compare(KType a, KType b) {
+          return KTypeComparator.naturalOrder().compare(b, a);
+        }
+      }
+      : KTypeComparator.naturalOrder();
   }
   #end !*/
 
