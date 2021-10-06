@@ -24,7 +24,9 @@ import java.util.function.IntBinaryOperator;
  * the view is used, otherwise the iteration is undefined.
  *
  * <p>Since this view provides a fixed iteration order, it must not be used to add entries
- * to another {@link KTypeVTypeHashMap}, otherwise the operation may hang.
+ * to another {@link KTypeVTypeHashMap} as this may result in a runtime deadlock. See
+ * <a href="https://issues.carrot2.org/browse/HPPC-103">HPPC-103</a> and
+ * <a href="https://issues.carrot2.org/browse/HPPC-186">HPPC-186</a> for more information.
  */
 /*! #if ($TemplateOptions.anyGeneric) @SuppressWarnings("unchecked") #end !*/
 /*! ${TemplateOptions.generatedAnnotation} !*/

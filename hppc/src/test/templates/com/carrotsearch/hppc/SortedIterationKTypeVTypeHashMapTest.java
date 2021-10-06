@@ -4,6 +4,7 @@ package com.carrotsearch.hppc;
 import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.predicates.KTypeVTypePredicate;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,6 +82,7 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
   }
 
   @Test
+  @Repeat(iterations = 10)
   public void testIterator() {
     boolean reversedOrder = randomBoolean();
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
@@ -100,29 +102,15 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
   /*! #if ($TemplateOptions.KTypeGeneric) !*/
   @SuppressWarnings("unchecked")
   private Comparator<KType> getComparator(boolean reversedOrder) {
-    int order = reversedOrder ? -1 : 1;
-    return (a, b) -> {
-      int comp;
-      if (a == null) {
-        comp = b == null ? 0 : -1;
-      } else {
-        comp = b == null ? 1 : ((Comparable<KType>) a).compareTo(b);
-      }
-      return comp * order;
-    };
+    Comparator<KType> c = Comparator.nullsFirst((a, b) -> ((Comparable<KType>) a).compareTo(b));
+    return reversedOrder ? c.reversed() : c;
   }
   /*! #end !*/
 
   /*! #if ($TemplateOptions.KTypePrimitive)
   private KTypeComparator<KType> getComparator(boolean reversedOrder) {
-    return reversedOrder ?
-      new KTypeComparator<KType>() {
-        @Override
-        public int compare(KType a, KType b) {
-          return KTypeComparator.naturalOrder().compare(b, a);
-        }
-      }
-      : KTypeComparator.naturalOrder();
+    KTypeComparator c = KTypeComparator.naturalOrder();
+    return reversedOrder ? (a, b) -> c.compare(b, a) : c;
   }
   #end !*/
 
