@@ -24,9 +24,9 @@ public abstract class TestUtils {
    * Reverse the order of elements in an array. Returns the <code>array</code> argument for easier
    * chaining.
    */
-  public static Object[] reverse(Object[] array) {
+  public static <T> T[] reverse(T[] array) {
     for (int i = 0, mid = array.length / 2, j = array.length - 1; i < mid; i++, j--) {
-      Object t = array[i];
+      T t = array[i];
       array[i] = array[j];
       array[j] = t;
     }

@@ -1,22 +1,28 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
+import com.carrotsearch.hppc.comparators.KTypeVTypeComparator;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.predicates.KTypeVTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeVTypeProcedure;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static com.carrotsearch.hppc.TestUtils.*;
 
-/*! #if ($TemplateOptions.KTypePrimitive)
+/*! #if ($TemplateOptions.AnyPrimitive)
 import com.carrotsearch.hppc.comparators.*;
+import com.carrotsearch.hppc.cursors.*;
 #end !*/
 
 /** Tests for {@link SortedIterationKTypeVTypeHashMap}. */
@@ -64,7 +70,7 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
         new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(false));
     assertUnsupported(() -> view.put(key1, value2));
     assertUnsupported(
-        () -> view.putAll((KTypeVTypeAssociativeContainer<? extends KType, ? extends VType>) null));
+        () -> view.putAll(null));
     assertUnsupported(
         () ->
             view.putAll(
@@ -99,6 +105,84 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
     assertThat(iterator.hasNext()).isFalse();
   }
 
+  @Test
+  @Repeat(iterations = 10)
+  public void testForEachProcedure() {
+    boolean reversedOrder = randomBoolean();
+    SortedIterationKTypeVTypeHashMap<KType, VType> view =
+      new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getValuesComparator(reversedOrder));
+    KTypeArrayList<KType> iteratedKeys = new KTypeArrayList<KType>();
+    KTypeArrayList<VType> iteratedValues = new KTypeArrayList<VType>();
+    KTypeVTypeProcedure<KType, VType> procedure = (k, v) -> {
+      iteratedKeys.add(k);
+      iteratedValues.add(v);
+    };
+    view.forEach(procedure);
+    assertThat(iteratedKeys.toArray()).isEqualTo(copyKeys(sortedKeys, reversedOrder));
+    assertThat(iteratedValues.toArray()).isEqualTo(copyValues(sortedValues, reversedOrder));
+  }
+
+  @Test
+  @Repeat(iterations = 10)
+  public void testForEachPredicate() {
+    boolean reversedOrder = randomBoolean();
+    SortedIterationKTypeVTypeHashMap<KType, VType> view =
+      new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getValuesComparator(reversedOrder));
+    KTypeArrayList<KType> iteratedKeys = new KTypeArrayList<KType>();
+    KTypeArrayList<VType> iteratedValues = new KTypeArrayList<VType>();
+    int iterationStop = randomIntBetween(1, sortedKeys.length + 1);
+    KTypeVTypePredicate<KType, VType> predicate = (k, v) -> {
+      iteratedKeys.add(k);
+      iteratedValues.add(v);
+      return iteratedKeys.size() != iterationStop;
+    };
+    view.forEach(predicate);
+    KType[] expectedKeys = copyKeys(sortedKeys, reversedOrder);
+    expectedKeys = Arrays.copyOfRange(expectedKeys, 0, Math.min(iterationStop, expectedKeys.length));
+    assertThat(iteratedKeys.toArray()).isEqualTo(expectedKeys);
+    VType[] expectedValues = copyValues(sortedValues, reversedOrder);
+    expectedValues = Arrays.copyOfRange(expectedValues, 0, Math.min(iterationStop, expectedValues.length));
+    assertThat(iteratedValues.toArray()).isEqualTo(expectedValues);
+  }
+
+  @Test
+  @Repeat(iterations = 10)
+  public void testKeyIterator() {
+    boolean reversedOrder = randomBoolean();
+    SortedIterationKTypeVTypeHashMap<KType, VType> view =
+      new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(reversedOrder));
+    Iterator<KTypeCursor<KType>> iterator = view.keys().iterator();
+    for (int i = 0; i < sortedKeys.length; i++) {
+      int index = reversedOrder ? sortedKeys.length - 1 - i : i;
+      assertThat(iterator.hasNext()).isTrue();
+      KTypeCursor<KType> cursor = iterator.next();
+      assertThat(cursor.value).isEqualTo(sortedKeys[index]);
+      assertThat(view.indexGet(cursor.index)).isEqualTo(sortedValues[index]);
+    }
+    assertThat(iterator.hasNext()).isFalse();
+  }
+
+  @Test
+  @Repeat(iterations = 10)
+  public void testValueIterator() {
+    boolean reversedOrder = randomBoolean();
+    SortedIterationKTypeVTypeHashMap<KType, VType> view =
+      new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(reversedOrder));
+    Iterator<KTypeCursor<VType>> iterator = view.values().iterator();
+    for (int i = 0; i < sortedValues.length; i++) {
+      int index = reversedOrder ? sortedValues.length - 1 - i : i;
+      assertThat(iterator.hasNext()).isTrue();
+      KTypeCursor<VType> cursor = iterator.next();
+      assertThat(cursor.value).isEqualTo(sortedValues[index]);
+      assertThat(view.indexGet(cursor.index)).isEqualTo(sortedValues[index]);
+    }
+    assertThat(iterator.hasNext()).isFalse();
+  }
+
+  private static void assertUnsupported(ThrowableAssert.ThrowingCallable callable) {
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(callable);
+  }
+
   /*! #if ($TemplateOptions.KTypeGeneric) !*/
   @SuppressWarnings("unchecked")
   private Comparator<KType> getComparator(boolean reversedOrder) {
@@ -114,7 +198,29 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
   }
   #end !*/
 
-  private static void assertUnsupported(ThrowableAssert.ThrowingCallable callable) {
-    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(callable);
+  /*! #if ($TemplateOptions.VTypeGeneric) !*/
+  @SuppressWarnings("unchecked")
+  private KTypeVTypeComparator<KType, VType> getValuesComparator(boolean reversedOrder) {
+    Comparator<VType> c = Comparator.nullsFirst((a, b) -> ((Comparable<VType>) a).compareTo(b));
+    Comparator<VType> finalComp = reversedOrder ? c.reversed() : c;
+    return (k1, v1, k2, v2) -> finalComp.compare(v1, v2);
+  }
+  /*! #end !*/
+
+  /*! #if ($TemplateOptions.VTypePrimitive)
+  private KTypeVTypeComparator<KType, VType> getValuesComparator(boolean reversedOrder) {
+    int less = reversedOrder ? 1 : -1;
+    return (k1, v1, k2, v2) -> v1 == v2 ? 0 : v1 < v2 ? less : -less;
+  }
+  #end !*/
+
+  private KType[] copyKeys(KType[] keys, boolean reversed) {
+    KType[] copy = Arrays.copyOf(keys, keys.length);
+    return reversed ? reverse(copy) : copy;
+  }
+
+  private VType[] copyValues(VType[] values, boolean reversed) {
+    VType[] copy = Arrays.copyOf(values, values.length);
+    return reversed ? reverse(copy) : copy;
   }
 }
