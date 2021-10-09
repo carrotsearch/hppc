@@ -30,8 +30,8 @@ public class Equals extends AbstractIntrinsicMethod {
               arguments.size(), m.group(), arguments));
     }
 
-    String v1 = arguments.remove(arguments.size() - 1);
     String v2 = arguments.remove(arguments.size() - 1);
+    String v1 = arguments.remove(arguments.size() - 1);
 
     Type type = inferTemplateType(m, templateOptions, genericCast);
     switch (type) {

@@ -19,14 +19,8 @@ import com.carrotsearch.hppc.procedures.*;
  * Tests for {@link KTypeVTypeHashMap}.
  */
 /*! ${TemplateOptions.generatedAnnotation} !*/
-public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType>
+public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<KType, VType>
 {
-    protected VType value0 = vcast(0);
-    protected VType value1 = vcast(1);
-    protected VType value2 = vcast(2);
-    protected VType value3 = vcast(3);
-    protected VType value4 = vcast(4);
-
     /**
      * Per-test fresh initialized instance.
      */
@@ -67,31 +61,6 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeTest<KType
               /*! #end !*/
             }
         }
-    }
-
-    /**
-     * Convert to target type from an integer used to test stuff. 
-     */
-    protected VType vcast(int value)
-    {
-        /*! #if ($TemplateOptions.VTypePrimitive)
-            return (VType) value;
-            #else !*/ 
-            @SuppressWarnings("unchecked")        
-            VType v = (VType)(Object) value;
-            return v;
-        /*! #end !*/
-    }
-
-    /**
-     * Create a new array of a given type and copy the arguments to this array.
-     */
-    /* #if ($TemplateOptions.VTypeGeneric) */
-    @SafeVarargs
-    /* #end */
-    protected final VType [] newvArray(VType... elements)
-    {
-        return elements;
     }
 
     private void assertSameMap(

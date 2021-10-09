@@ -28,6 +28,7 @@ import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.carrotsearch.hppc.ObjectLookupContainer;
 import com.carrotsearch.hppc.ObjectObjectHashMap;
 import com.carrotsearch.hppc.ObjectStack;
+import com.carrotsearch.hppc.SortedIterationIntObjectHashMap;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
 import org.assertj.core.api.Assertions;
@@ -36,6 +37,22 @@ import org.junit.Test;
 /** Various API expectations from generated classes. */
 public class APIExpectationsTest extends RandomizedTest {
   public volatile int[] t1;
+
+  @Test
+  public void testSortedIterationOrderReversedPrimitiveComparator() {
+    IntObjectHashMap<String> map = new IntObjectHashMap<>();
+    map.put(3, "3");
+    map.put(2, "2");
+    map.put(1, "1");
+
+    SortedIterationIntObjectHashMap<String> sorted =
+        new SortedIterationIntObjectHashMap<>(map, Integer::compare);
+    Assertions.assertThat(sorted.keys().toArray()).containsExactly(1, 2, 3);
+
+    SortedIterationIntObjectHashMap<String> reversed =
+        new SortedIterationIntObjectHashMap<>(map, (a, b) -> -Integer.compare(a, b));
+    Assertions.assertThat(reversed.keys().toArray()).containsExactly(3, 2, 1);
+  }
 
   @Test
   public void testRemoveAllFromMap() {

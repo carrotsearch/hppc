@@ -2,6 +2,10 @@
 [0.9.1-SNAPSHOT]
 
 ** New features and API changes
+
+   GH-28: Added SortedIterationKTypeVTypeHashMap: a sorted-iteration order view over
+   another key-value map. (Bruno Roustant)
+
 ** Improvements
 
    GH-25: Added addAll(KTypeContainer) on KTypeSet. (Erich Schubert, Dawid Weiss).
