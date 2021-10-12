@@ -74,13 +74,13 @@ public final class QuickSort {
   private static void sortInner(
       final int start, final int end, IntBinaryOperator c, IntBinaryOperator s) {
     final int size = end - start + 1;
-    final int middle = start + size >> 1;
 
     if (size <= INSERTION_SORT_THRESHOLD) {
       insertionSort(start, end, c, s);
       return;
     }
 
+    int middle = start + size >> 1;
     int median;
     if (size <= SINGLE_MEDIAN_THRESHOLD) {
       // Select the partition with a single median.
