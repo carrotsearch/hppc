@@ -5,7 +5,7 @@ import com.carrotsearch.hppc.comparators.*;
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
-import com.carrotsearch.hppc.sorting.IndirectSort;
+import com.carrotsearch.hppc.sorting.QuickSort;
 
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
 import java.util.Comparator;
@@ -79,24 +79,28 @@ public class SortedIterationKTypeVTypeHashMap<KType, VType>
   protected int[] sortIterationOrder(int[] entryIndexes,
       /*! #if ($TemplateOptions.KTypeGeneric) !*/ Comparator<KType> /*! #else KTypeComparator<KType> #end !*/ comparator
   ) {
-    return IndirectSort.mergesort(entryIndexes, (a, b) -> {
+    QuickSort.sort(entryIndexes, (i, j) -> {
       KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
-      return comparator.compare(keys[a], keys[b]);
+      return comparator.compare(keys[entryIndexes[i]], keys[entryIndexes[j]]);
     });
+    return entryIndexes;
   }
 
   /**
    * Sort the iteration order array based on the provided comparator on keys and values.
    */
   protected int[] sortIterationOrder(int[] entryIndexes, KTypeVTypeComparator<KType, VType> comparator) {
-    return IndirectSort.mergesort(entryIndexes, new IntBinaryOperator() {
+    QuickSort.sort(entryIndexes, new IntBinaryOperator() {
       final KType[] keys = Intrinsics.<KType[]> cast(delegate.keys);
       final VType[] values = Intrinsics.<VType[]> cast(delegate.values);
       @Override
-      public int applyAsInt(int a, int b) {
-        return comparator.compare(keys[a], values[a], keys[b], values[b]);
+      public int applyAsInt(int i, int j) {
+        int index1 = entryIndexes[i];
+        int index2 = entryIndexes[j];
+        return comparator.compare(keys[index1], values[index1], keys[index2], values[index2]);
       }
     });
+    return entryIndexes;
   }
 
   @Override

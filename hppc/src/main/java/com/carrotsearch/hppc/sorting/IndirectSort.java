@@ -34,7 +34,8 @@ public final class IndirectSort {
    * Returns the order of elements between indices <code>start</code> and <code>length</code>, as
    * indicated by the given <code>comparator</code>.
    *
-   * <p>This routine uses merge sort. It is guaranteed to be stable.
+   * <p>This routine uses merge sort. It is guaranteed to be stable. It creates a new indices array,
+   * and clones it while sorting.
    */
   public static int[] mergesort(int start, int length, IntBinaryOperator comparator) {
     final int[] src = createOrderArray(start, length);
@@ -44,7 +45,8 @@ public final class IndirectSort {
   /**
    * Returns a sorted copy of the order array provided, using the given <code>comparator</code>.
    *
-   * <p>This routine uses merge sort. It is guaranteed to be stable.
+   * <p>This routine uses merge sort. It is guaranteed to be stable. The provided {@code
+   * indicesArray} is cloned while sorting and the clone is returned.
    */
   public static int[] mergesort(int[] orderArray, IntBinaryOperator comparator) {
     if (orderArray.length <= 1) {
@@ -59,7 +61,8 @@ public final class IndirectSort {
    * Returns the order of elements between indices <code>start</code> and <code>length</code>, as
    * indicated by the given <code>comparator</code>.
    *
-   * <p>This routine uses merge sort. It is guaranteed to be stable.
+   * <p>This routine uses merge sort. It is guaranteed to be stable. It creates a new indices array,
+   * and clones it while sorting.
    */
   public static <T> int[] mergesort(
       T[] input, int start, int length, Comparator<? super T> comparator) {
