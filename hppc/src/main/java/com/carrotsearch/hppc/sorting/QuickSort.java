@@ -72,62 +72,69 @@ public final class QuickSort {
    * @param s Swaps the elements in the array at the given indices.
    */
   private static void sortInner(
-      final int start, final int end, IntBinaryOperator c, IntBinaryOperator s) {
-    final int size = end - start + 1;
+      int start, int end, IntBinaryOperator c, IntBinaryOperator s) {
+    int size;
+    while ((size = end - start + 1) > INSERTION_SORT_THRESHOLD) {
 
-    if (size <= INSERTION_SORT_THRESHOLD) {
-      insertionSort(start, end, c, s);
-      return;
-    }
+      // Pivot selection.
+      int middle = start + size >> 1;
+      int median;
+      if (size <= SINGLE_MEDIAN_THRESHOLD) {
+        // Select the pivot with a single median.
+        median = median(start, middle, end, c);
+      } else {
+        // Select the pivot with the median of medians.
+        int range = size >> 3;
+        int doubleRange = range << 1;
+        int medianStart = median(start, start + range, start + doubleRange, c);
+        int medianMiddle = median(middle - range, middle, middle + range, c);
+        int medianEnd = median(end - doubleRange, end - range, end, c);
+        median = median(medianStart, medianMiddle, medianEnd, c);
+      }
 
-    int middle = start + size >> 1;
-    int median;
-    if (size <= SINGLE_MEDIAN_THRESHOLD) {
-      // Select the partition with a single median.
-      median = median(start, middle, end, c);
-    } else {
-      // Select the partition with the median of medians.
-      int range = size >> 3;
-      int doubleRange = range << 1;
-      int medianStart = median(start, start + range, start + doubleRange, c);
-      int medianMiddle = median(middle - range, middle, middle + range, c);
-      int medianEnd = median(end - doubleRange, end - range, end, c);
-      median = median(medianStart, medianMiddle, medianEnd, c);
-    }
-    swap(start, median, s);
-
-    // 3-way partitioning.
-    int i = start;
-    int j = end + 1;
-    int p = start + 1;
-    int q = end;
-    while (true) {
-      while (++i < end && comp(i, start, c) < 0) ;
-      while (--j > start && comp(j, start, c) > 0) ;
-      if (i >= j) {
-        if (i == j && comp(i, start, c) == 0) {
-          swap(i, p, s);
+      // 3-way partitioning.
+      swap(start, median, s);
+      int i = start;
+      int j = end + 1;
+      int p = start + 1;
+      int q = end;
+      while (true) {
+        while (++i < end && comp(i, start, c) < 0) ;
+        while (--j > start && comp(j, start, c) > 0) ;
+        if (i >= j) {
+          if (i == j && comp(i, start, c) == 0) {
+            swap(i, p, s);
+          }
+          break;
         }
-        break;
+        swap(i, j, s);
+        if (comp(i, start, c) == 0) {
+          swap(i, p++, s);
+        }
+        if (comp(j, start, c) == 0) {
+          swap(j, q--, s);
+        }
       }
-      swap(i, j, s);
-      if (comp(i, start, c) == 0) {
-        swap(i, p++, s);
+      i = j + 1;
+      for (int k = start; k < p; k++) {
+        swap(k, j--, s);
       }
-      if (comp(j, start, c) == 0) {
-        swap(j, q--, s);
+      for (int k = end; k > q; k--) {
+        swap(k, i++, s);
       }
-    }
-    i = j + 1;
-    for (int k = start; k < p; k++) {
-      swap(k, j--, s);
-    }
-    for (int k = end; k > q; k--) {
-      swap(k, i++, s);
+
+      // Recursion on the smallest partition.
+      // Replace the tail recursion by a loop.
+      if (j - start < end - i) {
+        sortInner(start, j, c, s);
+        start = i;
+      } else {
+        sortInner(i, end, c, s);
+        end = j;
+      }
     }
 
-    sortInner(start, j, c, s);
-    sortInner(i, end, c, s);
+    insertionSort(start, end, c, s);
   }
 
   /** Sorts from start to end indices inclusive with insertion sort. */
