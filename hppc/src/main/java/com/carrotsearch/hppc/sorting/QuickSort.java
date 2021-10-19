@@ -22,7 +22,10 @@ public final class QuickSort {
   /** Below this size threshold, the sub-range is sorted using Insertion sort. */
   static final int INSERTION_SORT_THRESHOLD = 16;
 
-  /** Below this size threshold, the partition selection is simplified to taking the middle as the pivot. */
+  /**
+   * Below this size threshold, the partition selection is simplified to taking the middle as the
+   * pivot.
+   */
   static final int MIDDLE_PIVOT_THRESHOLD = 40;
 
   /** No instantiation. */
@@ -71,8 +74,7 @@ public final class QuickSort {
    * @param c Compares elements based on their indices.
    * @param s Swaps the elements in the array at the given indices.
    */
-  private static void sortInner(
-      int start, int end, IntBinaryOperator c, IntBinaryOperator s) {
+  private static void sortInner(int start, int end, IntBinaryOperator c, IntBinaryOperator s) {
     int size;
     while ((size = end - start + 1) > INSERTION_SORT_THRESHOLD) {
 
