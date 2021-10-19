@@ -3,6 +3,9 @@
 
 ** New features and API changes
 
+   GH-31: Added QuickSort and used it in SortedIterationKTypeVTypeHashMap. (Bruno Roustant)
+          QuickSort can be used with custom element comparator and swapper.
+
    GH-28: Added SortedIterationKTypeVTypeHashMap: a sorted-iteration order view over
    another key-value map. (Bruno Roustant)
 
