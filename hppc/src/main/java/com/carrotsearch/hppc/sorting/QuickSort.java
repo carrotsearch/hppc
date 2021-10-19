@@ -20,10 +20,10 @@ import java.util.function.IntBinaryOperator;
 public final class QuickSort {
 
   /** Below this size threshold, the sub-range is sorted using Insertion sort. */
-  static final int INSERTION_SORT_THRESHOLD = 10;
+  static final int INSERTION_SORT_THRESHOLD = 16;
 
-  /** Below this size threshold, the partition selection is simplified to a single median. */
-  static final int SINGLE_MEDIAN_THRESHOLD = 50;
+  /** Below this size threshold, the partition selection is simplified to taking the middle as the pivot. */
+  static final int MIDDLE_PIVOT_THRESHOLD = 40;
 
   /** No instantiation. */
   private QuickSort() {
@@ -77,11 +77,13 @@ public final class QuickSort {
     while ((size = end - start + 1) > INSERTION_SORT_THRESHOLD) {
 
       // Pivot selection.
-      int middle = start + size >> 1;
-      int median;
-      if (size <= SINGLE_MEDIAN_THRESHOLD) {
-        // Select the pivot with a single median.
-        median = median(start, middle, end, c);
+      int middle = (start + end) >>> 1;
+      int pivot;
+      if (size <= MIDDLE_PIVOT_THRESHOLD) {
+        // Select the middle as the pivot.
+        // If we select the median of [start, middle, end] as the pivot there is a performance
+        // degradation if the array is in descending order.
+        pivot = middle;
       } else {
         // Select the pivot with the median of medians.
         int range = size >> 3;
@@ -89,11 +91,11 @@ public final class QuickSort {
         int medianStart = median(start, start + range, start + doubleRange, c);
         int medianMiddle = median(middle - range, middle, middle + range, c);
         int medianEnd = median(end - doubleRange, end - range, end, c);
-        median = median(medianStart, medianMiddle, medianEnd, c);
+        pivot = median(medianStart, medianMiddle, medianEnd, c);
       }
 
       // 3-way partitioning.
-      swap(start, median, s);
+      swap(start, pivot, s);
       int i = start;
       int j = end + 1;
       int p = start + 1;
