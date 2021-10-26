@@ -1,14 +1,21 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
-import java.util.*;
+import com.carrotsearch.hppc.cursors.KTypeCursor;
+import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
+import com.carrotsearch.hppc.predicates.KTypePredicate;
+import com.carrotsearch.hppc.predicates.KTypeVTypePredicate;
+import com.carrotsearch.hppc.procedures.KTypeProcedure;
+import com.carrotsearch.hppc.procedures.KTypeVTypeProcedure;
 
-import com.carrotsearch.hppc.cursors.*;
-import com.carrotsearch.hppc.predicates.*;
-import com.carrotsearch.hppc.procedures.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static com.carrotsearch.hppc.Containers.DEFAULT_EXPECTED_ELEMENTS;
 import static com.carrotsearch.hppc.HashContainers.*;
-import static com.carrotsearch.hppc.Containers.*;
 
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
@@ -30,22 +37,33 @@ public class KTypeVTypeHashMap<KType, VType>
    * The array holding keys.
    */
   public /*! #if ($TemplateOptions.KTypeGeneric) !*/ 
-         Object [] 
-         /*! #else KType [] #end !*/ 
+         Object []
+         /*! #else KType [] #end !*/
          keys;
 
   /**
-   * The array holding values. 
+   * The array holding values.
    */
-  public /*! #if ($TemplateOptions.VTypeGeneric) !*/ 
-         Object [] 
-         /*! #else VType [] #end !*/ 
+  public /*! #if ($TemplateOptions.VTypeGeneric) !*/
+         Object []
+         /*! #else VType [] #end !*/
          values;
 
   /**
-   * The number of stored keys (assigned key slots), excluding the special 
+   * This lock is used to make operations on the map thread safe,
+   * when {@link #concurrent} is true.
+   */
+  protected final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+  /**
+   * Whether to make map operations thread safe or not.
+   */
+  protected boolean concurrent;
+
+  /**
+   * The number of stored keys (assigned key slots), excluding the special
    * "empty" key, if any (use {@link #size()} instead).
-   * 
+   *
    * @see #size()
    */
   protected int assigned;
@@ -95,7 +113,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
   /**
    * New instance with the provided defaults.
-   * 
+   *
    * @param expectedElements
    *          The expected number of elements guaranteed not to cause a rehash (inclusive).
    * @param loadFactor
@@ -103,7 +121,23 @@ public class KTypeVTypeHashMap<KType, VType>
    *          are rejected by {@link #verifyLoadFactor(double)}.
    */
   public KTypeVTypeHashMap(int expectedElements, double loadFactor) {
+    this(expectedElements, loadFactor, false);
+  }
+
+  /**
+   * New instance with the provided defaults.
+   *
+   * @param expectedElements
+   *          The expected number of elements guaranteed not to cause a rehash (inclusive).
+   * @param loadFactor
+   *          The load factor for internal buffers. Insane load factors (zero, full capacity)
+   *          are rejected by {@link #verifyLoadFactor(double)}.
+   * @param concurrent
+   *          Whether to make map operations thread safe or not. Also see {@link #lock}.
+   */
+  public KTypeVTypeHashMap(int expectedElements, double loadFactor, boolean concurrent) {
     this.loadFactor = verifyLoadFactor(loadFactor);
+    this.concurrent = concurrent;
     iterationSeed = HashContainers.nextIterationSeed();
     ensureCapacity(expectedElements);
   }
@@ -121,37 +155,47 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public VType put(KType key, VType value) {
-    assert assigned < mask + 1;
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
 
-    final int mask = this.mask;
-    if (Intrinsics.<KType> isEmpty(key)) {
-      hasEmptyKey = true;
-      VType previousValue = Intrinsics.<VType> cast(values[mask + 1]);
-      values[mask + 1] = value;
-      return previousValue;
-    } else {
-      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      int slot = hashKey(key) & mask;
+    try {
+      assert assigned < mask + 1;
 
-      KType existing;
-      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
-        if (Intrinsics.<KType> equals(this, key, existing)) {
-          final VType previousValue = Intrinsics.<VType> cast(values[slot]);
-          values[slot] = value;
-          return previousValue;
-        }
-        slot = (slot + 1) & mask;
-      }
-
-      if (assigned == resizeAt) {
-        allocateThenInsertThenRehash(slot, key, value);
+      final int mask = this.mask;
+      if (Intrinsics.<KType>isEmpty(key)) {
+        hasEmptyKey = true;
+        VType previousValue = Intrinsics.<VType>cast(values[mask + 1]);
+        values[mask + 1] = value;
+        return previousValue;
       } else {
-        keys[slot] = key;
-        values[slot] = value;
-      }
+        final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+        int slot = hashKey(key) & mask;
 
-      assigned++;
-      return Intrinsics.<VType> empty();
+        KType existing;
+        while (!Intrinsics.<KType>isEmpty(existing = keys[slot])) {
+          if (Intrinsics.<KType>equals(this, key, existing)) {
+            final VType previousValue = Intrinsics.<VType>cast(values[slot]);
+            values[slot] = value;
+            return previousValue;
+          }
+          slot = (slot + 1) & mask;
+        }
+
+        if (assigned == resizeAt) {
+          allocateThenInsertThenRehash(slot, key, value);
+        } else {
+          keys[slot] = key;
+          values[slot] = value;
+        }
+
+        assigned++;
+        return Intrinsics.<VType>empty();
+      }
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
+      }
     }
   }
 
@@ -160,11 +204,21 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public int putAll(KTypeVTypeAssociativeContainer<? extends KType, ? extends VType> container) {
-    final int count = size();
-    for (KTypeVTypeCursor<? extends KType, ? extends VType> c : container) {
-      put(c.key, c.value);
+    if (concurrent) {
+      lock.writeLock().lock();
     }
-    return size() - count;
+
+    try {
+      final int count = size();
+      for (KTypeVTypeCursor<? extends KType, ? extends VType> c : container) {
+        put(c.key, c.value);
+      }
+      return size() - count;
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
+      }
+    }
   }
 
   /**
@@ -217,16 +271,25 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public VType putOrAdd(KType key, VType putValue, VType incrementValue) {
-    assert assigned < mask + 1;
-
-    int keyIndex = indexOf(key);
-    if (indexExists(keyIndex)) {
-      putValue = Intrinsics.<VType> add(Intrinsics.<VType> cast(values[keyIndex]), incrementValue);
-      indexReplace(keyIndex, putValue);
-    } else {
-      indexInsert(keyIndex, key, putValue);
+    if (concurrent) {
+      lock.writeLock().lock();
     }
-    return putValue;
+    try {
+      assert assigned < mask + 1;
+
+      int keyIndex = indexOf(key);
+      if (indexExists(keyIndex)) {
+        putValue = Intrinsics.<VType>add(Intrinsics.<VType>cast(values[keyIndex]), incrementValue);
+        indexReplace(keyIndex, putValue);
+      } else {
+        indexInsert(keyIndex, key, putValue);
+      }
+      return putValue;
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
+      }
+    }
   }
   /*! #end !*/
 
@@ -251,27 +314,36 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public VType remove(KType key) {
-    final int mask = this.mask;
-    if (Intrinsics.<KType> isEmpty(key)) {
-      hasEmptyKey = false;
-      VType previousValue = Intrinsics.<VType> cast(values[mask + 1]);
-      values[mask + 1] = Intrinsics.<VType> empty();
-      return previousValue;
-    } else {
-      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      int slot = hashKey(key) & mask;
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
+    try {
+      final int mask = this.mask;
+      if (Intrinsics.<KType>isEmpty(key)) {
+        hasEmptyKey = false;
+        VType previousValue = Intrinsics.<VType>cast(values[mask + 1]);
+        values[mask + 1] = Intrinsics.<VType>empty();
+        return previousValue;
+      } else {
+        final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+        int slot = hashKey(key) & mask;
 
-      KType existing;
-      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
-        if (Intrinsics.<KType> equals(this, key, existing)) {
-          final VType previousValue = Intrinsics.<VType> cast(values[slot]);
-          shiftConflictingKeys(slot);
-          return previousValue;
+        KType existing;
+        while (!Intrinsics.<KType>isEmpty(existing = keys[slot])) {
+          if (Intrinsics.<KType>equals(this, key, existing)) {
+            final VType previousValue = Intrinsics.<VType>cast(values[slot]);
+            shiftConflictingKeys(slot);
+            return previousValue;
+          }
+          slot = (slot + 1) & mask;
         }
-        slot = (slot + 1) & mask;
-      }
 
-      return Intrinsics.<VType> empty();
+        return Intrinsics.<VType>empty();
+      }
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
+      }
     }
   }
 
@@ -280,36 +352,45 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public int removeAll(KTypeContainer<? super KType> other) {
-    final int before = size();
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
+    try {
+      final int before = size();
 
-    // Try to iterate over the smaller set of values or
-    // over the container that isn't implementing 
-    // efficient contains() lookup.
+      // Try to iterate over the smaller set of values or
+      // over the container that isn't implementing
+      // efficient contains() lookup.
 
-    if (other.size() >= size() &&
-        other instanceof KTypeLookupContainer<?>) {
-      if (hasEmptyKey && other.contains(Intrinsics.<KType> empty())) {
-        hasEmptyKey = false;
-        values[mask + 1] = Intrinsics.<VType> empty();
-      }
+      if (other.size() >= size() &&
+          other instanceof KTypeLookupContainer<?>) {
+        if (hasEmptyKey && other.contains(Intrinsics.<KType>empty())) {
+          hasEmptyKey = false;
+          values[mask + 1] = Intrinsics.<VType>empty();
+        }
 
-      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      for (int slot = 0, max = this.mask; slot <= max;) {
-        KType existing;
-        if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && other.contains(existing)) {
-          // Shift, do not increment slot.
-          shiftConflictingKeys(slot);
-        } else {
-          slot++;
+        final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+        for (int slot = 0, max = this.mask; slot <= max; ) {
+          KType existing;
+          if (!Intrinsics.<KType>isEmpty(existing = keys[slot]) && other.contains(existing)) {
+            // Shift, do not increment slot.
+            shiftConflictingKeys(slot);
+          } else {
+            slot++;
+          }
+        }
+      } else {
+        for (KTypeCursor<?> c : other) {
+          remove(Intrinsics.<KType>cast(c.value));
         }
       }
-    } else {
-      for (KTypeCursor<?> c : other) {
-        remove(Intrinsics.<KType> cast(c.value));
+
+      return before - size();
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
       }
     }
-
-    return before - size();
   }
 
   /**
@@ -317,31 +398,40 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public int removeAll(KTypeVTypePredicate<? super KType, ? super VType> predicate) {
-    final int before = size();
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
+    try {
+      final int before = size();
 
-    final int mask = this.mask;
+      final int mask = this.mask;
 
-    if (hasEmptyKey) {
-      if (predicate.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]))) {
-        hasEmptyKey = false;
-        values[mask + 1] = Intrinsics.<VType> empty();
+      if (hasEmptyKey) {
+        if (predicate.apply(Intrinsics.<KType>empty(), Intrinsics.<VType>cast(values[mask + 1]))) {
+          hasEmptyKey = false;
+          values[mask + 1] = Intrinsics.<VType>empty();
+        }
+      }
+
+      final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+      final VType[] values = Intrinsics.<VType[]>cast(this.values);
+      for (int slot = 0; slot <= mask; ) {
+        KType existing;
+        if (!Intrinsics.<KType>isEmpty(existing = keys[slot]) &&
+            predicate.apply(existing, values[slot])) {
+          // Shift, do not increment slot.
+          shiftConflictingKeys(slot);
+        } else {
+          slot++;
+        }
+      }
+
+      return before - size();
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
       }
     }
-
-    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    final VType[] values = Intrinsics.<VType[]> cast(this.values);
-    for (int slot = 0; slot <= mask;) {
-      KType existing;
-      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && 
-          predicate.apply(existing, values[slot])) {
-        // Shift, do not increment slot.
-        shiftConflictingKeys(slot);
-      } else {
-        slot++;
-      }
-    }
-
-    return before - size();    
   }
 
   /**
@@ -349,28 +439,37 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public int removeAll(KTypePredicate<? super KType> predicate) {
-    final int before = size();
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
+    try {
+      final int before = size();
 
-    if (hasEmptyKey) {
-      if (predicate.apply(Intrinsics.<KType> empty())) {
-        hasEmptyKey = false;
-        values[mask + 1] = Intrinsics.<VType> empty();
+      if (hasEmptyKey) {
+        if (predicate.apply(Intrinsics.<KType>empty())) {
+          hasEmptyKey = false;
+          values[mask + 1] = Intrinsics.<VType>empty();
+        }
+      }
+
+      final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+      for (int slot = 0, max = this.mask; slot <= max; ) {
+        KType existing;
+        if (!Intrinsics.<KType>isEmpty(existing = keys[slot]) &&
+            predicate.apply(existing)) {
+          // Shift, do not increment slot.
+          shiftConflictingKeys(slot);
+        } else {
+          slot++;
+        }
+      }
+
+      return before - size();
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
       }
     }
-
-    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max;) {
-      KType existing;
-      if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) &&
-          predicate.apply(existing)) {
-        // Shift, do not increment slot.
-        shiftConflictingKeys(slot);
-      } else {
-        slot++;
-      }
-    }
-
-    return before - size();
   }
 
   /**
@@ -378,22 +477,31 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public VType get(KType key) {
-    if (Intrinsics.<KType> isEmpty(key)) {
-      return hasEmptyKey ? Intrinsics.<VType> cast(values[mask + 1]) : Intrinsics.<VType> empty();
-    } else {
-      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      final int mask = this.mask;
-      int slot = hashKey(key) & mask;
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+    try {
+      if (Intrinsics.<KType>isEmpty(key)) {
+        return hasEmptyKey ? Intrinsics.<VType>cast(values[mask + 1]) : Intrinsics.<VType>empty();
+      } else {
+        final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+        final int mask = this.mask;
+        int slot = hashKey(key) & mask;
 
-      KType existing;
-      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
-        if (Intrinsics.<KType> equals(this, key, existing)) {
-          return Intrinsics.<VType> cast(values[slot]);
+        KType existing;
+        while (!Intrinsics.<KType>isEmpty(existing = keys[slot])) {
+          if (Intrinsics.<KType>equals(this, key, existing)) {
+            return Intrinsics.<VType>cast(values[slot]);
+          }
+          slot = (slot + 1) & mask;
         }
-        slot = (slot + 1) & mask;
-      }
 
-      return Intrinsics.<VType> empty();
+        return Intrinsics.<VType>empty();
+      }
+    } finally {
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
     }
   }
 
@@ -402,22 +510,31 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public VType getOrDefault(KType key, VType defaultValue) {
-    if (Intrinsics.<KType> isEmpty(key)) {
-      return hasEmptyKey ? Intrinsics.<VType> cast(values[mask + 1]) : defaultValue;
-    } else {
-      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      final int mask = this.mask;
-      int slot = hashKey(key) & mask;
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+    try {
+      if (Intrinsics.<KType>isEmpty(key)) {
+        return hasEmptyKey ? Intrinsics.<VType>cast(values[mask + 1]) : defaultValue;
+      } else {
+        final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+        final int mask = this.mask;
+        int slot = hashKey(key) & mask;
 
-      KType existing;
-      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
-        if (Intrinsics.<KType> equals(this, key, existing)) {
-          return Intrinsics.<VType> cast(values[slot]);
+        KType existing;
+        while (!Intrinsics.<KType>isEmpty(existing = keys[slot])) {
+          if (Intrinsics.<KType>equals(this, key, existing)) {
+            return Intrinsics.<VType>cast(values[slot]);
+          }
+          slot = (slot + 1) & mask;
         }
-        slot = (slot + 1) & mask;
-      }
 
-      return defaultValue;
+        return defaultValue;
+      }
+    } finally {
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
     }
   }
 
@@ -450,22 +567,31 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public int indexOf(KType key) {
-    final int mask = this.mask;
-    if (Intrinsics.<KType> isEmpty(key)) {
-      return hasEmptyKey ? mask + 1 : ~(mask + 1);
-    } else {
-      final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      int slot = hashKey(key) & mask;
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+    try {
+      final int mask = this.mask;
+      if (Intrinsics.<KType>isEmpty(key)) {
+        return hasEmptyKey ? mask + 1 : ~(mask + 1);
+      } else {
+        final KType[] keys = Intrinsics.<KType[]>cast(this.keys);
+        int slot = hashKey(key) & mask;
 
-      KType existing;
-      while (!Intrinsics.<KType> isEmpty(existing = keys[slot])) {
-        if (Intrinsics.<KType> equals(this, key, existing)) {
-          return slot;
+        KType existing;
+        while (!Intrinsics.<KType>isEmpty(existing = keys[slot])) {
+          if (Intrinsics.<KType>equals(this, key, existing)) {
+            return slot;
+          }
+          slot = (slot + 1) & mask;
         }
-        slot = (slot + 1) & mask;
-      }
 
-      return ~slot;
+        return ~slot;
+      }
+    } finally {
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
     }
   }
 
@@ -474,11 +600,18 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public boolean indexExists(int index) {
-    assert index < 0 || 
-           (index >= 0 && index <= mask) ||
-           (index == mask + 1 && hasEmptyKey);
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+    try {
+      assert index < 0 ||
+          (index >= 0 && index <= mask) ||
+          (index == mask + 1 && hasEmptyKey);
 
-    return index >= 0; 
+      return index >= 0;
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   /**
@@ -487,10 +620,19 @@ public class KTypeVTypeHashMap<KType, VType>
   @Override
   public VType indexGet(int index) {
     assert index >= 0 : "The index must point at an existing key.";
-    assert index <= mask ||
-           (index == mask + 1 && hasEmptyKey);
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+    try {
+      assert index <= mask ||
+          (index == mask + 1 && hasEmptyKey);
 
-    return Intrinsics.<VType> cast(values[index]);
+      return Intrinsics.<VType>cast(values[index]);
+    } finally {
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
+    }
   }
 
   /**
@@ -499,12 +641,21 @@ public class KTypeVTypeHashMap<KType, VType>
   @Override
   public VType indexReplace(int index, VType newValue) {
     assert index >= 0 : "The index must point at an existing key.";
-    assert index <= mask ||
-           (index == mask + 1 && hasEmptyKey);
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
+    try {
+      assert index <= mask ||
+          (index == mask + 1 && hasEmptyKey);
 
-    VType previousValue = Intrinsics.<VType> cast(values[index]);
-    values[index] = newValue;
-    return previousValue;
+      VType previousValue = Intrinsics.<VType>cast(values[index]);
+      values[index] = newValue;
+      return previousValue;
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
+      }
+    }
   }
 
   /**
@@ -515,21 +666,31 @@ public class KTypeVTypeHashMap<KType, VType>
     assert index < 0 : "The index must not point at an existing key.";
 
     index = ~index;
-    if (Intrinsics.<KType> isEmpty(key)) {
-      assert index == mask + 1;
-      values[index] = value;
-      hasEmptyKey = true;
-    } else {
-      assert Intrinsics.<KType> isEmpty(keys[index]);
 
-      if (assigned == resizeAt) {
-        allocateThenInsertThenRehash(index, key, value);
-      } else {
-        keys[index] = key;
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
+    try {
+      if (Intrinsics.<KType>isEmpty(key)) {
+        assert index == mask + 1;
         values[index] = value;
-      }
+        hasEmptyKey = true;
+      } else {
+        assert Intrinsics.<KType>isEmpty(keys[index]);
 
-      assigned++;
+        if (assigned == resizeAt) {
+          allocateThenInsertThenRehash(index, key, value);
+        } else {
+          keys[index] = key;
+          values[index] = value;
+        }
+
+        assigned++;
+      }
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
+      }
     }
   }
 
@@ -539,17 +700,28 @@ public class KTypeVTypeHashMap<KType, VType>
   @Override
   public VType indexRemove(int index) {
     assert index >= 0 : "The index must point at an existing key.";
-    assert index <= mask ||
-            (index == mask + 1 && hasEmptyKey);
 
-    VType previousValue = Intrinsics.<VType> cast(values[index]);
-    if (index > mask) {
-      hasEmptyKey = false;
-      values[index] = Intrinsics.<VType> empty();
-    } else {
-      shiftConflictingKeys(index);
+    if (concurrent) {
+      lock.writeLock().lock();
     }
-    return previousValue;
+    try {
+
+      assert index <= mask ||
+          (index == mask + 1 && hasEmptyKey);
+
+      VType previousValue = Intrinsics.<VType>cast(values[index]);
+      if (index > mask) {
+        hasEmptyKey = false;
+        values[index] = Intrinsics.<VType>empty();
+      } else {
+        shiftConflictingKeys(index);
+      }
+      return previousValue;
+    } finally {
+      if (concurrent) {
+        lock.writeLock().unlock();
+      }
+    }
   }
 
   /**
@@ -557,6 +729,9 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public void clear() {
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
     assigned = 0;
     hasEmptyKey = false;
 
@@ -565,6 +740,10 @@ public class KTypeVTypeHashMap<KType, VType>
     /* #if ($TemplateOptions.VTypeGeneric) */ 
     Arrays.fill(values, Intrinsics.<VType> empty());
     /* #end */
+
+    if (concurrent) {
+      lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -575,9 +754,15 @@ public class KTypeVTypeHashMap<KType, VType>
     assigned = 0;
     hasEmptyKey = false;
 
+    if (concurrent) {
+      lock.writeLock().lock();
+    }
     keys = null;
     values = null;
     ensureCapacity(Containers.DEFAULT_EXPECTED_ELEMENTS);
+    if (concurrent) {
+      lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -585,14 +770,34 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public int size() {
-    return assigned + (hasEmptyKey ? 1 : 0);
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+
+    try {
+      return assigned + (hasEmptyKey ? 1 : 0);
+    } finally {
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   public boolean isEmpty() {
-    return size() == 0;
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+
+    try {
+      return size() == 0;
+    } finally {
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
+    }
   }
 
   /**
@@ -649,7 +854,9 @@ public class KTypeVTypeHashMap<KType, VType>
   /**
    * Ensure this container can hold at least the
    * given number of keys (entries) without resizing its buffers.
-   * 
+   * <p>
+   * If {@link #concurrent} is true, invoke this from a write locked context.
+   *
    * @param expectedElements The total number of keys, inclusive.
    */
   @Override
@@ -692,6 +899,44 @@ public class KTypeVTypeHashMap<KType, VType>
   }
 
   /**
+   * Captures a snapshot of keys, values, and mask. If {@link #concurrent} is true,
+   * then this snapshot is captured with a read lock.
+   *
+   * This provides a consistent view of the map, albeit with eventual consistency
+   * in the sense that if values are updated, or if keys are removed during an iteration,
+   * they may or may not reflect during the iteration. If the map is rehased during an iteration,
+   * the iteration will continue, but will refer to the last set of keys and values before rehashing.
+   */
+  private final class StateSnapshot {
+    private final /*! #if ($TemplateOptions.KTypeGeneric) !*/
+        Object []
+        /*! #else KType [] #end !*/
+        keys;
+
+    private final  /*! #if ($TemplateOptions.VTypeGeneric) !*/
+        Object []
+        /*! #else VType [] #end !*/
+        values;
+
+    private final int mask;
+    private final int seed;
+
+    public StateSnapshot() {
+      if (concurrent) {
+        lock.readLock().lock();
+      }
+      this.seed = nextIterationSeed();
+      this.mask = KTypeVTypeHashMap.this.mask;
+      this.keys = Intrinsics.<KType[]> cast(KTypeVTypeHashMap.this.keys);
+      this.values = Intrinsics.<VType[]> cast(KTypeVTypeHashMap.this.values);
+
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
+    }
+  }
+
+  /**
    * An iterator implementation for {@link #iterator}.
    */
   private final class EntryIterator extends AbstractIterator<KTypeVTypeCursor<KType, VType>> {
@@ -700,32 +945,38 @@ public class KTypeVTypeHashMap<KType, VType>
     private int index;
     private int slot;
 
+    private final StateSnapshot state;
+
     public EntryIterator() {
       cursor = new KTypeVTypeCursor<KType, VType>();
-      int seed = nextIterationSeed();
-      increment = iterationIncrement(seed);
-      slot = seed & mask;
+      state = new StateSnapshot();
+
+      if (concurrent) {
+        lock.readLock().unlock();
+      }
+
+      increment = iterationIncrement(state.seed);
+      slot = state.seed & state.mask;
     }
 
     @Override
     protected KTypeVTypeCursor<KType, VType> fetch() {
-      final int mask = KTypeVTypeHashMap.this.mask;
-      while (index <= mask) {
+      while (index <= state.mask) {
         KType existing;
         index++;
-        slot = (slot + increment) & mask;
-        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
+        slot = (slot + increment) & state.mask;
+        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(state.keys[slot]))) {
           cursor.index = slot;
           cursor.key = existing;
-          cursor.value = Intrinsics.<VType>cast(values[slot]);
+          cursor.value = Intrinsics.<VType>cast(state.values[slot]);
           return cursor;
         }
       }
 
-      if (index == mask + 1 && hasEmptyKey) {
+      if (index == state.mask + 1 && hasEmptyKey) {
         cursor.index = index;
         cursor.key = Intrinsics.<KType> empty();
-        cursor.value = Intrinsics.<VType> cast(values[index++]);
+        cursor.value = Intrinsics.<VType> cast(state.values[index++]);
         return cursor;
       }
 
@@ -746,16 +997,26 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(T procedure) {
+    if (concurrent) {
+      lock.readLock().lock();
+    }
+
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
+
+    final int seed = nextIterationSeed();
+    final int mask = this.mask;
+
+    if (concurrent) {
+      lock.readLock().unlock();
+    }
 
     if (hasEmptyKey) {
       procedure.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]));
     }
 
-    int seed = nextIterationSeed();
     int inc = iterationIncrement(seed);
-    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
+    for (int i = 0, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         procedure.apply(keys[slot], values[slot]);
       }
@@ -769,8 +1030,17 @@ public class KTypeVTypeHashMap<KType, VType>
    */
   @Override
   public <T extends KTypeVTypePredicate<? super KType, ? super VType>> T forEach(T predicate) {
+    if (concurrent) {
+      lock.readLock().lock();
+    }
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
+    final int mask = this.mask;
+    final int seed = nextIterationSeed();
+
+    if (concurrent) {
+      lock.readLock().unlock();
+    }
 
     if (hasEmptyKey) {
       if (!predicate.apply(Intrinsics.<KType> empty(), Intrinsics.<VType> cast(values[mask + 1]))) {
@@ -778,9 +1048,8 @@ public class KTypeVTypeHashMap<KType, VType>
       }
     }
 
-    int seed = nextIterationSeed();
     int inc = iterationIncrement(seed);
-    for (int i = 0, mask = this.mask, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
+    for (int i = 0, slot = seed & mask; i <= mask; i++, slot = (slot + inc) & mask) {
       if (!Intrinsics.<KType> isEmpty(keys[slot])) {
         if (!predicate.apply(keys[slot], values[slot])) {
           break;
@@ -873,21 +1142,23 @@ public class KTypeVTypeHashMap<KType, VType>
     private int index;
     private int slot;
 
+    private final StateSnapshot state;
+
     public KeysIterator() {
       cursor = new KTypeCursor<KType>();
-      int seed = nextIterationSeed();
-      increment = iterationIncrement(seed);
-      slot = seed & mask;
+      state = new StateSnapshot();
+      increment = iterationIncrement(state.seed);
+      slot = state.seed & state.mask;
     }
 
     @Override
     protected KTypeCursor<KType> fetch() {
-      final int mask = KTypeVTypeHashMap.this.mask;
+      final int mask = state.mask;
       while (index <= mask) {
         KType existing;
         index++;
         slot = (slot + increment) & mask;
-        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(keys[slot]))) {
+        if (!Intrinsics.<KType>isEmpty(existing = Intrinsics.<KType>cast(state.keys[slot]))) {
           cursor.index = slot;
           cursor.value = existing;
           return cursor;
@@ -990,30 +1261,31 @@ public class KTypeVTypeHashMap<KType, VType>
     private final int increment;
     private int index;
     private int slot;
+    private final StateSnapshot state;
 
     public ValuesIterator() {
       cursor = new KTypeCursor<VType>();
-      int seed = nextIterationSeed();
-      increment = iterationIncrement(seed);
-      slot = seed & mask;
+      state = new StateSnapshot();
+      increment = iterationIncrement(state.seed);
+      slot = state.seed & state.mask;
     }
 
     @Override
     protected KTypeCursor<VType> fetch() {
-      final int mask = KTypeVTypeHashMap.this.mask;
+      final int mask = state.mask;
       while (index <= mask) {
         index++;
         slot = (slot + increment) & mask;
-        if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(keys[slot]))) {
+        if (!Intrinsics.<KType> isEmpty(Intrinsics.<KType> cast(state.keys[slot]))) {
           cursor.index = slot;
-          cursor.value = Intrinsics.<VType> cast(values[slot]);
+          cursor.value = Intrinsics.<VType> cast(state.values[slot]);
           return cursor;
         }
       }
 
       if (index == mask + 1 && hasEmptyKey) {
         cursor.index = index;
-        cursor.value = Intrinsics.<VType> cast(values[index++]);
+        cursor.value = Intrinsics.<VType> cast(state.values[index++]);
         return cursor;
       }
 
@@ -1107,12 +1379,14 @@ public class KTypeVTypeHashMap<KType, VType>
   }
 
   /**
-   * Rehash from old buffers to new buffers. 
+   * Rehash from old buffers to new buffers.
+   *
+   * If {@link #concurrent} is true, invoke this from a write locked context.
    */
   protected void rehash(KType[] fromKeys, VType[] fromValues) {
     assert fromKeys.length == fromValues.length &&
            HashContainers.checkPowerOfTwo(fromKeys.length - 1);
-    
+
     // Rehash all stored key/value pairs into the new buffers.
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
@@ -1170,7 +1444,9 @@ public class KTypeVTypeHashMap<KType, VType>
    * New buffers are allocated. If this succeeds, we know we can proceed
    * with rehashing so we assign the pending element to the previous buffer
    * (possibly violating the invariant of having at least one empty slot)
-   * and rehash all keys, substituting new buffers at the end.  
+   * and rehash all keys, substituting new buffers at the end.
+   *
+   * If {@link #concurrent} is set to true, invoke this from a write locked context.
    */
   protected void allocateThenInsertThenRehash(int slot, KType pendingKey, VType pendingValue) {
     assert assigned == resizeAt
@@ -1195,6 +1471,8 @@ public class KTypeVTypeHashMap<KType, VType>
   /**
    * Shift all the slot-conflicting keys and values allocated to 
    * (and including) <code>slot</code>.
+   *
+   * If {@link #concurrent} is set to true, invoke this from a write locked context.
    */
   protected void shiftConflictingKeys(int gapSlot) {
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
