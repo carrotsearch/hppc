@@ -1,15 +1,15 @@
 # Run ./gradlew --write-locks to regenerate this file
-com.carrotsearch.console:launcher:1.0.4 (1 constraints: 0705f435)
-com.carrotsearch.progresso:progresso:1.7.0 (3 constraints: e939c2b2)
-com.carrotsearch.progresso:progresso-consolewidth-unixish:1.7.0 (1 constraints: bb0e445b)
-com.carrotsearch.progresso:progresso-log4j2:1.7.0 (1 constraints: bb0e445b)
+com.carrotsearch.console:launcher:1.0.6 (1 constraints: 0905f635)
+com.carrotsearch.progresso:progresso:1.7.4 (3 constraints: f53976b5)
+com.carrotsearch.progresso:progresso-consolewidth-unixish:1.7.4 (1 constraints: bf0e485b)
+com.carrotsearch.progresso:progresso-log4j2:1.7.4 (1 constraints: bf0e485b)
 org.antlr:antlr4-runtime:4.8 (1 constraints: b0042b2c)
 org.apache.commons:commons-lang3:3.9 (1 constraints: dd10c5b0)
-org.apache.logging.log4j:log4j-api:2.12.0 (2 constraints: f11f3c82)
-org.apache.logging.log4j:log4j-core:2.12.0 (3 constraints: ca32559f)
-org.apache.logging.log4j:log4j-slf4j18-impl:2.12.0 (1 constraints: e80e256a)
+org.apache.logging.log4j:log4j-api:2.15.0 (2 constraints: f71fed82)
+org.apache.logging.log4j:log4j-core:2.15.0 (3 constraints: d3324fa1)
+org.apache.logging.log4j:log4j-slf4j18-impl:2.15.0 (1 constraints: eb0e2e6a)
 org.apache.velocity:velocity-engine-core:2.2 (1 constraints: a8041f2c)
-org.slf4j:slf4j-api:1.8.0-beta2 (4 constraints: 7c4e4784)
+org.slf4j:slf4j-api:1.8.0-beta4 (4 constraints: 144e9e32)
 
 [Test dependencies]
 com.carrotsearch.randomizedtesting:randomizedtesting-runner:2.7.8 (1 constraints: 13051236)
