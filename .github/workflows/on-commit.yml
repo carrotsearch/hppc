@@ -1,0 +1,58 @@
+name: On Commit Checks
+
+on: 
+  pull_request:
+    branches:
+      - master
+
+  push:
+    branches:
+      - master
+
+jobs:
+  tests:
+    name: gradle check (JDK ${{ matrix.java }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Check on latest ubuntu with the lowest supported JDK. Everything else
+      # is handled by subsequent nightly tests.
+      matrix:
+        os: [ ubuntu-latest ]
+        java: [ '11', '17' ]
+
+    steps:
+      - name: Correct git autocrlf
+        run: git config --global core.autocrlf false
+
+      - name: Git checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt-hotspot'
+          java-version: ${{ matrix.java }}
+          java-package: jdk
+
+      - name: Cache/Restore Gradle files
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/jdks
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('versions.lock', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-caches-
+
+      - name: Tests (./gradlew ... check)
+        run: ./gradlew --max-workers 4 check
+
+      - name: Store failed test outputs
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: failed-test-outputs
+          path: '**/OUTPUT-*.txt'

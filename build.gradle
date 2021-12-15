@@ -6,7 +6,7 @@ plugins {
 
   id "com.github.ben-manes.versions" version "0.28.0"
 
-  id 'de.thetaphi.forbiddenapis' version '3.0.1' apply false
+  id 'de.thetaphi.forbiddenapis' version '3.2' apply false
 
   id "me.champeau.gradle.jmh" version "0.5.0" apply false
 }
