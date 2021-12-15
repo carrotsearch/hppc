@@ -93,8 +93,12 @@ public final class QuickSort {
       int q = last;
       while (true) {
         int leftCmp, rightCmp;
-        while ((leftCmp = compare(++i, fromIndex, comparator)) < 0) ;
-        while ((rightCmp = compare(--j, fromIndex, comparator)) > 0) ;
+        while ((leftCmp = compare(++i, fromIndex, comparator)) < 0) {
+          // repeat
+        }
+        while ((rightCmp = compare(--j, fromIndex, comparator)) > 0) {
+          // repeat
+        }
         if (i >= j) {
           if (i == j && rightCmp == 0) {
             swap(i, p, swapper);

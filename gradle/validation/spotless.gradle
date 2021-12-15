@@ -7,14 +7,14 @@ configure(rootProject) {
 
 subprojects {
   plugins.withType(JavaPlugin) {
-    project.apply plugin: 'com.diffplug.gradle.spotless'
+    project.apply plugin: 'com.diffplug.spotless'
 
     spotless {
       java {
         licenseHeaderFile licenseHeader
         lineEndings 'UNIX'
         endWithNewline()
-        googleJavaFormat('1.7')
+        googleJavaFormat('1.13.0')
       }
     }
 
@@ -27,7 +27,7 @@ subprojects {
 }
 
 configure(project(":hppc-template-processor")) {
-  plugins.withId("com.diffplug.gradle.spotless") {
+  plugins.withId("com.diffplug.spotless") {
     spotless {
       java {
         // Exclude ANTLR-generated files.
@@ -38,7 +38,7 @@ configure(project(":hppc-template-processor")) {
 }
 
 configure(project(":hppc")) {
-  plugins.withId("com.diffplug.gradle.spotless") {
+  plugins.withId("com.diffplug.spotless") {
     spotless {
       java {
         // Exclude templates and generated files, at least for now.

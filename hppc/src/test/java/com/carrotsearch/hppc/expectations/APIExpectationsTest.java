@@ -129,7 +129,7 @@ public class APIExpectationsTest extends RandomizedTest {
       protected boolean equals(Object k1, Object k2) {
         return k1 == k2;
       }
-    };
+    }
 
     IntegerIdentityList l1 = new IntegerIdentityList();
     IntegerIdentityList l2 = new IntegerIdentityList();
@@ -154,7 +154,7 @@ public class APIExpectationsTest extends RandomizedTest {
       protected boolean equals(Object k1, Object k2) {
         return k1 == k2;
       }
-    };
+    }
 
     IntegerIdentityDeque l1 = new IntegerIdentityDeque();
     IntegerIdentityDeque l2 = new IntegerIdentityDeque();
