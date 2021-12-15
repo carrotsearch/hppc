@@ -1,4 +1,11 @@
 
+[0.10.0-SNAPSHOT]
+
+** New features and API changes
+
+** Improvements
+
+
 [0.9.1]
 https://github.com/carrotsearch/hppc/releases/tag/0.9.1
 
