@@ -1,7 +1,7 @@
 /*
  * HPPC
  *
- * Copyright (C) 2010-2020 Carrot Search s.c.
+ * Copyright (C) 2010-2022 Carrot Search s.c.
  * All rights reserved.
  *
  * Refer to the full license file "LICENSE.txt":
