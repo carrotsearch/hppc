@@ -179,28 +179,6 @@ public class KTypeVTypeHashMap<KType, VType>
     return size() - count;
   }
 
-  /**
-   * <a href="http://trove4j.sourceforge.net">Trove</a>-inspired API method. An equivalent
-   * of the following code:
-   * <pre>
-   * if (!map.containsKey(key)) map.put(value);
-   * </pre>
-   * 
-   * @param key The key of the value to check.
-   * @param value The value to put if <code>key</code> does not exist.
-   * @return <code>true</code> if <code>key</code> did not exist and <code>value</code>
-   * was placed in the map.
-   */
-  public boolean putIfAbsent(KType key, VType value) {
-    int keyIndex = indexOf(key);
-    if (!indexExists(keyIndex)) {
-      indexInsert(keyIndex, key, value);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   /*! #if ($TemplateOptions.VTypePrimitive) !*/
   /**
    * If <code>key</code> exists, <code>putValue</code> is inserted into the map,

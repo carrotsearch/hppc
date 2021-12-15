@@ -236,6 +236,7 @@ public class KTypeVTypeWormMap<KType, VType>
    * @param value The value to put if <code>key</code> does not exist.
    * @return <code>true</code> if <code>key</code> did not exist and <code>value</code> was placed in the map.
    */
+  @Override
   public boolean putIfAbsent(KType key, VType value) {
     return noValue() == put(key, value, PutPolicy.NEW_ONLY_IF_ABSENT, true);
   }

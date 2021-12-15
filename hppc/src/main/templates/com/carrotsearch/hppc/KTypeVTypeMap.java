@@ -24,16 +24,33 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
 
   /**
    * Place a given key and value in the container.
-   * 
+   *
    * @return The value previously stored under the given key in the map is
    *         returned.
    */
   public VType put(KType key, VType value);
 
   /**
+   * If the specified key is not already associated with a value, associates it with the given
+   * value.
+   *
+   * @return {@code true} if {@code key} did not exist and {@code value} was placed in
+   * the map, {@code false} otherwise.
+   */
+  public default boolean putIfAbsent(KType key, VType value) {
+    int keyIndex = indexOf(key);
+    if (indexExists(keyIndex)) {
+      return false;
+    } else {
+      indexInsert(keyIndex, key, value);
+      return true;
+    }
+  }
+
+  /**
    * Puts all keys from another container to this map, replacing the values of
    * existing keys, if such keys are present.
-   * 
+   *
    * @return Returns the number of keys added to the map as a result of this
    *         call (not previously present in the map). Values of existing keys
    *         are overwritten.
@@ -43,7 +60,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   /**
    * Puts all keys from an iterable cursor to this map, replacing the values of
    * existing keys, if such keys are present.
-   * 
+   *
    * @return Returns the number of keys added to the map as a result of this
    *         call (not previously present in the map). Values of existing keys
    *         are overwritten.
@@ -54,7 +71,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   /**
    * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
    * otherwise any existing value is incremented by <code>additionValue</code>.
-   * 
+   *
    * @param key
    *          The key of the value to adjust.
    * @param putValue
@@ -70,11 +87,11 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   /*! #if ($TemplateOptions.VTypePrimitive) !*/
   /**
    * An equivalent of calling
-   * 
+   *
    * <pre>
    * putOrAdd(key, additionValue, additionValue);
    * </pre>
-   * 
+   *
    * @param key
    *          The key of the value to adjust.
    * @param additionValue
@@ -113,18 +130,18 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * Returns a logical "index" of a given key that can be used to speed up
    * follow-up value setters or getters in certain scenarios (conditional
    * logic).
-   * 
+   *
    * The semantics of "indexes" are not strictly defined. Indexes may (and
    * typically won't be) contiguous.
-   * 
+   *
    * The index is valid only between map modifications (it will not be affected
    * by read-only operations like iteration or value retrievals).
-   * 
+   *
    * @see #indexExists
    * @see #indexGet
    * @see #indexInsert
    * @see #indexReplace
-   * 
+   *
    * @param key
    *          The key to locate in the map.
    * @return A non-negative value of the logical "index" of the key in the map
@@ -134,7 +151,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
 
   /**
    * @see #indexOf
-   * 
+   *
    * @param index
    *          The index of a given key, as returned from {@link #indexOf}.
    * @return Returns <code>true</code> if the index corresponds to an existing
@@ -146,9 +163,9 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
 
   /**
    * Returns the value associated with an existing key.
-   * 
+   *
    * @see #indexOf
-   * 
+   *
    * @param index
    *          The index of an existing key.
    * @return Returns the value currently associated with the key.
@@ -161,9 +178,9 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   /**
    * Replaces the value associated with an existing key and returns any previous
    * value stored for that key.
-   * 
+   *
    * @see #indexOf
-   * 
+   *
    * @param index
    *          The index of an existing key.
    * @return Returns the previous value associated with the key.
@@ -176,9 +193,9 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
   /**
    * Inserts a key-value pair for a key that is not present in the map. This
    * method may help in avoiding double recalculation of the key's hash.
-   * 
+   *
    * @see #indexOf
-   * 
+   *
    * @param index
    *          The index of a previously non-existing key, as returned from
    *          {@link #indexOf}.
@@ -204,7 +221,7 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
 
   /**
    * Clear all keys and values in the container.
-   * 
+   *
    * @see #release()
    */
   public void clear();
@@ -214,19 +231,19 @@ public interface KTypeVTypeMap<KType, VType> extends KTypeVTypeAssociativeContai
    * internal buffers. Typically, if the object is to be reused, a simple
    * {@link #clear()} should be a better alternative since it'll avoid
    * reallocation.
-   * 
+   *
    * @see #clear()
    */
   public void release();
-  
+
   /**
    * Visually depict the distribution of keys.
-   * 
+   *
    * @param characters
    *          The number of characters to "squeeze" the entire buffer into.
    * @return Returns a sequence of characters where '.' depicts an empty
    *         fragment of the internal buffer and 'X' depicts full or nearly full
    *         capacity within the buffer's range and anything between 1 and 9 is between.
    */
-  public String visualizeKeyDistribution(int characters);  
+  public String visualizeKeyDistribution(int characters);
 }
