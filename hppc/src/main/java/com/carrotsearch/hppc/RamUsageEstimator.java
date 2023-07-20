@@ -10,7 +10,6 @@
 package com.carrotsearch.hppc;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -59,12 +58,12 @@ public class RamUsageEstimator {
     Map<Class<?>, Integer> primitiveSizesMap = new IdentityHashMap<>();
     primitiveSizesMap.put(boolean.class, 1);
     primitiveSizesMap.put(byte.class, 1);
-    primitiveSizesMap.put(char.class, Integer.valueOf(Character.BYTES));
-    primitiveSizesMap.put(short.class, Integer.valueOf(Short.BYTES));
-    primitiveSizesMap.put(int.class, Integer.valueOf(Integer.BYTES));
-    primitiveSizesMap.put(float.class, Integer.valueOf(Float.BYTES));
-    primitiveSizesMap.put(double.class, Integer.valueOf(Double.BYTES));
-    primitiveSizesMap.put(long.class, Integer.valueOf(Long.BYTES));
+    primitiveSizesMap.put(char.class, Character.BYTES);
+    primitiveSizesMap.put(short.class, Short.BYTES);
+    primitiveSizesMap.put(int.class, Integer.BYTES);
+    primitiveSizesMap.put(float.class, Float.BYTES);
+    primitiveSizesMap.put(double.class, Double.BYTES);
+    primitiveSizesMap.put(long.class, Long.BYTES);
 
     primitiveSizes = Collections.unmodifiableMap(primitiveSizesMap);
   }
@@ -76,7 +75,7 @@ public class RamUsageEstimator {
 
   static final String OS_ARCH = System.getProperty("os.arch");
 
-  /** Initialize constants and try to collect information about the JVM internals. */
+  // Initialize constants and try to collect information about the JVM internals.
   static {
     boolean is64Bit = false;
     String datamodel = null;
@@ -88,11 +87,7 @@ public class RamUsageEstimator {
     } catch (SecurityException ex) {
     }
     if (datamodel == null) {
-      if (OS_ARCH != null && OS_ARCH.contains("64")) {
-        is64Bit = true;
-      } else {
-        is64Bit = false;
-      }
+      is64Bit = OS_ARCH != null && OS_ARCH.contains("64");
     }
     JRE_IS_64BIT = is64Bit;
     if (JRE_IS_64BIT) {
@@ -171,29 +166,6 @@ public class RamUsageEstimator {
 
   /** Return shallow size of any <code>array</code>. */
   public static long shallowSizeOfArray(Object array) {
-    long size = NUM_BYTES_ARRAY_HEADER;
-    final int len = Array.getLength(array);
-    if (len > 0) {
-      Class<?> arrayElementClazz = array.getClass().getComponentType();
-      if (arrayElementClazz.isPrimitive()) {
-        size += (long) len * primitiveSizes.get(arrayElementClazz);
-      } else {
-        size += (long) NUM_BYTES_OBJECT_REF * len;
-      }
-    }
-    return alignObjectSize(size);
-  }
-
-  /**
-   * This method returns the maximum representation size of an object. <code>sizeSoFar</code> is the
-   * object's size measured so far. <code>f</code> is the field being probed.
-   *
-   * <p>The returned offset will be the maximum of whatever was measured so far and <code>f</code>
-   * field's offset and representation size (unaligned).
-   */
-  static long adjustForField(long sizeSoFar, final Field f) {
-    final Class<?> type = f.getType();
-    final int fsize = type.isPrimitive() ? primitiveSizes.get(type) : NUM_BYTES_OBJECT_REF;
-    return sizeSoFar + fsize;
+    return shallowUsedSizeOfArray(array, Array.getLength(array));
   }
 }

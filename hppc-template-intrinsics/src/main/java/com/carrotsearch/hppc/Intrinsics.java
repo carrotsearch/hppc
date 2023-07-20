@@ -137,4 +137,21 @@ public final class Intrinsics {
 
     throw new UnsupportedOperationException("Invalid for arbitrary types: " + op1 + " " + op2);
   }
+
+  /**
+   * Returns a numerical value for the argument for primitive template types. This intrinsic is used
+   * to apply arithmetic operations on keys. It is invalid for generic types.
+   */
+  public static <T> int numeric(T e) {
+    if (e instanceof Byte
+        | e instanceof Character
+        | e instanceof Short
+        | e instanceof Integer
+        | e instanceof Float
+        | e instanceof Long
+        | e instanceof Double) {
+      return (int) e;
+    }
+    throw new UnsupportedOperationException("Invalid for generic type: " + e);
+  }
 }

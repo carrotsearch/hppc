@@ -18,6 +18,10 @@ jmh {
   duplicateClassesStrategy = DuplicatesStrategy.WARN
 }
 
+jmhJar {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 task benchmark() {
   dependsOn jmhJar
 
