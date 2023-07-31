@@ -104,14 +104,14 @@ public class KTypePgmIndex<KType> implements Accountable {
 
   /** Empty set constructor. */
   private KTypePgmIndex() {
-    keys = null;
+    keys = new KTypeArrayList<KType>(0);
     size = 0;
     firstKey = Intrinsics.<KType>empty();
     lastKey = Intrinsics.<KType>empty();
     epsilon = 0;
     epsilonRecursive = 0;
-    levelOffsets = null;
-    segmentData = null;
+    levelOffsets = new int[0];
+    segmentData = levelOffsets;
   }
 
   /** Returns the size of the key set. That is, the number of distinct elements in {@link #keys}. */
@@ -241,7 +241,7 @@ public class KTypePgmIndex<KType> implements Accountable {
     int fromIndex = rank(minKey);
     int maxIndex = indexOf(maxKey);
     int toIndex = maxIndex >= 0 ? maxIndex + 1 : -maxIndex - 1;
-    return toIndex - fromIndex;
+    return Math.max(toIndex - fromIndex, 0);
   }
 
   /**
@@ -359,9 +359,29 @@ public class KTypePgmIndex<KType> implements Accountable {
 
   /** Empty immutable PGM Index. */
   private static class KTypeEmptyPgmIndex<KType> extends KTypePgmIndex<KType> {
+
+    private final Iterator<KTypeCursor<KType>> emptyIterator = new KTypeEmptyIterator<KType>();
+
     @Override
     public int indexOf(KType key) {
       return -1;
+    }
+
+    @Override
+    public Iterator<KTypeCursor<KType>> rangeIterator(KType minKey, KType maxKey) {
+      return emptyIterator;
+    }
+
+    @Override
+    public <T extends KTypeProcedure<? super KType>> T forEachInRange(T procedure, KType minKey, KType maxKey) {
+      return procedure;
+    }
+
+    private static class KTypeEmptyIterator<KType> extends AbstractIterator<KTypeCursor<KType>> {
+      @Override
+      protected KTypeCursor<KType> fetch() {
+        return done();
+      }
     }
   }
 

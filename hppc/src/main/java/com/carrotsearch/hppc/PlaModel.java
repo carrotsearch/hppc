@@ -98,7 +98,7 @@ public class PlaModel implements Accountable {
    */
   public void addKey(double key, int index, SegmentConsumer segmentConsumer) {
     if (key <= previousKey) {
-      throw new IllegalArgumentException("Points must be increasing by x");
+      throw new IllegalArgumentException("Keys must be increasing");
     }
     previousKey = key;
     point1.set(key, addEpsilon(index));
