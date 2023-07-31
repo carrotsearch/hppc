@@ -20,7 +20,7 @@ import java.util.Iterator;
  * It provides {@code rank} and {@code range} search operations.
  * {@code indexOf()} is faster than B+Tree, and much more compact.
  * {@code contains()} is between 4x to 7x slower than {@code IntHashSet#contains()}, but
- * between 2x to 3x faster than {@link Arrays#binarySearch}.
+ * between 2.5x to 3x faster than {@link Arrays#binarySearch}.
  * <p>
  * Its compactness (40KB for 200MB of keys) makes it efficient for very large collections,
  * the index fitting easily in the L2 cache. The {@code epsilon} parameter should be set
@@ -40,16 +40,21 @@ public class KTypePgmIndex<KType> implements Accountable {
   public static final KTypePgmIndex EMPTY = new KTypeEmptyPgmIndex();
 
   /**
+   * Epsilon approximation range when searching the list of keys.
    * Controls the size of the returned search range, strictly greater than 0.
    * It should be set according to the desired space-time trade-off. A smaller value makes the
    * estimation more precise and the range smaller but at the cost of increased space usage.
    */
   // With EPSILON=64: the benchmark with 200MB of keys shows that this PGM index requires
   // only 2% additional memory on average (40KB). It depends on the distribution of the keys.
-  // With EPSILON=32: +10% speed, but 4x space (160KB).
+  // This epsilon value is good even for 2MB of keys.
+  // With EPSILON=32: +5% speed, but 4x space (160KB).
   public static final int EPSILON = 64;
-  /** Controls the size of the search range in the hierarchical segment lists, strictly greater than 0. */
-  public static final int EPSILON_RECURSIVE = 4;
+  /**
+   * Epsilon approximation range for the segments layers.
+   * Controls the size of the search range in the hierarchical segment lists, strictly greater than 0.
+   */
+  public static final int EPSILON_RECURSIVE = 32;
   /** Size of a key, measured in {@link Integer#BYTES}, because the key is stored in an int[]. */
   public static final int KEY_SIZE = RamUsageEstimator.primitiveSizes
     .get(/*! #if ($TemplateOptions.KTypeGeneric) !*/ Object /*! #else KType #end !*/.class) / Integer.BYTES;
@@ -114,11 +119,6 @@ public class KTypePgmIndex<KType> implements Accountable {
     return size;
   }
 
-  /** Indicates whether the list contains only distinct keys (no duplicate keys). */
-  public boolean hasDistinctKeys() {
-    return size == keys.size();
-  }
-
   /** Returns whether this key set is empty. */
   public boolean isEmpty() {
     return size() == 0;
@@ -126,7 +126,7 @@ public class KTypePgmIndex<KType> implements Accountable {
 
   /** Returns whether this key set contains the given key. */
   public boolean contains(KType key) {
-    return indexOf(key, false) >= 0;
+    return indexOf(key) >= 0;
   }
 
   /**
@@ -143,10 +143,6 @@ public class KTypePgmIndex<KType> implements Accountable {
    *         only if the key is found.
    */
   public int indexOf(KType key) {
-    return indexOf(key, true);
-  }
-
-  protected int indexOf(KType key, boolean needsInsertionPoint) {
     if (Intrinsics.<KType>numeric(key) < Intrinsics.<KType>numeric(firstKey)) {
       return -1;
     }
@@ -170,10 +166,6 @@ public class KTypePgmIndex<KType> implements Accountable {
         if (Intrinsics.<KType>equals(key, k)) {
           return index;
         }
-      }
-      if (!needsInsertionPoint && hasDistinctKeys()) {
-        // Stop scanning and return any negative value.
-        return -1;
       }
       // Continue scanning out of the epsilon range.
       // This might happen in rare cases of precision error during the approximation
@@ -204,10 +196,6 @@ public class KTypePgmIndex<KType> implements Accountable {
         if (Intrinsics.<KType>equals(key, k)) {
           return index;
         }
-      }
-      if (!needsInsertionPoint && hasDistinctKeys()) {
-        // Stop scanning and return any negative value.
-        return -1;
       }
       // Continue scanning out of the epsilon range.
       int jump = BEYOND_EPSILON_JUMP;
@@ -241,7 +229,7 @@ public class KTypePgmIndex<KType> implements Accountable {
    *         this method always returns a value &gt;= 0.
    */
   public int rank(KType x) {
-    int index = indexOf(x, true);
+    int index = indexOf(x);
     return index >= 0 ? index : -index - 1;
   }
 
@@ -414,13 +402,14 @@ public class KTypePgmIndex<KType> implements Accountable {
   /** Builds a {@link KTypePgmIndex} on a provided sorted list of keys. */
   /*! #if ($templateonly) !*/ @SuppressWarnings({"unchecked"}) /*! #end !*/
   public static class KTypeBuilder<KType> implements PlaModel.SegmentConsumer, Accountable {
-    private KTypeArrayList<KType> keys;
-    private int epsilon = EPSILON;
-    private int epsilonRecursive = EPSILON_RECURSIVE;
-    private PlaModel plam;
-    private int size;
-    private IntGrowableArray segmentData;
-    private int numSegments;
+
+    protected KTypeArrayList<KType> keys;
+    protected int epsilon = EPSILON;
+    protected int epsilonRecursive = EPSILON_RECURSIVE;
+    protected PlaModel plam;
+    protected int size;
+    protected IntGrowableArray segmentData;
+    protected int numSegments;
 
     /** Sets the sorted list of keys to build the index for; duplicate elements are allowed. */
     public KTypeBuilder<KType> setSortedKeys(KTypeArrayList<KType> keys) {

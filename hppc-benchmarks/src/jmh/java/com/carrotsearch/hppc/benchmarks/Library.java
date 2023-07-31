@@ -40,7 +40,7 @@ public enum Library {
   PGM {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new PgmIntSetOps(64, 4);
+      return new PgmIntSetOps(64, 32);
     }
 
     @Override
