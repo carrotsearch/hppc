@@ -139,10 +139,26 @@ public final class Intrinsics {
   }
 
   /**
-   * Returns a numerical value for the argument for primitive template types. This intrinsic is used
-   * to apply arithmetic operations on keys. It is invalid for generic types.
+   * Returns the numerical value for the argument if it is a primitive template type. This intrinsic
+   * method always returns a {@code double} result for direct calls, but the template preprocessor
+   * will replace this method invocation with the exact type equal to the template type. So a call
+   * to:
+   *
+   * <pre>
+   * {@code Intrinsics.<KType>numeric(key)}
+   * </pre>
+   *
+   * with template type {@code KType} equal to {@code int} will return the raw key value (without
+   * any type conversion):
+   *
+   * <pre>
+   * {@code (key))
+   * </pre>
+   *
+   * <p>This intrinsic is used to apply arithmetic operations on keys. It is invalid for generic
+   * types.
    */
-  public static <T> int numeric(T e) {
+  public static <T> double numeric(T e) {
     if (e instanceof Byte
         | e instanceof Character
         | e instanceof Short
@@ -150,8 +166,9 @@ public final class Intrinsics {
         | e instanceof Float
         | e instanceof Long
         | e instanceof Double) {
-      return (int) e;
+      return (double) e;
     }
+
     throw new UnsupportedOperationException("Invalid for generic type: " + e);
   }
 }
