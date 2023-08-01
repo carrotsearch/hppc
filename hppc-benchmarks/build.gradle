@@ -19,7 +19,9 @@ jmh {
 }
 
 jmhJar {
-  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+  duplicatesStrategy = DuplicatesStrategy.WARN
+  exclude 'LICENSE'
+  exclude 'THIRD-PARTY'
 }
 
 task benchmark() {
