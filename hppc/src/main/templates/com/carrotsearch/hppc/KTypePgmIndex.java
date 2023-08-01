@@ -18,7 +18,7 @@ import java.util.Iterator;
  *   PVLDB, 13(8): 1162-1175, 2020.
  * </pre>
  * It provides {@code rank} and {@code range} search operations.
- * {@code indexOf()} is faster than B+Tree, and much more compact.
+ * {@code indexOf()} is faster than B+Tree, and the index is much more compact.
  * {@code contains()} is between 4x to 7x slower than {@code IntHashSet#contains()}, but
  * between 2.5x to 3x faster than {@link Arrays#binarySearch}.
  * <p>
@@ -26,7 +26,7 @@ import java.util.Iterator;
  * the index fitting easily in the L2 cache. The {@code epsilon} parameter should be set
  * according to the desired space-time trade-off. A smaller value makes the estimation more
  * precise and the range smaller but at the cost of increased space usage. In practice,
- * {@code epsilon} 32 or 64 is a good sweet spot.
+ * {@code epsilon} 64 is a good sweet spot.
  * <p>
  * Internally the index uses an optimal piecewise linear mapping from keys to their position
  * in the sorted order. This mapping is represented as a sequence of linear models (segments)
@@ -44,18 +44,19 @@ public class KTypePgmIndex<KType> implements Accountable {
    * Controls the size of the returned search range, strictly greater than 0.
    * It should be set according to the desired space-time trade-off. A smaller value makes the
    * estimation more precise and the range smaller but at the cost of increased space usage.
+   * <p>
+   * With EPSILON=64 the benchmark with 200MB of keys shows that this PGM index requires
+   * only 2% additional memory on average (40KB). It depends on the distribution of the keys.
+   * This epsilon value is good even for 2MB of keys.
+   * With EPSILON=32: +5% speed, but 4x space (160KB).
    */
-  // With EPSILON=64: the benchmark with 200MB of keys shows that this PGM index requires
-  // only 2% additional memory on average (40KB). It depends on the distribution of the keys.
-  // This epsilon value is good even for 2MB of keys.
-  // With EPSILON=32: +5% speed, but 4x space (160KB).
   public static final int EPSILON = 64;
   /**
    * Epsilon approximation range for the segments layers.
    * Controls the size of the search range in the hierarchical segment lists, strictly greater than 0.
    */
   public static final int EPSILON_RECURSIVE = 32;
-  /** Size of a key, measured in {@link Integer#BYTES}, because the key is stored in an int[]. */
+  /** Size of a key, measured in {@link Integer#BYTES} because the key is stored in an int[]. */
   public static final int KEY_SIZE = RamUsageEstimator.primitiveSizes
     .get(/*! #if ($TemplateOptions.KTypeGeneric) !*/ Object /*! #else KType #end !*/.class) / Integer.BYTES;
   /** 2x {@link #KEY_SIZE}. */
