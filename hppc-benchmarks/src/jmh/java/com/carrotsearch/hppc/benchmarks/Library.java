@@ -37,6 +37,18 @@ public enum Library {
     }
   },
 
+  PGM {
+    @Override
+    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
+      return new PgmIntSetOps(64, 32);
+    }
+
+    @Override
+    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
   FASTUTIL {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {

@@ -21,6 +21,7 @@ import com.carrotsearch.hppc.generator.intrinsics.Empty;
 import com.carrotsearch.hppc.generator.intrinsics.Equals;
 import com.carrotsearch.hppc.generator.intrinsics.IsEmpty;
 import com.carrotsearch.hppc.generator.intrinsics.NewArray;
+import com.carrotsearch.hppc.generator.intrinsics.Numeric;
 import com.carrotsearch.hppc.generator.parser.SignatureProcessor;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -58,6 +59,7 @@ public class TemplateProcessor extends Command<ExitCode> {
     intrinsics.put("cast", new Cast());
     intrinsics.put("add", new Add());
     intrinsics.put("equals", new Equals());
+    intrinsics.put("numeric", new Numeric());
   }
 
   @Parameter(names = {"--incremental"})
