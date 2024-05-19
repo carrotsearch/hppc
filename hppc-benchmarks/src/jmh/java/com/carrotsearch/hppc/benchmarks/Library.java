@@ -25,18 +25,6 @@ public enum Library {
     }
   },
 
-  WORM {
-    @Override
-    public IntSetOps newIntSet(int expectedElements, double loadFactor) {
-      return new WormIntSetOps(expectedElements);
-    }
-
-    @Override
-    public IntIntMapOps newIntIntMap(int expectedElements, double loadFactor) {
-      return new WormIntIntMapOps(expectedElements);
-    }
-  },
-
   PGM {
     @Override
     public IntSetOps newIntSet(int expectedElements, double loadFactor) {
