@@ -223,13 +223,11 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         assertTrue(map.containsKey(key1));
         assertEquals2(value1, map.get(key1));
 
-        /*! #if ($TemplateOptions.VTypeGeneric) !*/
         map.put(key2, Intrinsics.<VType> empty());
 
         assertEquals(2, map.size());
         assertTrue(map.containsKey(key2));
         assertEquals2(Intrinsics.<VType> empty(), map.get(key2));
-        /*! #end !*/
     }
 
     /* */
@@ -241,7 +239,6 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         assertEquals2(value3, map.get(key1));
         assertEquals(1, map.size());
 
-        /*! #if ($TemplateOptions.VTypeGeneric) !*/
         assertEquals2(value3, map.put(key1, Intrinsics.<VType> empty()));
         assertTrue(map.containsKey(key1));
         assertEquals2(Intrinsics.<VType> empty(), map.get(key1));
@@ -249,7 +246,6 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         assertEquals2(Intrinsics.<VType> empty(), map.put(key1, value1));
         assertEquals2(value1, map.get(key1));
         assertEquals(1, map.size());
-        /*! #end !*/
     }
 
     /* */
@@ -380,12 +376,10 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         assertEquals2(value1, map.values().iterator().next().value);
         Assertions.assertThat(map.values().toArray()).containsOnly(value1);
 
-        /*! #if ($TemplateOptions.VTypeGeneric) !*/
         assertEquals2(value1, map.put(empty, Intrinsics.<VType> empty()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(empty));
         assertEquals2(Intrinsics.<VType> empty(), map.get(empty));
-        /*! #end !*/
 
         map.remove(empty);
         assertEquals2(Intrinsics.<VType> empty(), map.get(empty));
@@ -716,18 +710,16 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         assertFalse(l2.equals(l1));
     }    
 
-    /*! #if ($TemplateOptions.VTypeGeneric) !*/
     @Test
-    public void testNullValue()
+    public void testEmptyValue()
     {
-        assertEquals(null, map.put(key1, null));
-        assertEquals(null, map.get(key1));
+        assertEquals2(Intrinsics.<VType> empty(), map.put(key1, Intrinsics.<VType> empty()));
+        assertEquals2(Intrinsics.<VType> empty(), map.get(key1));
         assertTrue(map.containsKey(key1));
         map.remove(key1);
         assertFalse(map.containsKey(key1));
         assertEquals(0, map.size());
     }
-    /*! #end !*/
 
     /*! #if ($TemplateOptions.AllGeneric) !*/
     /**
