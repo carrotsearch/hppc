@@ -13,6 +13,12 @@ import static com.carrotsearch.hppc.Containers.*;
 /**
  * A hash map of <code>KType</code> to <code>VType</code>, implemented using open
  * addressing with linear probing for collision resolution.
+ #if ($TemplateOptions.KTypeGeneric)
+ * Supports null key.
+ #end
+ #if ($TemplateOptions.VTypeGeneric)
+ * Supports null values.
+ #end
  *
  * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
