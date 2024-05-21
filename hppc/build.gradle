@@ -35,8 +35,8 @@ dependencies {
 
   templatesImplementation project(":hppc-template-intrinsics")
 
-  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
-  testImplementation "org.assertj:assertj-core"
+  testImplementation deps.randomizedtesting.runner
+  testImplementation deps.assertj
 }
 
 task generateMainTemplates(type: GenerateTemplatesTask) {

@@ -1,17 +1,17 @@
 plugins {
   id 'java-library'
-  id "me.champeau.gradle.jmh"
+  alias(deps.plugins.jmh)
 }
 
 dependencies {
   implementation project(":hppc")
 
-  implementation "it.unimi.dsi:fastutil:8.4.1"
-  implementation "com.koloboke:koloboke-impl-jdk8:1.0.0"
+  implementation deps.fastutil
+  implementation deps.koloboke
+  implementation deps.jmh.core
 
-  implementation 'org.openjdk.jmh:jmh-core'
-  jmh 'org.openjdk.jmh:jmh-core'
-  jmh 'org.openjdk.jmh:jmh-generator-annprocess'
+  jmh deps.jmh.core
+  jmh deps.jmh.generator.annprocess
 }
 
 jmh {
@@ -44,8 +44,4 @@ Example of filtering to one benchmark and a subset of parameters:
 
 """
   }
-}
-
-versionsLock {
-  testProject()
 }

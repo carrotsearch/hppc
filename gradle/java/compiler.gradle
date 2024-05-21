@@ -1,17 +1,16 @@
-configure(rootProject) {
-  sourceCompatibility = JavaVersion.VERSION_1_8
-  targetCompatibility = sourceCompatibility
-}
+def minJavaVersion = JavaVersion.toVersion(deps.versions.minJava.get())
 
 allprojects {
-  plugins.withType(JavaPlugin) {
-    tasks.withType(JavaCompile) {
-      sourceCompatibility = rootProject.sourceCompatibility
-      targetCompatibility = rootProject.sourceCompatibility
-      options.encoding = "UTF-8"
+  plugins.withType(JavaPlugin).configureEach {
+    java {
+      sourceCompatibility = minJavaVersion
+      targetCompatibility = minJavaVersion
+    }
 
+    tasks.withType(JavaCompile).configureEach {
+      options.encoding = "UTF-8"
       options.compilerArgs += [
-          "--release", "8",
+          "--release", minJavaVersion.majorVersion,
           "-Xlint:unchecked,deprecation",
           "-proc:none",
           "-Werror",

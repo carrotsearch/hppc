@@ -3,6 +3,8 @@ configure(rootProject) {
   ext {
     licenseHeader = rootProject.file('gradle/validation/spotless/license-header.txt')
   }
+
+  tasks.register("tidy") {}
 }
 
 subprojects {

@@ -4,8 +4,8 @@ plugins {
 
 dependencies {
   testImplementation project(":hppc")
-  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
-  testImplementation "org.assertj:assertj-core"
+  testImplementation deps.randomizedtesting.runner
+  testImplementation deps.assertj
 }
 
 test {

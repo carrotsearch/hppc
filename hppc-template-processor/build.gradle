@@ -13,14 +13,14 @@ configurations {
 dependencies {
   api project(":hppc-template-intrinsics")
 
-  implementation "org.antlr:antlr4-runtime"
-  implementation "org.apache.velocity:velocity-engine-core"
-  implementation "com.carrotsearch.console:launcher"
+  implementation deps.antlr.runtime
+  implementation deps.velocity
+  implementation deps.carrotsearch.console.launcher
 
-  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
-  testImplementation "org.assertj:assertj-core"
+  testImplementation deps.randomizedtesting.runner
+  testImplementation deps.assertj
 
-  antlr "org.antlr:antlr4"
+  antlr deps.antlr.base
 }
 
 sourceSets {
