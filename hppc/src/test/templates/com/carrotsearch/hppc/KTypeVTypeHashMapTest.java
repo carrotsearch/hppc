@@ -4,10 +4,12 @@ package com.carrotsearch.hppc;
 import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.assertj.core.api.Assertions;
 import org.junit.*;
 
@@ -150,11 +152,14 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
 
       Assertions.assertThat(map.indexGet(map.indexOf(keyE))).isEqualTo(value1);
       Assertions.assertThat(map.indexGet(map.indexOf(key1))).isEqualTo(value2);
+      boolean expectedExceptionThrown = false;
       try {
         map.indexGet(map.indexOf(key2));
-        fail();
       } catch (AssertionError e) {
-        // Expected.
+        expectedExceptionThrown = true;
+      }
+      if (!expectedExceptionThrown) {
+        fail();
       }
 
       Assertions.assertThat(map.indexReplace(map.indexOf(keyE), value3)).isEqualTo(value1);
@@ -383,6 +388,15 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
 
         map.remove(empty);
         assertEquals2(Intrinsics.<VType> empty(), map.get(empty));
+        assertEquals(0, map.size());
+
+        assertEquals2(Intrinsics.<VType> empty(), map.put(empty, value1));
+        assertEquals2(value1, map.put(empty, value2));
+        map.clear();
+        assertFalse(map.indexExists(map.indexOf(empty)));
+        assertEquals2(Intrinsics.<VType> empty(), map.put(empty, value1));
+        map.clear();
+        assertEquals2(Intrinsics.<VType> empty(), map.remove(empty));
     }
 
     /* */
@@ -577,6 +591,11 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         // These are internals, but perhaps worth asserting too.
         assertEquals(0, map.assigned);
 
+        // Check values are cleared.
+        assertEquals2(Intrinsics.<VType> empty(), map.put(key1, value1));
+        assertEquals2(Intrinsics.<VType> empty(), map.remove(key2));
+        map.clear();
+
         // Check if the map behaves properly upon subsequent use.
         testPutWithExpansions();
     }
@@ -721,17 +740,15 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         assertEquals(0, map.size());
     }
 
-    /*! #if ($TemplateOptions.AllGeneric) !*/
     /**
-     * Run some random insertions/ deletions and compare the results
-     * against <code>java.util.HashMap</code>.
+     * Runs random insertions/deletions/clearing and compares the results against {@link HashMap}.
      */
     @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void testAgainstHashMap()
     {
-        final Random rnd = new Random(randomLong());
-        final java.util.HashMap<KType, VType> other = 
-            new java.util.HashMap<KType, VType>();
+        final Random rnd = RandomizedTest.getRandom();
+        final HashMap other = new HashMap();
 
         for (int size = 1000; size < 20000; size += 4000)
         {
@@ -744,9 +761,9 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
                 if (rnd.nextInt(50) == 0) {
                   key = Intrinsics.<KType> empty();
                 }
-
                 VType value = vcast(rnd.nextInt());
 
+                boolean hadOldValue = map.containsKey(key);
                 if (rnd.nextBoolean())
                 {
                     VType previousValue;
@@ -756,33 +773,36 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
                             previousValue = map.indexReplace(index, value);
                         } else {
                             map.indexInsert(index, key, value);
-                            previousValue = null;
+                            previousValue = Intrinsics.<VType> empty();
                         }
                     } else {
                         previousValue = map.put(key, value);
                     }
-                    assertEquals(other.put(key, value), previousValue);
+                    assertEquals2(
+                            other.put(key, value),
+                            Intrinsics.<VType> isEmpty(previousValue) && !hadOldValue ? null : previousValue);
 
-                    assertEquals(value, map.get(key));
-                    assertEquals(value, map.indexGet(map.indexOf(key)));
+                    assertEquals2(value, map.get(key));
+                    assertEquals2(value, map.indexGet(map.indexOf(key)));
                     assertTrue(map.containsKey(key));
                     assertTrue(map.indexExists(map.indexOf(key)));
                 }
                 else
                 {
-                    assertEquals(other.containsKey(key), map.containsKey(key));
+                    assertEquals2(other.containsKey(key), map.containsKey(key));
                     VType previousValue = map.containsKey(key) && rnd.nextBoolean() ?
                             map.indexRemove(map.indexOf(key))
                             : map.remove(key);
-                    assertEquals(other.remove(key), previousValue);
+                    assertEquals2(
+                            other.remove(key),
+                            Intrinsics.<VType> isEmpty(previousValue) && !hadOldValue ? null : previousValue);
                 }
 
                 assertEquals(other.size(), map.size());
             }
         }
     }
-    /*! #end !*/
-    
+
     /*
      * 
      */
