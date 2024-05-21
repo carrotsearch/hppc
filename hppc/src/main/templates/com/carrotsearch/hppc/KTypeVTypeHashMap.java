@@ -131,8 +131,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
     final int mask = this.mask;
     if (Intrinsics.<KType> isEmpty(key)) {
+      VType previousValue = hasEmptyKey ? Intrinsics.<VType> cast(values[mask + 1]) : Intrinsics.<VType> empty();
       hasEmptyKey = true;
-      VType previousValue = Intrinsics.<VType> cast(values[mask + 1]);
       values[mask + 1] = value;
       return previousValue;
     } else {
@@ -237,6 +237,9 @@ public class KTypeVTypeHashMap<KType, VType>
   public VType remove(KType key) {
     final int mask = this.mask;
     if (Intrinsics.<KType> isEmpty(key)) {
+      if (!hasEmptyKey) {
+        return Intrinsics.<VType> empty();
+      }
       hasEmptyKey = false;
       VType previousValue = Intrinsics.<VType> cast(values[mask + 1]);
       values[mask + 1] = Intrinsics.<VType> empty();
@@ -528,6 +531,7 @@ public class KTypeVTypeHashMap<KType, VType>
 
     VType previousValue = Intrinsics.<VType> cast(values[index]);
     if (index > mask) {
+      assert index == mask + 1;
       hasEmptyKey = false;
       values[index] = Intrinsics.<VType> empty();
     } else {

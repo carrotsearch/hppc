@@ -4,6 +4,8 @@ package com.carrotsearch.hppc;
 import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
 
+import java.util.HashSet;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
@@ -82,11 +84,14 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
       Assertions.assertThat(set.indexGet(set.indexOf(keyE))).isEqualTo(keyE);
       Assertions.assertThat(set.indexGet(set.indexOf(key1))).isEqualTo(key1);
+      boolean expectedExceptionThrown = false;
       try {
         set.indexGet(set.indexOf(key2));
-        fail();
       } catch (AssertionError e) {
-        // Expected.
+        expectedExceptionThrown = true;
+      }
+      if (!expectedExceptionThrown) {
+        fail();
       }
 
       Assertions.assertThat(set.indexReplace(set.indexOf(keyE), keyE)).isEqualTo(keyE);
@@ -123,19 +128,42 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     public void testEmptyKey()
     {
         KTypeHashSet<KType> set = new KTypeHashSet<KType>();
-        set.add(EMPTY_KEY);
 
+        boolean b = set.add(EMPTY_KEY);
+
+        Assertions.assertThat(b).isTrue();
+        Assertions.assertThat(set.add(EMPTY_KEY)).isFalse();
         Assertions.assertThat(set.size()).isEqualTo(1);
         Assertions.assertThat(set.isEmpty()).isFalse();
         Assertions.assertThat(set.toArray()).containsOnly(EMPTY_KEY);
         Assertions.assertThat(set.contains(EMPTY_KEY)).isTrue();
+        int index = set.indexOf(EMPTY_KEY);
+        Assertions.assertThat(set.indexExists(index)).isTrue();
+        Assertions.assertThat(set.indexGet(index)).isEqualTo(EMPTY_KEY);
+        Assertions.assertThat(set.indexReplace(index, EMPTY_KEY)).isEqualTo(EMPTY_KEY);
 
-        set.remove(EMPTY_KEY);
+        if (randomBoolean()) {
+            b = set.remove(EMPTY_KEY);
+            Assertions.assertThat(b).isTrue();
+        } else {
+            set.indexRemove(index);
+        }
 
+        Assertions.assertThat(set.remove(EMPTY_KEY)).isFalse();
         Assertions.assertThat(set.size()).isEqualTo(0);
         Assertions.assertThat(set.isEmpty()).isTrue();
         Assertions.assertThat(set.toArray()).isEmpty();
         Assertions.assertThat(set.contains(EMPTY_KEY)).isFalse();
+        index = set.indexOf(EMPTY_KEY);
+        Assertions.assertThat(set.indexExists(index)).isFalse();
+
+        set.indexInsert(index, EMPTY_KEY);
+        set.add(key1);
+        Assertions.assertThat(set.size()).isEqualTo(2);
+        Assertions.assertThat(set.contains(EMPTY_KEY)).isTrue();
+        index = set.indexOf(EMPTY_KEY);
+        Assertions.assertThat(set.indexExists(index)).isTrue();
+        Assertions.assertThat(set.indexGet(index)).isEqualTo(EMPTY_KEY);
     }
 
     /* */
@@ -393,16 +421,15 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     }
     /*! #end !*/
     
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     /**
-     * Run some random insertions/ deletions and compare the results
-     * against <code>java.util.HashSet</code>.
+     * Runs random insertions/deletions/clearing and compares the results against {@link HashSet}.
      */
     @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void testAgainstHashSet()
     {
-        final java.util.Random rnd = RandomizedTest.getRandom();
-        final java.util.HashSet<KType> other = new java.util.HashSet<KType>();
+        final Random rnd = RandomizedTest.getRandom();
+        final HashSet other = new HashSet();
 
         for (int size = 1000; size < 20000; size += 4000)
         {
@@ -411,7 +438,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
             for (int round = 0; round < size * 20; round++)
             {
-                Integer key = rnd.nextInt(size);
+                KType key = cast(rnd.nextInt(size));
                 if (rnd.nextInt(50) == 0) {
                   key = Intrinsics.empty();
                 }
@@ -419,29 +446,29 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
                 if (rnd.nextBoolean())
                 {
                     if (rnd.nextBoolean()) {
-                        int index = set.indexOf(cast(key));
+                        int index = set.indexOf(key);
                         if (set.indexExists(index)) {
-                            set.indexReplace(index, cast(key));
+                            set.indexReplace(index, key);
                         } else {
-                            set.indexInsert(index, cast(key));
+                            set.indexInsert(index, key);
                         }
                     } else {
-                        set.add(cast(key));
+                        set.add(key);
                     }
-                    other.add(cast(key));
+                    other.add(key);
 
-                    assertTrue(set.contains(cast(key)));
-                    assertTrue(set.indexExists(set.indexOf(cast(key))));
+                    assertTrue(set.contains(key));
+                    assertTrue(set.indexExists(set.indexOf(key)));
                 }
                 else
                 {
-                    assertEquals(other.contains(key), set.contains(cast(key)));
+                    assertEquals(other.contains(key), set.contains(key));
                     boolean removed;
-                    if (set.contains(cast(key)) && rnd.nextBoolean()) {
-                        set.indexRemove(set.indexOf(cast(key)));
+                    if (set.contains(key) && rnd.nextBoolean()) {
+                        set.indexRemove(set.indexOf(key));
                         removed = true;
                     } else {
-                        removed = set.remove(cast(key));
+                        removed = set.remove(key);
                     }
                     assertEquals(other.remove(key), removed);
                 }
@@ -450,7 +477,6 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
             }
         }
     }
-    /*! #end !*/
 
     /* */
     @Test

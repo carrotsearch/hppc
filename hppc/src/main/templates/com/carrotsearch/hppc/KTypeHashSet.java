@@ -11,8 +11,8 @@ import static com.carrotsearch.hppc.HashContainers.*;
 import static com.carrotsearch.hppc.Containers.*;
 
 /**
- * A hash set of <code>KType</code>s, implemented using using open addressing
- * with linear probing for collision resolution.
+ * A hash set of <code>KType</code>s, implemented using open addressing with
+ * linear probing for collision resolution.
  *
  * @see <a href="{@docRoot}/overview-summary.html#interfaces">HPPC interfaces diagram</a>
  */
@@ -656,7 +656,7 @@ public class KTypeHashSet<KType>
    */
   public boolean indexExists(int index) {
     assert index < 0 || 
-    (index >= 0 && index <= mask) ||
+    index <= mask ||
     (index == mask + 1 && hasEmptyKey);
 
     return index >= 0; 
