@@ -7,11 +7,13 @@
           Those associative containers implementing Worm Hashing were added in HPPC-176.
           Since then, with improvements to HashMap, there is no clear advantage to using
           WormMap. Dropping them helps to reduce the library size.
-
           (Bruno Roustant).
 
 ** Improvements
 
+** Bugs
+
+  GH-237: Fix HashMap put/remove returned value for empty key after clear. (Bruno Roustant)
 
 [0.9.1]
 https://github.com/carrotsearch/hppc/releases/tag/0.9.1
