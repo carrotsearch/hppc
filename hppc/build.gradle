@@ -46,6 +46,11 @@ task generateMainTemplates(type: GenerateTemplatesTask) {
 
 compileJava {
   dependsOn generateMainTemplates
+
+  options.compilerArgs.addAll([
+    '--module-version',
+    project.version
+  ])
 }
 
 task generateTestTemplates(type: GenerateTemplatesTask) {
