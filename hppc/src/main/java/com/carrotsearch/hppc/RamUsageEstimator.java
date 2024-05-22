@@ -20,39 +20,39 @@ import java.util.Map;
  *
  * <p>Mostly forked from Lucene tag releases/lucene-solr/8.5.1
  */
-public class RamUsageEstimator {
+final class RamUsageEstimator {
   /** One kilobyte bytes. */
-  public static final long ONE_KB = 1024;
+  static final long ONE_KB = 1024;
 
   /** One megabyte bytes. */
-  public static final long ONE_MB = ONE_KB * ONE_KB;
+  static final long ONE_MB = ONE_KB * ONE_KB;
 
   /** One gigabyte bytes. */
-  public static final long ONE_GB = ONE_KB * ONE_MB;
+  static final long ONE_GB = ONE_KB * ONE_MB;
 
   /** No instantiation. */
   private RamUsageEstimator() {}
 
   /** True, iff compressed references (oops) are enabled by this JVM */
-  public static final boolean COMPRESSED_REFS_ENABLED;
+  static final boolean COMPRESSED_REFS_ENABLED;
 
   /** Number of bytes this JVM uses to represent an object reference. */
-  public static final int NUM_BYTES_OBJECT_REF;
+  static final int NUM_BYTES_OBJECT_REF;
 
   /** Number of bytes to represent an object header (no fields, no alignments). */
-  public static final int NUM_BYTES_OBJECT_HEADER;
+  static final int NUM_BYTES_OBJECT_HEADER;
 
   /** Number of bytes to represent an array header (no content, but with alignments). */
-  public static final int NUM_BYTES_ARRAY_HEADER;
+  static final int NUM_BYTES_ARRAY_HEADER;
 
   /**
    * A constant specifying the object alignment boundary inside the JVM. Objects will always take a
    * full multiple of this constant, possibly wasting some space.
    */
-  public static final int NUM_BYTES_OBJECT_ALIGNMENT;
+  static final int NUM_BYTES_OBJECT_ALIGNMENT;
 
   /** Sizes of primitive classes. */
-  public static final Map<Class<?>, Integer> primitiveSizes;
+  static final Map<Class<?>, Integer> primitiveSizes;
 
   static {
     Map<Class<?>, Integer> primitiveSizesMap = new IdentityHashMap<>();
@@ -141,7 +141,7 @@ public class RamUsageEstimator {
   }
 
   /** Aligns an object size to be the next multiple of {@link #NUM_BYTES_OBJECT_ALIGNMENT}. */
-  public static long alignObjectSize(long size) {
+  static long alignObjectSize(long size) {
     size += (long) NUM_BYTES_OBJECT_ALIGNMENT - 1L;
     return size - (size % NUM_BYTES_OBJECT_ALIGNMENT);
   }
@@ -151,7 +151,7 @@ public class RamUsageEstimator {
    *
    * @param usedSize Size that array is actually used
    */
-  public static long shallowUsedSizeOfArray(Object array, int usedSize) {
+  static long shallowUsedSizeOfArray(Object array, int usedSize) {
     long size = NUM_BYTES_ARRAY_HEADER;
     if (usedSize > 0) {
       Class<?> arrayElementClazz = array.getClass().getComponentType();
@@ -165,7 +165,7 @@ public class RamUsageEstimator {
   }
 
   /** Return shallow size of any <code>array</code>. */
-  public static long shallowSizeOfArray(Object array) {
+  static long shallowSizeOfArray(Object array) {
     return shallowUsedSizeOfArray(array, Array.getLength(array));
   }
 }

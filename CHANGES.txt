@@ -3,6 +3,8 @@
 
 ** New features and API changes
 
+   GH-244: Hide RamUsageEstimator from the public API. (Dawid Weiss)
+
    GH-239: Minimum Java bumped to 11 (from 8). (Dawid Weiss)
 
    GH-235: Drop WormMap and WormSet.
