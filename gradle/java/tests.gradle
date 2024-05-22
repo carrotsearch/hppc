@@ -2,6 +2,8 @@ import org.gradle.api.tasks.testing.logging.*
 
 allprojects {
   plugins.withType(JavaPlugin) {
+    project.apply plugin: deps.plugins.randomizedtesting.get().pluginId
+
     test {
       maxParallelForks = propertyOrDefault("tests.jvms",
           (int) Math.max(1, Math.min(Runtime.runtime.availableProcessors() / 2.0, 4.0))) as Integer
