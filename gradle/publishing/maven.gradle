@@ -10,10 +10,6 @@ configure(rootProject) {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
-    tasks.withType(GenerateModuleMetadata) {
-      enabled = false
-    }
-
     plugins.withType(JavaPlugin) {
       publishing {
         repositories {
