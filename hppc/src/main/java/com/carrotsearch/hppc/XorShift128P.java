@@ -15,8 +15,8 @@ import java.util.Random;
  * A fast pseudo-random number generator. For simplicity, we do not implement all of {@link Random}
  * methods.
  *
- * @see "http://xorshift.di.unimi.it/"
- * @see "http://xorshift.di.unimi.it/xorshift128plus.c"
+ * @see "https://xorshift.di.unimi.it/"
+ * @see "https://xorshift.di.unimi.it/xorshift128plus.c"
  */
 public class XorShift128P {
   /*

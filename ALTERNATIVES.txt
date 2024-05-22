@@ -7,7 +7,7 @@ other library offered a commercially permissive license.
 
 Nowadays there are a number of options to choose from (alphabetically).
 
-* fastutil (by Sebastiano Vigna), http://fastutil.di.unimi.it/
+* fastutil (by Sebastiano Vigna), https://fastutil.di.unimi.it/
   A very flexible, Apache licensed set of collections and algorithms. 
   Compatible with Java Collections.
 
@@ -29,7 +29,7 @@ Nowadays there are a number of options to choose from (alphabetically).
 * Agrona, https://github.com/real-logic/Agrona
   (contains some primitive collection classes, but didn't check it out yet).
 
-* PCJ (by Søren Bak), http://pcj.sourceforge.net/
+* PCJ (by Søren Bak), https://pcj.sourceforge.net/
   The grand-daddy of them all. :) DO NOT use it, it contains bugs. But it
   deserves to be mentioned nonetheless.
 

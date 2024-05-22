@@ -152,11 +152,10 @@ public final class Intrinsics {
    * any type conversion):
    *
    * <pre>
-   * {@code (key))
+   * {@code (key)}
    * </pre>
    *
-   * <p>This intrinsic is used to apply arithmetic operations on keys. It is invalid for generic
-   * types.
+   * This intrinsic is used to apply arithmetic operations on keys. It is invalid for generic types.
    */
   public static <T> double numeric(T e) {
     if (e instanceof Byte
