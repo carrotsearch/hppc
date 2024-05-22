@@ -90,18 +90,16 @@ public interface KTypeVTypeAssociativeContainer<KType, VType>
   /**
    * Applies a given procedure to all keys-value pairs in this container.
    * Returns the argument (any subclass of {@link KTypeVTypeProcedure}. This
-   * lets the caller to call methods of the argument by chaining the call (even
-   * if the argument is an anonymous type) to retrieve computed values, for
-   * example.
+   * lets the caller call methods of the argument by chaining the call (even
+   * if the argument is an anonymous type) to retrieve computed values.
    */
   public <T extends KTypeVTypeProcedure<? super KType, ? super VType>> T forEach(T procedure);
 
   /**
    * Applies a given predicate to all keys-value pairs in this container.
    * Returns the argument (any subclass of {@link KTypeVTypePredicate}. This
-   * lets the caller to call methods of the argument by chaining the call (even
-   * if the argument is an anonymous type) to retrieve computed values, for
-   * example.
+   * lets the caller call methods of the argument by chaining the call (even
+   * if the argument is an anonymous type) to retrieve computed values.
    * 
    * The iteration is continued as long as the predicate returns
    * <code>true</code>.
