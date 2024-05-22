@@ -63,6 +63,8 @@ spotless {
   format('templates', com.diffplug.gradle.spotless.JavaExtension, {
     target "$buildDir/generated/main/templates"
 
+    // This is needed to remove left-over conditional processing
+    // comments from within imports - gjf doesn't handle these well.
     bumpThisNumberIfACustomStepChanges(1)
     custom 'cleanimports', { str -> str.replaceAll('/\\*\\s*\\*/', "") }
 
