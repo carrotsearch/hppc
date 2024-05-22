@@ -2,9 +2,16 @@
 antlr = "4.8"
 assertj = "3.21.0"
 carrotsearch-console = "1.1.3"
+commons-codec = "1.6"
 fastutil = "8.4.1"
+# @keep This is GJF version for spotless/ tidy.
+googleJavaFormat = "1.13.0"
+# @keep This is the project's version.
+hppcVersion = "0.10.0-SNAPSHOT"
+jgit = "5.3.0.201903130848-r"
 jmh = "1.25"
 koloboke = "1.0.0"
+# @keep This is the minimum required Java version.
 minJava = "11"
 randomizedtesting = "2.8.1"
 velocity = "2.2"
@@ -14,7 +21,9 @@ antlr-base = { module = "org.antlr:antlr4", version.ref = "antlr" }
 antlr-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 carrotsearch-console-launcher = { module = "com.carrotsearch.console:launcher", version.ref = "carrotsearch-console" }
+commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
+jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 koloboke = { module = "com.koloboke:koloboke-impl-jdk8", version.ref = "koloboke" }

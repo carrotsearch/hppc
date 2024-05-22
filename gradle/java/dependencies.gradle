@@ -9,9 +9,9 @@ allprojects {
   }
   def testConfigurations = project.configurations.matching {
     it.name in [
-            "annotationProcessor",
-            "testCompileClasspath",
-            "testRuntimeClasspath"
+        "annotationProcessor",
+        "testCompileClasspath",
+        "testRuntimeClasspath"
     ]
   }
 
@@ -46,13 +46,6 @@ configure(rootProject) {
   versionCatalogUpdate {
     sortByKey = true
 
-    keep {
-      // Never remove these named versions (used for other things than module dependencies).
-      versions = [
-        "minJava"
-      ]
-    }
-
     versionCatalogs {
       deps {
         catalogFile = file("versions.toml")
@@ -69,7 +62,6 @@ configure(rootProject) {
   }
 
   tasks.register("updateTomls", {
-    dependsOn ":versionCatalogUpdateInternalDeps"
     dependsOn ":versionCatalogUpdateDeps"
   })
 }

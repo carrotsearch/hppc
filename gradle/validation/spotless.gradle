@@ -9,14 +9,14 @@ configure(rootProject) {
 
 subprojects {
   plugins.withType(JavaPlugin) {
-    project.apply plugin: 'com.diffplug.spotless'
+    project.apply plugin: deps.plugins.spotless.get().pluginId
 
     spotless {
       java {
         licenseHeaderFile licenseHeader
         lineEndings 'UNIX'
         endWithNewline()
-        googleJavaFormat('1.13.0')
+        googleJavaFormat(deps.versions.googleJavaFormat.get())
       }
     }
 

@@ -31,7 +31,7 @@ sourceSets {
 
 task generateGrammars(type: JavaExec) {
   classpath configurations.antlr
-  main = 'org.antlr.v4.Tool'
+  mainClass = 'org.antlr.v4.Tool'
 
   def grammars = fileTree('src/main/antlr').include('**/*.g4').files
 
