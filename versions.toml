@@ -1,9 +1,9 @@
 [versions]
-antlr = "4.8"
-assertj = "3.21.0"
+antlr = "4.13.1"
+assertj = "3.25.3"
 carrotsearch-console = "1.1.3"
 commons-codec = "1.6"
-fastutil = "8.4.1"
+fastutil = "8.5.13"
 # @keep This is GJF version for spotless/ tidy.
 googleJavaFormat = "1.22.0"
 # @keep spotless formatting of groovy/gradle files
@@ -11,20 +11,22 @@ greclipse = "4.27"
 # @keep This is the project's version.
 hppcVersion = "0.10.0-SNAPSHOT"
 jgit = "5.3.0.201903130848-r"
-jmh = "1.25"
+jmh = "1.37"
 koloboke = "1.0.0"
 # @keep This is the minimum required Java version.
 minJava = "11"
 randomizedtesting = "2.8.1"
-velocity = "2.2"
+velocity = "2.3"
 
 [libraries]
 antlr-base = { module = "org.antlr:antlr4", version.ref = "antlr" }
 antlr-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 carrotsearch-console-launcher = { module = "com.carrotsearch.console:launcher", version.ref = "carrotsearch-console" }
+# @keep This is used in gitinfo.gradle
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
+# @keep This is used in gitinfo.gradle
 jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
@@ -33,9 +35,9 @@ randomizedtesting-runner = { module = "com.carrotsearch.randomizedtesting:random
 velocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
 
 [plugins]
-benmanes-versions = "com.github.ben-manes.versions:0.47.0"
+benmanes-versions = "com.github.ben-manes.versions:0.51.0"
 dependencychecks = "com.carrotsearch.gradle.dependencychecks:0.0.7"
-forbiddenapis = "de.thetaphi.forbiddenapis:3.5.1"
+forbiddenapis = "de.thetaphi.forbiddenapis:3.7"
 jmh = "me.champeau.jmh:0.7.2"
 spotless = "com.diffplug.spotless:6.25.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.8.4"

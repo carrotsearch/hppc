@@ -65,7 +65,7 @@ configure(rootProject) {
     it.interactive = true
   }
 
-  tasks.register("updateTomls", {
+  tasks.register("updateDeps", {
     dependsOn ":versionCatalogUpdateDeps"
   })
 }

@@ -25,3 +25,4 @@ target
 # Gradle
 build/
 .gradle/
+versions.updates.toml
