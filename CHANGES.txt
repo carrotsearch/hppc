@@ -90,7 +90,6 @@ HPPC-187: ObjectIdentityHashSet redistributes keys according to key.hashCode rat
 
 
 [0.8.2]
-https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13522&styleName=Text
 
 ** New features
 
@@ -98,7 +97,6 @@ HPPC-175: Method estimating memory usage (Haoyu Zhai)
 
 
 [0.8.1]
-https://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=13521&styleName=Text
 
 ** Bug fixes
 
@@ -106,7 +104,6 @@ HPPC-172: Intrinsics class included by apache felix bundle plugin
 
 
 [0.8.0]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 
 ** API-breaking changes
 
@@ -124,7 +121,6 @@ HPPC-169: Modernize build, update dependencies.
 
 
 [0.7.3]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12932
 
 ** Improvements
 
@@ -139,7 +135,6 @@ HPPC-164: ObjectHashSet.add() documentation incorrectly states existing
 
 [0.7.2]
 Released on October 25th, 2016
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12632
 
 ** Other changes
 
@@ -149,7 +144,6 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12632
 
 [0.7.1]
 Released on May 7th, 2015
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12628
 
 ** New features
 
@@ -166,7 +160,6 @@ HPPC-155: *ScatterSet.from should shadow *HashSet.from with proper covariant.
 
 [0.7.0] 
 Released on May 5th, 2015
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12421
 
 ** API-breaking changes
 
@@ -426,7 +419,6 @@ HPPC-109: Moved @author tags to NOTICE.txt.
 
 
 [0.6.1]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12420
 
 ** New features
 
@@ -434,7 +426,6 @@ HPPC-96: Identity hash maps with primitive backing storage arrays for values.
 
 
 [0.6.0]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11820
 
 ** API-breaking changes
 
@@ -470,7 +461,6 @@ HPPC-79: javadocs generated with 1.7 (and 1.8) look crappy.
 
 
 [0.5.5]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12120
 
 ** New features
 ** Other changes
@@ -479,7 +469,6 @@ http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=12120
 
 
 [0.5.4]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11927
 
 ** New features
 
@@ -489,7 +478,6 @@ HPPC-91: Added newInstanceWithExpectedSize methods to
 
 
 [0.5.3]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11833
 
 ** New features
 
@@ -498,7 +486,6 @@ HPPC-88: added get(key,defaultValue) to somehow support custom default values
 
 
 [0.5.2]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11832
 
 ** Bug fixes
 
@@ -506,7 +493,6 @@ HPPC-84: hashCode calculated incorrectly for sets/ maps
 
 
 [0.5.1]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=11828
 
 ** API-breaking changes
 
@@ -529,7 +515,6 @@ HPPC-79: javadocs generated with 1.7 (and 1.8) look crappy.
 
 
 [0.5.0]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10321
 
 ** API-breaking changes:
 
@@ -574,7 +559,6 @@ Added newInstance() to BitSet and IntDoubleLinkedSet for consistency.
 
 
 [0.4.1]
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10322
 
 ** New features
 
@@ -586,7 +570,6 @@ HPPC-65: putOrAdd uses == for comparing object keys instead of equality
 
 
 [0.4.0] 
-http://issues.carrot2.org/secure/ReleaseNote.jspa?projectId=10070&version=10210
 
 ** API-breaking changes:
 

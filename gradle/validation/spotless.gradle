@@ -1,4 +1,3 @@
-
 configure(rootProject) {
   ext {
     licenseHeader = rootProject.file('gradle/validation/spotless/license-header.txt')
@@ -7,10 +6,10 @@ configure(rootProject) {
   tasks.register("tidy") {}
 }
 
-subprojects {
-  plugins.withType(JavaPlugin) {
-    project.apply plugin: deps.plugins.spotless.get().pluginId
+allprojects {
+  project.apply plugin: deps.plugins.spotless.get().pluginId
 
+  plugins.withType(JavaPlugin) {
     spotless {
       java {
         licenseHeaderFile licenseHeader
@@ -19,13 +18,21 @@ subprojects {
         googleJavaFormat(deps.versions.googleJavaFormat.get())
       }
     }
+  }
 
-    check.dependsOn(spotlessCheck)
+  spotless {
+    groovyGradle {
+      target '*.gradle', 'gradle/**/*.gradle'
 
-    task tidy() {
-      dependsOn spotlessApply
+      greclipse(deps.versions.greclipse.get()).configFile rootProject.files(
+          'gradle/validation/spotless/spotless.eclipseformat.xml',
+          'gradle/validation/spotless/spotless.groovyformat.prefs')
     }
   }
+
+  check.dependsOn(spotlessCheck)
+
+  rootProject.tasks.named("tidy").configure { it.dependsOn(spotlessApply) }
 }
 
 configure(project(":hppc-template-processor")) {
@@ -46,9 +53,10 @@ configure(project(":hppc")) {
         // Exclude templates and generated files, at least for now.
         // Templates have comments around imports, which confuses GOF.
         targetExclude([
-            "build/**",
-            "src/main/templates/**",
-            "src/test/templates/**"])
+          "build/**",
+          "src/main/templates/**",
+          "src/test/templates/**"
+        ])
       }
     }
   }

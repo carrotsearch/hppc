@@ -10,20 +10,21 @@ allprojects {
     tasks.withType(JavaCompile).configureEach {
       options.encoding = "UTF-8"
       options.compilerArgs += [
-          "--release", minJavaVersion.majorVersion,
-          "-Xlint:unchecked,deprecation",
-          "-proc:none",
-          "-Werror",
+        "--release",
+        minJavaVersion.majorVersion,
+        "-Xlint:unchecked,deprecation",
+        "-proc:none",
+        "-Werror",
       ]
     }
 
     tasks.jar {
       manifest {
         attributes([
-            'Automatic-Module-Name' : "com.carrotsearch.${project.name.replace('-', '.')}",
-            "Implementation-Vendor" : "Carrot Search s.c. and contributors",
-            "Implementation-Title"  : "${project.name}",
-            "Implementation-Version": "${project.version}"
+          'Automatic-Module-Name' : "com.carrotsearch.${project.name.replace('-', '.')}",
+          "Implementation-Vendor" : "Carrot Search s.c. and contributors",
+          "Implementation-Title"  : "${project.name}",
+          "Implementation-Version": "${project.version}"
         ])
       }
     }

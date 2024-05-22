@@ -1,5 +1,5 @@
 import org.eclipse.jgit.storage.file.*
-import org.eclipse.jgit.api.*;
+import org.eclipse.jgit.api.*
 
 buildscript {
   repositories {
@@ -15,18 +15,18 @@ buildscript {
 /** Return the current checkout's status. */
 def gitStatus(dir) {
   def status = [
-      abbrRev: "[unset]",
-      fullRev: "[unset]",
-      clean  : false,
-      branch : "[unset]",
-      id     : "[unset]"
+    abbrRev: "[unset]",
+    fullRev: "[unset]",
+    clean  : false,
+    branch : "[unset]",
+    id     : "[unset]"
   ]
 
   try {
     def repo = new FileRepositoryBuilder()
         .findGitDir(file(dir))
         .build()
-    def git = new Git(repo);
+    def git = new Git(repo)
     def head = repo.findRef("HEAD")
 
     def st = git.status().call()
@@ -50,7 +50,7 @@ def gitStatus(dir) {
           st.modified,
           st.removed,
           st.untracked,
-          st.untrackedFolders);
+          st.untrackedFolders)
     }
   } catch (Exception e) {
     throw e // Break the build if not under a repo.

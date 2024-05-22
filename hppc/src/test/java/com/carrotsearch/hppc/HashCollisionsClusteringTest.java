@@ -20,7 +20,9 @@ import org.junit.Test;
 public class HashCollisionsClusteringTest extends RandomizedTest {
   private static boolean debugging = false;
 
-  /** @see "http://issues.carrot2.org/browse/HPPC-80" */
+  /**
+   * @see "https://github.com/carrotsearch/hppc/issues/123"
+   */
   @Test
   public void testHashSetClusteringOnRehash() {
     IntHashSet source = new IntHashSet(0, 0.9d);
@@ -46,7 +48,9 @@ public class HashCollisionsClusteringTest extends RandomizedTest {
     }
   }
 
-  /** @see "http://issues.carrot2.org/browse/HPPC-80" */
+  /**
+   * @see "https://github.com/carrotsearch/hppc/issues/123"
+   */
   @Test
   public void testHashMapClusteringOnRehash() {
     IntIntHashMap a = new IntIntHashMap();

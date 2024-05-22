@@ -5,7 +5,9 @@ carrotsearch-console = "1.1.3"
 commons-codec = "1.6"
 fastutil = "8.4.1"
 # @keep This is GJF version for spotless/ tidy.
-googleJavaFormat = "1.13.0"
+googleJavaFormat = "1.22.0"
+# @keep spotless formatting of groovy/gradle files
+greclipse = "4.27"
 # @keep This is the project's version.
 hppcVersion = "0.10.0-SNAPSHOT"
 jgit = "5.3.0.201903130848-r"
@@ -34,6 +36,6 @@ velocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = 
 benmanes-versions = "com.github.ben-manes.versions:0.47.0"
 dependencychecks = "com.carrotsearch.gradle.dependencychecks:0.0.7"
 forbiddenapis = "de.thetaphi.forbiddenapis:3.5.1"
-jmh = "me.champeau.gradle.jmh:0.5.3"
-spotless = "com.diffplug.spotless:5.17.1"
+jmh = "me.champeau.jmh:0.7.2"
+spotless = "com.diffplug.spotless:6.25.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.8.4"

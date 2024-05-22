@@ -1,9 +1,9 @@
 dependencyResolutionManagement {
-    versionCatalogs {
-        deps {
-            from(files('versions.toml'))
-        }
+  versionCatalogs {
+    deps {
+      from(files('versions.toml'))
     }
+  }
 }
 
 rootProject.name = 'hppc-root'

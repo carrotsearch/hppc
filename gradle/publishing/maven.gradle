@@ -2,7 +2,7 @@
 configure(rootProject) {
   ext {
     published = [
-        ":hppc",
+      ":hppc",
     ]
   }
 
@@ -93,7 +93,7 @@ configure(rootProject) {
           signed(MavenPublication) {
             from components.java
             groupId = project.group
-            artifactId = project.archivesBaseName
+            artifactId = project.base.archivesName.get()
 
             artifact sourcesJar
             artifact javadocJar

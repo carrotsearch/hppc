@@ -14,7 +14,9 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class ObjectIntHashMapRegressionTest {
-  /** @see "http://issues.carrot2.org/browse/HPPC-32" */
+  /**
+   * @see "https://github.com/carrotsearch/hppc/issues/75"
+   */
   @Test
   public void testEqualsOnObjectKeys() {
     ObjectIntHashMap<String> map = new ObjectIntHashMap<String>();

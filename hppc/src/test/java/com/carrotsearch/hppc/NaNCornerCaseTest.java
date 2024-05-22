@@ -13,7 +13,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class NaNCornerCaseTest {
-  /** @see "http://issues.carrot2.org/browse/HPPC-93" */
+  /**
+   * @see "https://github.com/carrotsearch/hppc/issues/136"
+   */
   @Test
   public void testNaNAsValue() {
     {

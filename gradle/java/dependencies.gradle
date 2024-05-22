@@ -3,15 +3,15 @@ allprojects {
 
   def mainConfigurations = project.configurations.matching {
     it.name in [
-        "compileClasspath",
-        "runtimeClasspath"
+      "compileClasspath",
+      "runtimeClasspath"
     ]
   }
   def testConfigurations = project.configurations.matching {
     it.name in [
-        "annotationProcessor",
-        "testCompileClasspath",
-        "testRuntimeClasspath"
+      "annotationProcessor",
+      "testCompileClasspath",
+      "testRuntimeClasspath"
     ]
   }
 
@@ -57,7 +57,11 @@ configure(rootProject) {
     it.dependsOn(":versionCatalogFormatDeps")
   }
 
-  tasks.matching { it.path in [":versionCatalogUpdateDeps"] }.configureEach {
+  tasks.matching {
+    it.path in [
+      ":versionCatalogUpdateDeps"
+    ]
+  }.configureEach {
     it.interactive = true
   }
 

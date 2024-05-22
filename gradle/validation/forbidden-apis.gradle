@@ -12,14 +12,19 @@ allprojects { prj ->
     def dynamicSignatures = { configuration, suffix ->
       def deps = configuration.resolvedConfiguration.resolvedArtifacts
           .collect { a -> a.moduleVersion.id }
-          .collect { id -> [
+          .collect { id ->
+            [
               "${id.group}.${id.name}.all.txt",
               "${id.group}.${id.name}.${suffix}.txt",
-          ]}
+            ]
+          }
           .flatten()
           .sort()
 
-      deps += ["defaults.all.txt", "defaults.${suffix}.txt"]
+      deps += [
+        "defaults.all.txt",
+        "defaults.${suffix}.txt"
+      ]
 
       deps.each { sig ->
         def signaturesFile = rootProject.file("gradle/validation/forbidden-apis/${sig}")
@@ -35,15 +40,15 @@ allprojects { prj ->
     // Configure defaults for sourceSets.main
     tasks.matching { it.name == "forbiddenApisTemplates" || it.name == "forbiddenApisMain" }.all { task ->
       bundledSignatures += [
-          'jdk-unsafe',
-          'jdk-deprecated',
-          'jdk-non-portable',
-          'jdk-reflection',
-          'jdk-system-out',
+        'jdk-unsafe',
+        'jdk-deprecated',
+        'jdk-non-portable',
+        'jdk-reflection',
+        'jdk-system-out',
       ]
 
       suppressAnnotations += [
-          "**.SuppressForbidden"
+        "**.SuppressForbidden"
       ]
 
       check.dependsOn task
@@ -52,15 +57,15 @@ allprojects { prj ->
     // Configure defaults for JMH
     tasks.matching { it.name == "forbiddenApisJmh" }.all { task ->
       bundledSignatures += [
-          'jdk-unsafe',
-          'jdk-deprecated',
-          'jdk-non-portable',
-          'jdk-reflection',
-          'jdk-system-out',
+        'jdk-unsafe',
+        'jdk-deprecated',
+        'jdk-non-portable',
+        'jdk-reflection',
+        'jdk-system-out',
       ]
 
       suppressAnnotations += [
-          "**.SuppressForbidden"
+        "**.SuppressForbidden"
       ]
 
       check.dependsOn task
@@ -69,18 +74,18 @@ allprojects { prj ->
     // Configure defaults for sourceSets.test
     tasks.matching { it.name == "forbiddenApisTest" || it.name == "forbiddenApisTestTemplates" }.all { task ->
       bundledSignatures += [
-          'jdk-unsafe',
-          'jdk-deprecated',
-          'jdk-non-portable',
-          'jdk-reflection',
+        'jdk-unsafe',
+        'jdk-deprecated',
+        'jdk-non-portable',
+        'jdk-reflection',
       ]
 
       signaturesFiles = files(
           rootProject.file("gradle/validation/forbidden-apis/defaults.tests.txt")
-      )
+          )
 
       suppressAnnotations += [
-          "**.SuppressForbidden"
+        "**.SuppressForbidden"
       ]
 
       check.dependsOn task
@@ -93,7 +98,10 @@ allprojects { prj ->
     //
     // This is the simplest workaround possible: just point at all the rule files and indicate
     // them as inputs. This way if a rule is modified, checks will be reapplied.
-    configure([forbiddenApisMain, forbiddenApisTest]) { task ->
+    configure([
+      forbiddenApisMain,
+      forbiddenApisTest
+    ]) { task ->
       task.inputs.dir(rootProject.file("gradle/validation/forbidden-apis"))
     }
   })

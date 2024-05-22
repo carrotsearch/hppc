@@ -17,7 +17,7 @@ configure(rootProject) {
   def currentJavaVersion = JavaVersion.current()
   if (currentJavaVersion < expectedJavaVersion) {
     throw new GradleException("Java version ${expectedJavaVersion} is required: this Java is ${currentJavaVersion} "
-      + "[${System.getProperty('java.vm.name')} ${System.getProperty('java.vm.version')}]")
+    + "[${System.getProperty('java.vm.name')} ${System.getProperty('java.vm.version')}]")
   }
 
   // If we're regenerating the wrapper, skip the check.

@@ -29,26 +29,34 @@ public class PlaModel implements Accountable {
 
   /** Epsilon precision of the PLA-model. */
   private int epsilon;
+
   /** First key of the current segment. */
   private double firstKey;
+
   /** Previous key used to check that keys are added in strictly increasing sequence. */
   private double previousKey;
+
   /** Number of points in the convex hull for the current segment. */
   private int numPointsInHull;
+
   /** Enclosing rectangle for the current segment. */
   private final Point[] rect = new Point[4];
+
   /**
    * Ordered list of lower points for the current segment. Inside the list, allocated points are
    * re-used.
    */
   private final PointList lower = new PointList(INITIAL_CAPACITY);
+
   /**
    * Ordered list of upper points for the current segment. Inside the list, allocated points are
    * re-used.
    */
   private final PointList upper = new PointList(INITIAL_CAPACITY);
+
   /** Index of the first lower point to compare to. */
   private int lowerStart;
+
   /** Index of the first upper point to compare to. */
   private int upperStart;
 

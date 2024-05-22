@@ -39,10 +39,12 @@ task generateGrammars(type: JavaExec) {
   outputs.dir(srcGeneratedGrammars)
 
   args = [
-      "-visitor",
-      "-package", "com.carrotsearch.hppc.generator.parser",
-      "-o", "$srcGeneratedGrammars/com/carrotsearch/hppc/generator/parser",
-      grammars,
+    "-visitor",
+    "-package",
+    "com.carrotsearch.hppc.generator.parser",
+    "-o",
+    "$srcGeneratedGrammars/com/carrotsearch/hppc/generator/parser",
+    grammars,
   ].flatten()
 
   def baos = new ByteArrayOutputStream()
