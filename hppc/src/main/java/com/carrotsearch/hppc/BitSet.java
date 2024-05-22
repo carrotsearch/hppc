@@ -20,9 +20,9 @@ import java.util.*;
 /**
  * An "open" BitSet implementation that allows direct access to the array of words storing the bits.
  *
- * <p>Unlike java.util.bitset, the fact that bits are packed into an array of longs is part of the
- * interface. This allows efficient implementation of other algorithms by someone other than the
- * author. It also allows one to efficiently implement alternate serialization or interchange
+ * <p>Unlike {@link java.util.BitSet}, the fact that bits are packed into an array of longs is part
+ * of the interface. This allows efficient implementation of other algorithms by someone other than
+ * the author. It also allows one to efficiently implement alternate serialization or interchange
  * formats.
  *
  * <p>The index range for a bitset can easily exceed positive <code>int</code> range in Java
