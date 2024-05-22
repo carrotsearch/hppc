@@ -94,7 +94,9 @@ public class BitSet implements Cloneable {
     return new BitSetIterator(bits, wlen);
   }
 
-  /** @return Returns the current capacity in bits (1 greater than the index of the last bit). */
+  /**
+   * @return Returns the current capacity in bits (1 greater than the index of the last bit).
+   */
   public long capacity() {
     return bits.length << 6;
   }
@@ -120,7 +122,9 @@ public class BitSet implements Cloneable {
     return (((long) wlen - 1) << 6) + (64 - Long.numberOfLeadingZeros(bits[wlen - 1]));
   }
 
-  /** @return Returns true if there are no set bits */
+  /**
+   * @return Returns true if there are no set bits
+   */
   public boolean isEmpty() {
     return cardinality() == 0;
   }
@@ -399,7 +403,9 @@ public class BitSet implements Cloneable {
     bits[endWord] ^= endmask;
   }
 
-  /** @return the number of set bits */
+  /**
+   * @return the number of set bits
+   */
   public long cardinality() {
     return BitUtil.pop_array(bits, 0, wlen);
   }

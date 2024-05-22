@@ -30,12 +30,16 @@ public final class QuickSort {
     // No instantiation.
   }
 
-  /** @see #sort(int, int, IntBinaryOperator, IntBinaryOperator) */
+  /**
+   * @see #sort(int, int, IntBinaryOperator, IntBinaryOperator)
+   */
   public static void sort(int[] array, IntBinaryOperator comparator) {
     sort(array, 0, array.length, comparator);
   }
 
-  /** @see #sort(int, int, IntBinaryOperator, IntBinaryOperator) */
+  /**
+   * @see #sort(int, int, IntBinaryOperator, IntBinaryOperator)
+   */
   public static void sort(int[] array, int fromIndex, int toIndex, IntBinaryOperator comparator) {
     sort(
         fromIndex,

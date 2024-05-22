@@ -35,8 +35,8 @@ dependencies {
 
   templatesImplementation project(":hppc-template-intrinsics")
 
-  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
-  testImplementation "org.assertj:assertj-core"
+  testImplementation deps.randomizedtesting.runner
+  testImplementation deps.assertj
 }
 
 task generateMainTemplates(type: GenerateTemplatesTask) {
@@ -102,7 +102,7 @@ class GenerateTemplatesTask extends DefaultTask {
     outputFile.withOutputStream { output ->
       result = project.javaexec {
         classpath project.configurations.templateProcessor
-        main = 'com.carrotsearch.hppc.generator.TemplateProcessor'
+        mainClass = 'com.carrotsearch.hppc.generator.TemplateProcessor'
 
         standardOutput = output
         errorOutput = output
@@ -112,8 +112,10 @@ class GenerateTemplatesTask extends DefaultTask {
         }
 
         args += [
-            "--templates", templatesDir,
-            "--output", outputDir
+          "--templates",
+          templatesDir,
+          "--output",
+          outputDir
         ]
 
         ignoreExitValue true
@@ -128,7 +130,7 @@ class GenerateTemplatesTask extends DefaultTask {
         cause = ex
       }
       throw new GradleException("Template generation failed for ${project.path},\n  " +
-          "Command output at ${outputFile}:\n${outputFile.text}", cause)
+      "Command output at ${outputFile}:\n${outputFile.text}", cause)
     }
   }
 }

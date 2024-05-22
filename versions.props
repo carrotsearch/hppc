@@ -1,8 +1,0 @@
-org.antlr:*=4.8
-org.apache.velocity:velocity-engine-core=2.2
-
-com.carrotsearch.console:*=1.0.6
-com.carrotsearch.randomizedtesting:*=2.7.9
-org.assertj:*=3.21.0
-
-org.openjdk.jmh:*=1.25

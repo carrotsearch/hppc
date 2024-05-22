@@ -1,23 +1,22 @@
 plugins {
   id 'base'
 
-  id 'com.diffplug.spotless' version "5.17.1" apply false
-  id "com.palantir.consistent-versions" version "2.5.0"
-
-  id "com.github.ben-manes.versions" version "0.28.0"
-
-  id 'de.thetaphi.forbiddenapis' version '3.2' apply false
-
-  id "me.champeau.gradle.jmh" version "0.5.3" apply false
+  alias(deps.plugins.dependencychecks)
+  alias(deps.plugins.spotless) apply false
+  alias(deps.plugins.benmanes.versions)
+  alias(deps.plugins.forbiddenapis) apply false
+  alias(deps.plugins.jmh) apply false
+  alias(deps.plugins.versionCatalogUpdate) apply false
 }
 
-rootProject.version = '0.10.0-SNAPSHOT'
+rootProject.version = deps.versions.hppcVersion.get()
 ext {
   fullName = "High Performance Primitive Collections"
   legal = files('LICENSE.txt')
   forbiddenApiRulesDir = file("gradle/forbidden-apis")
 }
 
+apply from: file('gradle/java/dependencies.gradle')
 apply from: file('gradle/misc/propertyOrDefault.gradle')
 apply from: file('gradle/validation/check-environment.gradle')
 apply from: file('gradle/validation/forbidden-apis.gradle')

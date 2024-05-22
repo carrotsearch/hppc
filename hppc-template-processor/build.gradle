@@ -13,14 +13,14 @@ configurations {
 dependencies {
   api project(":hppc-template-intrinsics")
 
-  implementation "org.antlr:antlr4-runtime"
-  implementation "org.apache.velocity:velocity-engine-core"
-  implementation "com.carrotsearch.console:launcher"
+  implementation deps.antlr.runtime
+  implementation deps.velocity
+  implementation deps.carrotsearch.console.launcher
 
-  testImplementation "com.carrotsearch.randomizedtesting:randomizedtesting-runner"
-  testImplementation "org.assertj:assertj-core"
+  testImplementation deps.randomizedtesting.runner
+  testImplementation deps.assertj
 
-  antlr "org.antlr:antlr4"
+  antlr deps.antlr.base
 }
 
 sourceSets {
@@ -31,7 +31,7 @@ sourceSets {
 
 task generateGrammars(type: JavaExec) {
   classpath configurations.antlr
-  main = 'org.antlr.v4.Tool'
+  mainClass = 'org.antlr.v4.Tool'
 
   def grammars = fileTree('src/main/antlr').include('**/*.g4').files
 
@@ -39,10 +39,12 @@ task generateGrammars(type: JavaExec) {
   outputs.dir(srcGeneratedGrammars)
 
   args = [
-      "-visitor",
-      "-package", "com.carrotsearch.hppc.generator.parser",
-      "-o", "$srcGeneratedGrammars/com/carrotsearch/hppc/generator/parser",
-      grammars,
+    "-visitor",
+    "-package",
+    "com.carrotsearch.hppc.generator.parser",
+    "-o",
+    "$srcGeneratedGrammars/com/carrotsearch/hppc/generator/parser",
+    grammars,
   ].flatten()
 
   def baos = new ByteArrayOutputStream()
