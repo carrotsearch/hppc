@@ -1,5 +1,6 @@
 plugins {
   id 'java-library'
+  alias(deps.plugins.spotless)
 }
 
 sourceSets {
@@ -45,7 +46,7 @@ task generateMainTemplates(type: GenerateTemplatesTask) {
 }
 
 compileJava {
-  dependsOn generateMainTemplates
+  dependsOn generateMainTemplates, "spotlessTemplatesApply"
 
   options.compilerArgs.addAll([
     '--module-version',
@@ -56,6 +57,23 @@ compileJava {
 task generateTestTemplates(type: GenerateTemplatesTask) {
   templatesDir file("src/test/templates")
   outputDir file("$buildDir/generated/test/templates")
+}
+
+spotless {
+  format('templates', com.diffplug.gradle.spotless.JavaExtension, {
+    target "$buildDir/generated/main/templates"
+
+    bumpThisNumberIfACustomStepChanges(1)
+    custom 'cleanimports', { str -> str.replaceAll('/\\*\\s*\\*/', "") }
+
+    lineEndings 'UNIX'
+    endWithNewline()
+    googleJavaFormat(deps.versions.googleJavaFormat.get())
+  })
+}
+
+tasks.named("spotlessTemplates").configure {
+  dependsOn(generateMainTemplates)
 }
 
 compileTestJava {
