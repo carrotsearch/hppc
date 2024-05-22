@@ -13,28 +13,28 @@ package com.carrotsearch.hppc;
 class PgmIndexUtil {
 
   /** Adds the first key of the current segment to the segment data bytes. */
-  static <KType> void addKey(KType key, IntGrowableArray segmentData) {
+  static <KType> void addKey(KType key, IntArrayList segmentData) {
     throw new UnsupportedOperationException("Invalid for generic type: " + key);
   }
 
   /** Adds the first key of the current segment to the segment data bytes. */
-  static void addKey(int key, IntGrowableArray segmentData) {
+  static void addKey(int key, IntArrayList segmentData) {
     segmentData.add(key);
   }
 
   /** Adds the first key of the current segment to the segment data bytes. */
-  static void addKey(float key, IntGrowableArray segmentData) {
+  static void addKey(float key, IntArrayList segmentData) {
     addKey(Float.floatToIntBits(key), segmentData);
   }
 
   /** Adds the first key of the current segment to the segment data bytes. */
-  static void addKey(long key, IntGrowableArray segmentData) {
+  static void addKey(long key, IntArrayList segmentData) {
     segmentData.add((int) key);
     segmentData.add((int) (key >> 32));
   }
 
   /** Adds the first key of the current segment to the segment data bytes. */
-  static void addKey(double key, IntGrowableArray segmentData) {
+  static void addKey(double key, IntArrayList segmentData) {
     addKey(Double.doubleToRawLongBits(key), segmentData);
   }
 
@@ -70,7 +70,7 @@ class PgmIndexUtil {
    *
    * @param keySize The size of the key, measure in {@link Integer#BYTES}.
    */
-  static void addIntercept(long intercept, IntGrowableArray segmentData, int keySize) {
+  static void addIntercept(long intercept, IntArrayList segmentData, int keySize) {
     assert keySize >= 1 && keySize <= 2;
     if (keySize == 1) {
       addKey((int) intercept, segmentData);
@@ -98,7 +98,7 @@ class PgmIndexUtil {
    *
    * @param keySize The size of the key, measure in {@link Integer#BYTES}.
    */
-  static void addSlope(double slope, IntGrowableArray segmentData, int keySize) {
+  static void addSlope(double slope, IntArrayList segmentData, int keySize) {
     assert keySize >= 1 && keySize <= 2;
     if (keySize == 1) {
       addKey((float) slope, segmentData);

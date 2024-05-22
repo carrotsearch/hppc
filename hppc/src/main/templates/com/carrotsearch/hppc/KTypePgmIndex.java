@@ -429,7 +429,7 @@ public class KTypePgmIndex<KType> implements Accountable {
     protected int epsilonRecursive = EPSILON_RECURSIVE;
     protected PlaModel plam;
     protected int size;
-    protected IntGrowableArray segmentData;
+    protected IntArrayList segmentData;
     protected int numSegments;
 
     /** Sets the sorted list of keys to build the index for; duplicate elements are allowed. */
@@ -472,8 +472,8 @@ public class KTypePgmIndex<KType> implements Accountable {
       plam = new PlaModel(epsilon);
 
       int segmentsInitialCapacity = Math.min(Math.max(keys.size() / (2 * epsilon * epsilon) * SEGMENT_DATA_SIZE, 16), 1 << 19);
-      segmentData = new IntGrowableArray(segmentsInitialCapacity);
-      IntGrowableArray levelOffsets = new IntGrowableArray(16);
+      segmentData = new IntArrayList(segmentsInitialCapacity);
+      IntArrayList levelOffsets = new IntArrayList(16);
 
       int levelOffset = 0;
       levelOffsets.add(levelOffset);
@@ -555,7 +555,7 @@ public class KTypePgmIndex<KType> implements Accountable {
       PgmIndexUtil.addKey((KType)Intrinsics.<KType>cast(firstKey), segmentData);
       PgmIndexUtil.addSlope(slope, segmentData, KEY_SIZE);
       numSegments++;
-      assert segmentData.size == numSegments * SEGMENT_DATA_SIZE;
+      assert segmentData.size() == numSegments * SEGMENT_DATA_SIZE;
     }
 
     /**
