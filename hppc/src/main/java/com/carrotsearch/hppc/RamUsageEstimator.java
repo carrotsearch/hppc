@@ -21,15 +21,6 @@ import java.util.Map;
  * <p>Mostly forked from Lucene tag releases/lucene-solr/8.5.1
  */
 final class RamUsageEstimator {
-  /** One kilobyte bytes. */
-  static final long ONE_KB = 1024;
-
-  /** One megabyte bytes. */
-  static final long ONE_MB = ONE_KB * ONE_KB;
-
-  /** One gigabyte bytes. */
-  static final long ONE_GB = ONE_KB * ONE_MB;
-
   /** No instantiation. */
   private RamUsageEstimator() {}
 
@@ -84,7 +75,7 @@ final class RamUsageEstimator {
       if (datamodel != null) {
         is64Bit = datamodel.contains("64");
       }
-    } catch (SecurityException ex) {
+    } catch (SecurityException ignored) {
     }
     if (datamodel == null) {
       is64Bit = OS_ARCH != null && OS_ARCH.contains("64");
@@ -110,17 +101,17 @@ final class RamUsageEstimator {
             compressedOops =
                 Boolean.parseBoolean(
                     vmOption.getClass().getMethod("getValue").invoke(vmOption).toString());
-          } catch (ReflectiveOperationException | RuntimeException e) {
+          } catch (ReflectiveOperationException | RuntimeException ignored) {
           }
           try {
             final Object vmOption = getVMOptionMethod.invoke(hotSpotBean, "ObjectAlignmentInBytes");
             objectAlignment =
                 Integer.parseInt(
                     vmOption.getClass().getMethod("getValue").invoke(vmOption).toString());
-          } catch (ReflectiveOperationException | RuntimeException e) {
+          } catch (ReflectiveOperationException | RuntimeException ignored) {
           }
         }
-      } catch (ReflectiveOperationException | RuntimeException e) {
+      } catch (ReflectiveOperationException | RuntimeException ignored) {
       }
       COMPRESSED_REFS_ENABLED = compressedOops;
       NUM_BYTES_OBJECT_ALIGNMENT = objectAlignment;

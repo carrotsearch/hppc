@@ -9,7 +9,7 @@
  */
 package com.carrotsearch.hppc.examples;
 
-import com.carrotsearch.hppc.SuppressForbidden;
+import com.carrotsearch.hppc.internals.SuppressForbidden;
 import java.util.Locale;
 
 class Helpers {

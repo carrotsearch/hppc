@@ -12,7 +12,6 @@ package com.carrotsearch.hppc;
 import java.util.IllegalFormatException;
 import java.util.Locale;
 
-@SuppressWarnings("serial")
 public class BufferAllocationException extends RuntimeException {
   public BufferAllocationException(String message) {
     super(message);

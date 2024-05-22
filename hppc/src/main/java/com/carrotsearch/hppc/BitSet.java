@@ -34,7 +34,7 @@ import java.util.*;
  * @see #asLongLookupContainer()
  */
 public class BitSet implements Cloneable {
-  /** The initial default number of bits ({@value #DEFAULT_NUM_BITS}). */
+  /** The initial default number of bits. */
   private static final long DEFAULT_NUM_BITS = 64;
 
   /** Internal representation of bits in this bit set. */

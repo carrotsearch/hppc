@@ -9,6 +9,7 @@
  */
 package com.carrotsearch.hppc;
 
+import com.carrotsearch.hppc.internals.SuppressForbidden;
 import java.security.PrivilegedAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;

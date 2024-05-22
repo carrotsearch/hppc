@@ -7,7 +7,7 @@
  * Refer to the full license file "LICENSE.txt":
  * https://github.com/carrotsearch/hppc/blob/master/LICENSE.txt
  */
-package com.carrotsearch.hppc;
+package com.carrotsearch.hppc.internals;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

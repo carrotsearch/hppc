@@ -10,7 +10,7 @@
 package com.carrotsearch.hppc;
 
 /** Utility methods for {@code KTypePgmIndex}. */
-class PgmIndexUtil {
+final class PgmIndexUtil {
 
   /** Adds the first key of the current segment to the segment data bytes. */
   static <KType> void addKey(KType key, IntArrayList segmentData) {
