@@ -40,7 +40,7 @@ jobs:
 
       - name: Store failed test outputs
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: failed-test-outputs
           path: '**/OUTPUT-*.txt'
