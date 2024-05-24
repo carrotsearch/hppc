@@ -156,13 +156,7 @@ public class KTypeStack<KType> extends KTypeArrayList<KType> {
    * Remove the top element from the stack and return it.
    */
   public KType pop() {
-    assert elementsCount > 0;
-
-    final KType v = Intrinsics.<KType> cast(buffer[--elementsCount]);
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    buffer[elementsCount] = null;
-    /* #end */
-    return v;
+    return removeLast();
   }
 
   /**

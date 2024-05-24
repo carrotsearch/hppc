@@ -218,15 +218,28 @@ public class KTypeArrayList<KType>
    * {@inheritDoc}
    */
   @Override
-  public KType remove(int index) {
+  public KType removeAt(int index) {
     assert (index >= 0 && index < size()) : "Index " + index + " out of bounds [" + 0 + ", " + size() + ").";
 
     final KType v = Intrinsics.<KType> cast(buffer[index]);
-    if (index + 1 < elementsCount) {
-      System.arraycopy(buffer, index + 1, buffer, index, elementsCount - index - 1);
-    }
-    elementsCount--;
+    System.arraycopy(buffer, index + 1, buffer, index, --elementsCount - index);
+    /* #if ($TemplateOptions.KTypeGeneric) */
     buffer[elementsCount] = Intrinsics.empty();
+    /* #end */
+    return v;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public KType removeLast() {
+    assert elementsCount > 0;
+
+    final KType v = Intrinsics.<KType> cast(buffer[--elementsCount]);
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    buffer[elementsCount] = Intrinsics.empty();
+    /* #end */
     return v;
   }
 
@@ -245,7 +258,17 @@ public class KTypeArrayList<KType>
     System.arraycopy(buffer, toIndex, buffer, fromIndex, elementsCount - toIndex);
     final int count = toIndex - fromIndex;
     elementsCount -= count;
+    /* #if ($TemplateOptions.KTypeGeneric) */
     Arrays.fill(buffer, elementsCount, elementsCount + count, Intrinsics.empty());
+    /* #end */
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean removeElement(KType e1) {
+    return removeFirst(e1) != -1;
   }
 
   /**
@@ -255,7 +278,7 @@ public class KTypeArrayList<KType>
   public int removeFirst(KType e1) {
     final int index = indexOf(e1);
     if (index >= 0)
-      remove(index);
+      removeAt(index);
     return index;
   }
 
@@ -266,7 +289,7 @@ public class KTypeArrayList<KType>
   public int removeLast(KType e1) {
     final int index = lastIndexOf(e1);
     if (index >= 0)
-      remove(index);
+      removeAt(index);
     return index;
   }
 
@@ -278,19 +301,18 @@ public class KTypeArrayList<KType>
     int to = 0;
     for (int from = 0; from < elementsCount; from++) {
       if (Intrinsics.equals(this, e1, buffer[from])) {
-        buffer[from] = Intrinsics.empty();
         continue;
       }
-
       if (to != from) {
         buffer[to] = buffer[from];
-        buffer[from] = Intrinsics.empty();
       }
       to++;
     }
-
     final int deleted = elementsCount - to;
     this.elementsCount = to;
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    Arrays.fill(buffer, elementsCount, elementsCount + deleted, Intrinsics.empty());
+    /* #end */
     return deleted;
   }
 
