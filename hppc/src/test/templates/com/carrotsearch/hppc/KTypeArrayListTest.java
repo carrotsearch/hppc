@@ -599,9 +599,18 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testToArray()
     {
-        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, k2, k3);
-        Object[] result = l1.toArray();
+        list = KTypeArrayList.from(k1, k2, k3);
+        Object[] result = list.toArray();
         assertArrayEquals(new Object [] {k1, k2, k3}, result);
+    }
+    /*! #end !*/
+
+    /*! #if ($TemplateOptions.isKTypeAnyOf("GENERIC", "INT", "LONG", "DOUBLE")) !*/
+    @Test
+    public void testStream() {
+        list.add(k1, k2, k3);
+        assertEquals2(k1, list.stream().findFirst().orElseThrow());
+        assertEquals2(k2, list.stream().toArray()[1]);
     }
     /*! #end !*/
 

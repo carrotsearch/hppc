@@ -1,6 +1,18 @@
 package com.carrotsearch.hppc;
 
 import java.util.*;
+/* #if ($TemplateOptions.KTypeGeneric) */
+import java.util.stream.Stream;
+/* #end */
+/*! #if ($TemplateOptions.isKTypeAnyOf("INT"))
+import java.util.stream.IntStream;
+#end !*/
+/*! #if ($TemplateOptions.isKTypeAnyOf("LONG"))
+import java.util.stream.LongStream;
+#end !*/
+/*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE"))
+import java.util.stream.DoubleStream;
+#end !*/
 
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
@@ -463,6 +475,33 @@ public class KTypeArrayList<KType>
   {
     return Arrays.copyOf(buffer, elementsCount);
   }
+
+  /* #if ($TemplateOptions.KTypeGeneric) */
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public Stream<KType> stream() {
+    return (Stream<KType>) Arrays.stream(buffer, 0, size());
+  }
+  /* #end */
+  /*! #if ($TemplateOptions.isKTypeAnyOf("INT"))
+  @Override
+  public IntStream stream() {
+  #end !*/
+  /*! #if ($TemplateOptions.isKTypeAnyOf("LONG"))
+  @Override
+  public LongStream stream() {
+  #end !*/
+  /*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE"))
+  @Override
+  public DoubleStream stream() {
+  #end !*/
+  /*! #if ($TemplateOptions.isKTypeAnyOf("INT", "LONG", "DOUBLE"))
+    return Arrays.stream(buffer, 0, size());
+  }
+  #end !*/
 
   /**
    * Clone this object. The returned clone will reuse the same hash function and
