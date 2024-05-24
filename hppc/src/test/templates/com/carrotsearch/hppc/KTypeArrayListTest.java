@@ -34,6 +34,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         list = new KTypeArrayList<>();
     }
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @After
     public void checkTrailingSpaceUninitialized()
     {
@@ -43,6 +44,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
                 assertTrue(Intrinsics.<KType> empty() == list.buffer[i]);
         }
     }
+    /*! #end !*/
 
     /* */
     @Test
@@ -125,15 +127,32 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     
     /* */
     @Test
-    public void testRemove()
+    public void testRemoveAt()
     {
         list.add(asArray(0, 1, 2, 3, 4));
 
-        list.remove(0);
-        list.remove(2);
-        list.remove(1);
+        list.removeAt(0);
+        list.removeAt(2);
+        list.removeAt(1);
 
         assertListEquals(list.toArray(), 1, 4);
+    }
+
+    /* */
+    @Test
+    public void testRemoveLast() {
+        list.add(asArray(0, 1, 2, 3, 4));
+
+        assertEquals2(4, list.removeLast());
+        assertEquals2(4, list.size());
+        assertListEquals(list.toArray(), 0, 1, 2, 3);
+        assertEquals2(3, list.removeLast());
+        assertEquals2(3, list.size());
+        assertListEquals(list.toArray(), 0, 1, 2);
+        assertEquals2(2, list.removeLast());
+        assertEquals2(1, list.removeLast());
+        assertEquals2(0, list.removeLast());
+        assertTrue(list.isEmpty());
     }
 
     /* */
@@ -173,17 +192,16 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         assertListEquals(list.toArray(), 2, 1);
         assertEquals(-1, list.removeLast(k0));
         
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
         list.clear();
-        list.add(newArray(k0, null, k2, null, k0));
-        assertEquals(1, list.removeFirst(null));
-        assertEquals(2, list.removeLast(null));
-        assertListEquals(list.toArray(), 0, 2, 0);
-        /*! #end !*/
+        list.add(newArray(k1, Intrinsics.empty(), k2, Intrinsics.empty(), k1));
+        assertEquals(1, list.removeFirst(Intrinsics.empty()));
+        assertEquals(2, list.removeLast(Intrinsics.empty()));
+        assertListEquals(list.toArray(), 1, 2, 1);
     }
 
     /* */
     @Test
+    @SuppressWarnings("unchecked")
     public void testRemoveAll()
     {
         list.add(asArray(0, 1, 0, 1, 0));
@@ -195,13 +213,11 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         assertEquals(2, list.removeAll(k1));
         assertTrue(list.isEmpty());
 
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
         list.clear();
-        list.add(newArray(k0, null, k2, null, k0));
-        assertEquals(2, list.removeAll((KType) null));
-        assertEquals(0, list.removeAll((KType) null));
-        assertListEquals(list.toArray(), 0, 2, 0);
-        /*! #end !*/
+        list.add(newArray(k1, Intrinsics.empty(), k2, Intrinsics.empty(), k1));
+        assertEquals(2, list.removeAll((KType) Intrinsics.empty()));
+        assertEquals(0, list.removeAll((KType) Intrinsics.empty()));
+        assertListEquals(list.toArray(), 1, 2, 1);
     }
 
     /*! #if (not $TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE")) !*/
@@ -286,33 +302,31 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     
     /* */
     @Test
+    @SuppressWarnings("unchecked")
     public void testIndexOf()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        list.add(asArray(3, 1, 2, 1, 3));
 
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        list.add((KType) null);
-        assertEquals(5, list.indexOf(null));
-        /*! #end !*/
+        list.add((KType) Intrinsics.empty());
+        assertEquals(5, list.indexOf(Intrinsics.empty()));
 
-        assertEquals(0, list.indexOf(k0));
-        assertEquals(-1, list.indexOf(k3));
+        assertEquals(0, list.indexOf(k3));
+        assertEquals(-1, list.indexOf(k4));
         assertEquals(2, list.indexOf(k2));
     }
-    
+
     /* */
     @Test
+    @SuppressWarnings("unchecked")
     public void testLastIndexOf()
     {
-        list.add(asArray(0, 1, 2, 1, 0));
+        list.add(asArray(3, 1, 2, 1, 3));
 
-        /*! #if ($TemplateOptions.KTypeGeneric) !*/
-        list.add((KType) null);
-        assertEquals(5, list.lastIndexOf(null));
-        /*! #end !*/
+        list.add((KType) Intrinsics.empty());
+        assertEquals(5, list.lastIndexOf(Intrinsics.empty()));
 
-        assertEquals2(4, list.lastIndexOf(k0));
-        assertEquals2(-1, list.lastIndexOf(k3));
+        assertEquals2(4, list.lastIndexOf(k3));
+        assertEquals2(-1, list.lastIndexOf(k4));
         assertEquals2(2, list.lastIndexOf(k2));
     }
 
@@ -487,7 +501,8 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         list.add(asArray( 1, 2, 3));
         list.clear();
-        checkTrailingSpaceUninitialized();
+        assertTrue(list.isEmpty());
+        assertEquals(-1, list.indexOf(cast(1)));
     }
 
     /* */
@@ -539,17 +554,15 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         assertTrue(l2.equalElements(l1));
     }
 
-    /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
-    public void testHashCodeWithNulls()
+    public void testHashCodeWithEmptyKeys()
     {
-        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, null, k3); 
-        KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, null, k3); 
+        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, Intrinsics.empty(), k3);
+        KTypeArrayList<KType> l2 = KTypeArrayList.from(k1, Intrinsics.empty(), k3);
 
         assertEquals(l1.hashCode(), l2.hashCode());
         assertEquals(l1, l2);
     }
-    /*! #end !*/
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
@@ -561,10 +574,10 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         class B extends A {
         }
 
-        KTypeArrayList<B> list2 = new KTypeArrayList<B>();
+        KTypeArrayList<B> list2 = new KTypeArrayList<>();
         list2.add(new B());
 
-        KTypeArrayList<A> list3 = new KTypeArrayList<A>();
+        KTypeArrayList<A> list3 = new KTypeArrayList<>();
         list3.add(new B());
         list3.add(new A());
         list3.addAll(list2);

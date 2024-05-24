@@ -9,6 +9,12 @@ import java.util.RandomAccess;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, RandomAccess {
   /**
+   * Removes the first element that equals <code>e1</code>, returning whether
+   * an element has been removed.
+   */
+  public boolean removeElement(KType e1);
+
+  /**
    * Removes the first element that equals <code>e1</code>, returning its
    * deleted position or <code>-1</code> if the element was not found.
    */
@@ -68,7 +74,13 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
    * @see #removeLast
    * @see #removeAll
    */
-  public KType remove(int index);
+  public KType removeAt(int index);
+
+  /**
+   * Removes and returns the last element of this container.
+   * This container must not be empty.
+   */
+  public KType removeLast();
 
   /**
    * Removes from this container all of the elements with indexes between
