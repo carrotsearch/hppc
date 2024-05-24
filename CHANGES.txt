@@ -15,6 +15,9 @@
 
 ** Improvements
 
+   GH-248: List constructor creates a buffer with capacity exactly the expected number of elements.
+           (Bruno Roustant)
+
 ** Bugs
 
    GH-237: Fix HashMap put/remove returned value for empty key after clear. (Bruno Roustant)
