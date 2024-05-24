@@ -96,7 +96,7 @@ public class KTypeArrayList<KType>
   public KTypeArrayList(int expectedElements, ArraySizingStrategy resizer) {
     assert resizer != null;
     this.resizer = resizer;
-    ensureCapacity(expectedElements);
+    buffer = Arrays.copyOf(buffer, expectedElements);
   }
 
   /**

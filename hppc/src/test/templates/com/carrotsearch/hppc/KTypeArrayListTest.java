@@ -322,6 +322,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     {
         TightRandomResizingStrategy resizer = new TightRandomResizingStrategy(0);
         KTypeArrayList<KType> list = new KTypeArrayList<>(0, resizer);
+        assertEquals(list.size(), list.buffer.length);
 
         // Add some elements.
         final int max = rarely() ? 0 : randomIntBetween(0, 1000);
@@ -390,6 +391,7 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
         list = new KTypeArrayList<KType>(0, 
             new BoundedProportionalArraySizingStrategy(5, maxGrowth, 2));
+        assertEquals(list.size(), list.buffer.length);
 
         for (int i = 0; i < count; i++)
             list.add(cast(i));
@@ -492,9 +494,21 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testFrom()
     {
-        KTypeArrayList<KType> variable = KTypeArrayList.from(k1, k2, k3);
-        assertEquals(3, variable.size());
-        assertListEquals(variable.toArray(), 1, 2, 3);
+        list = KTypeArrayList.from(k1, k2, k3);
+        assertEquals(3, list.size());
+        assertListEquals(list.toArray(), 1, 2, 3);
+        assertEquals(list.size(), list.buffer.length);
+    }
+
+    /* */
+    @Test
+    public void testCopyContainer()
+    {
+        list.add(asArray( 1, 2, 3));
+        KTypeArrayList<KType> copy = new KTypeArrayList<KType>(list);
+        assertEquals(3, copy.size());
+        assertListEquals(copy.toArray(), 1, 2, 3);
+        assertEquals(copy.size(), copy.buffer.length);
     }
 
     /* */
