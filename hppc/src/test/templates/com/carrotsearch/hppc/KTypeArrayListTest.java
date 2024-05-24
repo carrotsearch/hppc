@@ -614,6 +614,33 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
     /*! #end !*/
 
+    @Test
+    public void testSort() {
+        list = KTypeArrayList.from(key3, key1, key3, key2);
+        KTypeArrayList<KType> list2 = new KTypeArrayList<KType>();
+        list2.ensureCapacity(30);
+        list2.addAll(list);
+        assertSame(list2, list2.sort());
+        assertEquals2(KTypeArrayList.from(key1, key2, key3, key3), list2);
+    }
+
+    @Test
+    public void testReverse() {
+        for (int size = 0; size < 10; size++) {
+            KTypeArrayList<KType> list = new KTypeArrayList<KType>();
+            list.ensureCapacity(30);
+            for (int j = 0; j < size; j++) {
+                list.add(cast(j));
+            }
+            assertSame(list, list.reverse());
+            assertEquals(size, list.size());
+            int reverseIndex = size - 1;
+            for (KTypeCursor<KType> cursor : list) {
+                assertEquals2(cast(reverseIndex--), cursor.value);
+            }
+        }
+    }
+
     /* */
     @Test
     public void testClone()

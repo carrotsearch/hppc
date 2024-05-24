@@ -109,4 +109,14 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
   /*! #if ($TemplateOptions.isKTypeAnyOf("INT")) public IntStream stream(); #end !*/
   /*! #if ($TemplateOptions.isKTypeAnyOf("LONG")) public LongStream stream(); #end !*/
   /*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE")) public DoubleStream stream(); #end !*/
+
+  /**
+   * Sorts the elements in this container and returns this container.
+   */
+  public KTypeIndexedContainer<KType> sort();
+
+  /**
+   * Reverses the elements in this container and returns this container.
+   */
+  public KTypeIndexedContainer<KType> reverse();
 }

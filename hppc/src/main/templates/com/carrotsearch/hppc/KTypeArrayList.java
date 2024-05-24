@@ -504,6 +504,28 @@ public class KTypeArrayList<KType>
   #end !*/
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public KTypeIndexedContainer<KType> sort() {
+    Arrays.sort(buffer, 0, elementsCount);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public KTypeIndexedContainer<KType> reverse() {
+    for (int i = 0, mid = elementsCount >> 1, j = elementsCount - 1; i < mid; i++, j--) {
+      KType tmp = Intrinsics.<KType> cast(buffer[i]);
+      buffer[i] = buffer[j];
+      buffer[j] = tmp;
+    }
+    return this;
+  }
+
+  /**
    * Clone this object. The returned clone will reuse the same hash function and
    * array resizing strategy.
    */
