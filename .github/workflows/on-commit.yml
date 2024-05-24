@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        java: [ '17', '21' ]
+        java: [ '11', '21' ]
 
     steps:
       - name: Git checkout
@@ -42,5 +42,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: failed-test-outputs
+          name: failed-test-outputs-${{ matrix.java }}
           path: '**/OUTPUT-*.txt'

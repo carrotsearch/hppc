@@ -7,7 +7,7 @@ fastutil = "8.5.13"
 # @keep This is GJF version for spotless/ tidy.
 googleJavaFormat = "1.22.0"
 # @keep spotless formatting of groovy/gradle files
-greclipse = "4.27"
+greclipse = "4.26"
 # @keep This is the project's version.
 hppcVersion = "0.10.0-SNAPSHOT"
 jgit = "6.9.0.202403050737-r"
@@ -36,7 +36,7 @@ velocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = 
 
 [plugins]
 benmanes-versions = "com.github.ben-manes.versions:0.51.0"
-dependencychecks = "com.carrotsearch.gradle.dependencychecks:0.0.7"
+dependencychecks = "com.carrotsearch.gradle.dependencychecks:0.0.9"
 forbiddenapis = "de.thetaphi.forbiddenapis:3.7"
 jmh = "me.champeau.jmh:0.7.2"
 randomizedtesting = "com.carrotsearch.gradle.randomizedtesting:0.0.6"
