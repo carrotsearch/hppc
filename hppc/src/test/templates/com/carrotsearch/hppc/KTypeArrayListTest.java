@@ -599,11 +599,47 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     @Test
     public void testToArray()
     {
-        KTypeArrayList<KType> l1 = KTypeArrayList.from(k1, k2, k3);
-        Object[] result = l1.toArray();
+        list = KTypeArrayList.from(k1, k2, k3);
+        Object[] result = list.toArray();
         assertArrayEquals(new Object [] {k1, k2, k3}, result);
     }
     /*! #end !*/
+
+    /*! #if ($TemplateOptions.isKTypeAnyOf("GENERIC", "INT", "LONG", "DOUBLE")) !*/
+    @Test
+    public void testStream() {
+        list.add(k1, k2, k3);
+        assertEquals2(k1, list.stream().findFirst().orElseThrow());
+        assertEquals2(k2, list.stream().toArray()[1]);
+    }
+    /*! #end !*/
+
+    @Test
+    public void testSort() {
+        list = KTypeArrayList.from(key3, key1, key3, key2);
+        KTypeArrayList<KType> list2 = new KTypeArrayList<KType>();
+        list2.ensureCapacity(30);
+        list2.addAll(list);
+        assertSame(list2, list2.sort());
+        assertEquals2(KTypeArrayList.from(key1, key2, key3, key3), list2);
+    }
+
+    @Test
+    public void testReverse() {
+        for (int size = 0; size < 10; size++) {
+            KTypeArrayList<KType> list = new KTypeArrayList<KType>();
+            list.ensureCapacity(30);
+            for (int j = 0; j < size; j++) {
+                list.add(cast(j));
+            }
+            assertSame(list, list.reverse());
+            assertEquals(size, list.size());
+            int reverseIndex = size - 1;
+            for (KTypeCursor<KType> cursor : list) {
+                assertEquals2(cast(reverseIndex--), cursor.value);
+            }
+        }
+    }
 
     /* */
     @Test

@@ -3,6 +3,8 @@
 
 ** New features and API changes
 
+   GH-250: Add KTypeIndexedContainer stream, sort and reverse methods. (Bruno Roustant)
+
    GH-247: Add KTypeArrayList removeAt and rename remove to removeElement. (Bruno Roustant)
 
    GH-244: Hide RamUsageEstimator from the public API. (Dawid Weiss)

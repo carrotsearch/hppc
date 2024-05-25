@@ -1,6 +1,18 @@
 package com.carrotsearch.hppc;
 
 import java.util.RandomAccess;
+/* #if ($TemplateOptions.KTypeGeneric) */
+import java.util.stream.Stream;
+/* #end */
+/*! #if ($TemplateOptions.isKTypeAnyOf("INT"))
+import java.util.stream.IntStream;
+#end !*/
+/*! #if ($TemplateOptions.isKTypeAnyOf("LONG"))
+import java.util.stream.LongStream;
+#end !*/
+/*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE"))
+import java.util.stream.DoubleStream;
+#end !*/
 
 /**
  * An indexed container provides random access to elements based on an
@@ -87,4 +99,24 @@ public interface KTypeIndexedContainer<KType> extends KTypeCollection<KType>, Ra
    * <code>fromIndex</code>, inclusive, and <code>toIndex</code>, exclusive.
    */
   public void removeRange(int fromIndex, int toIndex);
+
+  /**
+   * Returns this container elements as a stream.
+   */
+  /* #if ($TemplateOptions.KTypeGeneric) */
+  public Stream<KType> stream();
+  /* #end */
+  /*! #if ($TemplateOptions.isKTypeAnyOf("INT")) public IntStream stream(); #end !*/
+  /*! #if ($TemplateOptions.isKTypeAnyOf("LONG")) public LongStream stream(); #end !*/
+  /*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE")) public DoubleStream stream(); #end !*/
+
+  /**
+   * Sorts the elements in this container and returns this container.
+   */
+  public KTypeIndexedContainer<KType> sort();
+
+  /**
+   * Reverses the elements in this container and returns this container.
+   */
+  public KTypeIndexedContainer<KType> reverse();
 }
