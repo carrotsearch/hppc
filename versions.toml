@@ -9,7 +9,7 @@ googleJavaFormat = "1.22.0"
 # @keep spotless formatting of groovy/gradle files
 greclipse = "4.26"
 # @keep This is the project's version.
-hppcVersion = "0.10.0"
+hppcVersion = "0.11.0-SNAPSHOT"
 jgit = "6.9.0.202403050737-r"
 jmh = "1.37"
 koloboke = "1.0.0"
