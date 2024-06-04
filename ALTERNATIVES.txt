@@ -19,6 +19,10 @@ Nowadays there are a number of options to choose from (alphabetically).
   A very impressive library that offers unprecedented speed and features.
   Includes support for Java8 (including Collections compatibility).
 
+* Agrona, https://github.com/real-logic/agrona
+  Multiple data structures and tools for high performance computing, including
+  primitive collections.
+
 * Eclipse Collections (formerly GS collections), https://www.eclipse.org/collections/
   Contains specialized classes for primitives as well. Includes Java8
   support. Didn't analyze in more detail.
