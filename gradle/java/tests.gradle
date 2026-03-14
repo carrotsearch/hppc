@@ -5,6 +5,8 @@ allprojects {
     project.apply plugin: libs.plugins.randomizedtesting.get().pluginId
 
     dependencies {
+      testImplementation libs.randomizedtesting.jupiter
+
       testImplementation libs.junit.jupiter
       testRuntimeOnly libs.junit.vintage.engine
       testRuntimeOnly libs.junit.platform.launcher

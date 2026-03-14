@@ -15,8 +15,9 @@ jmh = "1.37"
 junit = "6.0.3"
 koloboke = "1.0.0"
 # @keep This is the minimum required Java version.
-minJava = "17"
+minJava = "21"
 randomizedtesting = "2.8.4"
+randomizedtesting-jupiter = "0.1.0-SNAPSHOT"
 velocity = "2.3"
 
 [libraries]
@@ -35,6 +36,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit" }
 koloboke = { module = "com.koloboke:koloboke-impl-jdk8", version.ref = "koloboke" }
+randomizedtesting-jupiter = { module = "com.carrotsearch.randomizedtesting:randomizedtesting-jupiter", version.ref = "randomizedtesting-jupiter" }
 randomizedtesting-runner = { module = "com.carrotsearch.randomizedtesting:randomizedtesting-runner", version.ref = "randomizedtesting" }
 velocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
 
