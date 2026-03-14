@@ -1,10 +1,8 @@
 package com.carrotsearch.hppc;
 
-import org.junit.Rule;
-import org.junit.rules.MethodRule;
-
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 
 /**
  * Unit helpers for <code>KType</code>.
@@ -18,8 +16,10 @@ public abstract class AbstractKTypeTest<KType> extends RandomizedTest
     /**
      * Require assertions for all tests.
      */
-    @Rule
-    public MethodRule requireAssertions = new RequireAssertionsRule();
+    @BeforeAll
+    public static void requireAssertions() {
+        Assertions.assertTrue(AbstractKTypeTest.class.desiredAssertionStatus(), "Assertions must be enabled.");
+    }
 
     /* Ready to use key values. */
 

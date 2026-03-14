@@ -1,6 +1,8 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers.*;
+
 import com.carrotsearch.hppc.comparators.KTypeVTypeComparator;
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
@@ -9,12 +11,14 @@ import com.carrotsearch.hppc.predicates.KTypeVTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeVTypeProcedure;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import org.assertj.core.api.ThrowableAssert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -35,9 +39,9 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
   private KType[] sortedKeys;
   private VType[] sortedValues;
 
-  @Before
-  public void initDelegate() {
-    hasEmptyKey = randomBoolean();
+  @BeforeEach
+  public void initDelegate(Random rnd) {
+    hasEmptyKey = rnd.nextBoolean();
     sortedKeys =
         hasEmptyKey ? newArray(keyE, key1, key2, key3, key4) : newArray(key1, key2, key3, key4);
     sortedValues =
@@ -87,10 +91,9 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
     assertUnsupported(view::release);
   }
 
-  @Test
-  @Repeat(iterations = 10)
-  public void testIterator() {
-    boolean reversedOrder = randomBoolean();
+  @RepeatedTest(10)
+  public void testIterator(Random rnd) {
+    boolean reversedOrder = rnd.nextBoolean();
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
         new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(reversedOrder));
     Iterator<KTypeVTypeCursor<KType, VType>> iterator = view.iterator();
@@ -105,10 +108,9 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
     assertThat(iterator.hasNext()).isFalse();
   }
 
-  @Test
-  @Repeat(iterations = 10)
-  public void testForEachProcedure() {
-    boolean reversedOrder = randomBoolean();
+  @RepeatedTest(10)
+  public void testForEachProcedure(Random rnd) {
+    boolean reversedOrder = rnd.nextBoolean();
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
       new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getValuesComparator(reversedOrder));
     KTypeArrayList<KType> iteratedKeys = new KTypeArrayList<KType>();
@@ -122,15 +124,14 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
     assertThat(iteratedValues.toArray()).isEqualTo(copyValues(sortedValues, reversedOrder));
   }
 
-  @Test
-  @Repeat(iterations = 10)
-  public void testForEachPredicate() {
-    boolean reversedOrder = randomBoolean();
+  @RepeatedTest(10)
+  public void testForEachPredicate(Random rnd) {
+    boolean reversedOrder = rnd.nextBoolean();
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
       new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getValuesComparator(reversedOrder));
     KTypeArrayList<KType> iteratedKeys = new KTypeArrayList<KType>();
     KTypeArrayList<VType> iteratedValues = new KTypeArrayList<VType>();
-    int iterationStop = randomIntBetween(1, sortedKeys.length + 1);
+    int iterationStop = randomIntInRange(rnd, 1, sortedKeys.length + 1);
     KTypeVTypePredicate<KType, VType> predicate = (k, v) -> {
       iteratedKeys.add(k);
       iteratedValues.add(v);
@@ -145,10 +146,9 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
     assertThat(iteratedValues.toArray()).isEqualTo(expectedValues);
   }
 
-  @Test
-  @Repeat(iterations = 10)
-  public void testKeyIterator() {
-    boolean reversedOrder = randomBoolean();
+  @RepeatedTest(10)
+  public void testKeyIterator(Random rnd) {
+    boolean reversedOrder = rnd.nextBoolean();
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
       new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(reversedOrder));
     Iterator<KTypeCursor<KType>> iterator = view.keys().iterator();
@@ -162,10 +162,9 @@ public class SortedIterationKTypeVTypeHashMapTest<KType, VType>
     assertThat(iterator.hasNext()).isFalse();
   }
 
-  @Test
-  @Repeat(iterations = 10)
-  public void testValueIterator() {
-    boolean reversedOrder = randomBoolean();
+  @RepeatedTest(10)
+  public void testValueIterator(Random rnd) {
+    boolean reversedOrder = rnd.nextBoolean();
     SortedIterationKTypeVTypeHashMap<KType, VType> view =
       new SortedIterationKTypeVTypeHashMap<KType, VType>(delegate, getComparator(reversedOrder));
     Iterator<KTypeCursor<VType>> iterator = view.values().iterator();

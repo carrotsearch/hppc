@@ -9,18 +9,20 @@
  */
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.randomizedtesting.RandomizedContext;
+import java.util.Random;
 
 public final class TightRandomResizingStrategy implements ArraySizingStrategy {
   private final int maxRandomIncrement;
+  private final Random rnd;
   public int growCalls;
 
-  public TightRandomResizingStrategy(int maxRandomIncrement) {
+  public TightRandomResizingStrategy(Random rnd, int maxRandomIncrement) {
     this.maxRandomIncrement = maxRandomIncrement;
+    this.rnd = rnd;
   }
 
-  public TightRandomResizingStrategy() {
-    this(10);
+  public TightRandomResizingStrategy(Random rnd) {
+    this(rnd, 10);
   }
 
   @Override
@@ -29,7 +31,7 @@ public final class TightRandomResizingStrategy implements ArraySizingStrategy {
 
     int r = 0;
     if (maxRandomIncrement > 0) {
-      r += RandomizedContext.current().getRandom().nextInt(maxRandomIncrement);
+      r += rnd.nextInt(maxRandomIncrement);
     }
 
     return Math.max(currentBufferLength, elementsCount + expectedAdditions) + r;

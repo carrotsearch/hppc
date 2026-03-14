@@ -1,14 +1,14 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.KTypePrimitive or $TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT"))) !*/
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
-
-import org.junit.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link KTypeVTypeIdentityHashMap}.
@@ -22,7 +22,7 @@ public class KTypeVTypeIdentityHashMapTest<KType, VType> extends AbstractKTypeVT
      */
     public KTypeVTypeIdentityHashMap<KType, VType> map = new KTypeVTypeIdentityHashMap<>();
 
-    @After
+    @AfterEach
     public void checkEmptySlotsUninitialized()
     {
       if (map != null)
