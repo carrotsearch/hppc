@@ -9,13 +9,14 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class HashCollisionsClusteringTest extends RandomizedTest {
   private static boolean debugging = false;
@@ -114,7 +115,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest {
 
   /** */
   @Test
-  public void testHashSetClusteringAtFront2() {
+  public void testHashSetClusteringAtFront2(Random rnd) {
     int keys = 100000;
     int expected = keys * 5;
     IntHashSet target =
@@ -128,7 +129,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest {
 
     long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(15);
     IntHashSet source = new IntHashSet(expected, 0.9);
-    boolean shouldCreateNewSourceInstances = randomBoolean();
+    boolean shouldCreateNewSourceInstances = rnd.nextBoolean();
     int unique = 0;
     for (int i = 0; i < 200; i++) {
       if (shouldCreateNewSourceInstances) {

@@ -10,13 +10,12 @@
 package com.carrotsearch.hppc.sorting;
 
 import static com.carrotsearch.hppc.sorting.SortTest.assertOrder;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.carrotsearch.hppc.XorShift128P;
 import java.util.Random;
 import java.util.function.IntBinaryOperator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Test cases for {@link IndirectSort}. */
 public class IndirectSortTest {
@@ -26,11 +25,11 @@ public class IndirectSortTest {
   @Test
   public void testEmptyAndSingle() {
     int[] mSortOrder = IndirectSort.mergesort(0, 0, Integer::compare);
-    Assert.assertEquals(mSortOrder.length, 0);
+    assertEquals(0, mSortOrder.length);
 
     for (int i = 0; i < 1000; i++) {
       mSortOrder = IndirectSort.mergesort(0, i, Integer::compare);
-      Assert.assertEquals(mSortOrder.length, i);
+      assertEquals(mSortOrder.length, i);
     }
   }
 

@@ -9,21 +9,30 @@
  */
 package com.carrotsearch.hppc;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.rules.SystemPropertiesRestoreRule;
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /* */
-public class ContainersTest extends RandomizedTest {
-  @Rule public final TestRule rules = RuleChain.outerRule(new SystemPropertiesRestoreRule());
+@Execution(ExecutionMode.SAME_THREAD)
+public class ContainersTest {
+  private String savedSeed;
 
-  @After
+  @BeforeEach
+  public void saveSeed() {
+    savedSeed = System.getProperty("tests.seed");
+  }
+
+  @AfterEach
   public void resetState() {
+    if (savedSeed == null) {
+      System.clearProperty("tests.seed");
+    } else {
+      System.setProperty("tests.seed", savedSeed);
+    }
     Containers.test$reset();
   }
 

@@ -12,7 +12,7 @@ package com.carrotsearch.hppc.examples;
 import static com.carrotsearch.hppc.examples.Helpers.*;
 
 import com.carrotsearch.hppc.ObjectArrayList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Examples of how to iterate over HPPC lists with object (generic) buffers. */
 public class HppcExample_005_IteratingOverObjectBuffers {

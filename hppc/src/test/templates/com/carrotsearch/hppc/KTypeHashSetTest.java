@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.assertj.core.api.Assertions;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;

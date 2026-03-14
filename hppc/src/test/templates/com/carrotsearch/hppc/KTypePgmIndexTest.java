@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

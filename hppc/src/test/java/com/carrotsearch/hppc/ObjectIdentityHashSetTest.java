@@ -11,15 +11,13 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.newIntegerObject;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 public class ObjectIdentityHashSetTest extends RandomizedTest {
   /* */
-  @Repeat(iterations = 500)
-  @Test
+  @RepeatedTest(500)
   public void testHashKeyUsesSystemIdentity() {
     int expectedElements = 200;
     ObjectIdentityHashSet<Integer> foo = new ObjectIdentityHashSet<>(expectedElements);

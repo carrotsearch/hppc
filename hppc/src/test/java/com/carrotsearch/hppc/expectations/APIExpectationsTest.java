@@ -30,9 +30,11 @@ import com.carrotsearch.hppc.ObjectLookupContainer;
 import com.carrotsearch.hppc.ObjectObjectHashMap;
 import com.carrotsearch.hppc.ObjectStack;
 import com.carrotsearch.hppc.SortedIterationIntObjectHashMap;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
+import com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers;
+import java.util.Random;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Various API expectations from generated classes. */
 public class APIExpectationsTest extends RandomizedTest {
@@ -266,11 +268,11 @@ public class APIExpectationsTest extends RandomizedTest {
    * hashCode() should be the same between instances.
    */
   @Test
-  public void testHashCodeOverflowIdentical() {
+  public void testHashCodeOverflowIdentical(Random rnd) {
     IntHashSet l0 = new IntHashSet(0, 0.5);
     IntHashSet l1 = new IntHashSet(0, 0.5);
 
-    for (int i = 100000 + randomIntBetween(0, 100000); i-- > 0; ) {
+    for (int i = RandomNumbers.randomIntInRange(rnd, 100000, 200000); i-- > 0; ) {
       l0.add(i);
       l1.add(i);
     }

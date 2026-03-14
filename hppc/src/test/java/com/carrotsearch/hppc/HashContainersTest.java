@@ -11,12 +11,12 @@ package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.HashContainers.*;
 import static com.carrotsearch.hppc.TestUtils.newIntegerObject;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
 import java.util.HashSet;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class HashContainersTest extends RandomizedTest {
   /* */

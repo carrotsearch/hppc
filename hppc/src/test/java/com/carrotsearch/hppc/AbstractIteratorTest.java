@@ -9,14 +9,14 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** */
 public class AbstractIteratorTest {
@@ -47,10 +47,14 @@ public class AbstractIteratorTest {
     assertFalse(i.hasNext());
   }
 
-  @Test(expected = NoSuchElementException.class)
+  @Test
   public void testEmptyExceptionOnNext() {
-    RangeIterator i = new RangeIterator(1, 0);
-    i.next();
+    assertThrows(
+        NoSuchElementException.class,
+        () -> {
+          RangeIterator i = new RangeIterator(1, 0);
+          i.next();
+        });
   }
 
   @Test

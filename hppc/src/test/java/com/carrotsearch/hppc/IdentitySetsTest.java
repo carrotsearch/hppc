@@ -10,10 +10,10 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.newIntegerObject;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class IdentitySetsTest {
   @Test

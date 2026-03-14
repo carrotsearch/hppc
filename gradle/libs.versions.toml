@@ -16,7 +16,6 @@ junit = "6.0.3"
 koloboke = "1.0.0"
 # @keep This is the minimum required Java version.
 minJava = "21"
-randomizedtesting = "2.8.4"
 randomizedtesting-jupiter = "0.1.0-SNAPSHOT"
 velocity = "2.3"
 
@@ -34,10 +33,8 @@ jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
-junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit" }
 koloboke = { module = "com.koloboke:koloboke-impl-jdk8", version.ref = "koloboke" }
 randomizedtesting-jupiter = { module = "com.carrotsearch.randomizedtesting:randomizedtesting-jupiter", version.ref = "randomizedtesting-jupiter" }
-randomizedtesting-runner = { module = "com.carrotsearch.randomizedtesting:randomizedtesting-runner", version.ref = "randomizedtesting" }
 velocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
 
 [plugins]
@@ -45,6 +42,5 @@ benmanes-versions = "com.github.ben-manes.versions:0.53.0"
 dependencychecks = "com.carrotsearch.gradle.dependencychecks:0.2.1"
 forbiddenapis = "de.thetaphi.forbiddenapis:3.10"
 jmh = "me.champeau.jmh:0.7.3"
-randomizedtesting = "com.carrotsearch.gradle.randomizedtesting:0.0.6"
 spotless = "com.diffplug.spotless:8.3.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:1.1.0"

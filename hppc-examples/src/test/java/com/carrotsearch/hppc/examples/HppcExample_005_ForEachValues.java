@@ -11,7 +11,7 @@ package com.carrotsearch.hppc.examples;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.procedures.IntIntProcedure;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** An example of plucking a value from an anonymous inner class. */
 public class HppcExample_005_ForEachValues {

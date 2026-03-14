@@ -10,12 +10,13 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.newIntegerObject;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
-import org.junit.Test;
+import com.carrotsearch.hppc.internals.SuppressForbidden;
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
+import org.junit.jupiter.api.Test;
 
-public class IdentityMapsTest {
+public class IdentityMapsTest extends RandomizedTest {
   @Test
   public void testSanity() {
     ObjectCharIdentityHashMap<Integer> m1 = new ObjectCharIdentityHashMap<>();
@@ -65,7 +66,7 @@ public class IdentityMapsTest {
     assertNotEquals(m2, m1);
   }
 
-  @SuppressForbidden("new Double() intentional")
+  @SuppressForbidden
   @SuppressWarnings("removal")
   @Test
   public void testNaNsInValues() {

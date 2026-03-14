@@ -9,7 +9,6 @@ import com.carrotsearch.hppc.cursors.KTypeVTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.predicates.KTypeVTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeVTypeProcedure;
-import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;

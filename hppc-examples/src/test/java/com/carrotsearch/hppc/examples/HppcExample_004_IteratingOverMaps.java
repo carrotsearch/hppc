@@ -16,15 +16,15 @@ import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
 import com.carrotsearch.hppc.procedures.IntLongProcedure;
 import com.carrotsearch.hppc.procedures.IntProcedure;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Examples of how to iterate over HPPC maps. */
 public class HppcExample_004_IteratingOverMaps {
 
   public IntLongHashMap hashMap;
 
-  @Before
+  @BeforeEach
   public void setup() {
     hashMap = IntLongHashMap.from(new int[] {1, 1, 2, 3, 5, 0}, new long[] {1, 2, 3, 4, 5, 6});
   }

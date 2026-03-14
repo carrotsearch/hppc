@@ -9,18 +9,18 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
+import com.carrotsearch.randomizedtesting.jupiter.generators.RandomPicks;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 public class EntryShiftingOnRemovalTest extends RandomizedTest {
-  @Test
-  @Repeat(iterations = 10)
-  public void testRemoveSanity() {
+  @RepeatedTest(10)
+  public void testRemoveSanity(Random rnd) {
     @SuppressWarnings("deprecation")
     IntHashSet v =
         new IntHashSet(8, 0.5d) {
@@ -32,13 +32,13 @@ public class EntryShiftingOnRemovalTest extends RandomizedTest {
 
     Set<Integer> ref = new HashSet<Integer>();
     for (int i = 0; i < 4; i++) {
-      int r = randomInt() & 0xffff;
+      int r = rnd.nextInt() & 0xffff;
       ref.add(r);
       v.add(r);
     }
 
     Integer[] array = ref.toArray(new Integer[ref.size()]);
-    int remove = randomFrom(array);
+    int remove = RandomPicks.randomFrom(rnd, array);
     ref.remove(remove);
     v.remove(remove);
 
