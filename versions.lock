@@ -26,6 +26,7 @@
       "com.carrotsearch.progresso:progresso:1.8.6" : "5ece2686,refs=2",
       "com.carrotsearch.progresso:progresso-consolewidth-unixish:1.8.6" : "5ece2686,refs=2",
       "com.carrotsearch.progresso:progresso-log4j2:1.8.6" : "5ece2686,refs=2",
+      "com.carrotsearch.randomizedtesting:randomizedtesting-jupiter:0.1.0" : "9f97863a,refs=10",
       "com.koloboke:koloboke-api-jdk8:1.0.0" : "358fa966,refs=2",
       "com.koloboke:koloboke-impl-common-jdk8:1.0.0" : "358fa966,refs=2",
       "com.koloboke:koloboke-impl-jdk8:1.0.0" : "358fa966,refs=2",
