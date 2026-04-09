@@ -14,7 +14,7 @@ import static com.carrotsearch.hppc.examples.Helpers.*;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.procedures.IntProcedure;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Examples of how to iterate over HPPC lists. */
 public class HppcExample_001_IteratingOverLists {

@@ -9,8 +9,9 @@
  */
 package com.carrotsearch.hppc;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 public class NaNCornerCaseTest {
   /**
@@ -23,7 +24,7 @@ public class NaNCornerCaseTest {
       m1.put(1, Double.NaN);
       IntDoubleMap m2 = new IntDoubleHashMap();
       m2.put(1, Double.NaN);
-      Assert.assertEquals(m1, m2);
+      assertEquals(m1, m2);
     }
 
     {
@@ -31,21 +32,21 @@ public class NaNCornerCaseTest {
       m1.put(1, Float.NaN);
       IntFloatMap m2 = new IntFloatHashMap();
       m2.put(1, Float.NaN);
-      Assert.assertEquals(m1, m2);
+      assertEquals(m1, m2);
     }
 
     {
       FloatArrayList list = new FloatArrayList();
-      Assert.assertFalse(list.contains(Float.NaN));
+      assertFalse(list.contains(Float.NaN));
       list.add(0, Float.NaN, 1);
-      Assert.assertTrue(list.contains(Float.NaN));
+      assertTrue(list.contains(Float.NaN));
     }
 
     {
       DoubleArrayList list = new DoubleArrayList();
-      Assert.assertFalse(list.contains(Double.NaN));
+      assertFalse(list.contains(Double.NaN));
       list.add(0, Double.NaN, 1);
-      Assert.assertTrue(list.contains(Double.NaN));
+      assertTrue(list.contains(Double.NaN));
     }
 
     {
@@ -53,7 +54,7 @@ public class NaNCornerCaseTest {
       l1.add(0, Double.NaN, 1);
       DoubleArrayList l2 = new DoubleArrayList();
       l2.add(0, Double.NaN, 1);
-      Assert.assertEquals(l1, l2);
+      assertEquals(l1, l2);
     }
   }
 }

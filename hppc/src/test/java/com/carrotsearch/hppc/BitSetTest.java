@@ -9,16 +9,17 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.LongCursor;
 import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.carrotsearch.hppc.predicates.LongPredicate;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
+import com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers;
 import java.util.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Regression tests against <code>java.util.BitSet</code>. */
 public class BitSetTest extends RandomizedTest {
@@ -26,7 +27,7 @@ public class BitSetTest extends RandomizedTest {
   private java.util.BitSet jre;
 
   /* */
-  @Before
+  @BeforeEach
   public void before() {
     hppc = new BitSet();
     jre = new java.util.BitSet();
@@ -46,14 +47,14 @@ public class BitSetTest extends RandomizedTest {
 
   /** Test random insertions into the bitset. */
   @Test
-  public void testAgainstJREBitSet() throws Exception {
+  public void testAgainstJREBitSet(Random rnd) throws Exception {
     final int rounds = 100;
     final int bits = 1000;
     final int bitSpace = bits * 10;
 
     for (int i = 0; i < rounds; i++) {
       for (int bit = 0; bit < bits; bit++) {
-        int index = randomIntBetween(0, bitSpace - 1);
+        int index = RandomNumbers.randomIntInRange(rnd, 0, bitSpace - 1);
         jre.set(index);
         hppc.set(index);
 

@@ -7,10 +7,17 @@ plugins {
   alias(libs.plugins.forbiddenapis) apply false
   alias(libs.plugins.jmh) apply false
   alias(libs.plugins.versionCatalogUpdate) apply false
-  alias(libs.plugins.randomizedtesting) apply false
+  alias(libs.plugins.buildinfra) apply false
 }
 
-rootProject.version = libs.versions.hppcVersion.get()
+allprojects {
+  apply plugin: com.carrotsearch.gradle.buildinfra.buildoptions.BuildOptionsPlugin
+  apply plugin: com.carrotsearch.gradle.buildinfra.testing.TestingEnvPlugin
+}
+
+def projectVersion = buildOptions.addOption("project.version", "Project version number.")
+
+rootProject.version = projectVersion.get()
 ext {
   fullName = "High Performance Primitive Collections"
   legal = files('LICENSE.txt')
@@ -31,6 +38,14 @@ apply from: file('gradle/publishing/maven.gradle')
 
 allprojects {
   repositories {
+    maven {
+      name = 'Central Portal Snapshots'
+      url = 'https://central.sonatype.com/repository/maven-snapshots/'
+
+      content {
+        includeModule("com.carrotsearch.randomizedtesting", "randomizedtesting-jupiter")
+      }
+    }
     mavenCentral()
   }
 

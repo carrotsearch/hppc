@@ -9,14 +9,18 @@
  */
 package com.carrotsearch.hppc.sorting;
 
+import com.carrotsearch.randomizedtesting.jupiter.Randomized;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Random;
 import java.util.function.IntBinaryOperator;
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
+@Randomized
 public class SortTest {
-
   enum DataDistribution {
     ORDERED,
     SAWTOOTH,
@@ -55,25 +59,26 @@ public class SortTest {
     }
   }
 
-  @Test
-  public void testSortCertificationIndirectMergeSort() {
-    sortCertification(Algorithm.INDIRECT_MERGESORT);
+  @TestFactory
+  public Stream<DynamicTest> testSortCertification(Random rnd) {
+    return EnumSet.allOf(Algorithm.class).stream()
+        .map(
+            algo ->
+                DynamicTest.dynamicTest(
+                    algo.name(),
+                    () -> {
+                      runSortCertification(rnd, algo);
+                    }));
   }
 
-  @Test
-  public void testSortCertificationQuickSort() {
-    sortCertification(Algorithm.QUICKSORT);
-  }
-
-  /** Run a "sort certification" test as in Bentley and McIlroy's paper. */
-  private static void sortCertification(Algorithm algorithm) {
+  private void runSortCertification(Random rnd, Algorithm algorithm) {
     int[] n_values = {100, 1023, 1024, 1025, 1024 * 32};
 
     long startTimeNs = System.nanoTime();
     for (int n : n_values) {
       for (int m = 1; m < 2 * n; m *= 2) {
         for (DataDistribution dist : DataDistribution.values()) {
-          int[] x = generate(dist, n, m);
+          int[] x = generate(rnd, dist, n, m);
 
           String testName = dist + "-" + n + "-" + m;
           testOn(algorithm, x, testName + "-normal");
@@ -94,9 +99,8 @@ public class SortTest {
    *
    * @param m Step for sawtooth, stagger, plateau and shuffle.
    */
-  private static int[] generate(final DataDistribution dist, int n, int m) {
+  private static int[] generate(Random rand, final DataDistribution dist, int n, int m) {
     // Start from a constant seed (repeatable tests).
-    final Random rand = new Random(0x11223344);
     final int[] x = new int[n];
     for (int i = 0, j = 0, k = 1; i < n; i++) {
       switch (dist) {
@@ -162,7 +166,7 @@ public class SortTest {
 
   static void assertOrder(int[] order, int length, IntBinaryOperator comparator) {
     for (int i = 1; i < length; i++) {
-      Assert.assertTrue(comparator.applyAsInt(order[i - 1], order[i]) <= 0);
+      Assertions.assertTrue(comparator.applyAsInt(order[i - 1], order[i]) <= 0);
     }
   }
 }

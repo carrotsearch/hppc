@@ -26,3 +26,6 @@ target
 build/
 .gradle/
 versions.updates.toml
+
+# for composite builds/ testing.
+randomizedtesting-jupiter/

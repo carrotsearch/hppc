@@ -15,15 +15,15 @@ import com.carrotsearch.hppc.IntArrayDeque;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.procedures.IntProcedure;
 import java.util.Iterator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Examples of how to iterate over HPPC deques. */
 public class HppcExample_002_IteratingOverDeques {
 
   public IntArrayDeque deque;
 
-  @Before
+  @BeforeEach
   public void setup() {
     deque = new IntArrayDeque();
     deque.addLast(1, 1, 2, 3, 5);

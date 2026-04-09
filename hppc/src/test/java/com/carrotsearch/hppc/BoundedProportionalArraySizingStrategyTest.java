@@ -9,21 +9,24 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Test case for bounded proportional sizing strategy. */
 public class BoundedProportionalArraySizingStrategyTest {
   private BoundedProportionalArraySizingStrategy resizer;
 
-  @Test(expected = BufferAllocationException.class)
+  @Test
   public void testBeyondIntRange() {
     resizer = new BoundedProportionalArraySizingStrategy();
-    resizer.grow(
-        BoundedProportionalArraySizingStrategy.MAX_ARRAY_LENGTH,
-        BoundedProportionalArraySizingStrategy.MAX_ARRAY_LENGTH,
-        1);
+    assertThrows(
+        BufferAllocationException.class,
+        () ->
+            resizer.grow(
+                BoundedProportionalArraySizingStrategy.MAX_ARRAY_LENGTH,
+                BoundedProportionalArraySizingStrategy.MAX_ARRAY_LENGTH,
+                1));
   }
 
   @Test

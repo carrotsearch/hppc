@@ -1,10 +1,11 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.assertj.core.api.Assertions;
-import org.junit.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link KTypeStack}.
@@ -18,7 +19,7 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     public KTypeStack<KType> stack;
 
     /* */
-    @Before
+    @BeforeEach
     public void initialize()
     {
         stack = new KTypeStack<>();
@@ -121,20 +122,24 @@ public class KTypeStackTest<KType> extends AbstractKTypeTest<KType>
     }
     
     /* */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testGetAssertions()
     {
-        stack.push(key1);
-        stack.pop();
-        stack.get(0);
+        assertThrows(AssertionError.class, () -> {
+            stack.push(key1);
+            stack.pop();
+            stack.get(0);
+        });
     }
 
     /* */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testDiscardAssertions()
     {
-        stack.push(key1);
-        stack.discard(2);
+        assertThrows(AssertionError.class, () -> {
+            stack.push(key1);
+            stack.discard(2);
+        });
     }
 
     /* */

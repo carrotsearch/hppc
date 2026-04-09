@@ -1,11 +1,12 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("GENERIC", "BYTE", "SHORT", "CHAR"))) !*/
 package com.carrotsearch.hppc;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,9 +14,6 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests {@link KTypePgmIndex}.
@@ -23,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 /*! ${TemplateOptions.generatedAnnotation} !*/
 public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Ignore /*! #end !*/
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
   @Test
   public void testSanityOneSegmentLevel() {
     KType[] keys = asArray(2, 12, 115, 118, 123, 1024, 1129, 1191, 1201, 4034);
@@ -51,7 +49,7 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
     System.out.println("builder.ramBytesAllocated() = " + builder.ramBytesAllocated() + " B");
   }
 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Ignore /*! #end !*/
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
   @Test
   public void testSanityTwoSegmentLevels() {
     KType[] keys = asArray(2, 12, 115, 118, 123, 1024, 1129, 1191, 1201, 4034, 4035, 4036, 4037, 4039, 4900);
@@ -69,29 +67,29 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
     System.out.println("builder.ramBytesAllocated() = " + builder.ramBytesAllocated() + " B");
   }
 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Ignore /*! #end !*/
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
   @Test
-  public void testRangeIterator() {
+  public void testRangeIterator(Random rnd) {
     KType[] keys = asArray(2, 12, 115, 118, 123, 1024, 1129, 1191, 1201, 4034, 4035, 4036, 4037, 4039, 4900);
     KTypePgmIndex.KTypeBuilder<KType> builder = new KTypePgmIndex.KTypeBuilder<KType>()
       .setSortedKeys(keys, keys.length)
       .setEpsilon(1)
       .setEpsilonRecursive(1);
     KTypePgmIndex<KType> pgmIndex = builder.build();
-    assertIterator(123, 1191, pgmIndex, 123, 1024, 1129, 1191);
-    assertIterator(1100, 1300, pgmIndex, 1129, 1191, 1201);
-    assertIterator(-1, 100, pgmIndex, 2, 12);
-    assertIterator(Integer.MIN_VALUE, 100, pgmIndex, 2, 12);
-    assertIterator(Integer.MIN_VALUE, Integer.MAX_VALUE, pgmIndex, 2, 12, 115, 118, 123, 1024, 1129, 1191, 1201, 4034, 4035, 4036, 4037, 4039, 4900);
-    assertIterator(4036, Integer.MAX_VALUE, pgmIndex, 4036, 4037, 4039, 4900);
-    assertIterator(4039, 4500, pgmIndex, 4039);
-    assertIterator(4040, 4500, pgmIndex);
+    assertIterator(rnd, 123, 1191, pgmIndex, 123, 1024, 1129, 1191);
+    assertIterator(rnd, 1100, 1300, pgmIndex, 1129, 1191, 1201);
+    assertIterator(rnd, -1, 100, pgmIndex, 2, 12);
+    assertIterator(rnd, Integer.MIN_VALUE, 100, pgmIndex, 2, 12);
+    assertIterator(rnd, Integer.MIN_VALUE, Integer.MAX_VALUE, pgmIndex, 2, 12, 115, 118, 123, 1024, 1129, 1191, 1201, 4034, 4035, 4036, 4037, 4039, 4900);
+    assertIterator(rnd, 4036, Integer.MAX_VALUE, pgmIndex, 4036, 4037, 4039, 4900);
+    assertIterator(rnd, 4039, 4500, pgmIndex, 4039);
+    assertIterator(rnd, 4040, 4500, pgmIndex);
   }
 
-  private void assertIterator(int minKey, int maxKey, KTypePgmIndex<KType> pgmIndex, int... expectedKeys) {
+  private void assertIterator(Random rnd, int minKey, int maxKey, KTypePgmIndex<KType> pgmIndex, int... expectedKeys) {
     Iterator<KTypeCursor<KType>> iterator = pgmIndex.rangeIterator(cast(minKey), cast(maxKey));
     for (int expectedKey : expectedKeys) {
-      if (randomBoolean()) {
+      if (rnd.nextBoolean()) {
         assertTrue(iterator.hasNext());
       }
       assertTrue(Intrinsics.<KType>equals(cast(expectedKey), iterator.next().value));
@@ -100,7 +98,7 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
     assertEquals(expectedKeys.length, pgmIndex.rangeCardinality(cast(minKey), cast(maxKey)));
   }
 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Ignore /*! #end !*/
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
   @Test
   public void testRangeProcedure() {
     KType[] keys = asArray(2, 12, 115, 118, 123, 1024, 1129, 1191, 1201, 4034, 4035, 4036, 4037, 4039, 4900);
@@ -131,10 +129,9 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
     assertEquals(KTypeArrayList.from(asArray(expectedKeys)), processedKeys);
   }
 
-  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Ignore /*! #end !*/
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
   @Test
-  public void testAgainstHashSet() {
-    final Random random = RandomizedTest.getRandom();
+  public void testAgainstHashSet(Random random) {
     for (int i = 0; i < 1; i++) {
       //System.out.println("Loop " + i);
 
@@ -170,11 +167,11 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
 
       assertEquals(hashSet.size(), pgmIndex.size());
       for (int j = 0; j < additions.length; j++) {
-        assertTrue(String.valueOf(j), pgmIndex.contains(additions[j]));
+        assertTrue(pgmIndex.contains(additions[j]), String.valueOf(j));
         assertTrue(Intrinsics.<KType>equals(additions[j], additions[pgmIndex.indexOf(additions[j])]));
       }
       random.ints(1_000_000).forEach((key) -> {
-        assertEquals(String.valueOf(key), hashSet.contains(cast(key)), pgmIndex.contains(cast(key)));
+        assertEquals(hashSet.contains(cast(key)), pgmIndex.contains(cast(key)), String.valueOf(key));
         int index = pgmIndex.indexOf(cast(key));
         if (hashSet.contains(cast(key))) {
           assertTrue(Intrinsics.<KType>equals(key, additions[index]));
@@ -183,10 +180,10 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
           assertTrue(insertionIndex >= 0);
           assertTrue(insertionIndex <= additions.length);
           if (insertionIndex < additions.length) {
-            assertTrue(String.valueOf(key), Intrinsics.<KType>numeric(additions[insertionIndex]) > key);
+            assertTrue(Intrinsics.<KType>numeric(additions[insertionIndex]) > key, String.valueOf(key));
           }
           if (insertionIndex > 0) {
-            assertTrue(String.valueOf(key), Intrinsics.<KType>numeric(additions[insertionIndex - 1]) < key);
+            assertTrue(Intrinsics.<KType>numeric(additions[insertionIndex - 1]) < key, String.valueOf(key));
           }
         }
       });

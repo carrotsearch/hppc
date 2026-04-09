@@ -1,7 +1,9 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomChoices.*;
 
 /*! #if ($TemplateOptions.KTypeGeneric) !*/
 import java.util.ArrayDeque;
@@ -11,13 +13,13 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link KTypeArrayDeque}.
@@ -36,7 +38,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     private KTypeArrayList<KType> sequence;
 
     /* */
-    @Before
+    @BeforeEach
     public void initialize()
     {
         deque = new KTypeArrayDeque<>();
@@ -46,7 +48,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             sequence.add(cast(i));
     }
 
-    @After
+    @AfterEach
     public void checkTrailingSpaceUninitialized()
     {
         if (deque != null)
@@ -171,10 +173,12 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testRemoveFirstEmpty()
     {
-        deque.removeFirst();
+        assertThrows(AssertionError.class, () -> {
+            deque.removeFirst();
+        });
     }
 
     /* */
@@ -201,10 +205,12 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testRemoveLastEmpty()
     {
-        deque.removeLast();
+        assertThrows(AssertionError.class, () -> {
+            deque.removeLast();
+        });
     }
 
     /* */
@@ -219,10 +225,12 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testGetFirstEmpty()
     {
-        deque.getFirst();
+        assertThrows(AssertionError.class, () -> {
+            deque.getFirst();
+        });
     }
     
     /* */
@@ -237,15 +245,17 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
     }
 
     /* */
-    @Test(expected = AssertionError.class)
+    @Test
     public void testGetLastEmpty()
     {
-        deque.getLast();
+        assertThrows(AssertionError.class, () -> {
+            deque.getLast();
+        });
     }
 
     /* */
     @Test
-    public void testRemoveFirstOccurrence()
+    public void testRemoveFirstOccurrence(Random rnd)
     {
         int modulo = 10;
         int count = 10000;
@@ -256,7 +266,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             sequence.add(cast(i % modulo));
         }
 
-        Random rnd = getRandom();
         for (int i = 0; i < 500; i++)
         {
             KType k = cast(rnd.nextInt(modulo));
@@ -274,7 +283,7 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testRemoveLastOccurrence()
+    public void testRemoveLastOccurrence(Random rnd)
     {
         int modulo = 10;
         int count = 10000;
@@ -285,7 +294,6 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
             sequence.add(cast(i % modulo));
         }
 
-        Random rnd = getRandom();
         for (int i = 0; i < 500; i++)
         {
             KType k = cast(rnd.nextInt(modulo));
@@ -400,22 +408,22 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testEnsureCapacity()
+    public void testEnsureCapacity(Random rnd)
     {
-        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy();
+        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy(rnd);
         KTypeArrayDeque<KType> deque = new KTypeArrayDeque<>(0, resizer);
 
         // Add some elements.
-        final int max = rarely() ? 0 : randomIntBetween(0, 1000);
+        final int max = rarely(rnd) ? 0 : randomIntInRange(rnd, 0, 1000);
         for (int i = 0; i < max; i++) {
           deque.addLast(cast(i));
         }
 
-        final int additions = randomIntBetween(1, 5000);
+        final int additions = randomIntInRange(rnd, 1, 5000);
         deque.ensureCapacity(additions + deque.size());
         final int before = resizer.growCalls;
         for (int i = 0; i < additions; i++) {
-          if (randomBoolean()) { 
+          if (rnd.nextBoolean()) {
             deque.addLast(cast(i));
           } else {
             deque.addFirst(cast(i));
@@ -545,9 +553,8 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
-    public void testAgainstArrayDeque()
+    public void testAgainstArrayDeque(Random rnd)
     {
-        final Random rnd = new Random(randomLong());
         final int rounds = 10000;
         final int modulo = 100;
 
@@ -598,19 +605,19 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
     @Test
-    public void testAgainstArrayDequeVariousTailHeadPositions()
+    public void testAgainstArrayDequeVariousTailHeadPositions(Random rnd)
     {
         this.deque.clear();
         this.deque.head = this.deque.tail = 2;
-        testAgainstArrayDeque();
+        testAgainstArrayDeque(rnd);
         
         this.deque.clear();
         this.deque.head = this.deque.tail = this.deque.buffer.length - 2;
-        testAgainstArrayDeque();
+        testAgainstArrayDeque(rnd);
         
         this.deque.clear();
         this.deque.head = this.deque.tail = this.deque.buffer.length / 2;
-        testAgainstArrayDeque();
+        testAgainstArrayDeque(rnd);
     }
     /*! #end !*/
     

@@ -17,7 +17,7 @@ dependencies {
   implementation libs.velocity
   implementation libs.carrotsearch.console.launcher
 
-  testImplementation libs.randomizedtesting.runner
+  testImplementation libs.randomizedtesting.jupiter
   testImplementation libs.assertj
 
   antlr libs.antlr.base

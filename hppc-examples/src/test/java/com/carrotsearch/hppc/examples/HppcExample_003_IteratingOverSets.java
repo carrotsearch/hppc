@@ -15,15 +15,15 @@ import static org.assertj.core.api.Assertions.*;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.procedures.IntProcedure;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Examples of how to iterate over HPPC sets. */
 public class HppcExample_003_IteratingOverSets {
 
   public IntHashSet hashSet;
 
-  @Before
+  @BeforeEach
   public void setup() {
     hashSet = IntHashSet.from(1, 1, 2, 3, 5, 0);
   }

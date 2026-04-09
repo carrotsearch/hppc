@@ -1,21 +1,23 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomChoices.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.assertj.core.api.Assertions;
-import org.junit.*;
 
 import com.carrotsearch.hppc.cursors.*;
 import com.carrotsearch.hppc.predicates.*;
 import com.carrotsearch.hppc.procedures.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link KTypeVTypeHashMap}.
@@ -32,7 +34,7 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
       return new KTypeVTypeHashMap<>();
     }
 
-    @After
+    @AfterEach
     public void checkEmptySlotsUninitialized()
     {
         if (map != null)
@@ -97,7 +99,7 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
 
     /* */
     @Test
-    public void testEnsureCapacity()
+    public void testEnsureCapacity(Random rnd)
     {
         final AtomicInteger expands = new AtomicInteger();
         KTypeVTypeHashMap<KType, VType> map = new KTypeVTypeHashMap<KType, VType>(0) {
@@ -109,12 +111,12 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         };
 
         // Add some elements.
-        final int max = rarely() ? 0 : randomIntBetween(0, 250);
+        final int max = rarely(rnd) ? 0 : randomIntInRange(rnd, 0, 250);
         for (int i = 0; i < max; i++) {
           map.put(cast(i), value0);
         }
 
-        final int additions = randomIntBetween(max, max + 5000);
+        final int additions = randomIntInRange(rnd, max, max + 5000);
         map.ensureCapacity(additions + map.size());
         final int before = expands.get();
         for (int i = 0; i < additions; i++) {
@@ -255,10 +257,9 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
 
     /* */
     @Test
-    public void testPutWithExpansions()
+    public void testPutWithExpansions(Random rnd)
     {
         final int COUNT = 10000;
-        final Random rnd = new Random(randomLong());
         final HashSet<Object> values = new HashSet<Object>();
 
         for (int i = 0; i < COUNT; i++)
@@ -581,7 +582,7 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
 
     /* */
     @Test
-    public void testClear()
+    public void testClear(Random rnd)
     {
         map.put(key1, value1);
         map.put(key2, value1);
@@ -597,12 +598,12 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         map.clear();
 
         // Check if the map behaves properly upon subsequent use.
-        testPutWithExpansions();
+        testPutWithExpansions(rnd);
     }
 
     /* */
     @Test
-    public void testRelease()
+    public void testRelease(Random rnd)
     {
         map.put(key1, value1);
         map.put(key2, value1);
@@ -613,7 +614,7 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
         assertEquals(0, map.assigned);
 
         // Check if the map behaves properly upon subsequent use.
-        testPutWithExpansions();
+        testPutWithExpansions(rnd);
     }
 
     /* */
@@ -745,9 +746,8 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
      */
     @Test
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void testAgainstHashMap()
+    public void testAgainstHashMap(Random rnd)
     {
-        final Random rnd = RandomizedTest.getRandom();
         final HashMap other = new HashMap();
 
         for (int size = 1000; size < 20000; size += 4000)

@@ -26,12 +26,11 @@
       "com.carrotsearch.progresso:progresso:1.8.6" : "5ece2686,refs=2",
       "com.carrotsearch.progresso:progresso-consolewidth-unixish:1.8.6" : "5ece2686,refs=2",
       "com.carrotsearch.progresso:progresso-log4j2:1.8.6" : "5ece2686,refs=2",
-      "com.carrotsearch.randomizedtesting:randomizedtesting-runner:2.8.4" : "72da68d0,refs=6",
+      "com.carrotsearch.randomizedtesting:randomizedtesting-jupiter:0.2.0" : "9f97863a,refs=10",
       "com.koloboke:koloboke-api-jdk8:1.0.0" : "358fa966,refs=2",
       "com.koloboke:koloboke-impl-common-jdk8:1.0.0" : "358fa966,refs=2",
       "com.koloboke:koloboke-impl-jdk8:1.0.0" : "358fa966,refs=2",
       "it.unimi.dsi:fastutil:8.5.18" : "358fa966,refs=2",
-      "junit:junit:4.13.2" : "ac9f5241,refs=8",
       "net.bytebuddy:byte-buddy:1.18.3" : "72da68d0,refs=6",
       "net.sf.jopt-simple:jopt-simple:5.0.4" : "358fa966,refs=2",
       "org.antlr:antlr4-runtime:4.13.2" : "5ece2686,refs=2",
@@ -43,7 +42,6 @@
       "org.apache.velocity:velocity-engine-core:2.3" : "5ece2686,refs=2",
       "org.apiguardian:apiguardian-api:1.1.2" : "52beaeb9,refs=5",
       "org.assertj:assertj-core:3.27.7" : "72da68d0,refs=6",
-      "org.hamcrest:hamcrest-core:1.3" : "ac9f5241,refs=8",
       "org.jspecify:jspecify:1.0.0" : "52beaeb9,refs=5",
       "org.junit.jupiter:junit-jupiter:6.0.3" : "9f97863a,refs=10",
       "org.junit.jupiter:junit-jupiter-api:6.0.3" : "9f97863a,refs=10",
@@ -52,7 +50,6 @@
       "org.junit.platform:junit-platform-commons:6.0.3" : "9f97863a,refs=10",
       "org.junit.platform:junit-platform-engine:6.0.3" : "f23610de,refs=5",
       "org.junit.platform:junit-platform-launcher:6.0.3" : "f23610de,refs=5",
-      "org.junit.vintage:junit-vintage-engine:6.0.3" : "f23610de,refs=5",
       "org.junit:junit-bom:6.0.3" : "9f97863a,refs=10",
       "org.openjdk.jmh:jmh-core:1.37" : "358fa966,refs=2",
       "org.opentest4j:opentest4j:1.3.0" : "9f97863a,refs=10",
@@ -176,40 +173,6 @@
       {
         "configuration" : "testCompileClasspath",
         "projectPath" : ":hppc-template-intrinsics"
-      },
-      {
-        "configuration" : "testRuntimeClasspath",
-        "projectPath" : ":hppc-template-intrinsics"
-      },
-      {
-        "configuration" : "testCompileClasspath",
-        "projectPath" : ":hppc-template-processor"
-      },
-      {
-        "configuration" : "testRuntimeClasspath",
-        "projectPath" : ":hppc-template-processor"
-      }
-    ],
-    "ac9f5241" : [
-      {
-        "configuration" : "testCompileClasspath",
-        "projectPath" : ":hppc"
-      },
-      {
-        "configuration" : "testRuntimeClasspath",
-        "projectPath" : ":hppc"
-      },
-      {
-        "configuration" : "testRuntimeClasspath",
-        "projectPath" : ":hppc-benchmarks"
-      },
-      {
-        "configuration" : "testCompileClasspath",
-        "projectPath" : ":hppc-examples"
-      },
-      {
-        "configuration" : "testRuntimeClasspath",
-        "projectPath" : ":hppc-examples"
       },
       {
         "configuration" : "testRuntimeClasspath",

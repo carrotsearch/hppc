@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Path
+
 rootProject.name = 'hppc-root'
 
 include 'hppc-template-intrinsics'
@@ -5,3 +8,7 @@ include 'hppc-template-processor'
 include 'hppc'
 include 'hppc-examples'
 include 'hppc-benchmarks'
+
+if (Files.exists(Path.of("randomizedtesting-jupiter"))) {
+  includeBuild 'randomizedtesting-jupiter'
+}

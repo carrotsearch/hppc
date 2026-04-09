@@ -34,10 +34,7 @@ configurations {
 
 dependencies {
   templateProcessor project(":hppc-template-processor")
-
   templatesImplementation project(":hppc-template-intrinsics")
-
-  testImplementation libs.randomizedtesting.runner
   testImplementation libs.assertj
 }
 

@@ -2,24 +2,21 @@ import org.gradle.api.tasks.testing.logging.*
 
 allprojects {
   plugins.withType(JavaPlugin) {
-    project.apply plugin: libs.plugins.randomizedtesting.get().pluginId
-
     dependencies {
+      testImplementation libs.randomizedtesting.jupiter
       testImplementation libs.junit.jupiter
-      testRuntimeOnly libs.junit.vintage.engine
       testRuntimeOnly libs.junit.platform.launcher
-      constraints {
-        testImplementation("junit:junit:4.13.2") {
-          because "align JUnit 4 version across compile and runtime classpaths"
-        }
-      }
     }
 
     test {
-      maxParallelForks = propertyOrDefault("tests.jvms",
-          (int) Math.max(1, Math.min(Runtime.runtime.availableProcessors() / 2.0, 4.0))) as Integer
-
       useJUnitPlatform()
+
+      systemProperty "junit.jupiter.execution.parallel.enabled", "false"
+
+      // thread leak detection won't work in full parallel mode so don't enable it.
+      // systemProperty "junit.jupiter.execution.parallel.mode.default", "concurrent"
+      // systemProperty "junit.jupiter.execution.parallel.mode.classes.default", "concurrent"
+      // systemProperty "tests.random.asserting", "false"
 
       minHeapSize = propertyOrDefault("tests.minheapsize", "256m")
       maxHeapSize = propertyOrDefault("tests.heapsize", "512m")

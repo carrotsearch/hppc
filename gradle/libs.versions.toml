@@ -7,16 +7,14 @@ fastutil = "8.5.18"
 # @keep This is GJF version for spotless/ tidy.
 googleJavaFormat = "1.35.0"
 # @keep spotless formatting of groovy/gradle files
-greclipse = "4.26"
-# @keep This is the project's version.
-hppcVersion = "0.11.0-SNAPSHOT"
+greclipse = "4.35"
 jgit = "7.6.0.202603022253-r"
 jmh = "1.37"
 junit = "6.0.3"
 koloboke = "1.0.0"
 # @keep This is the minimum required Java version.
-minJava = "17"
-randomizedtesting = "2.8.4"
+minJava = "21"
+randomizedtesting-jupiter = "0.2.0"
 velocity = "2.3"
 
 [libraries]
@@ -33,16 +31,15 @@ jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
-junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit" }
 koloboke = { module = "com.koloboke:koloboke-impl-jdk8", version.ref = "koloboke" }
-randomizedtesting-runner = { module = "com.carrotsearch.randomizedtesting:randomizedtesting-runner", version.ref = "randomizedtesting" }
+randomizedtesting-jupiter = { module = "com.carrotsearch.randomizedtesting:randomizedtesting-jupiter", version.ref = "randomizedtesting-jupiter" }
 velocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
 
 [plugins]
 benmanes-versions = "com.github.ben-manes.versions:0.53.0"
+buildinfra = "com.carrotsearch.gradle.buildinfra:0.0.21"
 dependencychecks = "com.carrotsearch.gradle.dependencychecks:0.2.1"
 forbiddenapis = "de.thetaphi.forbiddenapis:3.10"
 jmh = "me.champeau.jmh:0.7.3"
-randomizedtesting = "com.carrotsearch.gradle.randomizedtesting:0.0.6"
 spotless = "com.diffplug.spotless:8.3.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:1.1.0"

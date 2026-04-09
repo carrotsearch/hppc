@@ -1,21 +1,22 @@
 /*! #set($TemplateOptions.ignored = ($TemplateOptions.isKTypeAnyOf("DOUBLE", "FLOAT", "BYTE"))) !*/
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomChoices.*;
 
 import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link KTypeHashSet}.
@@ -31,7 +32,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
     public final KType EMPTY_KEY = Intrinsics.<KType> empty();
 
     /* */
-    @Before
+    @BeforeEach
     public void initialize()
     {
         set = new KTypeHashSet<>();
@@ -125,7 +126,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testEmptyKey()
+    public void testEmptyKey(Random rnd)
     {
         KTypeHashSet<KType> set = new KTypeHashSet<KType>();
 
@@ -142,7 +143,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         Assertions.assertThat(set.indexGet(index)).isEqualTo(EMPTY_KEY);
         Assertions.assertThat(set.indexReplace(index, EMPTY_KEY)).isEqualTo(EMPTY_KEY);
 
-        if (randomBoolean()) {
+        if (rnd.nextBoolean()) {
             b = set.remove(EMPTY_KEY);
             Assertions.assertThat(b).isTrue();
         } else {
@@ -168,7 +169,7 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testEnsureCapacity()
+    public void testEnsureCapacity(Random rnd)
     {
         final AtomicInteger expands = new AtomicInteger();
         KTypeHashSet<KType> set = new KTypeHashSet<KType>(0) {
@@ -180,12 +181,12 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
         };
 
         // Add some elements.
-        final int max = rarely() ? 0 : randomIntBetween(0, 250);
+        final int max = rarely(rnd) ? 0 : randomIntInRange(rnd, 0, 250);
         for (int i = 0; i < max; i++) {
           set.add(cast(i));
         }
 
-        final int additions = randomIntBetween(max, max + 5000);
+        final int additions = randomIntInRange(rnd, max, max + 5000);
         set.ensureCapacity(additions + set.size());
         final int before = expands.get();
         for (int i = 0; i < additions; i++) {
@@ -426,9 +427,8 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
      */
     @Test
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void testAgainstHashSet()
+    public void testAgainstHashSet(Random rnd)
     {
-        final Random rnd = RandomizedTest.getRandom();
         final HashSet other = new HashSet();
 
         for (int size = 1000; size < 20000; size += 4000)

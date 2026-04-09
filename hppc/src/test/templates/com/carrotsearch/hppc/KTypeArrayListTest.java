@@ -1,20 +1,23 @@
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
 import static com.carrotsearch.hppc.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers.*;
+import static com.carrotsearch.randomizedtesting.jupiter.generators.RandomChoices.*;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.carrotsearch.hppc.cursors.KTypeCursor;
 import com.carrotsearch.hppc.predicates.KTypePredicate;
 import com.carrotsearch.hppc.procedures.KTypeProcedure;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link KTypeArrayList}.
@@ -28,14 +31,14 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     public KTypeArrayList<KType> list;
 
     /* */
-    @Before
+    @BeforeEach
     public void initialize()
     {
         list = new KTypeArrayList<>();
     }
 
     /*! #if ($TemplateOptions.KTypeGeneric) !*/
-    @After
+    @AfterEach
     public void checkTrailingSpaceUninitialized()
     {
         if (list != null)
@@ -332,19 +335,19 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
-    public void testEnsureCapacity()
+    public void testEnsureCapacity(Random rnd)
     {
-        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy(0);
+        TightRandomResizingStrategy resizer = new TightRandomResizingStrategy(rnd, 0);
         KTypeArrayList<KType> list = new KTypeArrayList<>(0, resizer);
         assertEquals(list.size(), list.buffer.length);
 
         // Add some elements.
-        final int max = rarely() ? 0 : randomIntBetween(0, 1000);
+        final int max = rarely(rnd) ? 0 : randomIntInRange(rnd, 0, 1000);
         for (int i = 0; i < max; i++) {
           list.add(cast(i));
         }
 
-        final int additions = randomIntBetween(1, 5000);
+        final int additions = randomIntInRange(rnd, 1, 5000);
         list.ensureCapacity(additions + list.size());
         final int before = resizer.growCalls;
         for (int i = 0; i < additions; i++) {
@@ -415,8 +418,8 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         for (int i = 0; i < count; i++)
             assertEquals2(cast(i), list.get(i));
 
-        assertTrue("Buffer size: 510 <= " + list.buffer.length,
-            list.buffer.length <= count + maxGrowth);
+        assertTrue(list.buffer.length <= count + maxGrowth,
+                "Buffer size: 510 <= " + list.buffer.length);
     }
 
     /* */

@@ -9,9 +9,9 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.carrotsearch.randomizedtesting.annotations.SuppressForbidden;
+import com.carrotsearch.hppc.internals.SuppressForbidden;
 import java.util.Arrays;
 
 /** Test utilities. */
@@ -275,7 +275,7 @@ public abstract class TestUtils {
   public static short[] newArray(short[] arrayType, int... elements) {
     final short[] result = new short[elements.length];
     for (int i = 0; i < elements.length; i++) {
-      org.junit.Assert.assertTrue(elements[i] >= Short.MIN_VALUE && elements[i] <= Short.MAX_VALUE);
+      assertTrue(elements[i] >= Short.MIN_VALUE && elements[i] <= Short.MAX_VALUE);
       result[i] = (short) elements[i];
     }
     return result;
@@ -285,8 +285,7 @@ public abstract class TestUtils {
   public static char[] newArray(char[] arrayType, int... elements) {
     final char[] result = new char[elements.length];
     for (int i = 0; i < elements.length; i++) {
-      org.junit.Assert.assertTrue(
-          elements[i] >= Character.MIN_VALUE && elements[i] <= Character.MAX_VALUE);
+      assertTrue(elements[i] >= Character.MIN_VALUE && elements[i] <= Character.MAX_VALUE);
       result[i] = (char) elements[i];
     }
     return result;
@@ -296,7 +295,7 @@ public abstract class TestUtils {
   public static byte[] newArray(byte[] arrayType, int... elements) {
     final byte[] result = new byte[elements.length];
     for (int i = 0; i < elements.length; i++) {
-      org.junit.Assert.assertTrue(elements[i] >= Byte.MIN_VALUE && elements[i] <= Byte.MAX_VALUE);
+      assertTrue(elements[i] >= Byte.MIN_VALUE && elements[i] <= Byte.MAX_VALUE);
       result[i] = (byte) elements[i];
     }
     return result;
@@ -306,7 +305,7 @@ public abstract class TestUtils {
    * Creates a new, identity-distinct {@link Integer} object. Uses the deprecated constructor
    * intentionally to guarantee a fresh heap allocation (bypassing the integer cache).
    */
-  @SuppressForbidden("new Integer() intentional: creates identity-distinct instances")
+  @SuppressForbidden()
   @SuppressWarnings("removal")
   public static Integer newIntegerObject(int value) {
     return new Integer(value);
@@ -314,16 +313,16 @@ public abstract class TestUtils {
 
   /** Override for generated templates. */
   public static void assertEquals2(double a, double b) {
-    org.junit.Assert.assertEquals(a, b, delta);
+    assertEquals(a, b, delta);
   }
 
   /** Override for generated templates. */
   public static void assertEquals2(float a, float b) {
-    org.junit.Assert.assertEquals(a, b, delta);
+    assertEquals(a, b, delta);
   }
 
   /** Override for generated templates. */
   public static void assertEquals2(Object a, Object b) {
-    org.junit.Assert.assertEquals(a, b);
+    assertEquals(a, b);
   }
 }
