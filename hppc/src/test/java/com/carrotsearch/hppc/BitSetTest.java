@@ -153,8 +153,9 @@ public class BitSetTest extends RandomizedTest {
       assertEquals(hppc.get(i), ilc.contains(i));
     }
 
-    // IntLookupContainer must not throw exceptions on negative arguments.
-    ilc.contains(-1);
+    // IntLookupContainer must return false, not throw, on negative arguments.
+    assertFalse(ilc.contains(-1));
+    assertFalse(ilc.contains(Integer.MIN_VALUE));
   }
 
   private void assertLongLookupContainer(final java.util.BitSet jre, LongLookupContainer llc) {
@@ -207,7 +208,8 @@ public class BitSetTest extends RandomizedTest {
       assertEquals(hppc.get(i), llc.contains(i));
     }
 
-    // IntLookupContainer must not throw exceptions on negative arguments.
-    llc.contains(-1);
+    // LongLookupContainer must return false, not throw, on negative arguments.
+    assertFalse(llc.contains(-1));
+    assertFalse(llc.contains(Long.MIN_VALUE));
   }
 }
