@@ -25,6 +25,8 @@ carrotsearch-console-launcher = { module = "com.carrotsearch.console:launcher", 
 # @keep This is used in gitinfo.gradle
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
+# @keep This is used in publishing/maven.gradle
+httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6.2" }
 # @keep This is used in gitinfo.gradle
 jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }

@@ -1,65 +1,120 @@
+import org.apache.hc.client5.http.classic.methods.HttpPost
+import org.apache.hc.client5.http.impl.classic.*
+import org.apache.hc.client5.http.entity.mime.*
+import org.apache.hc.core5.http.ContentType
 
-configure(rootProject) {
-  ext {
-    published = [
-      ":hppc",
-    ]
-
-    ossrhStagingApi = "https://ossrh-staging-api.central.sonatype.com"
+buildscript {
+  dependencies {
+    classpath libs.httpclient5
   }
 
-  task isGitClean() {
+  repositories {
+    mavenCentral()
+  }
+}
+
+configure(rootProject) {
+  def mavenBuildRepo = project.layout.buildDirectory.dir("maven").get().asFile
+
+  def published = [
+    ":hppc",
+  ]
+
+  tasks.register("mavenLocalClean", Delete, {
+    delete mavenBuildRepo
+  })
+
+  tasks.register("publishLocal", {
+    group = "Publishing"
+    description = "Publish Maven artifacts locally to " + file(mavenBuildRepo)
+  })
+
+  tasks.register("isGitClean", {
     doFirst {
       if (!rootProject.gitStatus.clean) {
         throw new GradleException("Seems like your git checkout isn't clean? Can't publish from this state.")
       }
     }
-  }
+  })
 
-  task publishSonatype() {
-    dependsOn isGitClean
-    group = "Publishing"
-    description = "Publish Maven artifacts to Sonatype (staging for releases, snapshot repository for snapshots)."
-  }
+  tasks.register("prepareMavenCentralBundle", Zip, {
+    dependsOn publishLocal
 
-  task promoteToMavenCentral() {
+    archiveFileName = "bundle-hppc-${project.version}.zip"
+    destinationDirectory = project.layout.buildDirectory.dir("maven-bundle")
+
+    from(file(mavenBuildRepo))
+  })
+
+  // For releases, uploads a zipped bundle of Maven artifacts via the Central Portal
+  // publisher API. For snapshots, publishes directly to the central snapshots repository.
+  tasks.register("publishToSonatype", {
     group = "Publishing"
-    description = "Promotes staged artifacts to Maven Central."
-    mustRunAfter publishSonatype
+    description = "Publish Maven artifacts to Sonatype (Maven Central bundle for releases, snapshot repository for snapshots)"
+
+    def snapshotBuild = project.version.endsWith('-SNAPSHOT')
+    def bundleFileProvider = prepareMavenCentralBundle.archiveFile
+    if (!snapshotBuild) {
+      dependsOn isGitClean, prepareMavenCentralBundle
+      inputs.file(bundleFileProvider)
+    }
 
     onlyIf {
       project.hasProperty('nexusUsername') &&
-      project.hasProperty('nexusPassword') &&
-      !project.version.endsWith('-SNAPSHOT')
+          project.hasProperty('nexusPassword')
     }
 
-    doLast {
-      def token = "${project.nexusUsername}:${project.nexusPassword}".bytes.encodeBase64().toString()
+    doFirst {
+      if (snapshotBuild) {
+        // Snapshot artifacts are published by the tasks this one depends on.
+        return
+      }
 
-      // Find open (implicit) staging repositories for this namespace.
-      def searchConnection = URI.create("${ossrhStagingApi}/manual/search/repositories?state=open").toURL().openConnection()
-      searchConnection.setRequestProperty("Authorization", "Basic ${token}")
-      def repositories = new groovy.json.JsonSlurper().parse(searchConnection.inputStream)
+      def username = project.properties['nexusUsername']
+      def password = project.properties['nexusPassword']
 
-      repositories.repositories.each { repo ->
-        project.logger.lifecycle("Promoting repository: ${repo.key}")
+      // Create base64 encoded token for authentication
+      def token = "${username}:${password}".bytes.encodeBase64().toString()
 
-        def connection = URI.create("${ossrhStagingApi}/manual/upload/repository/${repo.key}?publishing_type=automatic").toURL().openConnection()
-        connection.setRequestMethod("POST")
-        connection.setRequestProperty("Authorization", "Basic ${token}")
+      def bundleFile = bundleFileProvider.get().getAsFile()
+      logger.lifecycle("Bundle: " + bundleFile)
 
-        if (connection.responseCode == 200) {
-          project.logger.lifecycle("Successfully promoted repository ${repo.key}")
-        } else {
-          def errorBody = connection.errorStream?.text ?: "No error body available"
-          throw new GradleException("Failed to promote repository ${repo.key}. " +
-              "Response code: ${connection.responseCode} (${connection.responseMessage}), error body: ${errorBody}")
+      def deploymentName = URLEncoder.encode("hppc-${project.version}", "UTF-8")
+
+      final CloseableHttpClient client = HttpClients.createDefault()
+      try {
+        final HttpPost post = new HttpPost("https://central.sonatype.com/api/v1/publisher/upload?name=${deploymentName}")
+
+        post.setHeader("Authorization", "Bearer " + token)
+        post.setEntity(
+            MultipartEntityBuilder.create()
+            .addTextBody("publishingType", "AUTOMATIC")
+            .addBinaryBody("bundle", bundleFile, ContentType.APPLICATION_OCTET_STREAM, bundleFile.getName())
+            .build()
+            )
+
+        CloseableHttpResponse response = (CloseableHttpResponse) client.execute(post)
+        try {
+          logger.lifecycle("Status: " + response.getCode())
+          logger.lifecycle("Reason: " + response.getReasonPhrase())
+          if (response.getCode() != 201) {
+            throw new GradleException("Odd response from maven central?")
+          }
+
+          if (response.getEntity() != null) {
+            String responseBody = new String(response.getEntity().getContent().readAllBytes())
+            logger.lifecycle("Deployment ID: " + responseBody)
+          }
+        } finally {
+          response.close()
         }
+      } finally {
+        client.close()
       }
     }
-  }
+  })
 
-  configure(subprojects.findAll { it.path in rootProject.published }) {
+  configure(subprojects.findAll { it.path in published }) {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
@@ -77,12 +132,13 @@ configure(rootProject) {
       publishing {
         repositories {
           maven {
-            name = 'sonatype'
-            if (rootProject.version.endsWith('-SNAPSHOT')) {
-              url = "https://central.sonatype.com/repository/maven-snapshots/"
-            } else {
-              url = "${rootProject.ossrhStagingApi}/service/local/staging/deploy/maven2"
-            }
+            name = 'build'
+            url = mavenBuildRepo
+          }
+
+          maven {
+            name = 'sonatypeSnapshots'
+            url = "https://central.sonatype.com/repository/maven-snapshots/"
 
             credentials {
               if (project.hasProperty('nexusUsername')) {
@@ -151,13 +207,18 @@ configure(rootProject) {
         }
       }
 
-      rootProject.tasks.named('publishSonatype').configure {
-        dependsOn tasks.named('publishJarsPublicationToSonatypeRepository')
-      }
-
       signing {
         required = { !project.version.endsWith('-SNAPSHOT') }
         sign publishing.publications.jars
+      }
+
+      publishJarsPublicationToBuildRepository.dependsOn mavenLocalClean
+      publishLocal.dependsOn publishJarsPublicationToBuildRepository
+
+      if (rootProject.version.endsWith('-SNAPSHOT')) {
+        rootProject.tasks.named('publishToSonatype').configure {
+          dependsOn tasks.named('publishJarsPublicationToSonatypeSnapshotsRepository')
+        }
       }
     }
   }

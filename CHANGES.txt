@@ -1,4 +1,11 @@
 
+[0.11.1]
+
+** Other
+
+   GH-258: sonatype release process updates.
+
+
 [0.11.0]
 
 ** New features and API changes
