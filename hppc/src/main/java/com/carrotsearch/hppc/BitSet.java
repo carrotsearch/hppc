@@ -835,7 +835,7 @@ public class BitSet implements Cloneable {
 
       @Override
       public boolean contains(int index) {
-        return index < 0 || BitSet.this.get(index);
+        return index >= 0 && BitSet.this.get(index);
       }
 
       /**
@@ -933,7 +933,7 @@ public class BitSet implements Cloneable {
 
       @Override
       public boolean contains(long index) {
-        return index < 0 || BitSet.this.get(index);
+        return index >= 0 && BitSet.this.get(index);
       }
 
       /**
