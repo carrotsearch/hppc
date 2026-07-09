@@ -24,3 +24,10 @@ Benchmarks
 
 Will generate and display benchmark JAR location and JMH 
 options.
+
+Release publishing
+------------------
+
+```
+./gradlew publishToSonatype closeSonatypeStagingRepository
+```
