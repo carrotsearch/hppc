@@ -4,15 +4,57 @@ configure(rootProject) {
     published = [
       ":hppc",
     ]
+
+    ossrhStagingApi = "https://ossrh-staging-api.central.sonatype.com"
   }
 
-  nexusPublishing {
-    repositories {
-      sonatype {
-        nexusUrl = uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
-        snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
-        username = findProperty("nexusUsername") ?: ""
-        password = findProperty("nexusPassword") ?: ""
+  task isGitClean() {
+    doFirst {
+      if (!rootProject.gitStatus.clean) {
+        throw new GradleException("Seems like your git checkout isn't clean? Can't publish from this state.")
+      }
+    }
+  }
+
+  task publishSonatype() {
+    dependsOn isGitClean
+    group = "Publishing"
+    description = "Publish Maven artifacts to Sonatype (staging for releases, snapshot repository for snapshots)."
+  }
+
+  task promoteToMavenCentral() {
+    group = "Publishing"
+    description = "Promotes staged artifacts to Maven Central."
+    mustRunAfter publishSonatype
+
+    onlyIf {
+      project.hasProperty('nexusUsername') &&
+      project.hasProperty('nexusPassword') &&
+      !project.version.endsWith('-SNAPSHOT')
+    }
+
+    doLast {
+      def token = "${project.nexusUsername}:${project.nexusPassword}".bytes.encodeBase64().toString()
+
+      // Find open (implicit) staging repositories for this namespace.
+      def searchConnection = URI.create("${ossrhStagingApi}/manual/search/repositories?state=open").toURL().openConnection()
+      searchConnection.setRequestProperty("Authorization", "Basic ${token}")
+      def repositories = new groovy.json.JsonSlurper().parse(searchConnection.inputStream)
+
+      repositories.repositories.each { repo ->
+        project.logger.lifecycle("Promoting repository: ${repo.key}")
+
+        def connection = URI.create("${ossrhStagingApi}/manual/upload/repository/${repo.key}?publishing_type=automatic").toURL().openConnection()
+        connection.setRequestMethod("POST")
+        connection.setRequestProperty("Authorization", "Basic ${token}")
+
+        if (connection.responseCode == 200) {
+          project.logger.lifecycle("Successfully promoted repository ${repo.key}")
+        } else {
+          def errorBody = connection.errorStream?.text ?: "No error body available"
+          throw new GradleException("Failed to promote repository ${repo.key}. " +
+              "Response code: ${connection.responseCode} (${connection.responseMessage}), error body: ${errorBody}")
+        }
       }
     }
   }
@@ -33,6 +75,26 @@ configure(rootProject) {
       }
 
       publishing {
+        repositories {
+          maven {
+            name = 'sonatype'
+            if (rootProject.version.endsWith('-SNAPSHOT')) {
+              url = "https://central.sonatype.com/repository/maven-snapshots/"
+            } else {
+              url = "${rootProject.ossrhStagingApi}/service/local/staging/deploy/maven2"
+            }
+
+            credentials {
+              if (project.hasProperty('nexusUsername')) {
+                username = project.nexusUsername
+              }
+              if (project.hasProperty('nexusPassword')) {
+                password = project.nexusPassword
+              }
+            }
+          }
+        }
+
         def configurePom = {
           name = "High Performance Primitive Collections"
           url = "https://github.com/carrotsearch/hppc"
@@ -87,6 +149,10 @@ configure(rootProject) {
             pom(configurePom)
           }
         }
+      }
+
+      rootProject.tasks.named('publishSonatype').configure {
+        dependsOn tasks.named('publishJarsPublicationToSonatypeRepository')
       }
 
       signing {
