@@ -6,37 +6,30 @@ configure(rootProject) {
     ]
   }
 
+  nexusPublishing {
+    repositories {
+      sonatype {
+        nexusUrl = uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
+        snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
+        username = findProperty("nexusUsername") ?: ""
+        password = findProperty("nexusPassword") ?: ""
+      }
+    }
+  }
+
   configure(subprojects.findAll { it.path in rootProject.published }) {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
-    plugins.withType(JavaPlugin) {
-      publishing {
-        repositories {
-          maven {
-            name = 'sonatype'
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+    // Hack: do not generate or publish gradle metadata files.
+    tasks.withType(GenerateModuleMetadata).configureEach {
+      enabled = false
+    }
 
-            credentials {
-              if (project.hasProperty('nexusUsername')) {
-                username = project.nexusUsername
-              }
-              if (project.hasProperty('nexusPassword')) {
-                password = project.nexusPassword
-              }
-            }
-          }
-        }
-      }
-
-      task sourcesJar(type: Jar, dependsOn: classes) {
-        archiveClassifier = 'sources'
-        from sourceSets.main.allJava
-      }
-
-      task javadocJar(type: Jar, dependsOn: javadoc) {
-        archiveClassifier = 'javadoc'
-        from javadoc.destinationDir
+    plugins.withType(JavaPlugin).configureEach {
+      java {
+        withSourcesJar()
+        withJavadocJar()
       }
 
       publishing {
@@ -86,13 +79,10 @@ configure(rootProject) {
         }
 
         publications {
-          signed(MavenPublication) {
+          jars(MavenPublication) {
             from components.java
             groupId = project.group
             artifactId = project.base.archivesName.get()
-
-            artifact sourcesJar
-            artifact javadocJar
 
             pom(configurePom)
           }
@@ -100,7 +90,8 @@ configure(rootProject) {
       }
 
       signing {
-        sign publishing.publications.signed
+        required = { !project.version.endsWith('-SNAPSHOT') }
+        sign publishing.publications.jars
       }
     }
   }

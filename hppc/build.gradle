@@ -80,6 +80,11 @@ compileTestJava {
   dependsOn generateTestTemplates
 }
 
+// The sources jar includes generated (and reformatted) template sources.
+tasks.named('sourcesJar').configure {
+  dependsOn generateMainTemplates, 'spotlessTemplatesApply'
+}
+
 sourceSets {
   main {
     java.srcDirs += generateMainTemplates.outputDir

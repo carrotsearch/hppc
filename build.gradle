@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.benmanes.versions)
   alias(libs.plugins.forbiddenapis) apply false
   alias(libs.plugins.jmh) apply false
+  alias(libs.plugins.nexus.publish)
   alias(libs.plugins.versionCatalogUpdate) apply false
   alias(libs.plugins.buildinfra) apply false
 }
