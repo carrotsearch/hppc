@@ -27,13 +27,19 @@ final class RamUsageEstimator {
   /** True, iff compressed references (oops) are enabled by this JVM */
   static final boolean COMPRESSED_REFS_ENABLED;
 
+  /** True, iff compressed class pointers are enabled by this JVM. */
+  static final boolean COMPRESSED_CLASS_POINTERS_ENABLED;
+
+  /** True, iff compact object headers are enabled by this JVM. */
+  static final boolean COMPACT_OBJECT_HEADERS_ENABLED;
+
   /** Number of bytes this JVM uses to represent an object reference. */
   static final int NUM_BYTES_OBJECT_REF;
 
   /** Number of bytes to represent an object header (no fields, no alignments). */
   static final int NUM_BYTES_OBJECT_HEADER;
 
-  /** Number of bytes to represent an array header (no content, but with alignments). */
+  /** Number of bytes to represent an unaligned array header (no content). */
   static final int NUM_BYTES_ARRAY_HEADER;
 
   /**
@@ -82,9 +88,11 @@ final class RamUsageEstimator {
     }
     JRE_IS_64BIT = is64Bit;
     if (JRE_IS_64BIT) {
-      // Try to get compressed oops and object alignment (the default seems to be 8 on Hotspot);
-      // (this only works on 64 bit, on 32 bits the alignment and reference size is fixed):
+      // Try to get compressed oops, compressed class pointers, compact headers, and object
+      // alignment (the default seems to be 8 on Hotspot).
       boolean compressedOops = false;
+      boolean compressedClassPointers = false;
+      boolean compactObjectHeaders = false;
       int objectAlignment = 8;
       try {
         final Class<?> beanClazz = Class.forName(HOTSPOT_BEAN_CLASS);
@@ -101,6 +109,24 @@ final class RamUsageEstimator {
             compressedOops =
                 Boolean.parseBoolean(
                     vmOption.getClass().getMethod("getValue").invoke(vmOption).toString());
+            // Preserve the previous oop-width assumption if the class-pointer option cannot be read.
+            compressedClassPointers = compressedOops;
+          } catch (ReflectiveOperationException | RuntimeException ignored) {
+          }
+          try {
+            final Object vmOption =
+                getVMOptionMethod.invoke(hotSpotBean, "UseCompressedClassPointers");
+            compressedClassPointers =
+                Boolean.parseBoolean(
+                    vmOption.getClass().getMethod("getValue").invoke(vmOption).toString());
+          } catch (ReflectiveOperationException | RuntimeException ignored) {
+          }
+          try {
+            final Object vmOption =
+                getVMOptionMethod.invoke(hotSpotBean, "UseCompactObjectHeaders");
+            compactObjectHeaders =
+                Boolean.parseBoolean(
+                    vmOption.getClass().getMethod("getValue").invoke(vmOption).toString());
           } catch (ReflectiveOperationException | RuntimeException ignored) {
           }
           try {
@@ -114,15 +140,24 @@ final class RamUsageEstimator {
       } catch (ReflectiveOperationException | RuntimeException ignored) {
       }
       COMPRESSED_REFS_ENABLED = compressedOops;
+      COMPRESSED_CLASS_POINTERS_ENABLED = compressedClassPointers;
+      COMPACT_OBJECT_HEADERS_ENABLED = compactObjectHeaders;
       NUM_BYTES_OBJECT_ALIGNMENT = objectAlignment;
       // reference size is 4, if we have compressed oops:
       NUM_BYTES_OBJECT_REF = COMPRESSED_REFS_ENABLED ? 4 : 8;
-      // "best guess" based on reference size:
-      NUM_BYTES_OBJECT_HEADER = 8 + NUM_BYTES_OBJECT_REF;
-      // array header is NUM_BYTES_OBJECT_HEADER + NUM_BYTES_INT, but aligned (object alignment):
-      NUM_BYTES_ARRAY_HEADER = (int) alignObjectSize(NUM_BYTES_OBJECT_HEADER + Integer.BYTES);
+      // Compact headers combine mark and class information. Without them, the class-pointer width
+      // is independent of the ordinary object-reference width.
+      NUM_BYTES_OBJECT_HEADER =
+          COMPACT_OBJECT_HEADERS_ENABLED
+              ? Long.BYTES
+              : Long.BYTES
+                  + (COMPRESSED_CLASS_POINTERS_ENABLED ? Integer.BYTES : Long.BYTES);
+      // Keep the raw header unaligned; alignment belongs after the array payload.
+      NUM_BYTES_ARRAY_HEADER = NUM_BYTES_OBJECT_HEADER + Integer.BYTES;
     } else {
       COMPRESSED_REFS_ENABLED = false;
+      COMPRESSED_CLASS_POINTERS_ENABLED = false;
+      COMPACT_OBJECT_HEADERS_ENABLED = false;
       NUM_BYTES_OBJECT_ALIGNMENT = 8;
       NUM_BYTES_OBJECT_REF = 4;
       NUM_BYTES_OBJECT_HEADER = 8;
