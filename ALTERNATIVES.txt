@@ -7,19 +7,15 @@ other library offered a commercially permissive license.
 
 Nowadays there are a number of options to choose from (alphabetically).
 
-* fastutil (by Sebastiano Vigna), https://fastutil.di.unimi.it/
+* fastutil (by Sebastiano Vigna), https://github.com/vigna/fastutil/
   A very flexible, Apache licensed set of collections and algorithms. 
   Compatible with Java Collections.
-
-* Koloboke (by Roman Leventov), https://github.com/OpenHFT/Koloboke
-  A very impressive library that offers unprecedented speed and features.
-  Includes support for Java8 (including Collections compatibility).
 
 * Agrona, https://github.com/aeron-io/agrona
   Multiple data structures and tools for high performance computing, including
   primitive collections.
 
-* Eclipse Collections (formerly GS collections), https://www.eclipse.org/collections/
+* Eclipse Collections (formerly GS collections), https://eclipse.dev/collections/
   Contains specialized classes for primitives as well. Includes Java8
   support.
 
@@ -28,6 +24,10 @@ Archived or no longer maintained:
 * HPPC-RT (by Vincent Sonnier), https://github.com/vsonnier/hppcrt
   A fork of HPPC for real-time computing, minimizes allocations, introduces
   overhead-less iterators and other miscellaneous goodies.
+
+* Koloboke (by Roman Leventov), https://github.com/OpenHFT/Koloboke
+  A very impressive library that offers unprecedented speed and features.
+  Includes support for Java8 (including Collections compatibility).
 
 * PCJ (by Søren Bak), https://pcj.sourceforge.net/
   The grand-daddy of them all. :) DO NOT use it, it contains bugs. But it
