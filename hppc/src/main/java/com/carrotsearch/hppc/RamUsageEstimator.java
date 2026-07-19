@@ -109,8 +109,6 @@ final class RamUsageEstimator {
             compressedOops =
                 Boolean.parseBoolean(
                     vmOption.getClass().getMethod("getValue").invoke(vmOption).toString());
-            // Preserve the previous oop-width assumption if the class-pointer option cannot be read.
-            compressedClassPointers = compressedOops;
           } catch (ReflectiveOperationException | RuntimeException ignored) {
           }
           try {
@@ -146,7 +144,8 @@ final class RamUsageEstimator {
       // reference size is 4, if we have compressed oops:
       NUM_BYTES_OBJECT_REF = COMPRESSED_REFS_ENABLED ? 4 : 8;
       // Compact headers combine mark and class information. Without them, the class-pointer width
-      // is independent of the ordinary object-reference width.
+      // is independent of the ordinary object-reference width:
+      // See https://openjdk.org/jeps/450 for visual explanation.
       NUM_BYTES_OBJECT_HEADER =
           COMPACT_OBJECT_HEADERS_ENABLED
               ? Long.BYTES
