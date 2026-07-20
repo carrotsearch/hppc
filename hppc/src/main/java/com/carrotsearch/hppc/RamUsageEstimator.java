@@ -16,7 +16,10 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * Helper class that helps estimate memory usage
+ * Helper class that helps estimate memory usage.
+ *
+ * <p>If you're looking for something more in-depth, check out the <a
+ * href="https://github.com/openjdk/jol">jol</a> project.
  *
  * <p>Mostly forked from Lucene tag releases/lucene-solr/8.5.1
  */
@@ -149,8 +152,7 @@ final class RamUsageEstimator {
       NUM_BYTES_OBJECT_HEADER =
           COMPACT_OBJECT_HEADERS_ENABLED
               ? Long.BYTES
-              : Long.BYTES
-                  + (COMPRESSED_CLASS_POINTERS_ENABLED ? Integer.BYTES : Long.BYTES);
+              : Long.BYTES + (COMPRESSED_CLASS_POINTERS_ENABLED ? Integer.BYTES : Long.BYTES);
       // Keep the raw header unaligned; alignment belongs after the array payload.
       NUM_BYTES_ARRAY_HEADER = NUM_BYTES_OBJECT_HEADER + Integer.BYTES;
     } else {
