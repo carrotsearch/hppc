@@ -193,4 +193,65 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
       System.out.println("builder.ramBytesAllocated() = " + builder.ramBytesAllocated() + " B");
     }
   }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testIndexOfLargeLastKey() {
+    // A dense run followed by a large outlier as the last key forces the
+    // beyond-epsilon forward scan to reach the array end.
+    KType maxKey = Intrinsics.<KType>cast(
+      /*! #if ($TemplateOptions.isKTypeAnyOf("INT")) !*/ Integer.MAX_VALUE /*! #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("LONG")) Long.MAX_VALUE #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("FLOAT")) Float.MAX_VALUE #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE")) Double.MAX_VALUE #end !*/
+    );
+    KType[] keys = newArray(cast(0), cast(1), cast(2), cast(3), maxKey);
+    // Both a slack-backed list and an exactly-sized buffer must locate the key.
+    assertLocatesLargeLastKey(
+      new KTypePgmIndex.KTypeBuilder<KType>()
+        .setSortedKeys(KTypeArrayList.from(keys)).setEpsilon(1).build(), maxKey);
+    assertLocatesLargeLastKey(
+      new KTypePgmIndex.KTypeBuilder<KType>()
+        .setSortedKeys(keys, keys.length).setEpsilon(1).build(), maxKey);
+  }
+
+  private void assertLocatesLargeLastKey(KTypePgmIndex<KType> pgmIndex, KType maxKey) {
+    assertEquals(4, pgmIndex.indexOf(maxKey));
+    assertTrue(pgmIndex.contains(maxKey));
+    assertEquals(4, pgmIndex.rank(maxKey));
+    // No regression: an absent key above the dense run keeps the right insertion point.
+    assertEquals(-5, pgmIndex.indexOf(cast(4)));
+    assertFalse(pgmIndex.contains(cast(4)));
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testIndexOfDifferentialLargeTail() {
+    // Differential oracle: indexOf must equal Arrays.binarySearch for every key.
+    KType maxKey = Intrinsics.<KType>cast(
+      /*! #if ($TemplateOptions.isKTypeAnyOf("INT")) !*/ Integer.MAX_VALUE /*! #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("LONG")) Long.MAX_VALUE #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("FLOAT")) Float.MAX_VALUE #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE")) Double.MAX_VALUE #end !*/
+    );
+    int n = 500;
+    KType[] keys = Intrinsics.<KType>newArray(n);
+    for (int i = 0; i < n - 1; i++) {
+      keys[i] = cast(i);
+    }
+    keys[n - 1] = maxKey;
+    for (int epsilon : new int[] {1, 4, 64}) {
+      KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+        .setSortedKeys(keys, keys.length).setEpsilon(epsilon).build();
+      for (int i = 0; i < n; i++) {
+        assertEquals(Arrays.binarySearch(keys, keys[i]), pgmIndex.indexOf(keys[i]),
+          "epsilon=" + epsilon + " key=" + keys[i]);
+      }
+      // Absent keys map to the same negative insertion point as the oracle.
+      for (KType probe : newArray(cast(-1), cast(n))) {
+        assertEquals(Arrays.binarySearch(keys, probe), pgmIndex.indexOf(probe),
+          "epsilon=" + epsilon + " probe=" + probe);
+      }
+    }
+  }
 }
