@@ -201,13 +201,13 @@ public class KTypePgmIndex<KType> implements Accountable {
       // Continue scanning out of the epsilon range.
       int jump = BEYOND_EPSILON_JUMP;
       do {
-        int hiIndex = Math.min(index + jump, keys.size());
+        int hiIndex = Math.min(index + jump, keys.size() - 1);
         if (Intrinsics.<KType>numeric(key) <= Intrinsics.<KType>numeric(keys.get(hiIndex))) {
-          return Arrays.binarySearch(keys.buffer, index, hiIndex, key);
+          return Arrays.binarySearch(keys.buffer, index, hiIndex + 1, key);
         }
         index = hiIndex;
         jump <<= 1;
-      } while (index < keys.size());
+      } while (index < keys.size() - 1);
       return -keys.size() - 1;
     }
   }
