@@ -1,3 +1,7 @@
+// Explicit lookup: script plugins don't get the generated catalog accessor and
+// implicit resolution against the root project is deprecated in Gradle 10.
+def libs = rootProject.libs
+
 allprojects {
   apply plugin: libs.plugins.dependencychecks.get().pluginId
 
@@ -42,6 +46,13 @@ allprojects {
 // Configure version catalog cleanups plugin.
 configure(rootProject) {
   apply plugin: libs.plugins.versionCatalogUpdate.get().pluginId
+
+  tasks.named("dependencyUpdates").configure {
+    rejectVersionIf {
+      // Ignore assertj milestone releases (4.0.0-M1, etc.).
+      candidate.group == "org.assertj" && candidate.version ==~ /.*-M\d+/
+    }
+  }
 
   versionCatalogUpdate {
     sortByKey = true

@@ -1,8 +1,9 @@
-configure(rootProject) {
-  ext {
-    licenseHeader = rootProject.file('gradle/validation/spotless/license-header.txt')
-  }
+// Explicit lookups: implicit resolution against the root project is deprecated
+// in Gradle 10.
+def libs = rootProject.libs
+def licenseHeader = rootProject.file('gradle/validation/spotless/license-header.txt')
 
+configure(rootProject) {
   tasks.register("tidy") {}
 }
 
