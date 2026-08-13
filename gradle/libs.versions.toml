@@ -15,7 +15,7 @@ koloboke = "1.0.0"
 # @keep This is the minimum required Java version.
 minJava = "21"
 randomizedtesting-jupiter = "0.3.0"
-velocity = "2.3"
+velocity = "2.4.1"
 
 [libraries]
 antlr-base = { module = "org.antlr:antlr4", version.ref = "antlr" }

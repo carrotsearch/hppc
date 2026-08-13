@@ -43,6 +43,13 @@ allprojects {
 configure(rootProject) {
   apply plugin: libs.plugins.versionCatalogUpdate.get().pluginId
 
+  tasks.named("dependencyUpdates").configure {
+    rejectVersionIf {
+      // Ignore assertj milestone releases (4.0.0-M1, etc.).
+      candidate.group == "org.assertj" && candidate.version ==~ /.*-M\d+/
+    }
+  }
+
   versionCatalogUpdate {
     sortByKey = true
 

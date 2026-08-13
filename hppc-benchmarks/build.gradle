@@ -15,6 +15,7 @@ dependencies {
 }
 
 jmh {
+  jmhVersion = libs.versions.jmh
   duplicateClassesStrategy = DuplicatesStrategy.WARN
 }
 

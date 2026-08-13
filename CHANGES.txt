@@ -1,4 +1,10 @@
 
+[0.11.2]
+
+** Other
+
+   GH-xxx: dependency and gradle plugin updates.
+
 [0.11.1]
 
 ** Other
