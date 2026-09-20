@@ -29,3 +29,6 @@ versions.updates.toml
 
 # for composite builds/ testing.
 randomizedtesting-jupiter/
+
+# Claude Code (local settings).
+.claude/settings.local.json
