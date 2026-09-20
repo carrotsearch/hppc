@@ -1,224 +1,68 @@
-import org.apache.hc.client5.http.classic.methods.HttpPost
-import org.apache.hc.client5.http.impl.classic.*
-import org.apache.hc.client5.http.entity.mime.*
-import org.apache.hc.core5.http.ContentType
-
-buildscript {
-  dependencies {
-    classpath libs.httpclient5
-  }
-
-  repositories {
-    mavenCentral()
-  }
-}
+// Publishing to Maven Central (via Sonatype's Central Portal): a bundle upload
+// for releases, the snapshot repository for snapshots.
+//
+//   ./gradlew publishToMavenCentral
+//
+// The plugin itself (MavenCentralPublishingPlugin from buildinfra) is applied in the root
+// build script: buildinfra classes are not visible from script plugins.
+//
+// 'publishLocal' and 'prepareMavenCentralBundle' can be used to inspect
+// what would be published (build/maven, build/maven-bundle).
 
 configure(rootProject) {
-  def mavenBuildRepo = project.layout.buildDirectory.dir("maven").get().asFile
+  mavenCentralPublishing {
+    bundleName = "hppc"
 
-  def published = [
-    ":hppc",
-  ]
+    // Do not generate or publish gradle metadata files.
+    gradleModuleMetadata = false
 
-  tasks.register("mavenLocalClean", Delete, {
-    delete mavenBuildRepo
-  })
+    pom {
+      url = "https://github.com/carrotsearch/hppc"
 
-  tasks.register("publishLocal", {
-    group = "Publishing"
-    description = "Publish Maven artifacts locally to " + file(mavenBuildRepo)
-  })
-
-  tasks.register("isGitClean", {
-    doFirst {
-      if (!rootProject.gitStatus.clean) {
-        throw new GradleException("Seems like your git checkout isn't clean? Can't publish from this state.")
-      }
-    }
-  })
-
-  tasks.register("prepareMavenCentralBundle", Zip, {
-    dependsOn publishLocal
-
-    archiveFileName = "bundle-hppc-${project.version}.zip"
-    destinationDirectory = project.layout.buildDirectory.dir("maven-bundle")
-
-    from(file(mavenBuildRepo))
-  })
-
-  // For releases, uploads a zipped bundle of Maven artifacts via the Central Portal
-  // publisher API. For snapshots, publishes directly to the central snapshots repository.
-  tasks.register("publishToSonatype", {
-    group = "Publishing"
-    description = "Publish Maven artifacts to Sonatype (Maven Central bundle for releases, snapshot repository for snapshots)"
-
-    def snapshotBuild = project.version.endsWith('-SNAPSHOT')
-    def bundleFileProvider = prepareMavenCentralBundle.archiveFile
-    if (!snapshotBuild) {
-      dependsOn isGitClean, prepareMavenCentralBundle
-      inputs.file(bundleFileProvider)
-    }
-
-    onlyIf {
-      project.hasProperty('nexusUsername') &&
-          project.hasProperty('nexusPassword')
-    }
-
-    doFirst {
-      if (snapshotBuild) {
-        // Snapshot artifacts are published by the tasks this one depends on.
-        return
-      }
-
-      def username = project.properties['nexusUsername']
-      def password = project.properties['nexusPassword']
-
-      // Create base64 encoded token for authentication
-      def token = "${username}:${password}".bytes.encodeBase64().toString()
-
-      def bundleFile = bundleFileProvider.get().getAsFile()
-      logger.lifecycle("Bundle: " + bundleFile)
-
-      def deploymentName = URLEncoder.encode("hppc-${project.version}", "UTF-8")
-
-      final CloseableHttpClient client = HttpClients.createDefault()
-      try {
-        final HttpPost post = new HttpPost("https://central.sonatype.com/api/v1/publisher/upload?name=${deploymentName}")
-
-        post.setHeader("Authorization", "Bearer " + token)
-        post.setEntity(
-            MultipartEntityBuilder.create()
-            .addTextBody("publishingType", "AUTOMATIC")
-            .addBinaryBody("bundle", bundleFile, ContentType.APPLICATION_OCTET_STREAM, bundleFile.getName())
-            .build()
-            )
-
-        CloseableHttpResponse response = (CloseableHttpResponse) client.execute(post)
-        try {
-          logger.lifecycle("Status: " + response.getCode())
-          logger.lifecycle("Reason: " + response.getReasonPhrase())
-          if (response.getCode() != 201) {
-            throw new GradleException("Odd response from maven central?")
-          }
-
-          if (response.getEntity() != null) {
-            String responseBody = new String(response.getEntity().getContent().readAllBytes())
-            logger.lifecycle("Deployment ID: " + responseBody)
-          }
-        } finally {
-          response.close()
-        }
-      } finally {
-        client.close()
-      }
-    }
-  })
-
-  configure(subprojects.findAll { it.path in published }) {
-    apply plugin: 'maven-publish'
-    apply plugin: 'signing'
-
-    // Hack: do not generate or publish gradle metadata files.
-    tasks.withType(GenerateModuleMetadata).configureEach {
-      enabled = false
-    }
-
-    plugins.withType(JavaPlugin).configureEach {
-      java {
-        withSourcesJar()
-        withJavadocJar()
-      }
-
-      publishing {
-        repositories {
-          maven {
-            name = 'build'
-            url = mavenBuildRepo
-          }
-
-          maven {
-            name = 'sonatypeSnapshots'
-            url = "https://central.sonatype.com/repository/maven-snapshots/"
-
-            credentials {
-              if (project.hasProperty('nexusUsername')) {
-                username = project.nexusUsername
-              }
-              if (project.hasProperty('nexusPassword')) {
-                password = project.nexusPassword
-              }
-            }
-          }
-        }
-
-        def configurePom = {
-          name = "High Performance Primitive Collections"
-          url = "https://github.com/carrotsearch/hppc"
-          description = "High Performance Primitive Collections: " +
-              "data structures (maps, sets, lists, stacks, queues) generated " +
-              "for combinations of object and primitive types to conserve JVM " +
-              "memory and speed up execution."
-
-          licenses {
-            license {
-              name = 'Apache 2'
-              url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-            }
-          }
-
-          organization {
-            name = "Carrot Search s.c."
-            url = "https://www.carrotsearch.com"
-          }
-
-          developers {
-            developer {
-              id = 'stanislaw.osinski'
-              name = 'Stanisław Osiński'
-              email = 'stanislaw.osinski@carrotsearch.com'
-            }
-            developer {
-              id = 'dawid.weiss'
-              name = 'Dawid Weiss'
-              email = 'dawid.weiss@carrotsearch.com'
-            }
-            developer {
-              id = 'bruno.roustant'
-              name = 'Bruno Roustant'
-              email = 'bruno.roustant@gmail.com'
-            }
-          }
-
-          scm {
-            connection = 'scm:git:git@github.com:carrotsearch/hppc.git'
-            developerConnection = 'scm:git:git@github.com:carrotsearch/hppc.git'
-            url = 'https://github.com/carrotsearch/hppc'
-          }
-        }
-
-        publications {
-          jars(MavenPublication) {
-            from components.java
-            groupId = project.group
-            artifactId = project.base.archivesName.get()
-
-            pom(configurePom)
-          }
+      licenses {
+        license {
+          name = 'Apache 2'
+          url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
         }
       }
 
-      signing {
-        required = { !project.version.endsWith('-SNAPSHOT') }
-        sign publishing.publications.jars
+      organization {
+        name = "Carrot Search s.c."
+        url = "https://www.carrotsearch.com"
       }
 
-      publishJarsPublicationToBuildRepository.dependsOn mavenLocalClean
-      publishLocal.dependsOn publishJarsPublicationToBuildRepository
-
-      if (rootProject.version.endsWith('-SNAPSHOT')) {
-        rootProject.tasks.named('publishToSonatype').configure {
-          dependsOn tasks.named('publishJarsPublicationToSonatypeSnapshotsRepository')
+      developers {
+        developer {
+          id = 'stanislaw.osinski'
+          name = 'Stanisław Osiński'
+          email = 'stanislaw.osinski@carrotsearch.com'
         }
+        developer {
+          id = 'dawid.weiss'
+          name = 'Dawid Weiss'
+          email = 'dawid.weiss@carrotsearch.com'
+        }
+        developer {
+          id = 'bruno.roustant'
+          name = 'Bruno Roustant'
+          email = 'bruno.roustant@gmail.com'
+        }
+      }
+
+      scm {
+        connection = 'scm:git:git@github.com:carrotsearch/hppc.git'
+        developerConnection = 'scm:git:git@github.com:carrotsearch/hppc.git'
+        url = 'https://github.com/carrotsearch/hppc'
+      }
+    }
+
+    project(":hppc") {
+      pom {
+        name = "High Performance Primitive Collections"
+        description = "High Performance Primitive Collections: " +
+            "data structures (maps, sets, lists, stacks, queues) generated " +
+            "for combinations of object and primitive types to conserve JVM " +
+            "memory and speed up execution."
       }
     }
   }

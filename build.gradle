@@ -15,6 +15,9 @@ allprojects {
   apply plugin: com.carrotsearch.gradle.buildinfra.testing.TestingEnvPlugin
 }
 
+// Configured in gradle/publishing/maven.gradle
+apply plugin: com.carrotsearch.gradle.buildinfra.publishing.mavencentral.MavenCentralPublishingPlugin
+
 def projectVersion = buildOptions.addOption("project.version", "Project version number.")
 
 rootProject.version = projectVersion.get()
@@ -29,7 +32,6 @@ apply from: file('gradle/misc/propertyOrDefault.gradle')
 apply from: file('gradle/validation/check-environment.gradle')
 apply from: file('gradle/validation/forbidden-apis.gradle')
 apply from: file('gradle/validation/spotless.gradle')
-apply from: file('gradle/git/gitinfo.gradle')
 apply from: file('gradle/java/compiler.gradle')
 apply from: file('gradle/java/tests.gradle')
 apply from: file('gradle/java/javadoc.gradle')

@@ -29,5 +29,5 @@ Release publishing
 ------------------
 
 ```
-./gradlew publishToSonatype closeSonatypeStagingRepository
+./gradlew publishToMavenCentral
 ```
