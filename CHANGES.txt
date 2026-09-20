@@ -1,15 +1,27 @@
 
-[0.11.2]
+[0.12.0]
+
+** Improvements
+
+   GH-260: RamUsageEstimator now accounts for compressed class pointers and compact
+           object headers (if enabled). (Valentin Slawicek)
+
+** Bugs
+
+   GH-262: Fix KTypePgmIndex.indexOf forward scan reading one past the last key. (gaoflow)
 
 ** Other
 
-   GH-xxx: dependency and gradle plugin updates.
+   GH-263: Dependency and gradle plugin updates. (Dawid Weiss)
+
+       --: Replace manual git status checks with buildinfra's. Publish releases via
+           the sonatype central plugin. (Dawid Weiss)
 
 [0.11.1]
 
 ** Other
 
-   GH-258: sonatype release process updates.
+   GH-258: sonatype release process updates. (Dawid Weiss)
 
 [0.11.0]
 
@@ -17,7 +29,8 @@
 
    GH-255: Gradle upgrade. Dependency upgrades. (Dawid Weiss)
 
-   GH-255: JUnit Platform + JUnit vintage is now used to run the tests.
+   GH-255, GH-256: Tests now run on the JUnit Platform (JUnit 5) with
+           randomizedtesting-jupiter. The junit4 dependency has been removed. (Dawid Weiss)
 
    GH-255: Minimum Java bumped to 21 (from 11). (Dawid Weiss)
 
@@ -36,6 +49,10 @@
 
    GH-244: Hide RamUsageEstimator from the public API. (Dawid Weiss)
 
+   GH-243, GH-223: HPPC is now a proper Java module (with a generated module descriptor).
+           SuppressForbidden has been moved to an internal, non-exported package.
+           (Dawid Weiss)
+
    GH-239: Minimum Java bumped to 11 (from 8). (Dawid Weiss)
 
    GH-235: Drop WormMap and WormSet.
@@ -44,10 +61,15 @@
            WormMap. Dropping them helps to reduce the library size.
            (Bruno Roustant).
 
+   GH-39: Added KTypePgmIndex: a compact learned index over sorted keys, with support
+           for range search. (Bruno Roustant)
+
 ** Improvements
 
    GH-248: List constructor creates a buffer with capacity exactly the expected number of elements.
            (Bruno Roustant)
+
+   GH-236: Document that HashMap supports null keys and values. Add tests. (Bruno Roustant)
 
 ** Bugs
 
