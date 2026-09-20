@@ -169,7 +169,7 @@ javadoc {
   title = "HPPC v${project.version} API Documentation"
 
   (options as StandardJavadocDocletOptions).with {
-    windowTitle = "HPPC v${version} API Documentation"
+    windowTitle = "HPPC v${project.version} API Documentation"
     bottom = "<div id='header'><a class='logo' target='_top' href='https://labs.carrotsearch.com'></a>High Performance Primitive Collections (HPPC) v${project.version} <br>API Documentation</div>"
 
     docFilesSubDirs = true

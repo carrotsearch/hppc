@@ -1,4 +1,10 @@
 
+[0.13.0]
+
+** Other
+
+       --: Fix javadoc window title showing "vfalse" instead of the version. (Dawid Weiss)
+
 [0.12.0]
 
 ** Improvements
