@@ -9,7 +9,13 @@
  */
 package com.carrotsearch.hppc.benchmarks;
 
-import com.carrotsearch.hppc.benchmarks.implementations.*;
+import com.carrotsearch.hppc.benchmarks.implementations.FastutilIntIntMapOps;
+import com.carrotsearch.hppc.benchmarks.implementations.FastutilIntSetOps;
+import com.carrotsearch.hppc.benchmarks.implementations.HppcIntIntMapOps;
+import com.carrotsearch.hppc.benchmarks.implementations.HppcIntSetOps;
+import com.carrotsearch.hppc.benchmarks.implementations.KolobokeIntIntMapOps;
+import com.carrotsearch.hppc.benchmarks.implementations.KolobokeIntSetOps;
+import com.carrotsearch.hppc.benchmarks.implementations.PgmIntSetOps;
 
 /** Benchmarked libraries. */
 public enum Library {

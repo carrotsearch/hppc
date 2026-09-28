@@ -9,7 +9,7 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
 import com.carrotsearch.randomizedtesting.jupiter.generators.RandomPicks;

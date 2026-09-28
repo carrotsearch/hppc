@@ -9,9 +9,17 @@
  */
 package com.carrotsearch.hppc;
 
-import static com.carrotsearch.hppc.HashContainers.*;
+import static com.carrotsearch.hppc.HashContainers.MAX_HASH_ARRAY_LENGTH;
+import static com.carrotsearch.hppc.HashContainers.MAX_LOAD_FACTOR;
+import static com.carrotsearch.hppc.HashContainers.MIN_HASH_ARRAY_LENGTH;
+import static com.carrotsearch.hppc.HashContainers.expandAtCount;
+import static com.carrotsearch.hppc.HashContainers.maxElements;
+import static com.carrotsearch.hppc.HashContainers.minBufferSize;
 import static com.carrotsearch.hppc.TestUtils.newIntegerObject;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
 import java.util.HashSet;

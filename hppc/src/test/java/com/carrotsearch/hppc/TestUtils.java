@@ -9,7 +9,9 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.carrotsearch.hppc.internals.SuppressForbidden;
 import java.util.Arrays;

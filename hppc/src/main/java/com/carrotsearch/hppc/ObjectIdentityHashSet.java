@@ -9,8 +9,8 @@
  */
 package com.carrotsearch.hppc;
 
-import static com.carrotsearch.hppc.Containers.*;
-import static com.carrotsearch.hppc.HashContainers.*;
+import static com.carrotsearch.hppc.Containers.DEFAULT_EXPECTED_ELEMENTS;
+import static com.carrotsearch.hppc.HashContainers.DEFAULT_LOAD_FACTOR;
 
 /** A reference-equality (identity) hash set. */
 public class ObjectIdentityHashSet<KType> extends ObjectHashSet<KType> {

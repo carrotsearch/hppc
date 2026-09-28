@@ -9,7 +9,7 @@
  */
 package com.carrotsearch.hppc.examples;
 
-import static com.carrotsearch.hppc.examples.Helpers.*;
+import static com.carrotsearch.hppc.examples.Helpers.printfln;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.cursors.IntCursor;

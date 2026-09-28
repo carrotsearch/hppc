@@ -15,7 +15,9 @@ import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.carrotsearch.hppc.predicates.LongPredicate;
 import com.carrotsearch.hppc.procedures.IntProcedure;
 import com.carrotsearch.hppc.procedures.LongProcedure;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * An "open" BitSet implementation that allows direct access to the array of words storing the bits.

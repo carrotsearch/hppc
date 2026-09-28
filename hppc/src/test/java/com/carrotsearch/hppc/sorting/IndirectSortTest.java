@@ -10,7 +10,8 @@
 package com.carrotsearch.hppc.sorting;
 
 import static com.carrotsearch.hppc.sorting.SortTest.assertOrder;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.carrotsearch.hppc.XorShift128P;
 import java.util.Random;

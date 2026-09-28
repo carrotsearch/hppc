@@ -9,8 +9,8 @@
  */
 package com.carrotsearch.hppc.examples;
 
-import static com.carrotsearch.hppc.examples.Helpers.*;
-import static org.assertj.core.api.Assertions.*;
+import static com.carrotsearch.hppc.examples.Helpers.printfln;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.cursors.IntLongCursor;

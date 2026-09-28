@@ -10,7 +10,7 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.newIntegerObject;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

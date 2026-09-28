@@ -9,7 +9,12 @@
  */
 package com.carrotsearch.hppc;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.LongCursor;
@@ -17,7 +22,9 @@ import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.carrotsearch.hppc.predicates.LongPredicate;
 import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
 import com.carrotsearch.randomizedtesting.jupiter.generators.RandomNumbers;
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -10,7 +10,9 @@
 package com.carrotsearch.hppc;
 
 import static com.carrotsearch.hppc.TestUtils.newIntegerObject;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.carrotsearch.hppc.internals.SuppressForbidden;
 import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
