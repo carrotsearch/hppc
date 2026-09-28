@@ -28,5 +28,5 @@ randomizedtesting-jupiter = { module = "com.carrotsearch.randomizedtesting:rando
 velocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
 
 [plugins]
-buildinfra = "com.carrotsearch.gradle.buildinfra:0.0.26"
+buildinfra = "com.carrotsearch.gradle.buildinfra:0.0.27"
 jmh = "me.champeau.jmh:0.7.3"
