@@ -9,7 +9,7 @@ configure(rootProject) {
   }
 
   def currentJavaVersion = JavaVersion.current()
-  if (currentJavaVersion < expectedJavaVersion) {
+  if (currentJavaVersion <expectedJavaVersion) {
     throw new GradleException("Java version ${expectedJavaVersion} is required: this Java is ${currentJavaVersion} "
     + "[${System.getProperty('java.vm.name')} ${System.getProperty('java.vm.version')}]")
   }

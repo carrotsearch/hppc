@@ -1,6 +1,5 @@
 plugins {
   id 'java-library'
-  alias(libs.plugins.spotless)
 }
 
 sourceSets {
@@ -58,6 +57,16 @@ task generateTestTemplates(type: GenerateTemplatesTask) {
 }
 
 spotless {
+  java {
+    // Exclude templates and generated files, at least for now.
+    // Templates have comments around imports, which confuses GJF.
+    targetExclude([
+      "build/**",
+      "src/main/templates/**",
+      "src/test/templates/**"
+    ])
+  }
+
   format('templates', com.diffplug.gradle.spotless.JavaExtension, {
     target "$buildDir/generated/main/templates"
 

@@ -9,6 +9,7 @@
  */
 package com.carrotsearch.hppc.sorting;
 
+import com.carrotsearch.hppc.internals.SuppressForbidden;
 import com.carrotsearch.randomizedtesting.jupiter.Randomized;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -71,6 +72,7 @@ public class SortTest {
                     }));
   }
 
+  @SuppressForbidden // timing measurements.
   private void runSortCertification(Random rnd, Algorithm algorithm) {
     int[] n_values = {100, 1023, 1024, 1025, 1024 * 32};
 

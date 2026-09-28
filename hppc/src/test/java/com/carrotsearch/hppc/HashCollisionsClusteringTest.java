@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.internals.SuppressForbidden;
 import com.carrotsearch.randomizedtesting.jupiter.RandomizedTest;
 import java.util.Locale;
 import java.util.Random;
@@ -26,6 +27,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest {
    * @see "https://github.com/carrotsearch/hppc/issues/123"
    */
   @Test
+  @SuppressForbidden // timing measurements.
   public void testHashSetClusteringOnRehash() {
     IntHashSet source = new IntHashSet(0, 0.9d);
     for (int i = 1250000; i-- != 0; ) {
@@ -65,6 +67,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest {
 
   /** */
   @Test
+  @SuppressForbidden // timing measurements.
   public void testHashSetClusteringAtFront() {
     int keys = 500000;
     IntHashSet target =
@@ -116,6 +119,7 @@ public class HashCollisionsClusteringTest extends RandomizedTest {
 
   /** */
   @Test
+  @SuppressForbidden // timing measurements.
   public void testHashSetClusteringAtFront2(Random rnd) {
     int keys = 100000;
     int expected = keys * 5;

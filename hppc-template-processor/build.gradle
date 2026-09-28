@@ -63,3 +63,10 @@ task generateGrammars(type: JavaExec) {
 compileJava {
   dependsOn generateGrammars
 }
+
+spotless {
+  java {
+    // Exclude ANTLR-generated files.
+    targetExclude "build/**"
+  }
+}
