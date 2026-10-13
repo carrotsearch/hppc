@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - "/"
+    open-pull-requests-limit: 25
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    labels: [dependencies]
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
