@@ -1,0 +1,8 @@
+# Configuration for zizmor, see .github/workflows/zizmor.yml.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Our own shared infra actions deliberately track a branch.
+        "carrotsearch/*": ref-pin
+        "*": hash-pin

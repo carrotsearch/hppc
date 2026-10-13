@@ -1,6 +1,6 @@
 name: On Commit Checks
 
-on: 
+on:
   pull_request:
     branches:
       - master
@@ -8,18 +8,25 @@ on:
   push:
     branches:
       - master
-      
+
+# The build only reads the repository.
 permissions:
   contents: read
+
+# A newer push to the same branch or pull request supersedes a run still in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   tests:
     name: gradle check (JDK ${{ matrix.java }} on ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     permissions:
       contents: read
-    
+
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -27,26 +34,27 @@ jobs:
 
     steps:
       - name: Git checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
           java-package: jdk
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
       - name: Tests (./gradlew ... check)
         run: ./gradlew --max-workers 4 check
 
       - name: Store failed test outputs
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: failed-test-outputs-${{ matrix.java }}
           path: '**/OUTPUT-*.txt'

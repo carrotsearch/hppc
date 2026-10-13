@@ -1,0 +1,42 @@
+name: Workflow security
+
+# Audits the GitHub Actions workflows with zizmor whenever anything under .github changes.
+on:
+  push:
+    branches: [master]
+    paths: [".github/**"]
+  pull_request:
+    branches: [master]
+    paths: [".github/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zizmor:
+    name: Audit workflows with zizmor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+
+      - name: Run zizmor
+        # The online audits (impostor commits, known-vulnerable actions, ref confusion) resolve
+        # every referenced action through the GitHub API. All actions used here are public, so the
+        # default workflow token is sufficient; a dedicated ZIZMOR_GH_TOKEN takes precedence when
+        # it is configured.
+        env:
+          ZIZMOR_GH_TOKEN: ${{ secrets.ZIZMOR_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GH_TOKEN="${ZIZMOR_GH_TOKEN:-${GITHUB_TOKEN}}" uvx zizmor==1.30.1 --no-progress --persona=pedantic .github/
