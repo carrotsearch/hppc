@@ -315,6 +315,7 @@ public class BitSet implements Cloneable {
     long bitmask = 1L << bit;
     boolean val = (bits[wordNum] & bitmask) != 0;
     bits[wordNum] |= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return val;
   }
 
@@ -330,6 +331,7 @@ public class BitSet implements Cloneable {
     long bitmask = 1L << bit;
     boolean val = (bits[wordNum] & bitmask) != 0;
     bits[wordNum] |= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return val;
   }
 
@@ -356,6 +358,7 @@ public class BitSet implements Cloneable {
     int bit = index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     bits[wordNum] ^= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return (bits[wordNum] & bitmask) != 0;
   }
 
@@ -370,6 +373,7 @@ public class BitSet implements Cloneable {
     int bit = (int) index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     bits[wordNum] ^= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return (bits[wordNum] & bitmask) != 0;
   }
 
