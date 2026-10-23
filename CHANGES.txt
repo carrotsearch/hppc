@@ -1,6 +1,11 @@
 
 [0.13.0]
 
+** Bugs
+
+       --: Fix BitSet.getAndSet/flipAndGet updates missing from cardinality and
+           iteration after clearing or trimming the set. (Jaehong Park)
+
 ** Other
 
        --: Fix javadoc window title showing "vfalse" instead of the version. (Dawid Weiss)
