@@ -147,7 +147,8 @@ public class KTypePgmIndex<KType> implements Accountable {
     if (Intrinsics.<KType>numeric(key) < Intrinsics.<KType>numeric(firstKey)) {
       return -1;
     }
-    if (Intrinsics.<KType>numeric(key) > Intrinsics.<KType>numeric(lastKey)) {
+    // Negated comparison so that NaN is handled as greater than any key.
+    if (!(Intrinsics.<KType>numeric(key) <= Intrinsics.<KType>numeric(lastKey))) {
       return -keys.size() - 1;
     }
     final int[] segmentData = this.segmentData;
@@ -218,10 +219,10 @@ public class KTypePgmIndex<KType> implements Accountable {
    * It is equal to {@link #indexOf} if {@code x} belongs to the list,
    * or -{@link #indexOf}-1 otherwise.
    *
-   * <p>If multiple elements are equal to the specified key, there is no
-   * guarantee which one will be found.
+   * <p>If multiple elements are equal to the specified key, the index of
+   * the first one is returned.
    *
-   * @return The index of the searched key if it is present;
+   * @return The index of the (first) searched key if it is present;
    *         otherwise, the {@code insertion point}. The
    *         <i>insertion point</i> is defined as the point at which the
    *         key would be inserted into the list: the index of the first
@@ -231,7 +232,7 @@ public class KTypePgmIndex<KType> implements Accountable {
    */
   public int rank(KType x) {
     int index = indexOf(x);
-    return index >= 0 ? index : -index - 1;
+    return index >= 0 ? firstIndexOfEqual(index) : -index - 1;
   }
 
   /**
@@ -241,8 +242,77 @@ public class KTypePgmIndex<KType> implements Accountable {
   public int rangeCardinality(KType minKey, KType maxKey) {
     int fromIndex = rank(minKey);
     int maxIndex = indexOf(maxKey);
-    int toIndex = maxIndex >= 0 ? maxIndex + 1 : -maxIndex - 1;
+    int toIndex = maxIndex >= 0 ? lastIndexOfEqual(maxIndex) + 1 : -maxIndex - 1;
     return Math.max(toIndex - fromIndex, 0);
+  }
+
+  /**
+   * Returns the index of the first key equal to the key at {@code index}.
+   * Uses an exponential search backward, so long runs of duplicates are cheap.
+   */
+  private int firstIndexOfEqual(int index) {
+    final KType[] buffer = Intrinsics.<KType[]>cast(keys.buffer);
+    final KType key = buffer[index];
+    // Invariant: buffer[hi] equals key; buffer[lo] doesn't (or lo == -1).
+    int hi = index;
+    int lo;
+    int jump = 1;
+    while (true) {
+      lo = hi - jump;
+      if (lo < 0) {
+        lo = -1;
+        break;
+      }
+      if (!Intrinsics.<KType>equals(key, buffer[lo])) {
+        break;
+      }
+      hi = lo;
+      jump <<= 1;
+    }
+    while (hi - lo > 1) {
+      int mid = (lo + hi) >>> 1;
+      if (Intrinsics.<KType>equals(key, buffer[mid])) {
+        hi = mid;
+      } else {
+        lo = mid;
+      }
+    }
+    return hi;
+  }
+
+  /**
+   * Returns the index of the last key equal to the key at {@code index}.
+   * Uses an exponential search forward, so long runs of duplicates are cheap.
+   */
+  private int lastIndexOfEqual(int index) {
+    final KType[] buffer = Intrinsics.<KType[]>cast(keys.buffer);
+    final int size = keys.size();
+    final KType key = buffer[index];
+    // Invariant: buffer[lo] equals key; buffer[hi] doesn't (or hi == size).
+    int lo = index;
+    int hi;
+    int jump = 1;
+    while (true) {
+      hi = lo + jump;
+      if (hi >= size) {
+        hi = size;
+        break;
+      }
+      if (!Intrinsics.<KType>equals(key, buffer[hi])) {
+        break;
+      }
+      lo = hi;
+      jump <<= 1;
+    }
+    while (hi - lo > 1) {
+      int mid = (lo + hi) >>> 1;
+      if (Intrinsics.<KType>equals(key, buffer[mid])) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    return lo;
   }
 
   /**
@@ -310,14 +380,15 @@ public class KTypePgmIndex<KType> implements Accountable {
     int level = levelOffsets.length - 1;
     int segmentDataIndex = levelOffsets[level] * SEGMENT_DATA_SIZE;
     while (--level >= 0) {
+      // Each level ends with a sentinel segment (at index levelNumSegments), it must never be selected.
+      final int levelNumSegments = levelOffsets[level + 1] - levelOffsets[level] - 1;
       int nextIntercept = (int) getIntercept(segmentDataIndex + SEGMENT_DATA_SIZE, segmentData);
-      int index = Math.min(approximateIndex(key, segmentDataIndex, segmentData), nextIntercept);
-      assert index >= 0 && index <= levelOffsets[level + 1] - levelOffsets[level] - 1;
+      int index = Math.min(Math.min(approximateIndex(key, segmentDataIndex, segmentData), nextIntercept), levelNumSegments - 1);
+      assert index >= 0 && index < levelNumSegments;
       int sdIndex = (levelOffsets[level] + index) * SEGMENT_DATA_SIZE;
       if (Intrinsics.<KType>numeric(getKey(sdIndex, segmentData)) <= Intrinsics.<KType>numeric(key)) {
         // Scan sequentially segments after the approximated index, within the epsilon range.
-        final int levelNumSegments = levelOffsets[level + 1] - levelOffsets[level] - 1;
-        final int toIndex = Math.min(index + epsilonRecursive + 3, levelNumSegments);
+        final int toIndex = Math.min(index + epsilonRecursive + 3, levelNumSegments - 1);
         while (index++ < toIndex
           && Intrinsics.<KType>numeric(getKey(sdIndex + SEGMENT_DATA_SIZE, segmentData)) <= Intrinsics.<KType>numeric(key)) {
           sdIndex += SEGMENT_DATA_SIZE;
@@ -470,8 +541,9 @@ public class KTypePgmIndex<KType> implements Accountable {
         return (KTypePgmIndex<KType>) EMPTY;
       }
       plam = new PlaModel(epsilon);
+      numSegments = 0;
 
-      int segmentsInitialCapacity = Math.min(Math.max(keys.size() / (2 * epsilon * epsilon) * SEGMENT_DATA_SIZE, 16), 1 << 19);
+      int segmentsInitialCapacity = (int) Math.min(Math.max(keys.size() / (2L * epsilon * epsilon) * SEGMENT_DATA_SIZE, 16), 1 << 19);
       segmentData = new IntArrayList(segmentsInitialCapacity);
       IntArrayList levelOffsets = new IntArrayList(16);
 
@@ -500,14 +572,21 @@ public class KTypePgmIndex<KType> implements Accountable {
       int numKeys = keys.size();
       int size = 0;
       KType key = keys.get(0);
+      double numericKey = Intrinsics.<KType>numeric(key);
       size++;
-      plam.addKey(Intrinsics.<KType>numeric(key), 0, this);
+      plam.addKey(numericKey, 0, this);
       for (int i = 1; i < numKeys; i++) {
         KType nextKey = keys.get(i);
         if (!Intrinsics.<KType>equals(nextKey, key)) {
           key = nextKey;
-          plam.addKey(Intrinsics.<KType>numeric(key), i, this);
           size++;
+          // Distinct keys can have the same double value (-0.0 and 0.0, longs beyond 2^53).
+          // The model maps such keys to the position of the first one.
+          double nextNumericKey = Intrinsics.<KType>numeric(key);
+          if (nextNumericKey != numericKey) {
+            numericKey = nextNumericKey;
+            plam.addKey(numericKey, i, this);
+          }
         }
       }
       plam.finish(this);
