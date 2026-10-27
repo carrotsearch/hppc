@@ -74,34 +74,6 @@ public class BitSetTest extends RandomizedTest {
     }
   }
 
-  /** getAndSet and flipAndGet must update the set size so that other methods see the bit. */
-  @Test
-  public void testGetAndSetFlipAndGetUpdateSize() {
-    BitSet bs = new BitSet(128);
-    assertFalse(bs.getAndSet(3));
-    assertTrue(bs.getAndSet(3));
-    assertTrue(bs.flipAndGet(100L));
-    assertFalse(bs.getAndSet(70L));
-    assertEquals(3, bs.cardinality());
-    assertEquals(3, bs.nextSetBit(0));
-    assertEquals("{3, 70, 100}", bs.toString());
-
-    BitSet expected = new BitSet();
-    expected.set(3);
-    expected.set(70);
-    expected.set(100);
-    assertEquals(expected, bs);
-    assertEquals(expected.hashCode(), bs.hashCode());
-
-    // Beyond the current capacity.
-    bs = new BitSet(64);
-    assertTrue(bs.flipAndGet(500));
-    assertFalse(bs.flipAndGet(500L));
-    assertFalse(bs.getAndSet(1000L));
-    assertEquals(1, bs.cardinality());
-    assertEquals(1000, bs.nextSetBit(0));
-  }
-
   /** */
   @Test
   public void testHashCodeEquals() {
@@ -112,6 +84,66 @@ public class BitSetTest extends RandomizedTest {
 
     assertEquals(bs1, bs2);
     assertEquals(bs1.hashCode(), bs2.hashCode());
+  }
+
+  @Test
+  public void testGetAndSetAfterClear() {
+    hppc = new BitSet(128);
+    hppc.clear();
+    assertFalse(hppc.getAndSet(0));
+    jre.set(0);
+    assertSame(jre, hppc);
+    assertTrue(hppc.getAndSet(0));
+    assertSame(jre, hppc);
+  }
+
+  @Test
+  public void testGetAndSetLongAfterLength() {
+    hppc = new BitSet(128);
+    assertEquals(0, hppc.length());
+    assertFalse(hppc.getAndSet(64L));
+    jre.set(64);
+    assertSame(jre, hppc);
+    assertTrue(hppc.getAndSet(64L));
+    assertSame(jre, hppc);
+  }
+
+  @Test
+  public void testFlipAndGetAfterClear() {
+    hppc = new BitSet(128);
+    hppc.clear();
+    assertTrue(hppc.flipAndGet(63));
+    jre.set(63);
+    assertSame(jre, hppc);
+    assertFalse(hppc.flipAndGet(63));
+    jre.clear(63);
+    assertSame(jre, hppc);
+  }
+
+  @Test
+  public void testFlipAndGetLongAfterLength() {
+    hppc = new BitSet(128);
+    assertEquals(0, hppc.length());
+    assertTrue(hppc.flipAndGet(64L));
+    jre.set(64);
+    assertSame(jre, hppc);
+    assertFalse(hppc.flipAndGet(64L));
+    jre.clear(64);
+    assertSame(jre, hppc);
+  }
+
+  @Test
+  public void testGetAndSetAfterEnsureCapacity() {
+    hppc.set(0);
+    hppc.ensureCapacity(256);
+    long[] buffer = hppc.bits;
+    assertFalse(hppc.getAndSet(255));
+    jre.set(0);
+    jre.set(255);
+    assertSame(jre, hppc);
+    assertTrue(buffer == hppc.bits);
+    assertIntLookupContainer(jre, hppc.asIntLookupContainer());
+    assertLongLookupContainer(jre, hppc.asLongLookupContainer());
   }
 
   /** Assert that the two bitsets are identical. */

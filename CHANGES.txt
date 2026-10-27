@@ -3,10 +3,12 @@
 
 ** Bugs
 
-   GH-267: Fix BitSet.getAndSet/flipAndGet not updating the set size, stale values in
-           KTypeArrayList.resize, hash container removeAll applying the predicate twice
-           to some keys and list/deque removeAll(KType) leaving the container corrupted
-           if equals throws. (Dawid Weiss)
+   GH-267: Fix stale values in KTypeArrayList.resize, hash container removeAll applying
+           the predicate twice to some keys and list/deque removeAll(KType) leaving the
+           container corrupted if equals throws. (Dawid Weiss)
+
+       --: Fix BitSet.getAndSet/flipAndGet updates missing from cardinality and
+           iteration after clearing or trimming the set. (Jaehong Park)
 
 ** Other
 

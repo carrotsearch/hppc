@@ -304,32 +304,34 @@ public class BitSet implements Cloneable {
   }
 
   /**
-   * Sets a bit and returns the previous value, expanding the set size if necessary.
+   * Sets a bit and returns the previous value. The index should be less than the BitSet size.
    *
    * @param index the index to set
    * @return previous state of the index
    */
   public boolean getAndSet(int index) {
-    int wordNum = expandingWordNum(index);
+    int wordNum = index >> 6; // div 64
     int bit = index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     boolean val = (bits[wordNum] & bitmask) != 0;
     bits[wordNum] |= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return val;
   }
 
   /**
-   * Sets a bit and returns the previous value, expanding the set size if necessary.
+   * Sets a bit and returns the previous value. The index should be less than the BitSet size.
    *
    * @param index the index to set
    * @return previous state of the index
    */
   public boolean getAndSet(long index) {
-    int wordNum = expandingWordNum(index);
+    int wordNum = (int) (index >> 6); // div 64
     int bit = (int) index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     boolean val = (bits[wordNum] & bitmask) != 0;
     bits[wordNum] |= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return val;
   }
 
@@ -346,30 +348,32 @@ public class BitSet implements Cloneable {
   }
 
   /**
-   * Flips a bit and returns the resulting bit value, expanding the set size if necessary.
+   * flips a bit and returns the resulting bit value. The index should be less than the BitSet size.
    *
    * @param index the index to flip
    * @return the new state of the index
    */
   public boolean flipAndGet(int index) {
-    int wordNum = expandingWordNum(index);
+    int wordNum = index >> 6; // div 64
     int bit = index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     bits[wordNum] ^= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return (bits[wordNum] & bitmask) != 0;
   }
 
   /**
-   * Flips a bit and returns the resulting bit value, expanding the set size if necessary.
+   * flips a bit and returns the resulting bit value. The index should be less than the BitSet size.
    *
    * @param index the index to flip
    * @return the new state of the index
    */
   public boolean flipAndGet(long index) {
-    int wordNum = expandingWordNum(index);
+    int wordNum = (int) (index >> 6); // div 64
     int bit = (int) index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     bits[wordNum] ^= bitmask;
+    wlen = Math.max(wlen, wordNum + 1);
     return (bits[wordNum] & bitmask) != 0;
   }
 
