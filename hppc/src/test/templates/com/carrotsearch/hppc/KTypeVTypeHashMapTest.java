@@ -457,6 +457,67 @@ public class KTypeVTypeHashMapTest<KType, VType> extends AbstractKTypeVTypeTest<
 
     /* */
     @Test
+    public void testRemoveAllVisitsEachKeyOnce(Random rnd)
+    {
+        // Removals shift conflicting keys; this must never cause a key to be checked twice
+        // (or skipped), regardless of where clusters wrap around the end of the buffer.
+        for (int round = 0; round < 500; round++) {
+            final KTypeVTypeHashMap<KType, VType> map = new KTypeVTypeHashMap<>();
+            final int n = randomIntInRange(rnd, 1, 30);
+            while (map.size() < n) {
+                map.put(cast(randomIntInRange(rnd, 1, 1000)), value1);
+            }
+
+            final KTypeHashSet<KType> seen = new KTypeHashSet<>();
+            final KTypeHashSet<KType> removed = new KTypeHashSet<>();
+            final KTypeHashSet<KType> expected = new KTypeHashSet<>(map.keys());
+            final KTypePredicate<KType> predicate = new KTypePredicate<KType>() {
+                public boolean apply(KType key) {
+                    assertTrue(seen.add(key), "Key checked more than once: " + key);
+                    if (rnd.nextBoolean()) {
+                        removed.add(key);
+                        return true;
+                    }
+                    return false;
+                }
+            };
+
+            final int removedCount;
+            switch (rnd.nextInt(3)) {
+                case 0:
+                    removedCount = map.removeAll(predicate);
+                    break;
+                case 1:
+                    removedCount = map.removeAll(new KTypeVTypePredicate<KType, VType>() {
+                        public boolean apply(KType key, VType value) {
+                            return predicate.apply(key);
+                        }
+                    });
+                    break;
+                default:
+                    // Lookup container at least as large as the map takes the in-place sweep path.
+                    final KTypeHashSet<KType> other = new KTypeHashSet<KType>() {
+                        @Override
+                        public boolean contains(KType key) {
+                            return predicate.apply(key);
+                        }
+                    };
+                    for (int i = 0; i < n; i++) {
+                        other.add(cast(1001 + i));
+                    }
+                    removedCount = map.removeAll(other);
+                    break;
+            }
+
+            assertEquals(removed.size(), removedCount);
+            assertEquals(n, seen.size());
+            expected.removeAll(removed);
+            assertEquals(expected, new KTypeHashSet<>(map.keys()));
+        }
+    }
+
+    /* */
+    @Test
     public void testRemoveAllWithKeyValuePredicate()
     {
         map.put(keyE, value1);

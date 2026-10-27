@@ -390,6 +390,49 @@ public class KTypeArrayDequeTest<KType> extends AbstractKTypeTest<KType>
         assertEquals(4, deque.size());
     }
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testRemoveAllWithThrowingEquals()
+    {
+        deque.addLast(newArray(k0, k1, k2, k3));
+
+        final RuntimeException t = new RuntimeException();
+        final Object probe = new Object()
+        {
+            int calls;
+
+            @Override
+            public boolean equals(Object o)
+            {
+                if (++calls == 4) throw t;
+                return o == key1;
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return 0;
+            }
+        };
+
+        try
+        {
+            deque.removeAll((KType) probe);
+            fail();
+        }
+        catch (RuntimeException e)
+        {
+            // Make sure it's really our exception...
+            if (e != t) throw e;
+        }
+
+        // key1 removed before the exception, nothing else lost or duplicated.
+        assertListEquals(deque.toArray(), 0, 2, 3);
+        assertEquals(3, deque.size());
+    }
+    /*! #end !*/
+
     /* */
     @Test
     public void testClear()

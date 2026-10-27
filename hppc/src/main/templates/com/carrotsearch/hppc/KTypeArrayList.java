@@ -310,22 +310,36 @@ public class KTypeArrayList<KType>
    */
   @Override
   public int removeAll(KType e1) {
+    final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
+    final int elementsCount = this.elementsCount;
     int to = 0;
-    for (int from = 0; from < elementsCount; from++) {
-      if (Intrinsics.equals(this, e1, buffer[from])) {
-        continue;
+    int from = 0;
+    try {
+      for (; from < elementsCount; from++) {
+        if (Intrinsics.equals(this, e1, buffer[from])) {
+          continue;
+        }
+        if (to != from) {
+          buffer[to] = buffer[from];
+        }
+        to++;
       }
-      if (to != from) {
-        buffer[to] = buffer[from];
+    } finally {
+      // Keep the list in a consistent state, even if equals throws an exception.
+      for (; from < elementsCount; from++) {
+        if (to != from) {
+          buffer[to] = buffer[from];
+        }
+        to++;
       }
-      to++;
+
+      this.elementsCount = to;
+      /* #if ($TemplateOptions.KTypeGeneric) */
+      Arrays.fill(buffer, to, elementsCount, Intrinsics.empty());
+      /* #end */
     }
-    final int deleted = elementsCount - to;
-    this.elementsCount = to;
-    /* #if ($TemplateOptions.KTypeGeneric) */
-    Arrays.fill(buffer, elementsCount, elementsCount + deleted, Intrinsics.empty());
-    /* #end */
-    return deleted;
+
+    return elementsCount - to;
   }
 
   /**
@@ -417,6 +431,9 @@ public class KTypeArrayList<KType>
         Arrays.fill(buffer, elementsCount, newSize, Intrinsics.empty());
       }
     } else {
+      // The old buffer may contain stale values past elementsCount (removals don't clear them
+      // for primitive types) and these would be copied over to the new buffer.
+      Arrays.fill(buffer, elementsCount, buffer.length, Intrinsics.empty());
       ensureCapacity(newSize);
     }
     this.elementsCount = newSize;

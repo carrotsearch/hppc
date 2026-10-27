@@ -356,6 +356,65 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
         assertEquals(before, resizer.growCalls);
     }
 
+    /*! #if ($TemplateOptions.KTypeGeneric) !*/
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testRemoveAllWithThrowingEquals()
+    {
+        list.add(newArray(k0, k1, k2, k3));
+
+        final RuntimeException t = new RuntimeException();
+        final Object probe = new Object()
+        {
+            int calls;
+
+            @Override
+            public boolean equals(Object o)
+            {
+                if (++calls == 4) throw t;
+                return o == key1;
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return 0;
+            }
+        };
+
+        try
+        {
+            list.removeAll((KType) probe);
+            fail();
+        }
+        catch (RuntimeException e)
+        {
+            // Make sure it's really our exception...
+            if (e != t) throw e;
+        }
+
+        // key1 removed before the exception, nothing else lost or duplicated.
+        assertListEquals(list.toArray(), 0, 2, 3);
+        assertEquals(3, list.size());
+    }
+    /*! #end !*/
+
+    @Test
+    public void testResizeExpandsWithEmptyValues()
+    {
+        list = KTypeArrayList.from(k1, k2, k3);
+        list.removeLast();
+        // Force buffer reallocation, the removed element must not reappear.
+        final int newSize = list.buffer.length + 1;
+        list.resize(newSize);
+        assertEquals(newSize, list.size());
+        assertEquals2(k1, list.get(0));
+        assertEquals2(k2, list.get(1));
+        for (int i = 2; i < list.size(); i++) {
+            assertEquals2(Intrinsics.<KType> empty(), list.get(i));
+        }
+    }
+
     @Test
     public void testResizeAndCleanBuffer()
     {

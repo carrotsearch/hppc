@@ -304,13 +304,13 @@ public class BitSet implements Cloneable {
   }
 
   /**
-   * Sets a bit and returns the previous value. The index should be less than the BitSet size.
+   * Sets a bit and returns the previous value, expanding the set size if necessary.
    *
    * @param index the index to set
    * @return previous state of the index
    */
   public boolean getAndSet(int index) {
-    int wordNum = index >> 6; // div 64
+    int wordNum = expandingWordNum(index);
     int bit = index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     boolean val = (bits[wordNum] & bitmask) != 0;
@@ -319,13 +319,13 @@ public class BitSet implements Cloneable {
   }
 
   /**
-   * Sets a bit and returns the previous value. The index should be less than the BitSet size.
+   * Sets a bit and returns the previous value, expanding the set size if necessary.
    *
    * @param index the index to set
    * @return previous state of the index
    */
   public boolean getAndSet(long index) {
-    int wordNum = (int) (index >> 6); // div 64
+    int wordNum = expandingWordNum(index);
     int bit = (int) index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     boolean val = (bits[wordNum] & bitmask) != 0;
@@ -346,13 +346,13 @@ public class BitSet implements Cloneable {
   }
 
   /**
-   * flips a bit and returns the resulting bit value. The index should be less than the BitSet size.
+   * Flips a bit and returns the resulting bit value, expanding the set size if necessary.
    *
    * @param index the index to flip
-   * @return previous state of the index
+   * @return the new state of the index
    */
   public boolean flipAndGet(int index) {
-    int wordNum = index >> 6; // div 64
+    int wordNum = expandingWordNum(index);
     int bit = index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     bits[wordNum] ^= bitmask;
@@ -360,13 +360,13 @@ public class BitSet implements Cloneable {
   }
 
   /**
-   * flips a bit and returns the resulting bit value. The index should be less than the BitSet size.
+   * Flips a bit and returns the resulting bit value, expanding the set size if necessary.
    *
    * @param index the index to flip
-   * @return previous state of the index
+   * @return the new state of the index
    */
   public boolean flipAndGet(long index) {
-    int wordNum = (int) (index >> 6); // div 64
+    int wordNum = expandingWordNum(index);
     int bit = (int) index & 0x3f; // mod 64
     long bitmask = 1L << bit;
     bits[wordNum] ^= bitmask;

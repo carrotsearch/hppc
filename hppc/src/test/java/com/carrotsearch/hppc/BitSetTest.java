@@ -74,6 +74,34 @@ public class BitSetTest extends RandomizedTest {
     }
   }
 
+  /** getAndSet and flipAndGet must update the set size so that other methods see the bit. */
+  @Test
+  public void testGetAndSetFlipAndGetUpdateSize() {
+    BitSet bs = new BitSet(128);
+    assertFalse(bs.getAndSet(3));
+    assertTrue(bs.getAndSet(3));
+    assertTrue(bs.flipAndGet(100L));
+    assertFalse(bs.getAndSet(70L));
+    assertEquals(3, bs.cardinality());
+    assertEquals(3, bs.nextSetBit(0));
+    assertEquals("{3, 70, 100}", bs.toString());
+
+    BitSet expected = new BitSet();
+    expected.set(3);
+    expected.set(70);
+    expected.set(100);
+    assertEquals(expected, bs);
+    assertEquals(expected.hashCode(), bs.hashCode());
+
+    // Beyond the current capacity.
+    bs = new BitSet(64);
+    assertTrue(bs.flipAndGet(500));
+    assertFalse(bs.flipAndGet(500L));
+    assertFalse(bs.getAndSet(1000L));
+    assertEquals(1, bs.cardinality());
+    assertEquals(1000, bs.nextSetBit(0));
+  }
+
   /** */
   @Test
   public void testHashCodeEquals() {

@@ -371,6 +371,57 @@ public class KTypeHashSetTest<KType> extends AbstractKTypeTest<KType>
 
     /* */
     @Test
+    public void testRemoveAllVisitsEachKeyOnce(Random rnd)
+    {
+        // Removals shift conflicting keys; this must never cause a key to be checked twice
+        // (or skipped), regardless of where clusters wrap around the end of the buffer.
+        for (int round = 0; round < 500; round++) {
+            final KTypeHashSet<KType> set = new KTypeHashSet<>();
+            final int n = randomIntInRange(rnd, 1, 30);
+            while (set.size() < n) {
+                set.add(cast(randomIntInRange(rnd, 1, 1000)));
+            }
+
+            final KTypeHashSet<KType> seen = new KTypeHashSet<>();
+            final KTypeHashSet<KType> removed = new KTypeHashSet<>();
+            final KTypeHashSet<KType> expected = new KTypeHashSet<>(set);
+            final KTypePredicate<KType> predicate = new KTypePredicate<KType>() {
+                public boolean apply(KType key) {
+                    assertTrue(seen.add(key), "Key checked more than once: " + key);
+                    if (rnd.nextBoolean()) {
+                        removed.add(key);
+                        return true;
+                    }
+                    return false;
+                }
+            };
+
+            final int removedCount;
+            if (rnd.nextBoolean()) {
+                removedCount = set.removeAll(predicate);
+            } else {
+                // Lookup container at least as large as the set takes the in-place sweep path.
+                final KTypeHashSet<KType> other = new KTypeHashSet<KType>() {
+                    @Override
+                    public boolean contains(KType key) {
+                        return predicate.apply(key);
+                    }
+                };
+                for (int i = 0; i < n; i++) {
+                    other.add(cast(1001 + i));
+                }
+                removedCount = set.removeAll(other);
+            }
+
+            assertEquals(removed.size(), removedCount);
+            assertEquals(n, seen.size());
+            expected.removeAll(removed);
+            assertEquals(expected, set);
+        }
+    }
+
+    /* */
+    @Test
     public void testClear()
     {
         set.addAll(asArray(1, 2, 3));

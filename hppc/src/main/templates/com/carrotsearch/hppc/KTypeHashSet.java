@@ -267,13 +267,17 @@ public class KTypeHashSet<KType>
       }
 
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      for (int slot = 0, max = this.mask; slot <= max;) {
+      final int mask = this.mask;
+      // Start right after an empty slot: shifting keys on removal never crosses an empty
+      // slot, so already visited keys are never moved (and visited) again.
+      for (int i = 0, slot = (anyEmptySlot() + 1) & mask; i < mask;) {
         KType existing;
         if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && other.contains(existing)) {
           // Shift, do not increment slot.
           shiftConflictingKeys(slot);
         } else {
-          slot++;
+          slot = (slot + 1) & mask;
+          i++;
         }
       }
     } else {
@@ -299,15 +303,19 @@ public class KTypeHashSet<KType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max;) {
+    final int mask = this.mask;
+    // Start right after an empty slot: shifting keys on removal never crosses an empty
+    // slot, so already visited keys are never moved (and visited) again.
+    for (int i = 0, slot = (anyEmptySlot() + 1) & mask; i < mask;) {
       KType existing;
       if (!Intrinsics.isEmpty(existing = keys[slot])) {
         if (predicate.apply(existing)) {
           shiftConflictingKeys(slot);
-          continue; // Repeat the check for the same slot i (shifted).
+          continue; // Repeat the check for the same slot (shifted).
         }
       }
-      slot++;
+      slot = (slot + 1) & mask;
+      i++;
     }
 
     return before - size();
@@ -843,6 +851,20 @@ public class KTypeHashSet<KType>
 
     // Rehash old keys, including the pending key.
     rehash(prevKeys);
+  }
+
+  /**
+   * Returns the index of an empty slot in {@link #keys}. There is always at least one
+   * (the load factor guarantees it).
+   */
+  private int anyEmptySlot() {
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+    int slot = 0;
+    while (!Intrinsics.<KType> isEmpty(keys[slot])) {
+      slot++;
+    }
+    assert slot <= mask;
+    return slot;
   }
 
   /**

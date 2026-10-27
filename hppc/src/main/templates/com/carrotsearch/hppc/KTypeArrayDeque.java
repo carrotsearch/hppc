@@ -349,26 +349,40 @@ public class KTypeArrayDeque<KType>
    */
   @Override
   public int removeAll(KType e1) {
-    int removed = 0;
+    final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
     final int last = tail;
     final int bufLen = buffer.length;
+    int removed = 0;
     int from, to;
-    for (from = to = head; from != last; from = oneRight(from, bufLen)) {
-      if (Intrinsics.equals(this, e1, buffer[from])) {
-        buffer[from] = Intrinsics.empty();
-        removed++;
-        continue;
-      }
+    from = to = head;
+    try {
+      for (; from != last; from = oneRight(from, bufLen)) {
+        if (Intrinsics.equals(this, e1, buffer[from])) {
+          buffer[from] = Intrinsics.empty();
+          removed++;
+          continue;
+        }
 
-      if (to != from) {
-        buffer[to] = buffer[from];
-        buffer[from] = Intrinsics.empty();
-      }
+        if (to != from) {
+          buffer[to] = buffer[from];
+          buffer[from] = Intrinsics.empty();
+        }
 
-      to = oneRight(to, bufLen);
+        to = oneRight(to, bufLen);
+      }
+    } finally {
+      // Keep the deque in consistent state even if equals throws an exception.
+      for (; from != last; from = oneRight(from, bufLen)) {
+        if (to != from) {
+          buffer[to] = buffer[from];
+          buffer[from] = Intrinsics.empty();
+        }
+
+        to = oneRight(to, bufLen);
+      }
+      tail = to;
     }
 
-    tail = to;
     return removed;
   }
 
