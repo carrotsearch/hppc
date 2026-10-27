@@ -187,8 +187,8 @@ public class KTypeVTypeHashMap<KType, VType>
 
   /*! #if ($TemplateOptions.VTypePrimitive) !*/
   /**
-   * If <code>key</code> exists, <code>putValue</code> is inserted into the map,
-   * otherwise any existing value is incremented by <code>additionValue</code>.
+   * If <code>key</code> exists, its value is incremented by <code>incrementValue</code>,
+   * otherwise <code>putValue</code> is inserted into the map.
    * 
    * @param key
    *          The key of the value to adjust.

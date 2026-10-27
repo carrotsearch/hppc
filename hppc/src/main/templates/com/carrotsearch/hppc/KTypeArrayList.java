@@ -393,10 +393,11 @@ public class KTypeArrayList<KType>
    */
   protected void ensureBufferSpace(int expectedAdditions) {
     final int bufferLen = (buffer == null ? 0 : buffer.length);
-    if (elementsCount + expectedAdditions > bufferLen) {
+    final int requiredSize = Math.toIntExact((long) elementsCount + expectedAdditions);
+    if (requiredSize > bufferLen) {
       final int newSize = resizer.grow(bufferLen, elementsCount, expectedAdditions);
-      assert newSize >= elementsCount + expectedAdditions : "Resizer failed to" + " return sensible new size: "
-          + newSize + " <= " + (elementsCount + expectedAdditions);
+      assert newSize >= requiredSize : "Resizer failed to" + " return sensible new size: "
+          + newSize + " <= " + requiredSize;
 
       this.buffer = Arrays.copyOf(buffer, newSize);
     }

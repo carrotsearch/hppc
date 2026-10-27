@@ -488,12 +488,13 @@ public class KTypeArrayDeque<KType>
   protected void ensureBufferSpace(int expectedAdditions) {
     final int bufferLen = buffer.length;
     final int elementsCount = size();
+    final int requiredSize = Math.toIntExact((long) elementsCount + expectedAdditions);
 
-    if (elementsCount + expectedAdditions >= bufferLen) {
+    if (requiredSize >= bufferLen) {
       final int emptySlot = 1; // deque invariant: always an empty slot.
       final int newSize = resizer.grow(bufferLen, elementsCount + emptySlot, expectedAdditions);
-      assert newSize >= (elementsCount + expectedAdditions + emptySlot) : "Resizer failed to"
-          + " return sensible new size: " + newSize + " <= " + (elementsCount + expectedAdditions);
+      assert newSize >= (requiredSize + emptySlot) : "Resizer failed to"
+          + " return sensible new size: " + newSize + " <= " + requiredSize;
 
       try {
         final KType[] newBuffer = Intrinsics.<KType> newArray(newSize);

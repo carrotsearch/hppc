@@ -9,6 +9,9 @@
        --: Fix BitSet.getAndSet/flipAndGet updates missing from cardinality and
            iteration after clearing or trimming the set. (Jaehong Park)
 
+       --: Fix int overflow in KTypeArrayList/KTypeArrayDeque.ensureBufferSpace and
+           correct putOrAdd's javadoc. (Dawid Weiss)
+
 ** Other
 
        --: Fix javadoc window title showing "vfalse" instead of the version. (Dawid Weiss)

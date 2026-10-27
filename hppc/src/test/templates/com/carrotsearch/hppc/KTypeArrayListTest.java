@@ -357,6 +357,18 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     @Test
+    public void testEnsureBufferSpaceOverflow()
+    {
+        list.add(k1);
+        list.elementsCount = Integer.MAX_VALUE - 1;
+        try {
+            assertThrows(ArithmeticException.class, () -> list.ensureBufferSpace(2));
+        } finally {
+            list.elementsCount = 1;
+        }
+    }
+
+    @Test
     public void testResizeExpandsWithEmptyValues()
     {
         list = KTypeArrayList.from(k1, k2, k3);
