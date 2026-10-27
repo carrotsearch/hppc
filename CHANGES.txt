@@ -9,6 +9,10 @@
        --: Fix BitSet.getAndSet/flipAndGet updates missing from cardinality and
            iteration after clearing or trimming the set. (Jaehong Park)
 
+   GH-268: Fix KTypePgmIndex: indexOf failing for the maximum key value, wrong rank and
+           range results with duplicate keys, rejected distinct keys with equal double
+           values, large epsilon overflow, builder reuse and NaN key handling. (Dawid Weiss)
+
        --: Fix int overflow in KTypeArrayList/KTypeArrayDeque.ensureBufferSpace and
            correct putOrAdd's javadoc. (Dawid Weiss)
 
