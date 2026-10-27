@@ -357,6 +357,22 @@ public class KTypeArrayListTest<KType> extends AbstractKTypeTest<KType>
     }
 
     @Test
+    public void testResizeExpandsWithEmptyValues()
+    {
+        list = KTypeArrayList.from(k1, k2, k3);
+        list.removeLast();
+        // Force buffer reallocation, the removed element must not reappear.
+        final int newSize = list.buffer.length + 1;
+        list.resize(newSize);
+        assertEquals(newSize, list.size());
+        assertEquals2(k1, list.get(0));
+        assertEquals2(k2, list.get(1));
+        for (int i = 2; i < list.size(); i++) {
+            assertEquals2(Intrinsics.<KType> empty(), list.get(i));
+        }
+    }
+
+    @Test
     public void testResizeAndCleanBuffer()
     {
         list.ensureCapacity(20);

@@ -417,6 +417,9 @@ public class KTypeArrayList<KType>
         Arrays.fill(buffer, elementsCount, newSize, Intrinsics.empty());
       }
     } else {
+      // The old buffer may contain stale values past elementsCount (removals don't clear them
+      // for primitive types) and these would be copied over to the new buffer.
+      Arrays.fill(buffer, elementsCount, buffer.length, Intrinsics.empty());
       ensureCapacity(newSize);
     }
     this.elementsCount = newSize;

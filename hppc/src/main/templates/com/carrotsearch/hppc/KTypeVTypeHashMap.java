@@ -281,13 +281,17 @@ public class KTypeVTypeHashMap<KType, VType>
       }
 
       final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-      for (int slot = 0, max = this.mask; slot <= max;) {
+      final int mask = this.mask;
+      // Start right after an empty slot: shifting keys on removal never crosses an empty
+      // slot, so already visited keys are never moved (and visited) again.
+      for (int i = 0, slot = (anyEmptySlot() + 1) & mask; i < mask;) {
         KType existing;
         if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && other.contains(existing)) {
           // Shift, do not increment slot.
           shiftConflictingKeys(slot);
         } else {
-          slot++;
+          slot = (slot + 1) & mask;
+          i++;
         }
       }
     } else {
@@ -317,14 +321,17 @@ public class KTypeVTypeHashMap<KType, VType>
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
     final VType[] values = Intrinsics.<VType[]> cast(this.values);
-    for (int slot = 0; slot <= mask;) {
+    // Start right after an empty slot: shifting keys on removal never crosses an empty
+    // slot, so already visited keys are never moved (and visited) again.
+    for (int i = 0, slot = (anyEmptySlot() + 1) & mask; i < mask;) {
       KType existing;
       if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) && 
           predicate.apply(existing, values[slot])) {
         // Shift, do not increment slot.
         shiftConflictingKeys(slot);
       } else {
-        slot++;
+        slot = (slot + 1) & mask;
+        i++;
       }
     }
 
@@ -346,14 +353,18 @@ public class KTypeVTypeHashMap<KType, VType>
     }
 
     final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
-    for (int slot = 0, max = this.mask; slot <= max;) {
+    final int mask = this.mask;
+    // Start right after an empty slot: shifting keys on removal never crosses an empty
+    // slot, so already visited keys are never moved (and visited) again.
+    for (int i = 0, slot = (anyEmptySlot() + 1) & mask; i < mask;) {
       KType existing;
       if (!Intrinsics.<KType> isEmpty(existing = keys[slot]) &&
           predicate.apply(existing)) {
         // Shift, do not increment slot.
         shiftConflictingKeys(slot);
       } else {
-        slot++;
+        slot = (slot + 1) & mask;
+        i++;
       }
     }
 
@@ -1180,6 +1191,20 @@ public class KTypeVTypeHashMap<KType, VType>
     rehash(prevKeys, prevValues);
   }
   
+  /**
+   * Returns the index of an empty slot in {@link #keys}. There is always at least one
+   * (the load factor guarantees it).
+   */
+  private int anyEmptySlot() {
+    final KType[] keys = Intrinsics.<KType[]> cast(this.keys);
+    int slot = 0;
+    while (!Intrinsics.<KType> isEmpty(keys[slot])) {
+      slot++;
+    }
+    assert slot <= mask;
+    return slot;
+  }
+
   /**
    * Shift all the slot-conflicting keys and values allocated to 
    * (and including) <code>slot</code>.

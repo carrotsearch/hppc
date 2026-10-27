@@ -351,7 +351,7 @@ public class BitSet implements Cloneable {
    * flips a bit and returns the resulting bit value. The index should be less than the BitSet size.
    *
    * @param index the index to flip
-   * @return previous state of the index
+   * @return the new state of the index
    */
   public boolean flipAndGet(int index) {
     int wordNum = index >> 6; // div 64
@@ -366,7 +366,7 @@ public class BitSet implements Cloneable {
    * flips a bit and returns the resulting bit value. The index should be less than the BitSet size.
    *
    * @param index the index to flip
-   * @return previous state of the index
+   * @return the new state of the index
    */
   public boolean flipAndGet(long index) {
     int wordNum = (int) (index >> 6); // div 64
