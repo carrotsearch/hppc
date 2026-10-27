@@ -310,36 +310,22 @@ public class KTypeArrayList<KType>
    */
   @Override
   public int removeAll(KType e1) {
-    final KType[] buffer = Intrinsics.<KType[]> cast(this.buffer);
-    final int elementsCount = this.elementsCount;
     int to = 0;
-    int from = 0;
-    try {
-      for (; from < elementsCount; from++) {
-        if (Intrinsics.equals(this, e1, buffer[from])) {
-          continue;
-        }
-        if (to != from) {
-          buffer[to] = buffer[from];
-        }
-        to++;
+    for (int from = 0; from < elementsCount; from++) {
+      if (Intrinsics.equals(this, e1, buffer[from])) {
+        continue;
       }
-    } finally {
-      // Keep the list in a consistent state, even if equals throws an exception.
-      for (; from < elementsCount; from++) {
-        if (to != from) {
-          buffer[to] = buffer[from];
-        }
-        to++;
+      if (to != from) {
+        buffer[to] = buffer[from];
       }
-
-      this.elementsCount = to;
-      /* #if ($TemplateOptions.KTypeGeneric) */
-      Arrays.fill(buffer, to, elementsCount, Intrinsics.empty());
-      /* #end */
+      to++;
     }
-
-    return elementsCount - to;
+    final int deleted = elementsCount - to;
+    this.elementsCount = to;
+    /* #if ($TemplateOptions.KTypeGeneric) */
+    Arrays.fill(buffer, elementsCount, elementsCount + deleted, Intrinsics.empty());
+    /* #end */
+    return deleted;
   }
 
   /**
