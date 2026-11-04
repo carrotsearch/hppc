@@ -6,7 +6,7 @@
    GH-267: Fix stale values in KTypeArrayList.resize and hash container removeAll
            applying the predicate twice to some keys. (Dawid Weiss)
 
-       --: Fix BitSet.getAndSet/flipAndGet updates missing from cardinality and
+   GH-266: Fix BitSet.getAndSet/flipAndGet updates missing from cardinality and
            iteration after clearing or trimming the set. (Jaehong Park)
 
    GH-268: Fix KTypePgmIndex: indexOf failing for the maximum key value, wrong rank and
