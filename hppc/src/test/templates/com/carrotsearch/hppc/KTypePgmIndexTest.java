@@ -254,4 +254,186 @@ public class KTypePgmIndexTest<KType> extends AbstractKTypeTest<KType> {
       }
     }
   }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testIndexOfMaxKeyNeverSelectsSentinelSegment(Random rnd) {
+    // Each segment level ends with a sentinel segment whose key is the maximum value. A key equal
+    // to it must still be located in the last real segment.
+    KType maxKey = Intrinsics.<KType>cast(
+      /*! #if ($TemplateOptions.isKTypeAnyOf("INT")) !*/ Integer.MAX_VALUE /*! #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("LONG")) Long.MAX_VALUE #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("FLOAT")) Float.MAX_VALUE #end !*/
+      /*! #if ($TemplateOptions.isKTypeAnyOf("DOUBLE")) Double.MAX_VALUE #end !*/
+    );
+    for (int round = 0; round < 2000; round++) {
+      int n = 100 + rnd.nextInt(5000);
+      int[] values = new int[n];
+      for (int i = 0; i < n; i++) {
+        values[i] = rnd.nextInt(1 << 30);
+      }
+      Arrays.sort(values);
+      KType[] keys = Intrinsics.<KType>newArray(n + 1);
+      for (int i = 0; i < n; i++) {
+        keys[i] = cast(values[i]);
+      }
+      keys[n] = maxKey;
+      KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+        .setSortedKeys(keys, keys.length).setEpsilon(3).setEpsilonRecursive(3).build();
+      assertEquals(n, pgmIndex.indexOf(maxKey));
+      assertEquals(n, pgmIndex.rank(maxKey));
+      assertEquals(1, pgmIndex.rangeCardinality(maxKey, maxKey));
+    }
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testDuplicateKeysRanges(Random rnd) {
+    KType[] keys = asArray(0, 5, 5, 5, 5, 10);
+    KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+      .setSortedKeys(keys, keys.length).setEpsilon(1).build();
+    assertEquals(3, pgmIndex.size());
+    assertEquals(0, pgmIndex.rank(cast(0)));
+    assertEquals(1, pgmIndex.rank(cast(5)));
+    assertEquals(5, pgmIndex.rank(cast(10)));
+    assertIterator(rnd, 5, 10, pgmIndex, 5, 5, 5, 5, 10);
+    assertIterator(rnd, 0, 5, pgmIndex, 0, 5, 5, 5, 5);
+    assertIterator(rnd, 5, 5, pgmIndex, 5, 5, 5, 5);
+    assertProcedure(5, 10, pgmIndex, 5, 5, 5, 5, 10);
+    assertProcedure(0, 5, pgmIndex, 0, 5, 5, 5, 5);
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testDuplicateKeysAgainstBruteForce(Random rnd) {
+    for (int round = 0; round < 200; round++) {
+      int n = 1 + rnd.nextInt(500);
+      int range = 1 + rnd.nextInt(50);
+      int[] values = new int[n];
+      for (int i = 0; i < n; i++) {
+        values[i] = rnd.nextInt(range);
+      }
+      Arrays.sort(values);
+      KType[] keys = asArray(values);
+      KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+        .setSortedKeys(keys, keys.length).setEpsilon(1 + rnd.nextInt(8)).setEpsilonRecursive(1 + rnd.nextInt(4)).build();
+
+      for (int probe = 0; probe < 100; probe++) {
+        int min = rnd.nextInt(range + 2) - 1;
+        int max = min + rnd.nextInt(range + 2);
+        int smaller = 0;
+        int inRange = 0;
+        for (int v : values) {
+          if (v < min) smaller++;
+          if (v >= min && v <= max) inRange++;
+        }
+        assertEquals(smaller, pgmIndex.rank(cast(min)), "rank(" + min + ")");
+        assertEquals(inRange, pgmIndex.rangeCardinality(cast(min), cast(max)), "range(" + min + ", " + max + ")");
+
+        int iterated = 0;
+        for (Iterator<KTypeCursor<KType>> i = pgmIndex.rangeIterator(cast(min), cast(max)); i.hasNext(); i.next()) {
+          iterated++;
+        }
+        assertEquals(inRange, iterated);
+
+        KTypeArrayList<KType> processed = new KTypeArrayList<>();
+        pgmIndex.forEachInRange(new KTypeProcedure<KType>() {
+          @Override
+          public void apply(KType key) {
+            processed.add(key);
+          }
+        }, cast(min), cast(max));
+        assertEquals(inRange, processed.size());
+      }
+    }
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testLargeEpsilon() {
+    KType[] keys = asArray(1, 2, 3, 5, 8, 13, 21);
+    for (int epsilon : new int[] {65536, 1 << 20}) {
+      KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+        .setSortedKeys(keys, keys.length).setEpsilon(epsilon).build();
+      for (int i = 0; i < keys.length; i++) {
+        assertEquals(i, pgmIndex.indexOf(keys[i]), "epsilon=" + epsilon);
+      }
+    }
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testBuilderReuse(Random rnd) {
+    int n = 5000;
+    int[] values = new int[n];
+    for (int i = 0; i < n; i++) {
+      values[i] = rnd.nextInt(1 << 20);
+    }
+    Arrays.sort(values);
+    KType[] keys = asArray(values);
+    KTypePgmIndex.KTypeBuilder<KType> builder = new KTypePgmIndex.KTypeBuilder<KType>()
+      .setSortedKeys(keys, keys.length).setEpsilon(2);
+    KTypePgmIndex<KType> first = builder.build();
+    KTypePgmIndex<KType> second = builder.build();
+    assertArrayEquals(first.levelOffsets, second.levelOffsets);
+    assertArrayEquals(first.segmentData, second.segmentData);
+    assertEquals(first.size(), second.size());
+    for (KType key : keys) {
+      assertTrue(Intrinsics.<KType>equals(key, keys[second.indexOf(key)]));
+    }
+  }
+
+  /*! #if ($TemplateOptions.isKTypeAnyOf("LONG")) !*/
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testLongKeysBeyondDoublePrecision() {
+    // Distinct longs above 2^53 can have the same double value.
+    final long base = 1L << 53;
+    KType[] keys = Intrinsics.<KType>newArray(200);
+    for (int i = 0; i < keys.length; i++) {
+      keys[i] = Intrinsics.<KType>cast(base + i);
+    }
+    for (int epsilon : new int[] {1, 4, 64}) {
+      KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+        .setSortedKeys(keys, keys.length).setEpsilon(epsilon).build();
+      assertEquals(keys.length, pgmIndex.size());
+      for (int i = 0; i < keys.length; i++) {
+        assertEquals(i, pgmIndex.indexOf(keys[i]), "epsilon=" + epsilon);
+      }
+      assertEquals(-1, pgmIndex.indexOf(Intrinsics.<KType>cast(base - 1)));
+      assertEquals(-keys.length - 1, pgmIndex.indexOf(Intrinsics.<KType>cast(base + keys.length)));
+    }
+  }
+  /*! #end !*/
+
+  /*! #if ($TemplateOptions.isKTypeAnyOf("FLOAT", "DOUBLE")) !*/
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testNegativeAndPositiveZeroKeys() {
+    KType[] keys = newArray(
+      Intrinsics.<KType>cast(-1f), Intrinsics.<KType>cast(-0f), Intrinsics.<KType>cast(0f), Intrinsics.<KType>cast(1f));
+    KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+      .setSortedKeys(keys, keys.length).setEpsilon(1).build();
+    assertEquals(4, pgmIndex.size());
+    for (int i = 0; i < keys.length; i++) {
+      assertEquals(i, pgmIndex.indexOf(keys[i]));
+    }
+  }
+
+  /*! #if ($TemplateOptions.KTypeGeneric) !*/ @Disabled /*! #end !*/
+  @Test
+  public void testNaNKeys() {
+    KType nan = Intrinsics.<KType>cast(Float.NaN);
+    KType[] withNaN = newArray(cast(1), cast(2), nan);
+    KTypePgmIndex.KTypeBuilder<KType> builder = new KTypePgmIndex.KTypeBuilder<KType>()
+      .setSortedKeys(withNaN, withNaN.length);
+    assertThrows(IllegalArgumentException.class, builder::build);
+
+    KType[] keys = newArray(cast(1), cast(2), cast(3));
+    KTypePgmIndex<KType> pgmIndex = new KTypePgmIndex.KTypeBuilder<KType>()
+      .setSortedKeys(keys, keys.length).setEpsilon(1).build();
+    assertEquals(-keys.length - 1, pgmIndex.indexOf(nan));
+    assertFalse(pgmIndex.contains(nan));
+  }
+  /*! #end !*/
 }

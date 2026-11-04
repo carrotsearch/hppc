@@ -99,12 +99,15 @@ public class PlaModel implements Accountable {
 
   /**
    * Adds a key to this PLA-model. The keys must be provided in a strictly increasing sequence. That
-   * is, the key must be greater than the previous key.
+   * is, the key must be greater than the previous key. NaN keys are not allowed.
    *
    * @param index The index of the key in the sorted key list.
    * @param segmentConsumer The consumer to call when a new segment is built in the PLA-model.
    */
   public void addKey(double key, int index, SegmentConsumer segmentConsumer) {
+    if (Double.isNaN(key)) {
+      throw new IllegalArgumentException("Keys must not be NaN");
+    }
     if (key <= previousKey) {
       throw new IllegalArgumentException("Keys must be increasing");
     }
@@ -243,7 +246,9 @@ public class PlaModel implements Accountable {
    * last segment and calls the provided {@link SegmentConsumer}.
    */
   public void finish(SegmentConsumer segmentConsumer) {
-    produceSegment(segmentConsumer);
+    if (numPointsInHull > 0) {
+      produceSegment(segmentConsumer);
+    }
     reset();
   }
 
